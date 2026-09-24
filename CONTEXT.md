@@ -53,7 +53,9 @@ A fresh 3-digit code shown to the Fundi just before recording, to prove the vide
 ### Assessment
 One attempt by a Fundi to prove one Task with **one** in-app video. It carries the Liveness code, the AI's Observations and Verdict, and the Expert's decision. An Assessment moves through these statuses:
 `queued → analyzing → awaiting_review → approved | reshoot | rejected`, plus `failed`.
-- **Reshoot:** the Expert asks for a new video. The Fundi records a **new Assessment** that links back to the previous one, and the old one stays as history.
+- **Reshoot:** a new video is needed. This happens either because the video-quality guard rejected it (too short, too long, too dark, or too low resolution), with a specific reason, or because an Expert asked for one.
+- **Failed:** a *system* error, never the Fundi's fault. Processing is retried once. After two failed attempts the Assessment is `failed`, and the Fundi sees "Something went wrong on our side — please record again".
+- **After a reshoot or failure:** the Fundi records a **new Assessment** that links back to the previous one and has a new Liveness code. The old Assessment stays as history.
 - **Appeal:** only a `rejected` Assessment can be appealed, once, with a reason from the Fundi. It follows `rejected → appealed → approved | rejected`.
 
 ### Appeal
@@ -78,6 +80,25 @@ The public proof that a Fundi's Assessment for one Task was approved. It reads:
 
 ### Verified Fundi
 A Fundi with at least one Badge. Only Verified Fundis appear in the public **Find a fundi** list.
+
+### Video deletion
+A Fundi can delete the video of their own Assessment once it reaches a final status (`approved`, `reshoot`, `rejected` or `failed`). Before that, deletion is blocked with the note "You can delete once review is finished". Deletion removes the video. The decision record and any Badge remain.
+
+### Data Co-op
+A **future** program (on the Roadmap) in which Fundis could earn from their skills. Examples include licensing recordings, paid recording tasks and annotation work. It does not exist in the MVP.
+- Joining the Co-op will need its own specific consent in the Pilot.
+- A verification video is never added to the Co-op after the fact.
+
+*Avoid:* implying the Co-op is live, or quoting any earnings figures.
+
+### Co-op interest
+A Fundi's optional "Tell me when it launches" signal, which is off by default. It means "contact me" and nothing more. It is **not consent** to any use of their videos, and it is kept separate from verification consent.
+
+### Verification consent
+The Fundi's agreement, shown in English and Kiswahili before any upload, that covers **verification only**: who sees the video, AI plus human review, and deletion. It never covers the Data Co-op.
+
+### Demo profile
+A made-up Fundi created only by the demo seed, with an invented name, an initials avatar and no photo or video. Every Badge on a Demo profile, and the profile itself, is visibly tagged **"Demo: not a real verification"**. Demo Assessments never enter an Expert's queue.
 
 ### Showcase link
 A YouTube, TikTok or other portfolio link that a Fundi adds to their profile. It is labelled "Showcase — not verified" and never earns a Badge.
