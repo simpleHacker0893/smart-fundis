@@ -4,12 +4,13 @@ Every agent (Claude Code session, subagent, Cursor, Copilot) follows these rules
 
 ## Source of truth, in priority order
 
-1. **Specs:** `docs/superpowers/specs/`. There is one architecture spec plus one spec per phase. Where a spec and the PRD disagree, the spec wins.
-2. **Plans:** `docs/superpowers/plans/`. The current phase's implementation plan is your task list.
-3. **Glossary:** `CONTEXT.md`. Use its terms in code, specs and copy, and avoid the aliases it lists.
-4. **Product background:** `docs/PRD.md`. It covers the stories, the original data model and the Responsible-AI checklist (§8).
-5. **Designs:** `design/stitch/`. `DESIGN.md` holds the brand and rules, `prompts/` holds one prompt per screen, and `exports/` holds the Stitch output that the frontend converts.
-6. **Progress:** `docs/handoff/` gets one file per finished task. **Reviews:** `docs/reviews/`, where open blockers stop the next phase.
+1. **Architecture spec:** `docs/superpowers/specs/2026-09-25-architecture-design.md`. Where it and the PRD disagree, the spec wins.
+2. **Slice specs and tickets:** GitHub Issues, one `V<n> spec` issue per slice with ticket sub-issues (`docs/agents/issue-tracker.md`). Slice briefs are in `planning/slices/`, and the build-loop prompts are in `planning/prompts/`. `plan-first` tickets have plans in `docs/superpowers/plans/`.
+3. **Project state:** `planning/STATE.md`, `DECISIONS.md`, `RISKS.md` and `QUESTIONS.md`.
+4. **Glossary:** `CONTEXT.md`. Use its terms in code, specs and copy, and avoid the aliases it lists.
+5. **Product background:** `docs/PRD.md`. It covers the stories, the original data model and the Responsible-AI checklist (§8).
+6. **Designs:** `design/stitch/`. `DESIGN.md` holds the brand and rules, `prompts/` holds one prompt per screen, and `exports/` holds the Stitch output that the frontend converts.
+7. **Progress:** `docs/handoff/` gets one file per finished task. **Reviews:** `docs/reviews/`, where open blockers stop the next phase.
 
 ## Working rules
 
@@ -70,6 +71,6 @@ No NVIDIA skill covers serving Cosmos Reason 2 with vLLM, so use the official do
 ## Conventions
 
 - TypeScript strict in `web/` and `convex/`. Python 3.11+ with type hints in `ai-service/`.
-- Keep commits small, one per plan task.
+- One branch and PR per ticket (`v<n>/<issue#>-<slug>`), reviewed by the `claude-review` CI check, and squash-merged by the Architect only.
 - Brand colours are green `#0B5D3B` and orange `#F28C28`. Design mobile-first at 360 px.
 - If a rule here conflicts with a spec, stop and ask the Architect.

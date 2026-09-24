@@ -1,24 +1,15 @@
 ---
-description: Find the next unchecked task in the current phase's plan, run it with the right role subagents, write the handoff and commit
-argument-hint: "[task id from the plan, e.g. 1.3 — optional, defaults to the next unchecked task]"
+description: Pick the next frontier ticket of the current slice from GitHub Issues and run prompts 40 and 50 on it
+argument-hint: "[issue number, e.g. 12 — optional, defaults to the first unblocked, unassigned ticket]"
 ---
 
 # /next-task
 
-Task override: `$ARGUMENTS`
+Override: `$ARGUMENTS`
 
-1. **Find the plan and the task.**
-   - The current plan is the newest file in `docs/superpowers/plans/`.
-   - If a task id was given above, use it. Otherwise take the first task in the plan whose checkbox is not ticked.
-   - If there is no plan for the current phase, stop. Tell me to brainstorm it first (`superpowers:brainstorming`, then `superpowers:writing-plans`).
-2. **Check for blockers.**
-   - Starting a new phase requires `docs/reviews/phase-<N>.md` for the previous phase with no open `blocker` findings. If blockers are open, stop and tell me to run `/fix-review`.
-3. **Load context.** Read `AGENTS.md`, `CONTEXT.md`, the phase spec in `docs/superpowers/specs/`, the plan, and the most recent file in `docs/handoff/`.
-4. **Execute** with `superpowers:subagent-driven-development`.
-   - Delegate to the role subagent that owns the files (see the folder ownership table in `AGENTS.md`), and work test-first (`mattpocock-skills:tdd`).
-   - If the task needs a human, such as a Clerk, Convex or Brev dashboard step, secrets, a real phone, or running a Stitch prompt, stop and give me exact numbered steps.
-5. **Verify.** Run the task's checks and capture the real output (`superpowers:verification-before-completion`).
-6. **Handoff.** Tick the task in the plan, then run the `/handoff <id>` steps.
-7. **Commit.** Stage only this task's files and commit with the message `<id>: <short summary>`. Do not push.
-
-Finish by telling me what's next: the next task id, or `/review-phase <N>` if the plan is complete.
+1. **Find the current slice.** Read `planning/STATE.md` for it.
+   - If no spec issue exists for that slice yet, stop. Tell me to run `planning/prompts/10-grill-slice.md` and `20-spec-slice.md` first.
+2. **Pick the ticket.** If an issue number was given above, use it. Otherwise list the open issues labelled `ticket` and `slice:<current>` (`docs/agents/issue-tracker.md`). Drop any with an open blocker (`issue_dependencies_summary.blocked_by > 0`) or an assignee, and take the first one left.
+   - If nothing is left and every ticket is closed, tell me to run `planning/prompts/60-close-slice.md`.
+3. **Run it.** Follow `planning/prompts/40-implement-ticket.md` and then `50-pr-and-review.md` exactly, with this issue.
+4. **Stop at "PR ready for merge".** Never merge it yourself.

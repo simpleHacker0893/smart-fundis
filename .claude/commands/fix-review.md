@@ -1,13 +1,13 @@
 ---
-description: Fix open findings from docs/reviews/phase-<N>.md with the owning role, verify each, and update the report
-argument-hint: "<phase number> [finding ids, e.g. R3-1 R3-4 — default: all blocker + major]"
+description: Fix open findings from docs/reviews/<slice>.md with the owning role, verify each, and update the report
+argument-hint: "<slice, e.g. V1> [finding ids — default: all blocker + major]"
 ---
 
 # /fix-review
 
-Arguments: `$ARGUMENTS`. The first token is the phase number. Any other tokens are finding IDs.
+Arguments: `$ARGUMENTS`. The first token is the slice (V0–V5). Any other tokens are finding IDs.
 
-1. Read `docs/reviews/phase-<N>.md`. Pick the findings to fix:
+1. Read `docs/reviews/<slice>.md`. Pick the findings to fix:
    - If finding IDs were given, fix exactly those.
    - Otherwise fix every `open` finding with severity `blocker` or `major`.
 2. For each finding:
