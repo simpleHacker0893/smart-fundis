@@ -35,6 +35,7 @@ Research links for every role are in `docs/research-links.md`.
 | everyone who writes code | `mattpocock-skills:tdd`, `superpowers:verification-before-completion` |
 | orchestrating session | `superpowers:subagent-driven-development`, `superpowers:dispatching-parallel-agents` |
 | architect | `anthropic-skills:120x-architect`, `superpowers:brainstorming`, `superpowers:writing-plans`, `mattpocock-skills:grilling`, `mattpocock-skills:domain-modeling`, `mattpocock-skills:to-spec`, `mattpocock-skills:to-tickets`, `mattpocock-skills:codebase-design`, `mattpocock-skills:improve-codebase-architecture`, `mattpocock-skills:research`, `nvidia-skill-finder` |
+| designer | `stitch-design:generate-design`, `stitch-design:manage-design-system`, `stitch-utilities:enhance-prompt`, `stitch-utilities:design-md`, `stitch-utilities:taste-design`, `web-design-guidelines`, `design:accessibility-review`, `design:ux-copy`, the Canva MCP tools, and the Apple HIG skills once installed (as principles only) |
 | frontend | `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `anthropic-skills:nextjs-expert`, `anthropic-skills:ui-styling`, `stitch-build:shadcn-ui`, `stitch-build:react-components`, `stitch-design:generate-design`, `stitch-utilities:design-md` |
 | convex | `convex:design`, `convex:auth`, `convex:convex-authz`, `convex:crons`, `convex:seed`, `convex:test`, `convex:env`; the `convex-expert` and `convex-reviewer` subagents; the Convex MCP server |
 | auth | `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui`, `clerk-testing`, `convex:auth` |
@@ -55,7 +56,8 @@ No NVIDIA skill covers serving Cosmos Reason 2 with vLLM, so use the official do
 | `ai-service/app/` | ai-pipeline | read |
 | `ai-service/{scripts,worker,poller}`, infra | gpu-devops | read |
 | `ai-service/eval/`, `web/e2e/` | qa | read |
-| `design/stitch/` | frontend (prompts and exports), architect (`DESIGN.md`) | read |
+| `design/` (Stitch and Canva prompts, exports, `LOG.md`) | designer, architect (`DESIGN.md`) | frontend reads the exports |
+| `web/public/images/` | designer + frontend | read |
 | `docs/`, `CONTEXT.md`, `AGENTS.md`, root config | architect | propose changes |
 
 ## Non-negotiables
