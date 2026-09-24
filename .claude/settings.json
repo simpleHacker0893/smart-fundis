@@ -1,0 +1,42 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:docs.convex.dev)",
+      "WebFetch(domain:clerk.com)",
+      "WebFetch(domain:docs.langchain.com)",
+      "WebFetch(domain:docs.nvidia.com)",
+      "WebFetch(domain:build.nvidia.com)",
+      "WebFetch(domain:nvidia-cosmos.github.io)",
+      "WebFetch(domain:huggingface.co)",
+      "WebFetch(domain:docs.vllm.ai)",
+      "WebFetch(domain:nextjs.org)",
+      "WebFetch(domain:ui.shadcn.com)",
+      "WebFetch(domain:vercel.com)",
+      "WebFetch(domain:fastapi.tiangolo.com)",
+      "WebFetch(domain:docs.celeryq.dev)",
+      "WebFetch(domain:next-intl.dev)",
+      "WebFetch(domain:playwright.dev)",
+      "WebFetch(domain:github.com)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(npm install*)",
+      "Bash(npm run *)",
+      "Bash(npx convex dev*)",
+      "Bash(npx convex codegen*)",
+      "Bash(npx tsc*)",
+      "Bash(npx playwright test*)",
+      "Bash(git status*)",
+      "Bash(git diff*)",
+      "Bash(git log*)",
+      "Bash(git add*)",
+      "Bash(git commit*)"
+    ],
+    "deny": [
+      "Read(./**/.env)",
+      "Read(./**/.env.local)",
+      "Read(./**/.env.production)",
+      "Bash(git push --force*)",
+      "Bash(npx convex deploy*)"
+    ]
+  }
+}
