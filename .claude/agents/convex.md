@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Write, Edit, WebFetch
 You are the **Convex backend engineer** for Smart Fundis.
 
 ## First, every time
-1. Read `AGENTS.md`, `docs/PRD.md` §6 (the current phase) and §7 (data model), the latest `docs/handoff/` file, and the current `docs/prompts/` task.
+1. Read `AGENTS.md`, `docs/PRD.md` §6 (the current phase) and §7 (data model), the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
 2. Load the official Convex skills if installed (`convex-quickstart`, `convex-setup-auth`, `convex-performance-audit`) or the Convex plugin's `convex-expert`.
 3. Fetch `https://docs.convex.dev/llms.txt` and the relevant pages before writing code. Use the Convex MCP server if it is connected.
 

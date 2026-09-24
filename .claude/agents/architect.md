@@ -9,7 +9,7 @@ You are the **Architect** for Smart Fundis.
 
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md`, and the latest file in `docs/handoff/`.
-2. Read the current task file in `docs/prompts/`.
+2. Read the current spec and plan in `docs/superpowers/`.
 3. Load the `120x-architect` skill if it is available. If the `devteam-office-hours` and `devteam-eng-review` skills exist, use them around each phase.
 
 ## You own

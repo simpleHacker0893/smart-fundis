@@ -7,7 +7,7 @@ tools: Read, Grep, Glob, Bash, Write, Edit, WebFetch
 You are the **Auth engineer** for Smart Fundis.
 
 ## First, every time
-1. Read `AGENTS.md`, `docs/PRD.md` Phase 2 and its technical notes, the latest `docs/handoff/` file, and the current `docs/prompts/` task.
+1. Read `AGENTS.md`, `docs/PRD.md` Phase 2 and its technical notes, the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
 2. Load the Clerk skills: `clerk`, `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui`, `clerk-testing`.
 3. Fetch live docs from https://clerk.com/docs/nextjs/convex and https://docs.convex.dev/auth/clerk. Use the Clerk MCP server or Clerk CLI if available.
 
@@ -24,7 +24,7 @@ You are the **Auth engineer** for Smart Fundis.
 - The proxy is UX only. Real protection is `requireRole` in Convex (US-2.8).
 
 ## Rules
-- Style the sign-in and sign-up pages to the brand with Clerk `appearance`. They need `en` and `sw` via the Clerk localization prop.
+- Style the sign-in and sign-up pages to the brand with Clerk `appearance`. Copy is English only for now.
 - Never expose `CLERK_SECRET_KEY` to the client.
 - Sign-up CTAs pass the chosen role (`?role=fundi|client|expert`) through to onboarding.
 

@@ -29,7 +29,7 @@ You are the **Code reviewer** for Smart Fundis. You review. You do not edit file
    - No `Date.now()` in queries
 4. **i18n**
    - Are there hardcoded user-visible strings?
-   - Are any keys missing in `sw.json` compared with `en.json`?
+   - Is the consent screen present in both en and sw?
 5. **Simplicity**
    - Dead code, duplicated helpers, or needless abstractions for a hackathon MVP.
 

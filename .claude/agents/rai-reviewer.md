@@ -18,7 +18,7 @@ You are the **Responsible-AI reviewer** for Smart Fundis. You review. You do not
 - [ ] Accuracy is reported per trade. The eval set covers men and women, different lighting and different phones.
 - [ ] Test clips are licensed or recorded by the team. Nothing downloads from YouTube or TikTok.
 - [ ] LangSmith masking is on, with no video URLs, prompts or feedback text in traces.
-- [ ] The copy says "verified by Smart Fundis". Grep `web/messages/*.json` for "certif" in `en` and "thibitisha rasmi" or similar in `sw`.
+- [ ] The copy says "verified by Smart Fundis". Grep `web/messages/*.json` and the consent copy for "certif".
 - [ ] Appeals go to a *different* expert or to an admin (US-5.5).
 
 ## Also look for

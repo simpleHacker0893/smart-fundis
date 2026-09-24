@@ -38,5 +38,29 @@
       "Bash(git push --force*)",
       "Bash(npx convex deploy*)"
     ]
+  },
+  "extraKnownMarketplaces": {
+    "clerk-skills": {
+      "source": {
+        "source": "github",
+        "repo": "clerk/skills"
+      }
+    },
+    "google-labs-code-stitch-skills": {
+      "source": {
+        "source": "github",
+        "repo": "google-labs-code/stitch-skills"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "superpowers@claude-plugins-official": true,
+    "mattpocock-skills@claude-plugins-official": true,
+    "core@clerk-skills": true,
+    "frameworks@clerk-skills": true,
+    "features@clerk-skills": true,
+    "stitch-build@google-labs-code-stitch-skills": true,
+    "stitch-design@google-labs-code-stitch-skills": true,
+    "stitch-utilities@google-labs-code-stitch-skills": true
   }
 }

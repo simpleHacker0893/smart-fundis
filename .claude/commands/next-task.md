@@ -1,29 +1,24 @@
 ---
-description: Find the next unfinished task (P0 … P6.1), load its prompt, and run it with the right role subagents
-argument-hint: "[task-id, e.g. P3.1 — optional, defaults to the next unfinished task]"
+description: Find the next unchecked task in the current phase's plan, run it with the right role subagents, write the handoff and commit
+argument-hint: "[task id from the plan, e.g. 1.3 — optional, defaults to the next unchecked task]"
 ---
 
 # /next-task
 
 Task override: `$ARGUMENTS`
 
-1. **Find the task.**
-   - If a task id was given above, use it.
-   - Otherwise list `docs/handoff/` and compare it with the task order in `docs/PRD.md` §9: P0, P1.1, P2.1, P2.2, P2.3, P3.1, P3.2, P4.1, P4.2, P4.3, P4.4, P5.1, P6.1. The next task is the first one with no `docs/handoff/<id>.md` whose `Status:` is `done`.
+1. **Find the plan and the task.**
+   - The current plan is the newest file in `docs/superpowers/plans/`.
+   - If a task id was given above, use it. Otherwise take the first task in the plan whose checkbox is not ticked.
+   - If there is no plan for the current phase, stop. Tell me to brainstorm it first (`superpowers:brainstorming`, then `superpowers:writing-plans`).
 2. **Check for blockers.**
-   - Moving to a new phase (for example from P2.3 to P3.1) requires `docs/reviews/phase-<N>.md` for the previous phase with no open `blocker` findings. If blockers are open, stop and tell me to run `/fix-review`.
-   - Also stop if the previous handoff lists unresolved blockers.
-3. **Load context.** Read these files:
-   - `AGENTS.md`
-   - `docs/PRD.md` (the stories for this phase)
-   - `docs/prompts/<id>.md`
-   - the most recent handoff file
-4. **Plan.** State the task, the owning role(s), the acceptance criteria you are targeting, and the files you expect to touch. Keep it to a few lines.
-5. **Execute.** Delegate to the subagent(s) named in the prompt file's `Agents:` line.
-   - If two roles are listed, run them in the order given. Pass each one the contract or interface from the previous step.
-   - If a task needs a human, such as Clerk dashboard steps, Brev console steps, a real phone, or secrets, stop and give me exact numbered steps.
-6. **Verify.** Run the checks in the prompt file's "Done when" section and capture the real output.
-7. **Handoff.** Run the `/handoff <id>` steps to write `docs/handoff/<id>.md`.
-8. **Commit.** Stage only this task's files and commit with the message `<id>: <short summary>`. Do not push.
+   - Starting a new phase requires `docs/reviews/phase-<N>.md` for the previous phase with no open `blocker` findings. If blockers are open, stop and tell me to run `/fix-review`.
+3. **Load context.** Read `AGENTS.md`, `CONTEXT.md`, the phase spec in `docs/superpowers/specs/`, the plan, and the most recent file in `docs/handoff/`.
+4. **Execute** with `superpowers:subagent-driven-development`.
+   - Delegate to the role subagent that owns the files (see the folder ownership table in `AGENTS.md`), and work test-first (`mattpocock-skills:tdd`).
+   - If the task needs a human, such as a Clerk, Convex or Brev dashboard step, secrets, a real phone, or running a Stitch prompt, stop and give me exact numbered steps.
+5. **Verify.** Run the task's checks and capture the real output (`superpowers:verification-before-completion`).
+6. **Handoff.** Tick the task in the plan, then run the `/handoff <id>` steps.
+7. **Commit.** Stage only this task's files and commit with the message `<id>: <short summary>`. Do not push.
 
-Finish by telling me what's next: the next task id, or `/review-phase <N>` if this was the last task in a phase.
+Finish by telling me what's next: the next task id, or `/review-phase <N>` if the plan is complete.
