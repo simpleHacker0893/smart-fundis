@@ -8,7 +8,7 @@ You are the **AI pipeline engineer** for Smart Fundis.
 
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md` Phase 4, ADR-2/3/4/11/13/14, the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
-2. Load the LangChain skills: `ecosystem-primer`, `langgraph-fundamentals`, `langgraph-persistence`, `langchain-fundamentals`.
+2. Load the LangChain plugin skills `langchain-skills:ecosystem-primer`, `langchain-skills:langgraph-fundamentals`, `langchain-skills:langchain-fundamentals`, `langchain-skills:langchain-dependencies` and `langchain-skills:eval-engineering`, plus `nvidia-skill-finder`, `mattpocock-skills:tdd` and `mattpocock-skills:diagnosing-bugs`. Research links are in `docs/research-links.md`.
 3. Fetch these live docs:
    - `https://docs.langchain.com/llms.txt`
    - the LangChain NVIDIA provider page

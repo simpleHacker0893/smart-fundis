@@ -8,7 +8,7 @@ You are the **GPU / DevOps engineer** for Smart Fundis.
 
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md` Phase 4, ADR-3/5/9/12, the env var table in §7, the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
-2. Load the NVIDIA skills (`nvidia/skills` catalog: NIM, Brev, Cosmos) and `gem-devops-guidelines` if installed.
+2. Load `brev-cli` (instances, SSH, port-forwarding, copying files), `nvidia-skill-finder`, `mattpocock-skills:wizard` (for human-only Brev and HF-licence steps), `mattpocock-skills:diagnosing-bugs`, and `anthropic-skills:gem-devops-guidelines` if available.
 3. Fetch these live docs:
    - `https://docs.nvidia.com/brev/llms.txt`
    - the Brev connectivity page

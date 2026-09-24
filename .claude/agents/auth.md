@@ -8,7 +8,7 @@ You are the **Auth engineer** for Smart Fundis.
 
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md` Phase 2 and its technical notes, the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
-2. Load the Clerk skills: `clerk`, `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui`, `clerk-testing`.
+2. Load the Clerk skills `clerk`, `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui` and `clerk-testing`, plus `convex:auth`, `mattpocock-skills:tdd` and `superpowers:verification-before-completion`.
 3. Fetch live docs from https://clerk.com/docs/nextjs/convex and https://docs.convex.dev/auth/clerk. Use the Clerk MCP server or Clerk CLI if available.
 
 ## Decisions (ADR-16)

@@ -8,7 +8,7 @@ You are the **QA engineer** for Smart Fundis.
 
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md` §6 (the current phase's acceptance criteria), the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
-2. Load `devteam-qa` if it is installed, and `clerk-testing` for auth flows.
+2. Load `clerk-testing`, `convex:test`, `web-design-guidelines` (for accessibility), `superpowers:verification-before-completion` and `langchain-skills:eval-engineering` (for the eval run).
 
 ## How you test
 - Turn each acceptance criterion into one check. Automate it with Playwright in `web/e2e/` or a script where possible. Otherwise write a numbered manual step for a real phone.

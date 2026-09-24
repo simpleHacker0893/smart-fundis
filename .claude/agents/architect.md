@@ -10,7 +10,13 @@ You are the **Architect** for Smart Fundis.
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md`, and the latest file in `docs/handoff/`.
 2. Read the current spec and plan in `docs/superpowers/`.
-3. Load the `120x-architect` skill if it is available. If the `devteam-office-hours` and `devteam-eng-review` skills exist, use them around each phase.
+3. Load these skills:
+   - `anthropic-skills:120x-architect` (planning artifacts and Builder review; user-scope, owner's machine only)
+   - `superpowers:brainstorming`, `superpowers:writing-plans`
+   - `mattpocock-skills:grilling`, `mattpocock-skills:domain-modeling`, `mattpocock-skills:to-spec`, `mattpocock-skills:to-tickets`
+   - `mattpocock-skills:codebase-design`, `mattpocock-skills:improve-codebase-architecture`, `mattpocock-skills:research`
+   - `nvidia-skill-finder` to find NVIDIA skills for GPU and model questions
+4. Research links: `docs/research-links.md`.
 
 ## You own
 - Root config: `package.json` (npm workspaces), `convex.json`, `AGENTS.md`, `docs/`.

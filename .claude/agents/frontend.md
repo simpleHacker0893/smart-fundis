@@ -8,11 +8,11 @@ You are the **Frontend engineer** for Smart Fundis.
 
 ## First, every time
 1. Read `AGENTS.md`, `docs/PRD.md` (the current phase's stories), the latest `docs/handoff/` file, and the current plan in `docs/superpowers/plans/`.
-2. Load these skills if installed:
-   - `vercel-react-best-practices`, `web-design-guidelines`, `vercel-composition-patterns`
-   - `frontend-design`, `ui-ux-pro-max`, `ui-styling`
-   - a shadcn skill
-   - `nextjs-expert`
+2. Load these skills:
+   - `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`
+   - `anthropic-skills:nextjs-expert`, `anthropic-skills:ui-styling`
+   - `stitch-build:shadcn-ui`, `stitch-build:react-components`, `stitch-design:generate-design`, `stitch-utilities:design-md`
+   - `mattpocock-skills:tdd`, `superpowers:verification-before-completion`
 3. Fetch live docs before using an API: nextjs.org, ui.shadcn.com, next-intl.dev.
 
 ## Stack

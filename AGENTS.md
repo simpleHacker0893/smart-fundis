@@ -23,18 +23,27 @@ Every agent (Claude Code session, subagent, Cursor, Copilot) follows these rules
 
 ## Skills by role
 
-The project enables the plugins in `.claude/settings.json`: superpowers, mattpocock-skills, the Clerk skills and the Stitch skills.
+Skills come from two places:
+- **Plugins,** enabled at project scope in `.claude/settings.json`: superpowers, mattpocock-skills, the Clerk skills, the Stitch skills, `langchain-skills` and `convex`.
+- **Standalone skills** in `.claude/skills/`, pinned in `skills-lock.json`: `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `brev-cli` and `nvidia-skill-finder`.
+
+Research links for every role are in `docs/research-links.md`.
 
 | Role | Load |
 | --- | --- |
 | everyone who writes code | `mattpocock-skills:tdd`, `superpowers:verification-before-completion` |
-| architect | `superpowers:brainstorming`, `superpowers:writing-plans`, `mattpocock-skills:grilling`, `mattpocock-skills:domain-modeling`, `mattpocock-skills:codebase-design` |
 | orchestrating session | `superpowers:subagent-driven-development`, `superpowers:dispatching-parallel-agents` |
-| frontend | `stitch-build:shadcn-ui`, `stitch-build:react-components`, `stitch-design:generate-design`, `anthropic-skills:nextjs-expert` |
-| auth | `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui`, `clerk-testing` |
-| convex, ai-pipeline, gpu-devops | `mattpocock-skills:diagnosing-bugs` when something breaks; gpu-devops also uses `mattpocock-skills:wizard` for human-only Brev or dashboard steps |
-| qa | `clerk-testing`, `superpowers:verification-before-completion` |
-| code-reviewer | `mattpocock-skills:code-review` |
+| architect | `anthropic-skills:120x-architect`, `superpowers:brainstorming`, `superpowers:writing-plans`, `mattpocock-skills:grilling`, `mattpocock-skills:domain-modeling`, `mattpocock-skills:to-spec`, `mattpocock-skills:to-tickets`, `mattpocock-skills:codebase-design`, `mattpocock-skills:improve-codebase-architecture`, `mattpocock-skills:research`, `nvidia-skill-finder` |
+| frontend | `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `anthropic-skills:nextjs-expert`, `anthropic-skills:ui-styling`, `stitch-build:shadcn-ui`, `stitch-build:react-components`, `stitch-design:generate-design`, `stitch-utilities:design-md` |
+| convex | `convex:design`, `convex:auth`, `convex:convex-authz`, `convex:crons`, `convex:seed`, `convex:test`, `convex:env`; the `convex-expert` and `convex-reviewer` subagents; the Convex MCP server |
+| auth | `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui`, `clerk-testing`, `convex:auth` |
+| ai-pipeline | `langchain-skills:ecosystem-primer`, `langchain-skills:langgraph-fundamentals`, `langchain-skills:langchain-fundamentals`, `langchain-skills:langchain-dependencies`, `langchain-skills:eval-engineering`, `nvidia-skill-finder`, `mattpocock-skills:diagnosing-bugs` |
+| gpu-devops | `brev-cli`, `nvidia-skill-finder`, `mattpocock-skills:wizard`, `mattpocock-skills:diagnosing-bugs` |
+| qa | `clerk-testing`, `convex:test`, `web-design-guidelines`, `langchain-skills:eval-engineering` |
+| rai-reviewer | `mattpocock-skills:grilling` |
+| code-reviewer | `mattpocock-skills:code-review`, the `convex-reviewer` subagent |
+
+No NVIDIA skill covers serving Cosmos Reason 2 with vLLM, so use the official docs in `docs/research-links.md` for that. The Convex plugin runs lint and type-check hooks, and sends anonymous telemetry unless `CONVEX_PLUGIN_TELEMETRY=0` is set.
 
 ## Folder ownership
 
