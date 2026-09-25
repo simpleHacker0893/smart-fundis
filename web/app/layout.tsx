@@ -59,11 +59,11 @@ export default function RootLayout({
           <ConvexClientProvider>
             <NextIntlClientProvider>
               <SiteHeader />
-              {/* The skip link's target; the scroll margin clears the sticky 48 / 72 px header. */}
+              {/* The skip link's target; the scroll margin clears the sticky header (92 px mobile, 72 px desktop). */}
               <div
                 id="main-content"
                 tabIndex={-1}
-                className="flex flex-1 scroll-mt-12 flex-col outline-none lg:scroll-mt-[72px]"
+                className="flex flex-1 scroll-mt-24 flex-col outline-none lg:scroll-mt-[72px]"
               >
                 {children}
               </div>

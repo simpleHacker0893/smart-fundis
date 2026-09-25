@@ -45,12 +45,12 @@ describe("root layout", () => {
     expect(html).toContain("font-mono-var");
   });
 
-  it("gives the skip-link target a scroll margin for the 48 / 72 px sticky header", async () => {
+  it("gives the skip-link target a scroll margin for the 92 / 72 px sticky header", async () => {
     const { default: RootLayout } = await import("@/app/layout");
     const markup = renderToStaticMarkup(RootLayout({ children: null }));
     const target = markup.match(/<[a-z]+[^>]*id="main-content"[^>]*>/)![0];
 
-    expect(target).toContain("scroll-mt-12");
+    expect(target).toContain("scroll-mt-24");
     expect(target).toContain("lg:scroll-mt-[72px]");
   });
 

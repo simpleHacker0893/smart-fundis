@@ -116,6 +116,39 @@
   --sidebar-ring: var(--amber);
 }
 
+/*
+ * Motion from the Stitch landing screen (01-landing-v3-responsive.html): the
+ * scan line that sweeps the evidence plate. Pulse and ping come from
+ * Tailwind. Always use them through `motion-safe:`, so reduced motion shows
+ * the still frame (DESIGN.md L104).
+ */
+@theme {
+  --animate-scan: scan 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+
+  @keyframes scan {
+    0% {
+      top: 0%;
+      opacity: 0;
+    }
+    15% {
+      opacity: 1;
+    }
+    85% {
+      opacity: 1;
+    }
+    100% {
+      top: 100%;
+      opacity: 0;
+    }
+  }
+}
+
+/* The Stitch "film grain" dot field behind the hero (decorative). */
+@utility film-grain {
+  background-image: radial-gradient(rgba(242, 244, 247, 0.03) 1px, transparent 0);
+  background-size: 4px 4px;
+}
+
 /* Mono instrument readout: UPPERCASE, 0.26em tracking, 12 px floor (DESIGN.md L83). */
 @utility readout {
   @apply font-mono;

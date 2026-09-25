@@ -7,11 +7,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultLocale } from "@/i18n/config";
 import en from "@/messages/en.json";
-import { leafStrings, visibleStrings } from "./copy-helpers";
+import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 
-// The shell may only link to pages that exist today ("nothing looks live that
-// isn't"). This list is the test's own, not imported from the app, so the app
-// cannot widen it by accident. Add a route here only when its page ships.
+// The shell may only link to pages that exist today, or to sections of the
+// landing page ("/#id") that exist ("nothing looks live that isn't"). This
+// list is the test's own, not imported from the app.
 const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard"];
 
 vi.mock("next-intl/server", async () => {
@@ -25,15 +25,31 @@ vi.mock("next-intl/server", async () => {
 });
 
 const clerk = vi.hoisted(() => ({ isLoaded: true, isSignedIn: false }));
-
-vi.mock("@clerk/nextjs", () => ({
-  useAuth: () => ({ isLoaded: clerk.isLoaded, isSignedIn: clerk.isSignedIn }),
-}));
+// Clerk's UserButton is a client widget; in tests it renders a marker plus
+// its custom menu links, so we can see what the menu offers.
+vi.mock("@clerk/nextjs", () => {
+  const UserButton = Object.assign(
+    ({ children }: { children?: ReactNode }) => <span data-clerk="user-button">{children}</span>,
+    {
+      MenuItems: ({ children }: { children?: ReactNode }) => <>{children}</>,
+      Link: ({ label, href }: { label: string; href: string }) => (
+        <a data-clerk="menu-link" href={href}>
+          {label}
+        </a>
+      ),
+      Action: () => null,
+    },
+  );
+  return {
+    useAuth: () => ({ isLoaded: clerk.isLoaded, isSignedIn: clerk.isSignedIn }),
+    UserButton,
+  };
+});
 
 const shell = createTranslator({ locale: defaultLocale, messages: en, namespace: "Shell" });
 const footer = createTranslator({ locale: defaultLocale, messages: en, namespace: "Footer" });
 const links = createTranslator({ locale: defaultLocale, messages: en, namespace: "Links" });
-const messageValues = new Set(leafStrings(en));
+const isFromMessages = makeIsFromMessages(en);
 
 beforeEach(() => {
   clerk.isLoaded = true;
@@ -58,17 +74,33 @@ async function renderFooter() {
   return withIntl(await SiteFooter());
 }
 
+async function landingIds(): Promise<Set<string>> {
+  const { default: HomePage } = await import("@/app/page");
+  const markup = withIntl(await HomePage());
+  return new Set([...markup.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+}
+
 function hrefs(markup: string): string[] {
   return [...markup.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
 }
 
-function expectOnlyRealRoutes(markup: string, where: string) {
-  const links = hrefs(markup);
-  expect(links.length, `${where} has no links`).toBeGreaterThan(0);
-  for (const href of links) {
-    // Same-page anchors (the skip link) are fine; everything else must be a real page.
-    if (href.startsWith("#")) continue;
-    expect(REAL_ROUTES, `${where} links to a page that does not exist: ${href}`).toContain(href);
+async function expectOnlyRealDestinations(markup: string, where: string, extraIds: string[] = []) {
+  const all = hrefs(markup);
+  expect(all.length, `${where} has no links`).toBeGreaterThan(0);
+  const ids = await landingIds();
+  for (const id of extraIds) ids.add(id);
+  for (const href of all) {
+    if (href.startsWith("#")) {
+      // Same-page anchors: the skip link and the footer directory.
+      expect(["#main-content", "#company"], `${where}: unknown anchor ${href}`).toContain(href);
+      continue;
+    }
+    const [route, hash] = href.split("#");
+    expect(REAL_ROUTES, `${where} links to a page that does not exist: ${href}`).toContain(route);
+    if (hash !== undefined) {
+      expect(route, `${where}: anchors must point at the landing page`).toBe("/");
+      expect(ids.has(hash), `${where} links to a missing landing section: ${href}`).toBe(true);
+    }
   }
 }
 
@@ -76,14 +108,13 @@ function expectOnlyMessages(markup: string, where: string) {
   const strings = visibleStrings(markup);
   expect(strings.length).toBeGreaterThan(0);
   for (const s of strings) {
-    expect(messageValues, `hardcoded string in ${where}: "${s}"`).toContain(s);
+    expect(isFromMessages(s), `hardcoded string in ${where}: "${s}"`).toBe(true);
   }
 }
 
 /** The opening tag of the first element carrying `attr="value"`. */
 function tagWith(markup: string, attr: string, value: string): string {
-  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = markup.match(new RegExp(`<[a-z]+[^>]*\\s${attr}="${escaped}"[^>]*>`));
+  const match = markup.match(new RegExp(`<[a-z]+[^>]*\\s${attr}="${value}"[^>]*>`));
   expect(match, `no element with ${attr}="${value}"`).not.toBeNull();
   return match![0];
 }
@@ -95,114 +126,88 @@ describe("site header", () => {
     expectOnlyMessages(await renderHeader(), "the signed-in header");
   });
 
-  it("links only to pages that exist", async () => {
-    expectOnlyRealRoutes(await renderHeader(), "the header");
+  it("links only to real pages and real landing sections", async () => {
+    await expectOnlyRealDestinations(await renderHeader(), "the header");
     clerk.isSignedIn = true;
-    expectOnlyRealRoutes(await renderHeader(), "the signed-in header");
+    await expectOnlyRealDestinations(await renderHeader(), "the signed-in header");
   });
 
-  it("shows the wordmark linking home, the JOIN pill and Sign in when signed out", async () => {
+  it("shows the nav EVIDENCE · TRADES · TELEMETRY · COMPANY at every width", async () => {
+    const markup = await renderHeader();
+    const navs = [...markup.matchAll(/<nav\s[^>]*>[\s\S]*?<\/nav>/g)].map((m) => m[0]);
+    expect(navs).toHaveLength(2);
+    for (const navMarkup of navs) {
+      expect(hrefs(navMarkup)).toEqual(["/#evidence", "/#trades", "/#telemetry", "#company"]);
+    }
+    // One nav row for mobile, one inline nav for desktop: every width sees one.
+    const classes = navs.map((n) => n.match(/class="([^"]*)"/)![1]);
+    expect(classes.some((c) => /\blg:hidden\b/.test(c) && !/(^|\s)hidden(\s|$)/.test(c))).toBe(true);
+    expect(classes.some((c) => /(^|\s)hidden(\s|$)/.test(c) && /\blg:flex\b/.test(c))).toBe(true);
+  });
+
+  it("shows the lockup, the name and the VERIFIED SKILLS tag, linking home", async () => {
     const markup = await renderHeader();
     const strings = visibleStrings(markup);
-
     expect(strings).toContain(shell("brand"));
-    expect(strings).toContain(shell("join"));
-    expect(strings).toContain(links("signIn"));
-    expect(strings).toContain(links("joinAsFundi"));
-    expect(hrefs(markup)).toContain("/");
-    expect(hrefs(markup)).toContain("/sign-in");
-    expect(hrefs(markup)).toContain("/sign-up");
-    expect(hrefs(markup)).not.toContain("/dashboard");
+    expect(strings).toContain(shell("tagline"));
+    expect(tagWith(markup, "aria-label", shell("homeLabel"))).toContain('href="/"');
   });
 
-  it("gives the compact JOIN pill an accessible name that contains its visible text", async () => {
-    const tag = tagWith(await renderHeader(), "aria-label", links("joinAsFundi"));
-    expect(tag).toContain('href="/sign-up"');
-    expect(links("joinAsFundi").toLowerCase()).toContain(shell("join").toLowerCase());
+  it("offers Sign in and Join at every width when signed out", async () => {
+    const markup = await renderHeader();
+    for (const href of ["/sign-in", "/sign-up"]) {
+      const tag = tagWith(markup, "href", href);
+      expect(tag, `${href} must not be hidden on mobile`).not.toMatch(/class="([^"]*\s)?hidden(\s[^"]*)?"/);
+    }
+    expect(visibleStrings(markup)).toContain(links("signIn"));
+    expect(markup).not.toContain('data-clerk="user-button"');
   });
 
-  it("swaps Sign in and Join for a Dashboard link when signed in", async () => {
+  it("shows Clerk's account menu when signed in, with the dashboard in it", async () => {
     clerk.isSignedIn = true;
     const markup = await renderHeader();
-
-    expect(visibleStrings(markup)).toContain(links("dashboard"));
-    expect(hrefs(markup)).toContain("/dashboard");
+    expect(markup).toContain('data-clerk="user-button"');
+    expect(tagWith(markup, "data-clerk", "menu-link")).toContain('href="/dashboard"');
     expect(hrefs(markup)).not.toContain("/sign-in");
     expect(hrefs(markup)).not.toContain("/sign-up");
   });
-
-  it("has a labelled menu button that reports it is closed", async () => {
-    const tag = tagWith(await renderHeader(), "aria-label", shell("openMenu"));
-    expect(tag).toMatch(/^<button/);
-    expect(tag).toContain('aria-expanded="false"');
-    expect(tag).toContain('aria-haspopup="dialog"');
-  });
-
-  it("leaves out nav items whose pages are not built yet (Evidence, Trades, Telemetry, Company)", async () => {
-    const strings = visibleStrings(await renderHeader());
-    for (const key of ["evidence", "trades", "telemetry", "about", "contact"] as const) {
-      expect(strings).not.toContain(links(key));
-    }
-  });
-
-  it("adds the VERIFIED SKILLS tag to the wordmark from 1024 px only (mobile stays as the REFERENCE)", async () => {
-    const markup = await renderHeader();
-    expect(visibleStrings(markup)).toContain(shell("verifiedSkills"));
-    // The tag text is plain letters and spaces, so it needs no regex escaping.
-    const tag = markup.match(new RegExp(`<span[^>]*>${shell("verifiedSkills")}</span>`))![0];
-    expect(tag).toMatch(/class="[^"]*\bhidden\b[^"]*\blg:(inline|block|inline-flex)\b/);
-  });
 });
 
-describe("site footer", () => {
+describe("site footer (Stitch landing v3)", () => {
   it("renders only strings from messages/en.json", async () => {
     expectOnlyMessages(await renderFooter(), "the footer");
   });
 
-  it("links only to pages that exist", async () => {
-    expectOnlyRealRoutes(await renderFooter(), "the footer");
+  it("links only to real pages and real landing sections", async () => {
+    await expectOnlyRealDestinations(await renderFooter(), "the footer");
   });
 
-  it("shows the headline, the Join CTA, the wordmark and the legal lines", async () => {
-    const markup = await renderFooter();
-    const strings = visibleStrings(markup);
-
-    expect(strings).toContain(footer("headline"));
-    expect(strings).toContain(links("joinAsFundi"));
-    expect(strings).toContain(shell("brand"));
-    expect(strings).toContain(footer("legal"));
-    expect(strings).toContain(footer("copyright"));
-    expect(hrefs(markup)).toContain("/sign-up");
-  });
-
-  it("leaves out links to pages that are not built yet", async () => {
-    const strings = visibleStrings(await renderFooter());
-    for (const key of [
-      "howVerificationWorks",
-      "privacy",
-      "findFundi",
-      "verifiedMeans",
-      "becomeVerifier",
-      "about",
-      "contact",
-      "responsibleAi",
-      "roadmap",
-    ] as const) {
-      expect(strings).not.toContain(links(key));
-    }
-  });
-
-  it("links to each page at most once (a group link that repeats a CTA is dropped)", async () => {
+  it("links to each destination at most once", async () => {
     const all = hrefs(await renderFooter());
-    expect(all.length).toBeGreaterThan(0);
     expect(all).toEqual([...new Set(all)]);
   });
 
-  it("drops a link group left with no links (V0: For fundis only held the Join CTA)", async () => {
-    const strings = visibleStrings(await renderFooter());
-    for (const key of ["forFundis", "forClients", "forExperts", "company"] as const) {
-      expect(strings).not.toContain(footer(`groups.${key}`));
+  it("shows the CTA band, the directory, the wordmark and the legal lines", async () => {
+    const markup = await renderFooter();
+    const strings = visibleStrings(markup);
+    expect(strings).toContain(footer("headline"));
+    expect(strings).toContain(links("joinAsFundi"));
+    expect(strings).toContain(links("findFundi"));
+    expect(strings).toContain(shell("brand"));
+    expect(strings).toContain(footer("legal"));
+    expect(strings).toContain(footer("copyright"));
+    for (const key of ["forFundis", "forClients", "about"] as const) {
+      expect(strings).toContain(footer(`groups.${key}`));
     }
+    expect(markup).toMatch(/\sid="company"/);
+  });
+
+  it("leaves out destinations that don't exist yet (privacy, verifier, about, contact)", async () => {
+    const strings = visibleStrings(await renderFooter());
+    for (const key of ["privacy", "becomeVerifier", "about", "contact"] as const) {
+      expect(strings).not.toContain(links(key));
+    }
+    expect(strings).not.toContain(footer("groups.forExperts"));
   });
 });
 
@@ -216,7 +221,6 @@ describe("real routes", () => {
       readdirSync(d).some((name) => {
         const full = path.join(d, name);
         if (name === "page.tsx") return true;
-        // Optional catch-alls such as [[...sign-in]] serve the bare route.
         return name.startsWith("[[...") && statSync(full).isDirectory() && hasPage(full);
       });
     expect(hasPage(dir), `${route} has no page.tsx`).toBe(true);
@@ -229,26 +233,35 @@ describe("real routes", () => {
 });
 
 describe("Instrument theme (D-9)", () => {
-  it("keeps amber as punctuation: no amber hover states, no amber footer labels", () => {
-    const dir = fileURLToPath(new URL("../components", import.meta.url));
-    const sources: [string, string][] = [];
+  const webDir = fileURLToPath(new URL("..", import.meta.url));
+  const css = readFileSync(path.join(webDir, "app", "globals.css"), "utf8");
+
+  const sourceFiles = (dirs: string[], pattern: RegExp) => {
+    const files: string[] = [];
     const walk = (d: string) => {
       for (const name of readdirSync(d)) {
         const full = path.join(d, name);
         if (statSync(full).isDirectory()) walk(full);
-        else if (/\.tsx?$/.test(name)) sources.push([full, readFileSync(full, "utf8")]);
+        else if (pattern.test(name)) files.push(full);
       }
     };
-    walk(dir);
-    for (const [file, text] of sources) {
-      expect(text, file).not.toMatch(/hover:[a-z-]*amber/);
+    for (const d of dirs) walk(path.join(webDir, d));
+    return files;
+  };
+
+  it("keeps amber as punctuation: no amber hover states and no amber footer labels", () => {
+    for (const file of sourceFiles(["components", "app"], /\.tsx?$/)) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/hover:[a-z-]*amber/);
     }
-    const footerSource = sources.find(([f]) => f.endsWith("site-footer.tsx"))![1];
+    const footerSource = readFileSync(path.join(webDir, "components", "site-footer.tsx"), "utf8");
     expect(footerSource).not.toMatch(/text-amber/);
   });
 
-  const webDir = fileURLToPath(new URL("..", import.meta.url));
-  const css = readFileSync(path.join(webDir, "app", "globals.css"), "utf8");
+  it("draws pass ticks in white, never green (HANDOFF §6)", () => {
+    for (const file of sourceFiles(["components", "app"], /\.(tsx?|css)$/)) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/#10b981|emerald|green-/i);
+    }
+  });
 
   it("defines graphite, text and amber in globals.css", () => {
     expect(css.toLowerCase()).toContain("#050609");
@@ -261,21 +274,17 @@ describe("Instrument theme (D-9)", () => {
     expect(css).toMatch(/--font-mono:[^;]*var\(--font-jetbrains-mono\)/);
   });
 
-  it("uses no retired v1 colour or font anywhere in web/app, web/components or web/lib", () => {
-    const files: string[] = [];
-    const walk = (d: string) => {
-      for (const name of readdirSync(d)) {
-        const full = path.join(d, name);
-        if (statSync(full).isDirectory()) walk(full);
-        else if (/\.(tsx?|css|json)$/.test(name)) files.push(full);
-      }
-    };
-    for (const d of ["app", "components", "lib", "messages"]) walk(path.join(webDir, d));
-
+  it("uses no retired v1 colour or font anywhere in web/app, components, lib or messages", () => {
+    const files = sourceFiles(["app", "components", "lib", "messages"], /\.(tsx?|css|json)$/);
     expect(files.length).toBeGreaterThan(0);
     for (const file of files) {
-      const text = readFileSync(file, "utf8");
-      expect(text, file).not.toMatch(/#0B5D3B|#F28C28|Plus[ _]Jakarta/i);
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/#0B5D3B|#F28C28|Plus[ _]Jakarta/i);
+    }
+  });
+
+  it("never ships a temporary Stitch image link", () => {
+    for (const file of sourceFiles(["app", "components", "lib"], /\.(tsx?|css)$/)) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/googleusercontent/);
     }
   });
 });

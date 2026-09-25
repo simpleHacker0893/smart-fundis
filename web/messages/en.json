@@ -3,10 +3,6 @@
     "title": "Smart Fundis",
     "description": "Skills, verified by Smart Fundis."
   },
-  "HomePage": {
-    "title": "Smart Fundis",
-    "tagline": "Skills, verified by Smart Fundis. Coming together."
-  },
   "DashboardPage": {
     "title": "Dashboard",
     "signedInAs": "Signed in as {email}",
@@ -14,13 +10,12 @@
   },
   "Shell": {
     "brand": "Smart Fundis",
-    "verifiedSkills": "Verified skills",
     "skipToContent": "Skip to content",
     "primaryNav": "Main",
     "join": "Join",
-    "openMenu": "Open menu",
-    "closeMenu": "Close menu",
-    "menuTitle": "Menu"
+    "tagline": "Verified skills",
+    "homeLabel": "Smart Fundis, verified skills: home",
+    "sectionsNav": "Sections"
   },
   "Footer": {
     "headline": "Show your work.",
@@ -28,8 +23,8 @@
     "groups": {
       "forFundis": "For fundis",
       "forClients": "For clients",
-      "forExperts": "For experts",
-      "company": "Company"
+      "forExperts": "For Experts",
+      "about": "About & company"
     },
     "legal": "We verify skills. NITA, KNQA and TVETs certify.",
     "copyright": "© 2026 Smart Fundis"
@@ -49,6 +44,178 @@
     "verifiedMeans": "What 'verified' means",
     "becomeVerifier": "Become a verifier",
     "responsibleAi": "Responsible AI",
-    "roadmap": "Roadmap"
+    "roadmap": "Roadmap",
+    "company": "Company"
+  },
+  "Glyphs": {
+    "pass": "✓",
+    "review": "◐",
+    "no": "✕",
+    "step": "◆"
+  },
+  "Landing": {
+    "hero": {
+      "label": "Smart Fundis / 01 — Proof of skill",
+      "titleLine1": "Kazi yako,",
+      "titleLine2": "sifa yako.",
+      "body": "Your work, your reputation. Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.",
+      "imageAlt": "Hands terminating copper wires in a socket box with a screwdriver"
+    },
+    "inspector": {
+      "label": "Inspect step",
+      "counter": "Step {step} / 04",
+      "stepsLabel": "Steps of the example video",
+      "frame": "Evidence frame",
+      "frameStatus": "Example · step {step}",
+      "example": "Example",
+      "verified": "Verified by Smart Fundis",
+      "caption": "Electrical · Install a 13A socket · Step {step}",
+      "marker": "{number} {name} · {time}",
+      "ledgerCaption": "Electrical · Install a 13A socket · Steps 01–04"
+    },
+    "steps": {
+      "1": {
+        "short": "Isolate",
+        "name": "Isolate power",
+        "time": "00:04",
+        "readout": "Breaker off · tested dead"
+      },
+      "2": {
+        "short": "Strip",
+        "name": "Strip & terminate",
+        "time": "00:19",
+        "readout": "Conductors to L/N/E"
+      },
+      "3": {
+        "short": "Earth",
+        "name": "Earth continuity",
+        "time": "00:41",
+        "readout": "Needs review · safety step"
+      },
+      "4": {
+        "short": "Secure",
+        "name": "Faceplate secure",
+        "time": "00:58",
+        "readout": "Screws seated, flush"
+      }
+    },
+    "status": {
+      "observed": "Observed",
+      "review": "Needs review"
+    },
+    "record": {
+      "label": "02 — Record",
+      "title": "Record your work.",
+      "body": "Write your code on paper, show it to the camera, then do the job in one continuous shot. A fresh code every time, so the video is really yours, really now.",
+      "chip": "One continuous shot",
+      "panel": "Liveness code",
+      "code": "315",
+      "readout": "Liveness code · 315 · issued 00:00:03 ago"
+    },
+    "check": {
+      "label": "03 — Check",
+      "title": "AI checks each step.",
+      "body": "NVIDIA AI watches every step of the task and marks exactly where it happens in your video.",
+      "safety": "Safety steps are never passed automatically.",
+      "loupe": "Step 02 · Strip & terminate · observed",
+      "loupeTime": "00:19"
+    },
+    "decide": {
+      "label": "04 — Decide",
+      "title": "An Expert decides.",
+      "caption": "A safety step marked unclear caps the AI at 'needs review'. AI recommends. Experts decide.",
+      "colStep": "Step",
+      "colObservation": "AI observation",
+      "colTime": "Time",
+      "colStatus": "Status",
+      "observations": {
+        "1": "Breaker off, tested dead",
+        "2": "Conductors to L/N/E",
+        "3": "Tester reading unclear",
+        "4": "Screws seated, flush"
+      },
+      "expert": "Expert decision",
+      "expertNote": "Approved by an Electrical Expert",
+      "noTime": "—",
+      "badgeIssued": "Badge issued"
+    },
+    "badge": {
+      "label": "05 — Badge",
+      "title": "Your work, your badge.",
+      "body": "Your video stays private. Only your badge is public, on a profile you can share with any client.",
+      "layers": {
+        "video": "Video",
+        "code": "Code",
+        "aiCheck": "AI check",
+        "expert": "Expert"
+      },
+      "readout": "Separation 0.00 mm · seated · badge issued"
+    },
+    "trades": {
+      "label": "06 — Trades",
+      "titleLine1": "Two trades live.",
+      "titleLine2": "Ten on the bench.",
+      "live": "Live",
+      "verifyNow": "Verify now →",
+      "comingSoon": "Coming soon",
+      "names": {
+        "electrical": "Electrical",
+        "hairdressing": "Hairdressing",
+        "plumbing": "Plumbing",
+        "masonry": "Masonry",
+        "carpentry": "Carpentry",
+        "welding": "Welding",
+        "mechanic": "Mechanic",
+        "tailoring": "Tailoring",
+        "beauty": "Beauty",
+        "solar": "Solar installation",
+        "mamaFua": "Mama fua (laundry)",
+        "movers": "Movers"
+      }
+    },
+    "scope": {
+      "label": "07 — Scope",
+      "title": "One word, exactly defined.",
+      "body": "What 'Verified by Smart Fundis' means, and what it doesn't.",
+      "check": "What we check",
+      "dontCheck": "What we don't check",
+      "checks": {
+        "app": "Recorded in the app",
+        "code": "Fresh code on camera",
+        "ai": "Every step checked by AI",
+        "safety": "Safety never auto-passed",
+        "expert": "An Expert in your trade decides"
+      },
+      "notChecked": {
+        "id": "ID or background",
+        "licences": "Licences or insurance",
+        "qualifications": "Formal qualifications"
+      },
+      "certify": "NITA, KNQA and TVETs certify qualifications. We verify a skill, on video."
+    },
+    "next": {
+      "label": "08 — Next",
+      "title": "Coming next: earn from your skills",
+      "comingSoon": "Coming soon",
+      "imageAlt": "Hands resting beside a row of trade tools on a workbench",
+      "cards": {
+        "coop": {
+          "title": "Smart Fundis Data Co-op: earn from your skills, by choice",
+          "body": "Earn from your skills, by choice."
+        },
+        "bookings": {
+          "title": "Bookings & M-Pesa payments",
+          "body": "Get hired and paid through your profile."
+        },
+        "pro": {
+          "title": "Fundi Pro",
+          "body": "Tools for busy fundis."
+        },
+        "training": {
+          "title": "Training partners",
+          "body": "Learn and level up."
+        }
+      }
+    }
   }
 }
