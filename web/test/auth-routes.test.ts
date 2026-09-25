@@ -23,12 +23,24 @@ describe("proxy route protection", () => {
 });
 
 describe("proxy matcher", () => {
-  it("keeps Clerk's recommended matcher (pages, API routes and /__clerk)", async () => {
+  // Next treats each matcher entry as a path regex. Check behaviour on real
+  // paths rather than copying the strings, so a harmful edit fails here.
+  async function runsFor(path: string): Promise<boolean> {
     const { config } = await import("@/proxy");
-    expect(config.matcher).toEqual([
-      "/((?!_next|[^?]*\\.(?:html?|css|js(?!on)|jpe?g|webp|png|gif|svg|ttf|woff2?|ico|csv|docx?|xlsx?|zip|webmanifest)).*)",
-      "/(api|trpc)(.*)",
-      "/__clerk/(.*)",
-    ]);
-  });
+    return config.matcher.some((m) => new RegExp(`^${m}$`).test(path));
+  }
+
+  it.each(["/", "/dashboard", "/dashboard/x", "/sign-in", "/api/x", "/trpc/y", "/__clerk/v1/client"])(
+    "runs the proxy for %s",
+    async (path) => {
+      expect(await runsFor(path)).toBe(true);
+    },
+  );
+
+  it.each(["/_next/webpack-hmr", "/_next/static/chunk.js", "/favicon.ico", "/images/hero.webp", "/styles.css"])(
+    "skips Next internals and static file %s",
+    async (path) => {
+      expect(await runsFor(path)).toBe(false);
+    },
+  );
 });
