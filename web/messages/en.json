@@ -467,5 +467,114 @@
       "label": "04 — Appeals",
       "title": "Rejected? You can appeal once, with a reason. A different Expert decides."
     }
+  },
+  "About": {
+    "meta": {
+      "title": "About · Smart Fundis",
+      "description": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof anyone can trust."
+    },
+    "comingSoon": "Coming soon",
+    "hero": {
+      "label": "Smart Fundis / Company — About",
+      "title": "We make skill visible.",
+      "body": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof anyone can trust.",
+      "secondary": "What we are",
+      "frame": "Frame: SF-JUA-01 · Workshop",
+      "frameTag": "Jua kali bench",
+      "imageAlt": "Hands at a busy workshop bench with a pipe wrench and coiled wire"
+    },
+    "what": {
+      "label": "01 — What we are",
+      "are": {
+        "tag": "We are",
+        "title": "A way to verify a real skill, on video.",
+        "body": "One continuous phone video. Every step checked."
+      },
+      "not": {
+        "tag": "We are not",
+        "title": "An awarding body. NITA, KNQA and TVETs certify.",
+        "body": "We don't issue licences or qualifications. We verify one skill, on video."
+      },
+      "notYet": {
+        "tag": "Not yet",
+        "title": "A booking or payments platform.",
+        "body": "Bookings and M-Pesa payments are on our roadmap."
+      }
+    },
+    "principles": {
+      "label": "02 — Principles",
+      "items": {
+        "1": {
+          "title": "Proof over promises",
+          "body": "We show what verification looks like."
+        },
+        "2": {
+          "title": "AI recommends, Experts decide",
+          "body": "The AI checks every step. A human Expert in your trade makes the final call."
+        },
+        "3": {
+          "title": "Your video stays yours",
+          "body": "Only your badge is public. Your video is never shared publicly."
+        },
+        "4": {
+          "title": "Nothing looks live that isn't",
+          "body": "Anything we haven't built yet is marked Coming soon."
+        }
+      }
+    },
+    "statement": {
+      "label": "03 — Kazi yako, sifa yako",
+      "title": "Your work, your reputation.",
+      "body": "A fundi's skill should speak for itself: shown on video, checked step by step, and decided by someone who knows the trade.",
+      "imageAlt": "A fundi's hands holding an adjustable wrench at the bench"
+    },
+    "more": {
+      "label": "Keep reading",
+      "telemetry": {
+        "title": "Responsible AI → Telemetry",
+        "body": "How the AI checks each step, and why it never decides."
+      },
+      "roadmap": {
+        "title": "Roadmap →",
+        "body": "Ten trades on the bench, the Data Co-op, bookings and M-Pesa payments."
+      },
+      "contact": {
+        "title": "Contact us →",
+        "body": "Questions about verification, your badge or becoming a verifier."
+      }
+    }
+  },
+  "Contact": {
+    "meta": {
+      "title": "Contact · Smart Fundis",
+      "description": "Questions about verification, your badge, or becoming a verifier? Write to us. We reply by email."
+    },
+    "hero": {
+      "label": "Smart Fundis / Company — Contact",
+      "title": "Talk to us.",
+      "body": "Questions about verification, your badge, or becoming a verifier? Write to us. We reply by email."
+    },
+    "message": {
+      "label": "01 — Message",
+      "role": "I am a…",
+      "roles": {
+        "fundi": "Fundi",
+        "client": "Client",
+        "expert": "Expert",
+        "partner": "Partner",
+        "press": "Press"
+      },
+      "message": "Message",
+      "send": "Write the email",
+      "note": "Opens your email app. We only use your details to reply."
+    },
+    "direct": {
+      "label": "02 — Direct",
+      "email": "Email",
+      "pending": "Our contact email will be listed here soon.",
+      "frame": "Communications ledger",
+      "frameTag": "Example",
+      "imageAlt": "Hands holding a phone over a workshop bench"
+    }
   }
 }

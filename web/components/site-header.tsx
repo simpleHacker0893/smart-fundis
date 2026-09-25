@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { CompanyMenu } from "@/components/company-menu";
 import { HeaderAccount } from "@/components/header-account";
 import { SiteLogo } from "@/components/site-logo";
 import { builtOnly, SECTION_NAV } from "@/lib/site-nav";
@@ -14,7 +15,7 @@ import { builtOnly, SECTION_NAV } from "@/lib/site-nav";
  *   the account actions on the right.
  * The lockup follows DESIGN.md L92-99: the mark, "Smart Fundis" at weight 600
  * and the mono tag "VERIFIED SKILLS" in dim. The nav points at landing
- * sections and the footer directory, never at pages that don't exist.
+ * pages, never at pages that don't exist. COMPANY ▾ opens About and Contact.
  */
 export async function SiteHeader() {
   const [t, links] = await Promise.all([getTranslations("Shell"), getTranslations("Links")]);
@@ -52,6 +53,7 @@ export async function SiteHeader() {
               {links(item.key)}
             </Link>
           ))}
+          <CompanyMenu variant="desktop" className={`${navLink} h-12 rounded-full px-4 tracking-wider hover:bg-accent`} />
         </nav>
 
         <div className="flex shrink-0 items-center gap-2 lg:gap-3">
@@ -60,13 +62,14 @@ export async function SiteHeader() {
       </div>
 
       {/* Mobile and tablet: the section nav as a second, always-visible row. */}
-      <nav aria-label={t("sectionsNav")} className="border-t border-line lg:hidden">
+      <nav aria-label={t("sectionsNav")} className="relative border-t border-line lg:hidden">
         <div className="mx-auto grid h-11 max-w-7xl grid-cols-4 px-2 sm:px-4">
           {nav.map((item) => (
             <Link key={item.key} href={item.href} className={`${navLink} h-11 tracking-[0.12em] sm:tracking-widest`}>
               {links(item.key)}
             </Link>
           ))}
+          <CompanyMenu variant="row" className={`${navLink} h-11 tracking-[0.12em] sm:tracking-widest`} />
         </div>
       </nav>
     </header>

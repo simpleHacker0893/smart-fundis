@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -137,12 +137,24 @@ describe("site header", () => {
     const navs = [...markup.matchAll(/<nav\s[^>]*>[\s\S]*?<\/nav>/g)].map((m) => m[0]);
     expect(navs).toHaveLength(2);
     for (const navMarkup of navs) {
-      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/telemetry", "#company"]);
+      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/telemetry", "/about", "/contact"]);
+      expect(visibleStrings(navMarkup)).toContain(links("company"));
     }
     // One nav row for mobile, one inline nav for desktop: every width sees one.
     const classes = navs.map((n) => n.match(/class="([^"]*)"/)![1]);
     expect(classes.some((c) => /\blg:hidden\b/.test(c) && !/(^|\s)hidden(\s|$)/.test(c))).toBe(true);
     expect(classes.some((c) => /(^|\s)hidden(\s|$)/.test(c) && /\blg:flex\b/.test(c))).toBe(true);
+  });
+
+  it("makes COMPANY a disclosure that opens About and Contact us", async () => {
+    const markup = await renderHeader();
+    const buttons = [...markup.matchAll(/<button[^>]*aria-controls="([^"]+)"[^>]*>/g)];
+    expect(buttons).toHaveLength(2);
+    for (const [tag, panelId] of buttons) {
+      expect(tag).toContain('aria-expanded="false"');
+      const panel = markup.slice(markup.indexOf(`id="${panelId}"`));
+      expect(hrefs(panel.slice(0, panel.indexOf("</div>") + 200)).slice(0, 2)).toEqual(["/about", "/contact"]);
+    }
   });
 
   it("shows the lockup, the name and the VERIFIED SKILLS tag, linking home", async () => {
@@ -202,9 +214,9 @@ describe("site footer (Stitch landing v3)", () => {
     expect(markup).toMatch(/\sid="company"/);
   });
 
-  it("leaves out destinations that don't exist yet (privacy, verifier, about, contact)", async () => {
+  it("leaves out destinations that don't exist yet (privacy, verifier)", async () => {
     const strings = visibleStrings(await renderFooter());
-    for (const key of ["privacy", "becomeVerifier", "about", "contact"] as const) {
+    for (const key of ["privacy", "becomeVerifier"] as const) {
       expect(strings).not.toContain(links(key));
     }
     expect(strings).not.toContain(footer("groups.forExperts"));

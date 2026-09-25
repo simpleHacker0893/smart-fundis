@@ -14,9 +14,9 @@ type Messages = typeof messages;
  * one of those pages, add its route to BUILT_ROUTES (and to the allow-list in
  * test/site-shell.test.tsx) and the link appears.
  */
-export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry"] as const;
+export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact"] as const;
 
-/** Where the COMPANY tab and nav item point: the footer directory, on every page. */
+/** The footer directory's anchor, on every page. */
 export const COMPANY_ANCHOR = "#company";
 
 export function isBuiltRoute(href: string): boolean {
@@ -32,12 +32,17 @@ export function builtOnly<T extends { href: string }>(items: readonly T[]): T[] 
   return items.filter((item) => isBuiltRoute(item.href));
 }
 
-/** Header nav and mobile tab bar: EVIDENCE · TRADES · TELEMETRY · COMPANY. */
+/** Header nav: EVIDENCE · TRADES · TELEMETRY, then the COMPANY ▾ menu. */
 export const SECTION_NAV = [
   { key: "evidence", href: "/evidence" },
   { key: "trades", href: "/trades" },
   { key: "telemetry", href: "/telemetry" },
-  { key: "company", href: COMPANY_ANCHOR },
+] as const satisfies readonly NavLink[];
+
+/** COMPANY ▾ opens About and Contact us (#24). */
+export const COMPANY_NAV = [
+  { key: "about", href: "/about" },
+  { key: "contact", href: "/contact" },
 ] as const satisfies readonly NavLink[];
 
 /** "Show your work." CTAs: the primary pill, then the secondary. */

@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact"];
 
 const isFromMessages = makeIsFromMessages(en);
 
@@ -34,6 +34,8 @@ const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof 
   "/evidence": { load: () => import("@/app/evidence/page"), namespace: "Evidence" },
   "/trades": { load: () => import("@/app/trades/page"), namespace: "Trades" },
   "/telemetry": { load: () => import("@/app/telemetry/page"), namespace: "Telemetry" },
+  "/about": { load: () => import("@/app/about/page"), namespace: "About" },
+  "/contact": { load: () => import("@/app/contact/page"), namespace: "Contact" },
 };
 
 async function render(route: string) {
@@ -70,7 +72,7 @@ describe.each(Object.keys(PAGES))("%s", (route) => {
 
   it("renders only strings from messages/en.json", async () => {
     const strings = visibleStrings(await render(route));
-    expect(strings.length).toBeGreaterThan(15);
+    expect(strings.length).toBeGreaterThan(5);
     for (const s of strings) expect(isFromMessages(s), `hardcoded string on ${route}: "${s}"`).toBe(true);
   });
 
@@ -209,5 +211,58 @@ describe("/telemetry (#23)", () => {
   it("invents no numbers or infrastructure claims", async () => {
     const text = visibleStrings(await render("/telemetry")).join(" ");
     expect(text).not.toMatch(/\d+%|enclave|cryptograph|tamper|hardware tethered|isolated gpu|irreversible|senior panel/i);
+  });
+});
+
+describe("/about (#24)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "About" });
+
+  it("has the prompt's sections: hero, what we are, principles, statement, links", async () => {
+    const markup = await render("/about");
+    const at = ["top", "what", "principles", "statement", "more"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("says what we are not, and tags bookings and payments 'Coming soon'", async () => {
+    const what = visibleStrings(section(await render("/about"), "what"));
+    expect(what).toContain(t("what.not.title"));
+    expect(what).toContain(t("what.notYet.title"));
+    expect(what).toContain(t("comingSoon"));
+  });
+
+  it("lists the four principles and links on to telemetry, the roadmap and contact", async () => {
+    const markup = await render("/about");
+    const principles = visibleStrings(section(markup, "principles"));
+    for (const n of ["1", "2", "3", "4"] as const) expect(principles).toContain(t(`principles.items.${n}.title`));
+    const more = [...section(markup, "more").matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
+    expect(more).toEqual(["/telemetry", "/#roadmap", "/contact"]);
+  });
+
+  it("drops the export's invented readouts", async () => {
+    const text = visibleStrings(await render("/about")).join(" ");
+    expect(text).not.toMatch(/fps|continuous telemetry|fresh telemetry|trade verified|verification seal|raw bench/i);
+  });
+});
+
+describe("/contact (#24)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Contact" });
+
+  it("has no live-looking form or placeholder address while no contact email is set", async () => {
+    const { CONTACT_EMAIL } = await import("@/lib/contact");
+    expect(CONTACT_EMAIL).toBeNull();
+    const markup = await render("/contact");
+    expect(markup).not.toMatch(/<form|<textarea|type="submit"|example\.com/);
+    expect(visibleStrings(markup)).toContain(t("direct.pending"));
+  });
+
+  it("builds a mailto link with the role and message, to the one contact address", async () => {
+    const { buildMailto } = await import("@/lib/contact");
+    const href = buildMailto("team@smartfundis.example", { role: "Fundi", message: "Habari? Line 2 & more" });
+    expect(href.startsWith("mailto:team@smartfundis.example?")).toBe(true);
+    const params = new URLSearchParams(href.split("?")[1]);
+    expect(params.get("subject")).toContain("Fundi");
+    expect(params.get("body")).toBe("Habari? Line 2 & more");
   });
 });
