@@ -1,0 +1,15 @@
+packages:
+  - web
+# Install scripts stay off: each of these ships its native binary as an optional
+# platform dependency, so nothing needs a postinstall (R-13). Approve one only if
+# a tool is proven broken without it.
+allowBuilds:
+  '@parcel/watcher': false
+  '@swc/core': false
+  esbuild: false
+  unrs-resolver: false
+minimumReleaseAgeExclude:
+  - icu-minify@4.14.7
+  - next-intl-swc-plugin-extractor@4.14.7
+  - next-intl@4.14.7
+  - use-intl@4.14.7

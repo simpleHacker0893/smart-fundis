@@ -87,7 +87,7 @@ Use two families only. The reference loads Public Sans for its tab labels (L13),
 | The cinematic layer (GSAP, Three.js, WebGL) is lazy-loaded after first paint. Text and buttons render first, and low-power devices get static final frames | L124 |
 | Each WebGL canvas gets `aria-hidden` and a text equivalent next to it; `pointer-events: none` on every overlay | L109–110 |
 
-The full motion build spec is `prompts/01-landing.md` Part A. It uses CDN links for the prototype; in `web/`, use the npm packages.
+The full motion build spec is `prompts/01-landing.md` Part A. It uses CDN links for the prototype; in `web/`, install the packages with pnpm (D-12).
 
 ### What V0 needs and what waits for V3
 
@@ -235,7 +235,7 @@ These were downloaded at full size from the Stitch exports, reviewed, and saved 
 | 09, 10, 13 | load Plus Jakarta Sans | remove |
 | 03-resp | rubric preview is missing its "EXAMPLE" tag | add it (the mobile export has it) |
 
-- **Opening the exports locally.** They need internet access, because they load Tailwind, fonts and images from CDNs. From the repo root, run `start "" design\stitch\exports\02-evidence-responsive.html` (Windows) or `npx serve design/stitch/exports`, then use DevTools device mode at 360, 768 and 1280 px. The `.png` next to each `.html` is the offline screenshot. For the REFERENCE, trust the PNG when the two disagree.
+- **Opening the exports locally.** They need internet access, because they load Tailwind, fonts and images from CDNs. From the repo root, run `start "" design\stitch\exports\02-evidence-responsive.html` (Windows) or `pnpm dlx serve design/stitch/exports`, then use DevTools device mode at 360, 768 and 1280 px. The `.png` next to each `.html` is the offline screenshot. For the REFERENCE, trust the PNG when the two disagree.
 
 ## 7. Conflicts that need an Architect call
 

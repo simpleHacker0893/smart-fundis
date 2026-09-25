@@ -2,20 +2,18 @@
   "name": "smart-fundis",
   "version": "0.0.0",
   "private": true,
-  "description": "Smart Fundis monorepo: web (Next.js, the only npm workspace), convex/ (Convex functions, deps at the root), ai-service (Python, uv)",
-  "workspaces": [
-    "web"
-  ],
+  "description": "Smart Fundis monorepo (pnpm): web (Next.js, the only workspace package), convex/ (Convex functions, deps at the root), ai-service (Python, uv)",
+  "packageManager": "pnpm@12.4.2",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
-    "dev": "npm run dev --workspace web --if-present",
+    "dev": "pnpm --filter @smart-fundis/web dev",
     "dev:convex": "convex dev",
-    "build": "npm run build --workspaces --if-present",
-    "typecheck": "npm run typecheck --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present",
-    "test": "npm run check:env && npm run test --workspaces --if-present",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm check:env && pnpm -r --if-present test",
     "check:env": "node scripts/check-env-example.mjs"
   },
   "dependencies": {
