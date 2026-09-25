@@ -1,0 +1,5 @@
+This is a connectivity check for a structured-output API. There is no user data.
+Reply with a JSON object that has exactly these fields:
+- "trade": the string "electrical"
+- "ok": the boolean true
+- "note": one short sentence confirming that structured output works

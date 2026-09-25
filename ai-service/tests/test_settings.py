@@ -4,6 +4,7 @@ import shutil
 from pathlib import Path
 
 import pytest
+from pydantic import SecretStr
 
 from app import settings
 
@@ -79,3 +80,34 @@ def test_secrets_never_appear_in_repr_or_dump(fake_repo: Path) -> None:
     loaded = settings.load_settings(fake_repo / ".env")
     assert "nvapi-fake-fixture-key" not in repr(loaded)
     assert "nvapi-fake-fixture-key" not in str(loaded.model_dump())
+
+
+@pytest.mark.parametrize("blank", ["", "   ", "\t "])
+def test_blank_values_count_as_unset(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch, blank: str
+) -> None:
+    env = tmp_path / ".env"
+    env.write_text(f'NVIDIA_API_KEY="{blank}"\nNEMOTRON_MODEL=from-file\nQUEUE_MODE="{blank}"\n')
+    monkeypatch.setenv("NEMOTRON_MODEL", blank)  # a blank env var doesn't mask the file
+
+    loaded = settings.load_settings(env)
+
+    assert loaded.nvidia_api_key is None
+    assert loaded.nemotron_model == "from-file"
+    assert loaded.queue_mode == "inline"
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_values_passed_directly_count_as_unset(blank: str) -> None:
+    built = settings.Settings(
+        nvidia_api_key=SecretStr(blank), nemotron_model=blank, cosmos_model=blank
+    )
+
+    assert built.nvidia_api_key is None
+    assert built.nemotron_model is None
+    assert built.cosmos_model == settings.DEFAULT_COSMOS_MODEL
+
+
+def test_values_are_trimmed() -> None:
+    built = settings.Settings(nemotron_model="  nvidia/some-model \n")
+    assert built.nemotron_model == "nvidia/some-model"
