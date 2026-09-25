@@ -11,5 +11,54 @@
     "title": "Dashboard",
     "signedInAs": "Signed in as {email}",
     "signedIn": "You are signed in."
+  },
+  "Shell": {
+    "brand": "Smart Fundis",
+    "skipToContent": "Skip to content",
+    "primaryNav": "Main",
+    "join": "Join",
+    "joinAsFundi": "Join as a fundi",
+    "signIn": "Sign in",
+    "dashboard": "Dashboard",
+    "openMenu": "Open menu",
+    "closeMenu": "Close menu",
+    "menuTitle": "Menu",
+    "nav": {
+      "evidence": "Evidence",
+      "trades": "Trades",
+      "telemetry": "Telemetry",
+      "company": "Company",
+      "about": "About",
+      "contact": "Contact us"
+    }
+  },
+  "Footer": {
+    "headline": "Show your work.",
+    "cta": {
+      "joinAsFundi": "Join as a fundi",
+      "findFundi": "Find a fundi"
+    },
+    "linksLabel": "Footer",
+    "groups": {
+      "forFundis": "For fundis",
+      "forClients": "For clients",
+      "forExperts": "For experts",
+      "company": "Company"
+    },
+    "links": {
+      "joinAsFundi": "Join as a fundi",
+      "howVerificationWorks": "How verification works",
+      "privacy": "Your privacy",
+      "findFundi": "Find a fundi",
+      "verifiedMeans": "What 'verified' means",
+      "becomeVerifier": "Become a verifier",
+      "about": "About",
+      "contact": "Contact us",
+      "responsibleAi": "Responsible AI",
+      "roadmap": "Roadmap"
+    },
+    "wordmark": "Smart Fundis",
+    "legal": "We verify skills. NITA, KNQA and TVETs certify.",
+    "copyright": "© 2026 Smart Fundis"
   }
 }
