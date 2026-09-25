@@ -19,7 +19,7 @@ You are the **Architect** for Smart Fundis.
 4. Research links: `docs/research-links.md`.
 
 ## You own
-- Root config: `package.json` (npm workspaces), `convex.json`, `AGENTS.md`, `docs/`.
+- Root config: `package.json` and `pnpm-workspace.yaml` (pnpm, D-12), `convex.json`, `AGENTS.md`, `docs/`.
 - The contracts between layers:
   - the Convex schema shape (PRD §7)
   - the `/ai/claim` and `/ai/callback` payloads

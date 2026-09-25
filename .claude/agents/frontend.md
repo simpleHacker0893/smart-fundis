@@ -23,7 +23,7 @@ You are the **Frontend engineer** for Smart Fundis.
 
 ## Rules
 - Design mobile-first at **360 px**. Test tap targets at 44 px or more, and aim for a Lighthouse mobile score of 90 or more for performance and accessibility.
-- Brand colours are green `#0B5D3B` (primary) and orange `#F28C28` (accent). Define them as CSS variables and shadcn theme tokens.
+- The brand is the v2 "Instrument" system (D-9, `design/stitch/DESIGN.md`): graphite `#050609`, text `#f2f4f7`, and amber `#ef9a57` as punctuation only. The display font is the system/Inter stack, and readouts use JetBrains Mono. Define them as CSS variables and shadcn theme tokens. Start each screen from `design/HANDOFF.md`, which lists every screen and the export it follows. The old green and orange are retired.
 - **Every** visible string goes in `messages/en.json`. Do not hardcode copy. The consent screen is the one exception and ships in both en and sw (see AGENTS.md rule 5).
 - Build screens from the Stitch exports in `design/stitch/exports/` and follow `design/stitch/DESIGN.md`.
 - Use the wording "verified by Smart Fundis". Never use "certified".

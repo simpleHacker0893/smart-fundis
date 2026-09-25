@@ -48,7 +48,7 @@ Smart Fundis lets jua kali workers (fundis) prove their skills with a short phon
 smart-fundis/
 ├── AGENTS.md                 # shared agent rules (CLAUDE.md symlinks here)
 ├── docs/PRD.md               # this file
-├── package.json              # npm workspaces: web, convex
+├── package.json              # pnpm root (D-12); pnpm-workspace.yaml lists web; convex deps at the root (D-11)
 ├── convex.json               # points the Convex CLI at ./convex
 ├── convex/                   # schema.ts, functions, http.ts, crons.ts, auth.config.ts
 ├── web/                      # Next.js app (no src/), messages/en.json, messages/sw.json
@@ -331,7 +331,7 @@ Run one prompt per session, in order. Commit after each. Every prompt starts wit
 
 | # | Agent | Prompt (short form) | Done when |
 | --- | --- | --- | --- |
-| P0 | Architect | "Create the monorepo per §2 layout: npm workspaces, `convex.json`, empty `web/`, `convex/`, `ai-service/`, `AGENTS.md` with the §3 working rules, and `.claude/settings.json` from §4.3. No features." | Tree matches §2; `npm install` works |
+| P0 | Architect | "Create the monorepo per §2 layout: pnpm workspace, `convex.json`, empty `web/`, `convex/`, `ai-service/`, `AGENTS.md` with the §3 working rules, and `.claude/settings.json` from §4.3. No features." | Tree matches §2; `npm install` works |
 | P1.1 | Frontend | "Scaffold `web/`: Next.js App Router (no src), Tailwind, shadcn/ui, next-intl with `en` and `sw`, brand colours. Build the landing page for US-1.1 to US-1.6." | Phase 1 criteria pass on a 360 px phone |
 | P2.1 | Auth + Convex | "Wire Clerk + Convex per Phase 2 technical notes. Implement `users.store`, `users.me`, `requireRole`, and the Phase 2 tables from §7." | Sign-in works; role check throws for wrong role |
 | P2.2 | Frontend + Auth | "Build onboarding and role routing for US-2.2 to US-2.4 and US-2.7." | Each role lands on its dashboard |

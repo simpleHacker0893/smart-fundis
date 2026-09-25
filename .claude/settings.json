@@ -29,14 +29,28 @@
       "Bash(git diff*)",
       "Bash(git log*)",
       "Bash(git add*)",
-      "Bash(git commit*)"
+      "Bash(git commit*)",
+      "Bash(pnpm install*)",
+      "Bash(pnpm run *)",
+      "Bash(pnpm typecheck*)",
+      "Bash(pnpm lint*)",
+      "Bash(pnpm test*)",
+      "Bash(pnpm build*)",
+      "Bash(pnpm check:env*)",
+      "Bash(pnpm exec convex dev*)",
+      "Bash(pnpm exec convex codegen*)",
+      "Bash(pnpm exec tsc*)",
+      "Bash(pnpm exec playwright test*)"
     ],
     "deny": [
       "Read(./**/.env)",
       "Read(./**/.env.local)",
       "Read(./**/.env.production)",
       "Bash(git push --force*)",
-      "Bash(npx convex deploy*)"
+      "Bash(npx convex deploy*)",
+      "Bash(pnpm exec convex deploy*)",
+      "Bash(pnpm dlx convex deploy*)",
+      "Bash(pnpm convex deploy*)"
     ]
   },
   "enabledPlugins": {

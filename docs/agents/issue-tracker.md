@@ -49,4 +49,4 @@ Used by `/wayfinder`. The **map** is a single issue with **child** issues as tic
 - **Slice spec:** one parent issue per vertical slice, titled `V<n> spec: <name>`, with the labels `spec` and `slice:v<n>`.
 - **Tickets:** GitHub sub-issues of the slice spec, with the labels `ticket`, `slice:v<n>` and a triage label. Use `ready-for-agent`, or `ready-for-human` for dashboard, secrets and real-phone steps. Blocking edges use GitHub's native issue dependencies.
 - **Risky tickets** are also labelled `plan-first`. They get a `superpowers:writing-plans` plan before implementation.
-- **Pull requests:** one branch and PR per ticket, named `v<n>/<issue#>-<slug>`. The PR body includes `Closes #<issue>`. It is squash-merged by the Architect after the Claude review check passes.
+- **Pull requests:** one branch and PR per ticket, named `v<n>/<issue#>-<slug>`. The PR body includes `Closes #<issue>`. It is squash-merged by the Architect after the local `/code-review` and the Architect's manual review (D-10).

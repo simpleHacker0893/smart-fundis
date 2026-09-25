@@ -11,7 +11,7 @@ docs/PRD.md §2 and §7 (the env var table), and .github/workflows/claude-review
 Step 1 — do these checks yourself, and don't put them in the wizard:
 - Run `git status`. If there's uncommitted work, list it and ask me to commit and push it to main now, before
   branch protection is on. Don't commit it yourself.
-- Check the tools and report their versions: git, gh (and `gh auth status`), node (20 or later), npm, python
+- Check the tools and report their versions: git, gh (and `gh auth status`), node (20 or later), pnpm (D-12), python
   (3.11 or later), and uv. For any tool that's missing, give me the install command for Windows.
 - Check that `gh api repos/simpleHacker0893/smart-fundis` works, and whether sub-issues and issue dependencies
   are already available on it.
@@ -27,7 +27,7 @@ Step 2 — use the mattpocock-skills:wizard skill to write scripts/wizards/00-se
    template named exactly `convex`, with the claims email, email_verified and name. Note where the Publishable key,
    the Secret key and the Frontend API URL are, but don't capture them yet (that's V0).
 3. Convex. Sign in at dashboard.convex.dev and create or pick the team. The project itself gets created by
-   `npx convex dev` in V0.
+   `pnpm dev:convex` in V0.
 4. Vercel. Sign in and connect the GitHub account. The import, with root `web/`, happens in V0, once `web/` exists.
 5. The AI accounts for lane B: an API key from build.nvidia.com, a LangSmith API key, and the Cosmos-Reason2
    licence accepted on Hugging Face (8B and 2B). Keep the values in a password manager, because they're only

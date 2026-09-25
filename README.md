@@ -198,7 +198,7 @@ The full design is in **[docs/superpowers/specs/2026-09-25-architecture-design.m
 
 ### Prerequisites
 
-- Node 20+, npm 10+, Python 3.11+, git, and the [GitHub CLI](https://cli.github.com)
+- Node 20+, pnpm 12 (`corepack enable`), Python 3.11+ with uv, git, and the [GitHub CLI](https://cli.github.com)
 - Accounts:
   - [Clerk](https://clerk.com)
   - [Convex](https://convex.dev)
@@ -213,7 +213,7 @@ The full design is in **[docs/superpowers/specs/2026-09-25-architecture-design.m
 ```bash
 git clone https://github.com/simpleHacker0893/smart-fundis.git
 cd smart-fundis
-npm install                       # npm workspaces: web, convex
+pnpm install                      # pnpm workspace: web; convex deps at the root
 ```
 
 ### 2. Clerk
@@ -225,7 +225,7 @@ npm install                       # npm workspaces: web, convex
 ### 3. Convex
 
 ```bash
-npx convex dev                    # creates the dev deployment and pushes convex/
+pnpm dev:convex                   # convex dev: creates the dev deployment and pushes convex/
 ```
 
 In the Convex dashboard, set these environment variables:
@@ -247,7 +247,7 @@ CLERK_SECRET_KEY=sk_test_...
 ```
 
 ```bash
-npm run dev                       # web on http://localhost:3000 and convex dev
+pnpm dev                          # web on http://localhost:3000 (run pnpm dev:convex in a second terminal)
 ```
 
 To test on your phone over your LAN, open `http://<your-computer-ip>:3000`. For camera capture over HTTPS, use the Vercel preview URL.
@@ -280,8 +280,8 @@ The Brev box never opens an inbound port. The poller only calls out to `CONVEX_S
 ### 6. Tests
 
 ```bash
-npm test --workspace convex                  # convex-test: role guards, status changes, claim/callback
-npx playwright test --project=mobile         # 360×740 end-to-end (web/e2e)
+pnpm test                                    # env check, web tests, and convex-test once V0 #4 adds it
+pnpm exec playwright test --project=mobile   # 360×740 end-to-end (web/e2e, from V1)
 cd ai-service && pytest                      # rules.py, guard, "prompt never contains the code"
 ```
 

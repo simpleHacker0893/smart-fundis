@@ -1,0 +1,23 @@
+{
+  "name": "smart-fundis",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Smart Fundis monorepo (pnpm): web (Next.js, the only workspace package), convex/ (Convex functions, deps at the root), ai-service (Python, uv)",
+  "packageManager": "pnpm@12.4.2",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "pnpm --filter @smart-fundis/web dev",
+    "dev:convex": "convex dev",
+    "build": "pnpm -r --if-present build",
+    "typecheck": "pnpm -r --if-present typecheck",
+    "lint": "pnpm -r --if-present lint",
+    "test": "pnpm check:env && pnpm -r --if-present test",
+    "check:env": "node scripts/check-env-example.mjs"
+  },
+  "dependencies": {
+    "convex": "^1.46.0",
+    "typescript": "^6.0.3"
+  }
+}
