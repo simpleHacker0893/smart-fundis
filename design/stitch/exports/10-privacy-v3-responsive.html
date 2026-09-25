@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Fundis — Your privacy</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@400;500;600;700;800&amp;family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#050609',
+              900: '#0b0d13',
+              850: '#10131a',
+              800: '#161922',
+              700: '#232734',
+              600: '#343a4c'
+            },
+            surface: '#0c0f17',
+            accent: {
+              DEFAULT: '#ef9a57',
+              dim: '#ef9a5726',
+              glow: '#ef9a5740',
+              hover: '#f5aa6d'
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .dot-pattern {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.07) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .scan-line {
+      background: linear-gradient(90deg, transparent, rgba(239, 154, 87, 0.35), transparent);
+    }
+    .custom-scroll::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-graphite-950 text-[#f2f4f7] min-h-screen selection:bg-accent/30 selection:text-white flex flex-col dot-pattern">
+<!-- 00. STICKY TOP APP BAR (72px desktop, 56px mobile) -->
+<header class="sticky top-0 z-50 h-14 md:h-[72px] w-full bg-graphite-950/95 backdrop-blur-md border-b border-graphite-800/80 px-4 sm:px-6 lg:px-12 flex items-center justify-between">
+<div class="max-w-7xl w-full mx-auto flex items-center justify-between">
+<!-- Left: Logo -->
+<a class="flex items-center gap-2.5 group shrink-0" href="#">
+<div class="w-8 h-8 rounded border border-graphite-700 bg-graphite-900/90 flex items-center justify-center text-accent shadow-inner">
+<span class="material-symbols-outlined text-lg">verified</span>
+</div>
+<span class="font-mono text-xs md:text-sm font-bold tracking-[0.24em] text-[#f2f4f7] group-hover:text-accent transition-colors">SMART FUNDIS</span>
+</a>
+<!-- Center Nav (Desktop lg+) -->
+<nav class="hidden lg:flex items-center gap-8 font-mono text-xs tracking-[0.22em] text-neutral-300">
+<a class="text-accent font-semibold transition-colors flex items-center gap-1.5" href="#">
+<span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+          EVIDENCE
+        </a>
+<a class="hover:text-white transition-colors" href="#">TRADES</a>
+<a class="hover:text-white transition-colors" href="#">TELEMETRY</a>
+<!-- Company Dropdown -->
+<div class="relative group py-2">
+<button class="flex items-center gap-1.5 hover:text-white transition-colors font-mono uppercase focus:outline-none" type="button">
+<span>COMPANY</span>
+<span class="material-symbols-outlined text-[15px] transition-transform duration-200 group-hover:rotate-180">expand_more</span>
+</button>
+<div class="absolute left-0 top-full pt-1 hidden group-hover:block w-44 z-50">
+<div class="bg-graphite-900 border border-graphite-800 rounded shadow-xl py-2 flex flex-col font-mono text-xs tracking-wider">
+<a class="px-4 py-2 hover:bg-graphite-800/60 hover:text-white text-neutral-300 transition-colors" href="#">About</a>
+<a class="px-4 py-2 hover:bg-graphite-800/60 hover:text-white text-neutral-300 transition-colors" href="#">Contact us</a>
+<a class="px-4 py-2 hover:bg-graphite-800/60 hover:text-white text-neutral-300 transition-colors" href="#">Roadmap</a>
+</div>
+</div>
+</div>
+</nav>
+<!-- Right Action Items -->
+<div class="flex items-center gap-3 sm:gap-4 shrink-0">
+<a class="hidden sm:inline-block font-mono text-xs tracking-[0.18em] text-neutral-300 hover:text-white transition-colors px-2 py-1" href="#">
+          Sign in
+        </a>
+<a class="h-8 md:h-9 px-3.5 md:px-5 rounded-full bg-accent hover:bg-accent-hover text-graphite-950 font-mono text-[11px] md:text-xs font-bold tracking-[0.18em] uppercase flex items-center justify-center transition-all active:scale-95 shadow-sm" href="#">
+          Join as a fundi
+        </a>
+<!-- Mobile menu button -->
+<button aria-label="Menu" class="lg:hidden w-8 h-8 rounded border border-graphite-800 bg-graphite-900/80 text-neutral-300 hover:text-white flex items-center justify-center transition-colors" type="button">
+<span class="material-symbols-outlined text-lg leading-none">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN WRAPPER -->
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-8 md:py-16 space-y-12 md:space-y-20 pb-24 lg:pb-16">
+<!-- 1. HERO SECTION (2-column layout on Desktop) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+<!-- Left Column: Hero Text -->
+<div class="lg:col-span-6 xl:col-span-7 space-y-4">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-accent animate-pulse shadow-[0_0_8px_#ef9a57]"></span>
+<span class="font-mono text-xs font-semibold tracking-[0.28em] text-accent uppercase">
+            SMART FUNDIS / PRIVACY
+          </span>
+</div>
+<h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-5xl font-extrabold tracking-tight text-white leading-[1.15]">
+          Your video stays yours.
+        </h1>
+<p class="text-sm md:text-base text-neutral-400 font-normal leading-relaxed max-w-xl pt-1">
+          Only your badge is public. Here is exactly who sees what.
+        </p>
+</div>
+<!-- Right Column: Documentary Evidence Frame Photo -->
+<div class="lg:col-span-6 xl:col-span-5">
+<div class="border border-graphite-800 bg-graphite-900/90 rounded overflow-hidden relative shadow-2xl">
+<!-- Meta Header Row -->
+<div class="flex items-center justify-between px-3.5 py-2 border-b border-graphite-800 bg-graphite-950 font-mono text-[10px] tracking-[0.22em] text-neutral-400">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-accent"></span>
+<span class="text-neutral-300 font-semibold uppercase">FRAME: SF-PRV-01</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-neutral-500 uppercase">// STANDBY</span>
+</div>
+</div>
+<!-- Frame Visual Viewport -->
+<div class="relative w-full aspect-video bg-black overflow-hidden group">
+<img alt="Documentary photo of smartphone lying screen-off flat on a dark weathered carpenter workshop bench beside hand tools" class="w-full h-full object-cover grayscale contrast-125 brightness-95 opacity-90 transition-transform duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida/AEtjO1X8Ssk5Wg1omttdGDl8Cz2dZMbMMM4WG7SADkSVPiYbrq_-WkuwhcgW08UovWhvMH4_HXdODw3SBgLgdwNbbnIEQj8fKhhLLjO1Hch0uzsC0FRpjS3fQXvA31A-lq7lCuzdQdxcqJfXRUijadOfED3Ybi73n68VmSZwVharmC8ZeMEg9VQvpTYA4ddrCnIdPyfMKwE0qxlAuDPS47CKhvvNmswsSm7oT-k4b_-oZYz_tie9IGiziA7CrGA"/>
+<!-- Corner Reticles -->
+<div class="absolute top-3 left-3 w-4 h-4 border-t-2 border-l-2 border-accent"></div>
+<div class="absolute top-3 right-3 w-4 h-4 border-t-2 border-r-2 border-accent"></div>
+<div class="absolute bottom-3 left-3 w-4 h-4 border-b-2 border-l-2 border-accent"></div>
+<div class="absolute bottom-3 right-3 w-4 h-4 border-b-2 border-r-2 border-accent"></div>
+<!-- Horizontal Scan Line -->
+<div class="absolute inset-x-0 top-1/2 h-[1px] scan-line pointer-events-none opacity-80"></div>
+<!-- Telemetry Reticle Badge -->
+<div class="absolute bottom-3 left-3 bg-graphite-950/90 border border-accent/60 px-2.5 py-1 rounded backdrop-blur-sm flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-accent animate-ping"></span>
+<span class="font-mono text-[9px] md:text-[10px] tracking-[0.22em] text-neutral-200 uppercase font-semibold">
+                HARDWARE LOCAL BUFFER // COLD STORAGE
+              </span>
+</div>
+</div>
+<!-- Frame Footer Readout -->
+<div class="px-3.5 py-2 bg-graphite-950 border-t border-graphite-800/80 flex items-center justify-between font-mono text-[10px] tracking-wider text-neutral-500">
+<span>BENCH VIEW</span>
+<span class="text-neutral-400">FPS: 00 // REST</span>
+</div>
+</div>
+</div>
+</section>
+<!-- 2. SECTION 01 — WHO SEES WHAT (Access Matrix Ledger) -->
+<section class="space-y-4">
+<div class="flex items-center justify-between border-b border-graphite-800/80 pb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-accent"></span>
+<h2 class="font-mono text-xs md:text-sm font-semibold tracking-[0.26em] text-neutral-200 uppercase">
+            01 — WHO SEES WHAT
+          </h2>
+</div>
+<span class="font-mono text-[10px] md:text-xs tracking-widest text-neutral-500 uppercase">ACCESS MATRIX</span>
+</div>
+<!-- Ledger Table Card -->
+<div class="border border-graphite-800 bg-graphite-900/60 rounded overflow-hidden">
+<!-- Table Header -->
+<div class="grid grid-cols-12 gap-2 px-3 sm:px-6 py-3 bg-graphite-900/90 border-b border-graphite-800 text-[10px] md:text-xs font-mono tracking-[0.2em] text-neutral-400 uppercase">
+<div class="col-span-4 sm:col-span-3 font-bold text-neutral-300">ITEM</div>
+<div class="col-span-5 sm:col-span-6 font-bold text-neutral-300">WHO SEES IT</div>
+<div class="col-span-3 font-bold text-right text-neutral-300">PUBLIC?</div>
+</div>
+<!-- Rows -->
+<div class="divide-y divide-graphite-800/60 font-mono text-xs md:text-sm">
+<!-- Row 1: Your video -->
+<div class="grid grid-cols-12 gap-2 px-3 sm:px-6 py-3.5 sm:py-4 items-center hover:bg-graphite-850/50 transition-colors">
+<div class="col-span-4 sm:col-span-3 font-medium text-white flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-neutral-500 shrink-0"></span>
+<span class="truncate">Your video</span>
+</div>
+<div class="col-span-5 sm:col-span-6 text-neutral-300 text-xs sm:text-sm leading-snug">
+              You, eligible Experts, Admins, our AI
+            </div>
+<div class="col-span-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] md:text-xs font-mono font-medium bg-neutral-800 text-neutral-300 border border-neutral-700/60">
+                No
+              </span>
+</div>
+</div>
+<!-- Row 2: AI feedback -->
+<div class="grid grid-cols-12 gap-2 px-3 sm:px-6 py-3.5 sm:py-4 items-center hover:bg-graphite-850/50 transition-colors">
+<div class="col-span-4 sm:col-span-3 font-medium text-white flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-neutral-500 shrink-0"></span>
+<span class="truncate">AI feedback</span>
+</div>
+<div class="col-span-5 sm:col-span-6 text-neutral-300 text-xs sm:text-sm leading-snug">
+              You
+            </div>
+<div class="col-span-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] md:text-xs font-mono font-medium bg-neutral-800 text-neutral-300 border border-neutral-700/60">
+                No
+              </span>
+</div>
+</div>
+<!-- Row 3: Phone & email -->
+<div class="grid grid-cols-12 gap-2 px-3 sm:px-6 py-3.5 sm:py-4 items-center hover:bg-graphite-850/50 transition-colors">
+<div class="col-span-4 sm:col-span-3 font-medium text-white flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-neutral-500 shrink-0"></span>
+<span class="truncate">Phone &amp; email</span>
+</div>
+<div class="col-span-5 sm:col-span-6 text-neutral-300 text-xs sm:text-sm leading-snug">
+              You and Admins
+            </div>
+<div class="col-span-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] md:text-xs font-mono font-medium bg-neutral-800 text-neutral-300 border border-neutral-700/60">
+                No
+              </span>
+</div>
+</div>
+<!-- Row 4: Badge -->
+<div class="grid grid-cols-12 gap-2 px-3 sm:px-6 py-3.5 sm:py-4 items-center bg-accent/5 hover:bg-accent/10 transition-colors">
+<div class="col-span-4 sm:col-span-3 font-medium text-white flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-accent shrink-0"></span>
+<span class="text-accent font-semibold truncate">Badge</span>
+</div>
+<div class="col-span-5 sm:col-span-6 text-neutral-200 text-xs sm:text-sm leading-snug font-medium">
+              Everyone
+            </div>
+<div class="col-span-3 text-right">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] md:text-xs font-mono font-bold bg-accent/20 text-accent border border-accent/40">
+                Yes
+              </span>
+</div>
+</div>
+<!-- Row 5: Showcase links -->
+<div class="grid grid-cols-12 gap-2 px-3 sm:px-6 py-3.5 sm:py-4 items-center hover:bg-graphite-850/50 transition-colors">
+<div class="col-span-4 sm:col-span-3 font-medium text-white flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-neutral-500 shrink-0"></span>
+<span class="truncate">Showcase links</span>
+</div>
+<div class="col-span-5 sm:col-span-6 text-neutral-300 text-xs sm:text-sm leading-snug">
+              Everyone
+            </div>
+<div class="col-span-3 text-right flex flex-col items-end gap-1">
+<span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] md:text-xs font-mono font-semibold bg-neutral-800 text-neutral-300 border border-neutral-700/60">
+                Yes
+              </span>
+<span class="text-[9px] md:text-[10px] font-mono text-neutral-400 text-right leading-tight">
+                labelled 'Showcase — not verified'
+              </span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 3. SECTION 02 — CONSENT, IN TWO LANGUAGES -->
+<section class="space-y-4">
+<div class="flex items-center justify-between border-b border-graphite-800/80 pb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-accent"></span>
+<h2 class="font-mono text-xs md:text-sm font-semibold tracking-[0.26em] text-neutral-200 uppercase">
+            02 — CONSENT, IN TWO LANGUAGES
+          </h2>
+</div>
+<span class="font-mono text-[10px] md:text-xs tracking-widest text-neutral-500 uppercase">GATEWAY</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-6">
+<!-- Card 1: English -->
+<div class="border border-graphite-800 bg-graphite-900/60 rounded p-4 md:p-5 flex flex-col justify-between space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[10px] md:text-xs font-bold tracking-[0.26em] text-accent uppercase">
+              ENGLISH
+            </span>
+<span class="font-mono text-[10px] text-neutral-500 tracking-wider">SPEC // EN-01</span>
+</div>
+<div class="flex items-start gap-3 bg-graphite-950/80 p-3.5 md:p-4 rounded border border-graphite-800/80">
+<div class="mt-0.5 w-4 h-4 rounded border border-graphite-600 bg-graphite-900 flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-[13px] font-bold">check</span>
+</div>
+<p class="text-xs md:text-sm text-neutral-200 leading-relaxed font-normal">
+              "I agree that Smart Fundis AI and verified experts will review my single continuous video solely for skill verification. My video remains strictly private."
+            </p>
+</div>
+</div>
+<!-- Card 2: Kiswahili -->
+<div class="border border-graphite-800 bg-graphite-900/60 rounded p-4 md:p-5 flex flex-col justify-between space-y-3">
+<div class="flex items-center justify-between">
+<span class="font-mono text-[10px] md:text-xs font-bold tracking-[0.26em] text-accent uppercase">
+              KISWAHILI
+            </span>
+<span class="font-mono text-[10px] text-neutral-500 tracking-wider">SPEC // SW-01</span>
+</div>
+<div class="flex items-start gap-3 bg-graphite-950/80 p-3.5 md:p-4 rounded border border-graphite-800/80">
+<div class="mt-0.5 w-4 h-4 rounded border border-graphite-600 bg-graphite-900 flex items-center justify-center text-white shrink-0">
+<span class="material-symbols-outlined text-[13px] font-bold">check</span>
+</div>
+<p class="text-xs md:text-sm text-neutral-200 leading-relaxed font-normal">
+              "Ninakubali video yangu ya mara moja ikaguliwe na AI na wataalamu wa Smart Fundis kuthibitisha ufundi wangu pekee. Video yangu haitawekwa hadharani kamwe."
+            </p>
+</div>
+</div>
+</div>
+<!-- Caption Note -->
+<p class="text-xs text-neutral-400 font-mono tracking-tight leading-relaxed flex items-center gap-2 pt-1 pl-1">
+<span class="material-symbols-outlined text-sm text-accent shrink-0">lock</span>
+<span>Shown before every upload. Upload stays off until you agree.</span>
+</p>
+</section>
+<!-- 4. SECTION 03 — YOUR CONTROLS -->
+<section class="space-y-4">
+<div class="flex items-center justify-between border-b border-graphite-800/80 pb-2">
+<div class="flex items-center gap-2.5">
+<span class="w-2 h-2 rounded-full bg-accent"></span>
+<h2 class="font-mono text-xs md:text-sm font-semibold tracking-[0.26em] text-neutral-200 uppercase">
+            03 — YOUR CONTROLS
+          </h2>
+</div>
+<span class="font-mono text-[10px] md:text-xs tracking-widest text-neutral-500 uppercase">SOVEREIGNTY</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-4 lg:gap-6">
+<!-- Control Card 1: DELETE -->
+<div class="border border-graphite-800 bg-graphite-900/50 hover:bg-graphite-900/80 transition-colors rounded p-4 md:p-5 flex flex-col justify-between gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-mono text-xs font-bold tracking-[0.24em] text-accent uppercase">
+                DELETE
+              </span>
+<span class="text-[10px] font-mono text-neutral-500 uppercase">// ON DEMAND PURGE</span>
+</div>
+<span class="material-symbols-outlined text-neutral-400 text-lg">delete_sweep</span>
+</div>
+<p class="text-xs md:text-sm text-neutral-300 font-normal leading-relaxed">
+            Remove your video once review is finished. Your badge stays.
+          </p>
+</div>
+<!-- Control Card 2: TRAINING -->
+<div class="border border-graphite-800 bg-graphite-900/50 hover:bg-graphite-900/80 transition-colors rounded p-4 md:p-5 flex flex-col justify-between gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-mono text-xs font-bold tracking-[0.24em] text-accent uppercase">
+                TRAINING
+              </span>
+<span class="text-[10px] font-mono text-neutral-500 uppercase">// ZERO HARVEST</span>
+</div>
+<span class="material-symbols-outlined text-neutral-400 text-lg">shield</span>
+</div>
+<p class="text-xs md:text-sm text-neutral-300 font-normal leading-relaxed">
+            Your video is not used to train AI or for the Data Co-op.
+          </p>
+</div>
+<!-- Control Card 3: VISIBILITY -->
+<div class="border border-graphite-800 bg-graphite-900/50 hover:bg-graphite-900/80 transition-colors rounded p-4 md:p-5 flex flex-col justify-between gap-3">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-mono text-xs font-bold tracking-[0.24em] text-accent uppercase">
+                VISIBILITY
+              </span>
+<span class="text-[10px] font-mono text-neutral-500 uppercase">// AUDIENCE TOGGLE</span>
+</div>
+<span class="material-symbols-outlined text-neutral-400 text-lg">visibility</span>
+</div>
+<p class="text-xs md:text-sm text-neutral-300 font-normal leading-relaxed">
+            Hide or show your public profile.
+          </p>
+</div>
+</div>
+</section>
+<!-- 5. SHOW YOUR WORK (CTA BAND) -->
+<section class="pt-8 pb-4 text-center space-y-4 max-w-2xl mx-auto">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white uppercase">
+        SHOW YOUR WORK.
+      </h2>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+<a class="w-full sm:w-auto sm:min-w-[200px] min-h-[48px] px-6 rounded-full bg-accent hover:bg-accent-hover text-graphite-950 font-mono text-xs font-bold tracking-[0.22em] uppercase flex items-center justify-center transition-all active:scale-[0.98] shadow-md shadow-accent/10" href="#">
+          JOIN AS A FUNDI
+        </a>
+<a class="w-full sm:w-auto sm:min-w-[200px] min-h-[48px] px-6 rounded-full bg-graphite-900 hover:bg-graphite-850 text-white border border-graphite-700/80 font-mono text-xs font-bold tracking-[0.22em] uppercase flex items-center justify-center transition-all active:scale-[0.98]" href="#">
+          FIND A FUNDI
+        </a>
+</div>
+</section>
+<!-- 6. FOOTER -->
+<footer class="pt-12 border-t border-graphite-800/80 space-y-12">
+<!-- 4 Link Groups Desktop Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-left font-mono">
+<!-- FOR FUNDIS -->
+<div class="space-y-3">
+<span class="text-[10px] md:text-xs font-bold tracking-[0.26em] text-accent uppercase block">
+            FOR FUNDIS
+          </span>
+<ul class="space-y-2 text-xs text-neutral-400">
+<li><a class="hover:text-white transition-colors" href="#">Join as a fundi</a></li>
+<li><a class="hover:text-white transition-colors" href="#">How verification works</a></li>
+<li><a class="text-white font-medium border-b border-accent/80 pb-0.5 inline-block" href="#">Your privacy</a></li>
+</ul>
+</div>
+<!-- FOR CLIENTS -->
+<div class="space-y-3">
+<span class="text-[10px] md:text-xs font-bold tracking-[0.26em] text-accent uppercase block">
+            FOR CLIENTS
+          </span>
+<ul class="space-y-2 text-xs text-neutral-400">
+<li><a class="hover:text-white transition-colors" href="#">Find a fundi</a></li>
+<li><a class="hover:text-white transition-colors" href="#">What 'verified' means</a></li>
+</ul>
+</div>
+<!-- FOR EXPERTS -->
+<div class="space-y-3">
+<span class="text-[10px] md:text-xs font-bold tracking-[0.26em] text-accent uppercase block">
+            FOR EXPERTS
+          </span>
+<ul class="space-y-2 text-xs text-neutral-400">
+<li><a class="hover:text-white transition-colors" href="#">Become a verifier</a></li>
+</ul>
+</div>
+<!-- COMPANY -->
+<div class="space-y-3">
+<span class="text-[10px] md:text-xs font-bold tracking-[0.26em] text-accent uppercase block">
+            COMPANY
+          </span>
+<ul class="space-y-2 text-xs text-neutral-400">
+<li><a class="hover:text-white transition-colors" href="#">About</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Contact us</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Responsible AI</a></li>
+<li><a class="hover:text-white transition-colors" href="#">Roadmap</a></li>
+</ul>
+</div>
+</div>
+<!-- Giant Monospace Outlined / Wireframe Wordmark -->
+<div class="pt-6 select-none opacity-20 hover:opacity-35 transition-opacity text-center overflow-hidden">
+<span class="font-mono text-4xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-[0.3em] uppercase text-transparent [-webkit-text-stroke:1px_#e3e2e7] whitespace-nowrap block">
+          SMART FUNDIS
+        </span>
+</div>
+<!-- Accreditations & Legal Row -->
+<div class="pt-2 pb-6 text-center space-y-1.5 font-mono text-[10px] md:text-xs tracking-wider text-neutral-500 uppercase">
+<p>WE VERIFY SKILLS. NITA, KNQA AND TVETS CERTIFY. • © 2026 SMART FUNDIS. ALL RIGHTS RESERVED.</p>
+</div>
+</footer>
+</main>
+<!-- 07. FIXED BOTTOM NAVIGATION BAR (Mobile Only: hidden on lg+) -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 z-50 h-14 bg-graphite-950/95 backdrop-blur-md border-t border-graphite-800/80 px-4 flex items-center justify-around shadow-2xl">
+<!-- EVIDENCE (Active) -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-accent py-1 px-3" href="#">
+<span class="material-symbols-outlined text-[19px]">verified_user</span>
+<span class="font-mono text-[9px] font-bold tracking-[0.22em] uppercase">EVIDENCE</span>
+</a>
+<!-- TRADES -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-neutral-400 hover:text-neutral-200 py-1 px-3 transition-colors" href="#">
+<span class="material-symbols-outlined text-[19px]">handyman</span>
+<span class="font-mono text-[9px] font-medium tracking-[0.22em] uppercase">TRADES</span>
+</a>
+<!-- TELEMETRY -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-neutral-400 hover:text-neutral-200 py-1 px-3 transition-colors" href="#">
+<span class="material-symbols-outlined text-[19px]">sensors</span>
+<span class="font-mono text-[9px] font-medium tracking-[0.22em] uppercase">TELEMETRY</span>
+</a>
+<!-- COMPANY -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-neutral-400 hover:text-neutral-200 py-1 px-3 transition-colors" href="#">
+<span class="material-symbols-outlined text-[19px]">apartment</span>
+<span class="font-mono text-[9px] font-medium tracking-[0.22em] uppercase">COMPANY</span>
+</a>
+</nav>
+</body></html>

@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Find a fundi (Responsive Web App)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: '#050609',
+            'graphite-surface': '#0a0d14',
+            'graphite-card': '#0e121a',
+            'graphite-border': 'rgba(255, 255, 255, 0.08)',
+            'graphite-border-strong': 'rgba(255, 255, 255, 0.15)',
+            amber: {
+              accent: '#ef9a57',
+              dim: '#ef9a5722',
+              glow: 'rgba(239, 154, 87, 0.18)',
+            }
+          },
+          fontFamily: {
+            sans: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          backgroundImage: {
+            'dot-grain': 'radial-gradient(circle, rgba(255,255,255,0.06) 1px, transparent 1px)',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      background-size: 24px 24px;
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+    }
+    .reticle-bracket {
+      position: relative;
+    }
+    .reticle-bracket::before,
+    .reticle-bracket::after {
+      content: '';
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-color: #ef9a57;
+      pointer-events: none;
+    }
+    .reticle-tl::before {
+      top: -1px;
+      left: -1px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .reticle-tr::after {
+      top: -1px;
+      right: -1px;
+      border-top: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .reticle-bl::before {
+      bottom: -1px;
+      left: -1px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .reticle-br::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .scan-line {
+      position: relative;
+      overflow: hidden;
+    }
+    .scan-line::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.3) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+      background-size: 100% 3px, 6px 100%;
+      pointer-events: none;
+      opacity: 0.55;
+    }
+    .outline-wordmark {
+      color: transparent;
+      -webkit-text-stroke: 1px rgba(255, 255, 255, 0.12);
+      letter-spacing: 0.22em;
+    }
+  </style>
+</head>
+<body class="bg-graphite bg-dot-grain text-[#f2f4f7] selection:bg-amber-accent selection:text-graphite flex flex-col min-h-screen">
+
+  <!-- ========================================================================= -->
+  <!-- RESPONSIVE HEADER: Mobile (48px) vs Desktop (72px, 1024px+)               -->
+  <!-- ========================================================================= -->
+  <header class="sticky top-0 z-50 w-full border-b border-graphite-border bg-[#050609]/90 backdrop-blur-md">
+    <div class="max-w-[1280px] mx-auto px-4 md:px-8">
+      
+      <!-- Mobile View (below 1024px) - 48px standard sticky bar -->
+      <div class="flex lg:hidden items-center justify-between h-12">
+        <a href="#" class="flex items-center gap-2.5">
+          <div class="w-6 h-6 rounded bg-[#10141e] border border-amber-accent/40 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5 text-amber-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="font-mono text-xs font-bold tracking-[0.2em] text-[#f2f4f7] uppercase">SMART FUNDIS</span>
+        </a>
+
+        <div class="flex items-center gap-3">
+          <a href="#" class="h-8 px-3.5 rounded-full bg-amber-accent text-graphite font-sans text-xs font-bold tracking-wider uppercase inline-flex items-center justify-center shadow-sm">
+            JOIN
+          </a>
+          <button id="mobileMenuBtn" aria-label="Open Navigation" class="w-8 h-8 rounded flex items-center justify-center text-[#9aa0a6] hover:text-[#f2f4f7] hover:bg-white/5 border border-graphite-border">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="3" y1="6" x2="21" y2="6"></line>
+              <line x1="3" y1="12" x2="21" y2="12"></line>
+              <line x1="3" y1="18" x2="21" y2="18"></line>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Desktop View (1024px and up) - 72px sticky bar -->
+      <div class="hidden lg:flex items-center justify-between h-[72px]">
+        <!-- Left: Logo & SMART FUNDIS -->
+        <a href="#" class="flex items-center gap-3 group">
+          <div class="w-8 h-8 rounded bg-[#0e131d] border border-amber-accent/50 flex items-center justify-center group-hover:border-amber-accent transition-colors">
+            <svg class="w-4 h-4 text-amber-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+              <path d="m9 12 2 2 4-4"/>
+            </svg>
+          </div>
+          <span class="font-mono text-sm font-bold tracking-[0.24em] text-[#f2f4f7] uppercase">SMART FUNDIS</span>
+        </a>
+
+        <!-- Centre: Technical Mono Nav Links -->
+        <nav class="flex items-center gap-8 font-mono text-xs font-medium tracking-[0.22em] text-[#9aa0a6]">
+          <a href="#" class="hover:text-amber-accent transition-colors">EVIDENCE</a>
+          <a href="#" class="hover:text-amber-accent transition-colors">TRADES</a>
+          <a href="#" class="hover:text-amber-accent transition-colors">TELEMETRY</a>
+          
+          <!-- Dropdown -->
+          <div class="relative group">
+            <button class="flex items-center gap-1.5 hover:text-amber-accent transition-colors uppercase tracking-[0.22em] focus:outline-none">
+              <span>COMPANY</span>
+              <svg class="w-3 h-3 text-[#9aa0a6] group-hover:text-amber-accent transition-transform group-hover:rotate-180" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+            </button>
+            <div class="absolute left-0 top-full mt-2 w-44 rounded border border-graphite-border bg-[#0a0d14] shadow-xl py-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 z-50">
+              <a href="#" class="block px-4 py-2 font-mono text-xs text-[#9aa0a6] hover:text-[#f2f4f7] hover:bg-white/5 tracking-[0.16em]">ABOUT</a>
+              <a href="#" class="block px-4 py-2 font-mono text-xs text-[#9aa0a6] hover:text-[#f2f4f7] hover:bg-white/5 tracking-[0.16em]">CONTACT US</a>
+            </div>
+          </div>
+        </nav>
+
+        <!-- Right: Sign in & Accent Pill -->
+        <div class="flex items-center gap-6">
+          <a href="#" class="font-mono text-xs font-medium tracking-[0.18em] text-[#9aa0a6] hover:text-[#f2f4f7] uppercase transition-colors">
+            SIGN IN
+          </a>
+          <a href="#" class="h-11 px-5 rounded-full bg-amber-accent hover:bg-[#e08b47] text-graphite font-sans text-xs font-bold tracking-wider uppercase inline-flex items-center justify-center transition-colors shadow-sm">
+            Join as a fundi
+          </a>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Mobile Drawer Menu (Collapsible) -->
+    <div id="mobileMenu" class="hidden lg:hidden border-t border-graphite-border bg-[#0a0d14] px-4 py-4 space-y-3 font-mono text-xs tracking-wider">
+      <a href="#" class="block py-2 text-[#9aa0a6] hover:text-amber-accent">EVIDENCE</a>
+      <a href="#" class="block py-2 text-[#9aa0a6] hover:text-amber-accent">TRADES</a>
+      <a href="#" class="block py-2 text-[#9aa0a6] hover:text-amber-accent">TELEMETRY</a>
+      <div class="border-t border-graphite-border pt-2 text-[#6e7681] text-[11px] uppercase tracking-widest">Company</div>
+      <a href="#" class="block pl-2 py-1 text-[#9aa0a6] hover:text-white">About</a>
+      <a href="#" class="block pl-2 py-1 text-[#9aa0a6] hover:text-white">Contact us</a>
+      <div class="border-t border-graphite-border pt-3 flex items-center justify-between">
+        <a href="#" class="text-[#9aa0a6]">Sign in</a>
+        <a href="#" class="px-4 py-2 rounded-full bg-amber-accent text-graphite font-bold uppercase text-[11px]">Join as a fundi</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- MAIN CONTAINER (12-column Grid on 1024px+, Max-W 1280px)                 -->
+  <!-- ========================================================================= -->
+  <main class="flex-grow max-w-[1280px] w-full mx-auto px-4 md:px-8 py-8 lg:py-16">
+    
+    <!-- 1. HERO SECTION -->
+    <section class="mb-10 lg:mb-14">
+      <div class="flex items-center gap-2 mb-3">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-accent inline-block"></span>
+        <span class="font-mono text-xs uppercase tracking-[0.24em] text-amber-accent font-semibold">SMART FUNDIS / DIRECTORY</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight text-[#f2f4f7] mb-3">
+        Find a verified fundi.
+      </h1>
+      <p class="text-sm lg:text-base text-[#9aa0a6] font-normal max-w-2xl leading-relaxed">
+        Only fundis with an Expert-approved badge appear here.
+      </p>
+    </section>
+
+    <!-- 2. FILTER BAR (Instrument Controls) -->
+    <!-- Desktop: Single 1-row matrix. Mobile: Stacked panel. 48px selects and CTA -->
+    <section class="mb-12 lg:mb-16">
+      <div class="relative bg-graphite-surface rounded border border-graphite-border p-4 lg:p-6 reticle-bracket reticle-tl reticle-br">
+        
+        <!-- Header tag of instrument panel -->
+        <div class="flex items-center justify-between mb-4 pb-3 border-b border-graphite-border">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+            <span class="font-mono text-[11px] font-semibold tracking-[0.22em] text-[#9aa0a6] uppercase">FILTER MATRIX // DIRECTORY QUERY</span>
+          </div>
+          <span class="font-mono text-[10px] tracking-[0.2em] text-amber-accent uppercase px-2 py-0.5 rounded bg-amber-dim border border-amber-accent/30">
+            ACTIVE READY
+          </span>
+        </div>
+
+        <!-- Controls Grid: 1 row on desktop, stacked on mobile -->
+        <form class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end" onsubmit="event.preventDefault();">
+          
+          <!-- Select 1: TRADE -->
+          <div class="md:col-span-4 lg:col-span-5 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label for="tradeSelect" class="font-mono text-[11px] tracking-[0.2em] uppercase text-[#9aa0a6]">TRADE</label>
+              <span class="font-mono text-[10px] text-[#6e7681]">PARAM:01</span>
+            </div>
+            <div class="relative">
+              <select id="tradeSelect" class="w-full h-12 px-4 pr-10 rounded bg-[#0e121a] border border-graphite-border-strong text-[#f2f4f7] font-mono text-xs focus:border-amber-accent focus:ring-1 focus:ring-amber-accent focus:outline-none appearance-none cursor-pointer transition-colors">
+                <option value="electrical" selected>Electrical (Live)</option>
+                <option value="hairdressing">Hairdressing (Live)</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-[#9aa0a6]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Select 2: COUNTY -->
+          <div class="md:col-span-4 lg:col-span-4 flex flex-col gap-1.5">
+            <div class="flex items-center justify-between">
+              <label for="countySelect" class="font-mono text-[11px] tracking-[0.2em] uppercase text-[#9aa0a6]">COUNTY</label>
+              <span class="font-mono text-[10px] text-[#6e7681]">PARAM:02</span>
+            </div>
+            <div class="relative">
+              <select id="countySelect" class="w-full h-12 px-4 pr-10 rounded bg-[#0e121a] border border-graphite-border-strong text-[#f2f4f7] font-mono text-xs focus:border-amber-accent focus:ring-1 focus:ring-amber-accent focus:outline-none appearance-none cursor-pointer transition-colors">
+                <option value="kiambu" selected>Kiambu County</option>
+                <option value="nairobi">Nairobi County</option>
+                <option value="nakuru">Nakuru County</option>
+                <option value="mombasa">Mombasa County</option>
+                <option value="machakos">Machakos County</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-[#9aa0a6]">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Button: SHOW FUNDIS (at least 48px tall) -->
+          <div class="md:col-span-4 lg:col-span-3">
+            <button type="submit" class="w-full h-12 rounded-full bg-amber-accent hover:bg-[#e08b47] active:scale-[0.99] text-graphite font-sans text-xs font-bold tracking-wider uppercase flex items-center justify-center gap-2 transition-all shadow-sm">
+              <span>SHOW FUNDIS</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+                <polyline points="12 5 19 12 12 19"></polyline>
+              </svg>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </section>
+
+    <!-- 3. "01 — RESULTS" SECTION -->
+    <section class="mb-20 lg:mb-28">
+      
+      <!-- Section Header -->
+      <div class="flex items-center justify-between mb-6 pb-2 border-b border-graphite-border">
+        <div class="flex items-center gap-2.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+          <h2 class="font-mono text-xs font-bold tracking-[0.24em] text-[#f2f4f7] uppercase">
+            01 — RESULTS
+          </h2>
+        </div>
+        <span class="font-mono text-[11px] tracking-[0.18em] text-[#9aa0a6] uppercase">
+          1 MATCH INSPECTED
+        </span>
+      </div>
+
+      <!-- 3-Column Grid on Desktop, 1-Column on Mobile -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+        
+        <!-- CARD 1 (1 Col on Desktop = 4/12 or 5/12): Sample Fundi Card tagged "EXAMPLE" -->
+        <div class="lg:col-span-5 flex flex-col">
+          <div class="relative bg-graphite-surface rounded border border-graphite-border overflow-hidden flex flex-col h-full reticle-bracket reticle-tl reticle-tr reticle-bl reticle-br">
+            
+            <!-- Meta Header Row -->
+            <div class="flex items-center justify-between px-4 py-2.5 bg-[#0a0e17] border-b border-graphite-border font-mono text-[11px]">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#10b981]"></span>
+                <span class="text-[#9aa0a6] uppercase tracking-[0.16em]">AUDITED SINGLE TAKE</span>
+              </div>
+              <span class="text-amber-accent uppercase tracking-[0.2em] font-semibold text-[10px] px-2 py-0.5 rounded bg-amber-dim border border-amber-accent/30">
+                EXAMPLE
+              </span>
+            </div>
+
+            <!-- Grayscale documentary photo of hands at work (no face) with scan line and reticles -->
+            <div class="relative w-full aspect-[16/10] bg-black scan-line overflow-hidden border-b border-graphite-border">
+              <img 
+                src="https://lh3.googleusercontent.com/aida/AEtjO1XzhOb5nDc7fVuedilPKjGr5wsj9_QAvkfjzCE0n13m0A4D5HKBqEoOwuhs4iduca5uS8PiFDZlRbQk0hV0X1C94L4339RYTDGApILDNThmbJH_l6LIlPiAvFKG8U7iu7D3LsV-0mRJoR13O5jq-tr-B3MbU19tV_XrgAD90RpZkK7ZomwWL1Rhjsvh3YieqJ-Bn5rGRggPJrD2f2MIhTYKLXxm4oD-tVb3fJ2CZCHxBcYFqDeX-lXz7Uw" 
+                alt="Documentary high-contrast black and white photograph of skilled African electrician hands wiring terminal connections" 
+                class="w-full h-full object-cover filter contrast-125 grayscale"
+              />
+              
+              <!-- Subtle Reticles Over Photo -->
+              <div class="absolute inset-2 border border-white/10 pointer-events-none">
+                <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-amber-accent/80"></div>
+                <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-amber-accent/80"></div>
+                <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-amber-accent/80"></div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-amber-accent/80"></div>
+              </div>
+
+              <!-- Status pill over photo -->
+              <div class="absolute bottom-3 left-3 px-2 py-1 rounded bg-black/80 backdrop-blur-sm border border-white/10 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-white"></span>
+                <span class="font-mono text-[10px] tracking-[0.16em] text-[#f2f4f7] uppercase">BENCH EVIDENCE FRAME</span>
+              </div>
+            </div>
+
+            <!-- Body Details -->
+            <div class="p-5 flex flex-col justify-between flex-grow">
+              <div>
+                <div class="font-mono text-[10px] tracking-[0.2em] uppercase text-[#6e7681] mb-1">
+                  VERIFIED ARTISAN PROFILE
+                </div>
+                <h3 class="text-lg lg:text-xl font-bold tracking-tight text-[#f2f4f7] mb-4">
+                  Example Fundi · Kiambu County
+                </h3>
+
+                <!-- Badge row: ✓ (white tick) Electrical: Install a 13A socket -->
+                <div class="p-3 rounded bg-[#06080d] border border-graphite-border mb-6 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <!-- White Checkmark -->
+                    <span class="w-4 h-4 rounded-full bg-white/10 flex items-center justify-center text-white font-mono text-xs font-bold leading-none">
+                      ✓
+                    </span>
+                    <span class="font-mono text-xs font-medium text-[#f2f4f7] tracking-tight">
+                      Electrical: Install a 13A socket
+                    </span>
+                  </div>
+                  <span class="font-mono text-[10px] text-amber-accent tracking-widest uppercase border border-amber-accent/30 bg-amber-dim px-1.5 py-0.5 rounded">
+                    ACTIVE
+                  </span>
+                </div>
+              </div>
+
+              <!-- Outlined Pill: View profile (at least 48px tall) -->
+              <a href="#" class="w-full h-12 rounded-full border border-graphite-border-strong hover:border-amber-accent hover:text-amber-accent text-[#f2f4f7] font-mono text-xs font-semibold tracking-[0.18em] uppercase flex items-center justify-center gap-2 transition-all">
+                <span>VIEW PROFILE</span>
+                <svg class="w-3.5 h-3.5 text-amber-accent" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                </svg>
+              </a>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- CARD 2 (Spans Remaining Columns = 7/12 on Desktop): Wide Empty-State Evidence Frame -->
+        <div class="lg:col-span-7 flex flex-col">
+          <div class="relative bg-graphite-surface rounded border border-graphite-border overflow-hidden flex flex-col h-full reticle-bracket reticle-tl reticle-tr reticle-bl reticle-br">
+            
+            <!-- Meta Header Row with "NO SIGNAL YET" -->
+            <div class="flex items-center justify-between px-4 py-2.5 bg-[#0a0e17] border-b border-graphite-border font-mono text-[11px]">
+              <div class="flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-[#6e7681]"></span>
+                <span class="text-[#9aa0a6] uppercase tracking-[0.18em]">TELEMETRY LOG // BOUNDARY RADAR</span>
+              </div>
+              <span class="text-amber-accent font-mono font-semibold uppercase tracking-[0.2em] text-[10px] px-2 py-0.5 rounded bg-amber-dim border border-amber-accent/30">
+                NO SIGNAL YET
+              </span>
+            </div>
+
+            <!-- Grayscale photo of an empty workbench under a single lamp -->
+            <div class="relative w-full aspect-[16/9] lg:aspect-auto lg:flex-grow min-h-[220px] bg-black scan-line overflow-hidden border-b border-graphite-border">
+              <img 
+                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBglZcQQVxS2vewjO8RY57ZrFBwc1oe6EGJIZRQF2Xck_BwhDufQjiVrzMRdBKVQ1zA7ZTgISO4v_imQCxASjkZzzd5VsYMkF3qlKLBMB1n8YtH_9v4yGbsvqqHsAVAz5EKFG07ptWSQNGJjVz8UdH7aoIhwsDfvS3DlkuYMS08RiCLiuOaiNvOCMtx3_i_2SPC2QkSgj2Aq0ryGUPh8vKp9PfSu6tI80199D2Na-y_duDK6qmLD5uOsfzjkXWpCuHtMZZHeYqqz2U" 
+                alt="Grayscale high-contrast documentary black and white photograph of an empty weathered workbench in a workshop in Kenya under a single focused hanging incandescent light bulb" 
+                class="w-full h-full object-cover filter contrast-125 grayscale"
+              />
+              
+              <!-- Subtle Reticles -->
+              <div class="absolute inset-3 border border-white/5 pointer-events-none">
+                <div class="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-white/30"></div>
+                <div class="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-white/30"></div>
+                <div class="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-white/30"></div>
+                <div class="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-white/30"></div>
+              </div>
+
+              <!-- Bench Spec Pill -->
+              <div class="absolute bottom-3 left-3 px-2 py-1 rounded bg-black/85 backdrop-blur-sm border border-white/10 flex items-center gap-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-accent animate-pulse"></span>
+                <span class="font-mono text-[10px] tracking-[0.18em] text-[#9aa0a6] uppercase">BENCH REST // INGRESS MONITOR</span>
+              </div>
+            </div>
+
+            <!-- Text Content: "No verified fundis here yet. New badges appear as Experts approve them." -->
+            <div class="p-6 lg:p-8 flex flex-col justify-center items-center text-center bg-[#07090f]">
+              <div class="w-10 h-10 rounded-full bg-white/5 border border-graphite-border flex items-center justify-center mb-3 text-amber-accent">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+                </svg>
+              </div>
+              <h4 class="text-base lg:text-lg font-bold text-[#f2f4f7] mb-2 tracking-tight">
+                No verified fundis here yet.
+              </h4>
+              <p class="text-xs lg:text-sm text-[#9aa0a6] max-w-md leading-relaxed font-sans">
+                New badges appear as Experts approve them.
+              </p>
+              
+              <!-- Subtle Telemetry Footnote -->
+              <div class="mt-4 pt-4 border-t border-graphite-border/60 w-full flex items-center justify-center gap-2 font-mono text-[10px] text-[#6e7681] tracking-[0.18em] uppercase">
+                <span>RADAR STATUS: LISTENING</span>
+                <span>•</span>
+                <span>AUDIT PIPELINE ACTIVE</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- ========================================================================= -->
+  <!-- 4. FOOTER: CTA Band, 4-Column Directory, Wordmark, and Legal Row          -->
+  <!-- ========================================================================= -->
+  <footer class="w-full border-t border-graphite-border bg-[#050609] pt-16 pb-24 lg:pb-12 text-[#9aa0a6]">
+    <div class="max-w-[1280px] mx-auto px-4 md:px-8">
+      
+      <!-- CTA Band: "Show your work." with pills "Join as a fundi" & "Find a fundi" -->
+      <div class="text-center max-w-xl mx-auto mb-16 lg:mb-20">
+        <h2 class="text-2xl lg:text-3xl font-extrabold uppercase tracking-tight text-[#f2f4f7] mb-6">
+          Show your work.
+        </h2>
+        <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <!-- Primary Pill (at least 48px) -->
+          <a href="#" class="w-full sm:w-auto min-w-[200px] h-12 rounded-full bg-amber-accent hover:bg-[#e08b47] text-graphite font-sans text-xs font-bold tracking-wider uppercase inline-flex items-center justify-center transition-colors shadow-sm">
+            Join as a fundi
+          </a>
+          <!-- Secondary Pill (at least 48px) -->
+          <a href="#" class="w-full sm:w-auto min-w-[200px] h-12 rounded-full border border-graphite-border-strong hover:border-white text-[#f2f4f7] font-sans text-xs font-bold tracking-wider uppercase inline-flex items-center justify-center transition-colors">
+            Find a fundi
+          </a>
+        </div>
+      </div>
+
+      <!-- 4 Columns on Desktop, Stacked on Mobile -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-8 lg:gap-12 py-10 border-t border-graphite-border font-sans text-xs">
+        
+        <!-- Column 1: FOR FUNDIS -->
+        <div class="flex flex-col gap-3">
+          <span class="font-mono text-[11px] font-semibold text-amber-accent tracking-[0.22em] uppercase">FOR FUNDIS</span>
+          <ul class="space-y-2.5 text-[#9aa0a6]">
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Join as a fundi</a></li>
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">How verification works</a></li>
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Your privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 2: FOR CLIENTS -->
+        <div class="flex flex-col gap-3">
+          <span class="font-mono text-[11px] font-semibold text-amber-accent tracking-[0.22em] uppercase">FOR CLIENTS</span>
+          <ul class="space-y-2.5 text-[#9aa0a6]">
+            <li><a href="#" class="text-[#f2f4f7] font-semibold underline underline-offset-4 decoration-amber-accent transition-colors">Find a fundi</a></li>
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">What 'verified' means</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: FOR EXPERTS -->
+        <div class="flex flex-col gap-3">
+          <span class="font-mono text-[11px] font-semibold text-amber-accent tracking-[0.22em] uppercase">FOR EXPERTS</span>
+          <ul class="space-y-2.5 text-[#9aa0a6]">
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Become a verifier</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: COMPANY -->
+        <div class="flex flex-col gap-3">
+          <span class="font-mono text-[11px] font-semibold text-amber-accent tracking-[0.22em] uppercase">COMPANY</span>
+          <ul class="space-y-2.5 text-[#9aa0a6]">
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Contact us</a></li>
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Responsible AI</a></li>
+            <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Full-Width Outlined "SMART FUNDIS" Wordmark -->
+      <div class="py-8 lg:py-12 border-t border-graphite-border select-none text-center overflow-hidden">
+        <h3 class="outline-wordmark font-mono font-black text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl tracking-[0.26em] uppercase">
+          SMART FUNDIS
+        </h3>
+      </div>
+
+      <!-- Legal Row -->
+      <div class="pt-6 border-t border-graphite-border/60 flex flex-col md:flex-row items-center justify-between gap-3 text-center md:text-left font-mono text-[11px] text-[#6e7681] tracking-[0.16em]">
+        <p>We verify skills. NITA, KNQA and TVETs certify.</p>
+        <p>© 2026 Smart Fundis</p>
+      </div>
+
+    </div>
+  </footer>
+
+  <!-- ========================================================================= -->
+  <!-- MOBILE BOTTOM TAB BAR (Hidden on 1024px and up)                           -->
+  <!-- EVIDENCE (active) · TRADES · TELEMETRY · COMPANY                          -->
+  <!-- ========================================================================= -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-[#050609]/95 backdrop-blur-md border-t border-graphite-border px-3 py-2 flex items-center justify-around font-mono text-[10px] tracking-[0.18em]">
+    
+    <!-- EVIDENCE (active) -->
+    <a href="#" class="flex flex-col items-center justify-center gap-1 text-amber-accent py-1 px-2">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="m9 12 2 2 4-4"/>
+      </svg>
+      <span class="font-bold">EVIDENCE</span>
+    </a>
+
+    <!-- TRADES -->
+    <a href="#" class="flex flex-col items-center justify-center gap-1 text-[#9aa0a6] hover:text-[#f2f4f7] py-1 px-2">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+      </svg>
+      <span>TRADES</span>
+    </a>
+
+    <!-- TELEMETRY -->
+    <a href="#" class="flex flex-col items-center justify-center gap-1 text-[#9aa0a6] hover:text-[#f2f4f7] py-1 px-2">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M2 12h3l3-9 4 18 3-9h7"/>
+      </svg>
+      <span>TELEMETRY</span>
+    </a>
+
+    <!-- COMPANY -->
+    <a href="#" class="flex flex-col items-center justify-center gap-1 text-[#9aa0a6] hover:text-[#f2f4f7] py-1 px-2">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+        <path d="M9 22v-4h6v4"/>
+        <path d="M8 6h.01M16 6h.01M8 10h.01M16 10h.01M8 14h.01M16 14h.01"/>
+      </svg>
+      <span>COMPANY</span>
+    </a>
+
+  </nav>
+
+  <!-- Mobile Menu Toggle Script -->
+  <script>
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    if (mobileMenuBtn && mobileMenu) {
+      mobileMenuBtn.addEventListener('click', () => {
+        mobileMenu.classList.toggle('hidden');
+      });
+    }
+  </script>
+</body>
+</html>
