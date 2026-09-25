@@ -135,11 +135,11 @@ describe("landing page (Stitch v3)", () => {
 });
 
 describe("landing section 09 (#27)", () => {
-  it("carries the 'Show your work.' band that left the footer, with Join (Find a fundi waits for /fundis)", async () => {
+  it("carries the 'Show your work.' band that left the footer, with Join and Find a fundi (→ /trades)", async () => {
     const join = section(await renderHome(), "join");
     expect(visibleStrings(join)).toContain(t("seal.title"));
     const hrefs = [...join.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
-    expect(hrefs).toEqual(["/join?role=fundi"]);
+    expect(hrefs).toEqual(["/join?role=fundi", "/trades"]);
   });
 });
 

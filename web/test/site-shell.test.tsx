@@ -219,14 +219,16 @@ describe("site footer (#27)", () => {
     );
     const linksOf = (i: number) => hrefs(navs[i][2]);
     expect(linksOf(0)).toEqual(["/join?role=fundi", "/evidence", "/privacy"]);
-    expect(linksOf(1)).toEqual(["/evidence#scope"]);
+    expect(linksOf(1)).toEqual(["/trades", "/evidence#scope"]);
     expect(linksOf(2)).toEqual(["/join?role=expert"]);
     expect(linksOf(3)).toEqual(["/about", "/contact", "/responsible-ai", "/#roadmap"]);
   });
 
-  it("leaves out Find a fundi until /fundis exists", async () => {
+  it("offers 'Find fundis' to clients, pointing at the real /trades page (operator)", async () => {
     const markup = await renderFooter();
-    expect(visibleStrings(markup)).not.toContain(links("findFundi"));
+    expect(tagWith(markup, "href", "/trades")).toBeTruthy();
+    const link = markup.match(/<a[^>]*href="\/trades"[^>]*>([\s\S]*?)<\/a>/)!;
+    expect(visibleStrings(link[1])).toEqual([links("findFundis")]);
     expect(hrefs(markup).some((h) => h.startsWith("/fundis"))).toBe(false);
   });
 

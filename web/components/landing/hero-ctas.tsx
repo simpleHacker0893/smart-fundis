@@ -5,8 +5,8 @@ import { builtOnly, PRIMARY_CTAS } from "@/lib/site-nav";
 
 /**
  * The hero call-to-action pair (#24 review): the amber "Join as a fundi"
- * pill, then the secondary pill. A CTA whose page doesn't exist yet is left
- * out, so "Find a fundi" waits for /fundis (#13 review).
+ * pill, then "Find a fundi", which goes to /trades until /fundis exists
+ * (operator). A CTA whose page doesn't exist yet is left out.
  */
 export function HeroCtas({ className = "max-w-md" }: { className?: string }) {
   const links = useTranslations("Links");

@@ -131,15 +131,18 @@ describe("Kiswahili (Architect ruling)", () => {
 });
 
 describe("design review", () => {
-  it("13: hides Find a fundi everywhere until /fundis exists", async () => {
-    const findFundi = get("Links.findFundi")!;
+  it("13 (operator override): Find a fundi goes to the real /trades page, never /#trades or /fundis", async () => {
     for (const load of [
       () => import("@/app/(site)/page"),
       () => import("@/app/(site)/evidence/page"),
       () => import("@/app/(site)/about/page"),
     ] as const) {
-      expect(visibleStrings(await render(load))).not.toContain(findFundi);
+      const all = hrefs(await render(load));
+      expect(all.some((h) => h === "/#trades" || h.startsWith("/fundis"))).toBe(false);
     }
+    const home = await render(() => import("@/app/(site)/page"));
+    const cta = home.match(/<a[^>]*href="\/trades"[^>]*>([\s\S]*?)<\/a>/)!;
+    expect(visibleStrings(cta[1])).toContain(get("Links.findFundi"));
   });
 
   it("14: 'Verify now' pre-selects the trade through /join", async () => {
