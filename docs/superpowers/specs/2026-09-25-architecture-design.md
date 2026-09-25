@@ -357,8 +357,8 @@ If the eval is cut, the pitch says "no accuracy numbers yet".
 ## 11. Code review
 
 1. **Local:** every ticket ends with `/code-review` (Matt's check against standards and the spec) before the PR is opened.
-2. **CI:** `.github/workflows/claude-review.yml` runs `anthropics/claude-code-action@v1` on every PR. It reviews against `AGENTS.md`, `CONTEXT.md`, this spec, and the linked ticket's acceptance criteria.
-3. **Merging:** branch protection on `main` requires that check. The Architect squash-merges.
+2. **CI (off for now, D-10):** `.github/workflows/claude-review.yml` runs `anthropics/claude-code-action@v1` on every PR once `CLAUDE_REVIEW_ENABLED` is set. It reviews against `AGENTS.md`, `CONTEXT.md`, this spec, and the linked ticket's acceptance criteria.
+3. **Merging:** there's no branch protection (the repo is private on a free plan). The Architect reviews each PR by hand and squash-merges it.
 4. **End of each slice:** `/review-phase` (code-reviewer, rai-reviewer and qa), then a 120x Builder Review, which updates `planning/STATE.md`.
 
 ---

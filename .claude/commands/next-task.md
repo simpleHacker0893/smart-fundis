@@ -12,4 +12,4 @@ Override: `$ARGUMENTS`
 2. **Pick the ticket.** If an issue number was given above, use it. Otherwise list the open issues labelled `ticket` and `slice:<current>` (`docs/agents/issue-tracker.md`). Drop any with an open blocker (`issue_dependencies_summary.blocked_by > 0`) or an assignee, and take the first one left.
    - If nothing is left and every ticket is closed, tell me to run `planning/prompts/60-close-slice.md`.
 3. **Run it.** Follow `planning/prompts/40-implement-ticket.md` and then `50-pr-and-review.md` exactly, with this issue.
-4. **Stop at "PR ready for merge".** Never merge it yourself.
+4. **Stop at "PR ready for review".** The Architect reviews and merges it. Never merge it yourself.

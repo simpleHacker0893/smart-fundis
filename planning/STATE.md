@@ -20,4 +20,4 @@ This is a short snapshot, updated in place at the end of every slice. It is not 
   - accounts and secrets
   - the Claude GitHub App and branch protection
 - **Blockers:** none.
-- **Next action for the operator:** run `planning/prompts/05-architecture-review.md`, then `10-grill-slice.md` with `V0`.
+- **Next action for the operator:** run `planning/prompts/00-setup-once.md`, then `05-architecture-review.md`, then the 10–30 block with `V0` (see "V0 run order" in `planning/prompts/README.md`).

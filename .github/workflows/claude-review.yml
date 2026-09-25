@@ -1,7 +1,10 @@
 name: claude-review
 
-# Claude reviews every PR against the project's rules. Branch protection on `main` requires this check.
-# Setup: planning/prompts/00-setup-once.md (install the Claude GitHub App and add the secret).
+# Claude reviews every PR against the project's rules.
+# OFF for now (D-10): no Claude GitHub App or ANTHROPIC_API_KEY secret, and no branch protection on the
+# free private repo. The job is skipped unless the repo variable CLAUDE_REVIEW_ENABLED is 'true'.
+# To turn it on: install the Claude GitHub App, `gh secret set ANTHROPIC_API_KEY`, then
+# `gh variable set CLAUDE_REVIEW_ENABLED --body true`.
 
 on:
   pull_request:
@@ -13,7 +16,7 @@ concurrency:
 
 jobs:
   claude-review:
-    if: github.event.pull_request.draft == false
+    if: vars.CLAUDE_REVIEW_ENABLED == 'true' && github.event.pull_request.draft == false
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:

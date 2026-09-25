@@ -304,13 +304,13 @@ Each slice runs this loop, with one prompt file per step in [`planning/prompts/`
 
 ```
 grill (Matt Pocock grill-with-docs) → spec issue (to-spec) → tickets (to-tickets, vertical slices)
-  → per ticket: implement test-first (tdd) → local /code-review → PR → Claude CI review → Architect merges
+  → per ticket: implement test-first (tdd) → local /code-review → PR → Architect reviews by hand (D-10) → Architect merges
   → close the slice (/review-phase + 120x Builder Review) → next slice
 ```
 
 - **Agents:** 9 role subagents in [`.claude/agents/`](.claude/agents), with rules in [`AGENTS.md`](AGENTS.md)
 - **Domain language:** [`CONTEXT.md`](CONTEXT.md). **Decisions:** [`docs/adr/`](docs/adr) and [`planning/DECISIONS.md`](planning/DECISIONS.md)
-- **Automated review:** [`.github/workflows/claude-review.yml`](.github/workflows/claude-review.yml) reviews every PR against the spec and the ticket's acceptance criteria
+- **Automated review:** [`.github/workflows/claude-review.yml`](.github/workflows/claude-review.yml) reviews every PR against the spec and the ticket's acceptance criteria. It's off for now (D-10), and switches on with the repo variable `CLAUDE_REVIEW_ENABLED`
 - **Skills:** superpowers, mattpocock-skills, Convex, LangChain, Clerk, Stitch, Vercel React, Brev, and the NVIDIA skill finder (see [`docs/research-links.md`](docs/research-links.md))
 
 ---

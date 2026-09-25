@@ -27,5 +27,7 @@ These are house rules. Don't reopen one silently. If one looks wrong, propose a 
 | D-4 | Appeals are allowed once, against `rejected` only, with a reason. A different Expert decides, or an Admin if there isn't one. | spec §5 |
 | D-5 | The Data Co-op is a Roadmap item and is kept apart from consent. `coopInterest` means "contact me" only. | spec §7 |
 | D-6 | Build in vertical slices V0–V5, with a stub worker in V1. | spec §9 |
-| D-7 | GitHub Issues is the tracker. One PR per ticket, reviewed by Claude in CI, and squash-merged by the Architect. | spec §11 |
+| D-7 | GitHub Issues is the tracker. One PR per ticket, reviewed by Claude in CI, and squash-merged by the Architect. Amended by D-10: review is manual for now. | spec §11 |
 | D-8 | The guard accepts 10–90 s for the MVP. Test clips are the team's own recordings plus licensed Pexels footage. | spec §6, §10 |
+| D-9 | The design system is v2 "Instrument": a CAUSTIC-style dark theme (graphite `#050609`, text `#f2f4f7`, amber `#ef9a57` as the only accent), with full GSAP and Three.js motion that is lazy-loaded, and static frames under reduced motion. It replaces the green `#0B5D3B` and orange `#F28C28` brand. The honesty rules are unchanged. | `design/stitch/DESIGN.md` |
+| D-10 | Code review is manual for now. There's no Claude GitHub App, no `ANTHROPIC_API_KEY` secret, and no branch protection, because the repo is private on a free plan. Each PR gets the local `/code-review` (and `convex-reviewer` for `convex/`), then the Architect reviews it on GitHub before squash-merging. `claude-review.yml` is kept but skipped until the repo variable `CLAUDE_REVIEW_ENABLED` is `true`. Amends D-7. | `planning/prompts/00-setup-once.md` |

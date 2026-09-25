@@ -14,3 +14,11 @@ Slice: <SLICE>. All of its tickets are closed.
 5. Close the spec issue with a comment linking the review report. Commit
    "docs: close <SLICE>". Tell me the next slice and prompt (10 with the next slice).
 ```
+
+**Optional, from V1 on:** after the slice closes, run this in a fresh session to look for shallow modules before the next slice builds on them. It has to be the first thing in the message.
+
+```
+/mattpocock-skills:improve-codebase-architecture Scope: the code that <SLICE> added. Read CONTEXT.md and the spec issue first.
+```
+
+Any deepening you pick becomes the input to the next slice's prompt 10.

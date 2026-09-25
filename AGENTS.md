@@ -73,6 +73,6 @@ No NVIDIA skill covers serving Cosmos Reason 2 with vLLM, so use the official do
 ## Conventions
 
 - TypeScript strict in `web/` and `convex/`. Python 3.11+ with type hints in `ai-service/`.
-- One branch and PR per ticket (`v<n>/<issue#>-<slug>`), reviewed by the `claude-review` CI check, and squash-merged by the Architect only.
-- Brand colours are green `#0B5D3B` and orange `#F28C28`. Design mobile-first at 360 px.
+- One branch and PR per ticket (`v<n>/<issue#>-<slug>`), reviewed locally (`/code-review`, plus `convex-reviewer` for `convex/`) and then by the Architect on GitHub, and squash-merged by the Architect only. The `claude-review` CI check is off for now (D-10).
+- The brand is the v2 "Instrument" system (D-9): graphite `#050609`, text `#f2f4f7`, and amber `#ef9a57` as punctuation only. Design mobile-first at 360 px.
 - If a rule here conflicts with a spec, stop and ask the Architect.
