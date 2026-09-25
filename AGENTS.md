@@ -26,7 +26,7 @@ Every agent (Claude Code session, subagent, Cursor, Copilot) follows these rules
 
 Skills come from two places:
 - **Plugins,** enabled at project scope in `.claude/settings.json`: superpowers, mattpocock-skills, the Clerk skills, the Stitch skills, `langchain-skills` and `convex`.
-- **Standalone skills** in `.claude/skills/`, pinned in `skills-lock.json`: `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `brev-cli` and `nvidia-skill-finder`.
+- **Standalone skills** in `.claude/skills/`, pinned in `skills-lock.json`: `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `brev-cli`, `nvidia-skill-finder`, and the LangSmith skills from `langchain-ai/langsmith-skills` (`langsmith-trace`, `langsmith-dataset`, `langsmith-evaluator`, `langsmith-custom-apps`).
 
 Research links for every role are in `docs/research-links.md`.
 
@@ -39,9 +39,9 @@ Research links for every role are in `docs/research-links.md`.
 | frontend | `vercel-react-best-practices`, `vercel-composition-patterns`, `web-design-guidelines`, `anthropic-skills:nextjs-expert`, `anthropic-skills:ui-styling`, `stitch-build:shadcn-ui`, `stitch-build:react-components`, `stitch-design:generate-design`, `stitch-utilities:design-md` |
 | convex | `convex:design`, `convex:auth`, `convex:convex-authz`, `convex:crons`, `convex:seed`, `convex:test`, `convex:env`; the `convex-expert` and `convex-reviewer` subagents; the Convex MCP server |
 | auth | `clerk-setup`, `clerk-nextjs-patterns`, `clerk-custom-ui`, `clerk-testing`, `convex:auth` |
-| ai-pipeline | `langchain-skills:ecosystem-primer`, `langchain-skills:langgraph-fundamentals`, `langchain-skills:langchain-fundamentals`, `langchain-skills:langchain-dependencies`, `langchain-skills:eval-engineering`, `nvidia-skill-finder`, `mattpocock-skills:diagnosing-bugs` |
+| ai-pipeline | `langchain-skills:ecosystem-primer`, `langchain-skills:langgraph-fundamentals`, `langchain-skills:langchain-fundamentals`, `langchain-skills:langchain-dependencies`, `langchain-skills:eval-engineering`, `nvidia-skill-finder`, `mattpocock-skills:diagnosing-bugs`, `langsmith-trace` |
 | gpu-devops | `brev-cli`, `nvidia-skill-finder`, `mattpocock-skills:wizard`, `mattpocock-skills:diagnosing-bugs` |
-| qa | `clerk-testing`, `convex:test`, `web-design-guidelines`, `langchain-skills:eval-engineering` |
+| qa | `clerk-testing`, `convex:test`, `web-design-guidelines`, `langchain-skills:eval-engineering`, `langsmith-dataset`, `langsmith-evaluator` |
 | rai-reviewer | `mattpocock-skills:grilling` |
 | code-reviewer | `mattpocock-skills:code-review`, the `convex-reviewer` subagent |
 
@@ -67,7 +67,7 @@ No NVIDIA skill covers serving Cosmos Reason 2 with vLLM, so use the official do
 - The UI says "verified by Smart Fundis". It never says "certified", because NITA, KNQA and TVETs certify.
 - Nothing may look live that isn't. Post-MVP features appear only on `/roadmap`, tagged "Coming soon".
 - YouTube and TikTok links are showcase only. Never download them, and only in-app video earns badges (ADR-7).
-- LangSmith traces are masked: no video URLs, prompts or feedback text.
+- LangSmith traces are masked: no video URLs, prompts or feedback text. Trace only through `ai-service/app/tracing.py` (D-14).
 - Brev pulls jobs from Convex. There is no inbound port on Brev (ADR-9).
 
 ## Conventions

@@ -1,0 +1,17 @@
+[project]
+name = "smart-fundis-ai"
+version = "0.0.0"
+description = "Smart Fundis AI pipeline (LangGraph on Brev). Ticket #7 adds FastAPI, ruff and the rest of the scaffold."
+requires-python = ">=3.12"
+dependencies = [
+    "langsmith>=0.14.0",
+    "python-dotenv>=1.2.3",
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.1.1",
+]
