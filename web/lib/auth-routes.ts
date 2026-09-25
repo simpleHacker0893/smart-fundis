@@ -2,6 +2,8 @@
 export const SIGN_IN_PATH = "/sign-in";
 export const SIGN_UP_PATH = "/sign-up";
 export const AFTER_AUTH_PATH = "/dashboard";
+/** Where Clerk sends visitors after they sign out (#28). Public. */
+export const SIGNED_OUT_PATH = "/signed-out";
 
 // Architecture spec §4: the proxy only requires sign-in. #3 covers /dashboard;
 // /onboarding, /application-pending, /fundi, /expert and /admin join later.

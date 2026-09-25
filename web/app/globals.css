@@ -1,3 +1,6 @@
+/* Clerk's styles sit under Tailwind utilities, so appearance.elements classes win (Clerk docs, Tailwind v4). */
+@layer theme, base, clerk, components, utilities;
+
 @import "tailwindcss";
 @import "tw-animate-css";
 @import "shadcn/tailwind.css";

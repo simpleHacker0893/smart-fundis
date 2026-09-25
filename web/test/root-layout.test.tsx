@@ -9,8 +9,15 @@ vi.mock("next-intl/server", () => ({ getTranslations: async () => () => "" }));
 vi.mock("next-intl", () => ({
   NextIntlClientProvider: ({ children }: { children: ReactNode }) => children,
 }));
+const clerk = vi.hoisted(() => ({ props: {} as Record<string, unknown> }));
 vi.mock("@clerk/nextjs", () => ({
-  ClerkProvider: ({ children }: { children: ReactNode }) => children,
+  ClerkProvider: ({ children, ...props }: { children: ReactNode }) => {
+    clerk.props = props;
+    return children;
+  },
+}));
+vi.mock("@/components/footer-switch", () => ({
+  FooterSwitch: ({ full }: { full: ReactNode }) => full,
 }));
 vi.mock("@/components/convex-client-provider", () => ({
   ConvexClientProvider: ({ children }: { children: ReactNode }) => children,
@@ -60,5 +67,13 @@ describe("root layout", () => {
     const bg = css.match(/--bg:\s*(#[0-9a-fA-F]{6})/)![1];
 
     expect(String(viewport.themeColor).toLowerCase()).toBe(bg.toLowerCase());
+  });
+
+  it("sends signed-out visitors to /signed-out and themes Clerk (#28)", async () => {
+    const { default: RootLayout } = await import("@/app/layout");
+    const { clerkAppearance } = await import("@/lib/clerk-appearance");
+    renderToStaticMarkup(RootLayout({ children: null }));
+    expect(clerk.props.afterSignOutUrl).toBe("/signed-out");
+    expect(clerk.props.appearance).toBe(clerkAppearance);
   });
 });

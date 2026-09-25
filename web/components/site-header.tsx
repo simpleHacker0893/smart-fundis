@@ -65,11 +65,11 @@ export async function SiteHeader() {
       <nav aria-label={t("sectionsNav")} className="relative border-t border-line lg:hidden">
         <div className="mx-auto grid h-11 max-w-7xl grid-cols-4 px-2 sm:px-4">
           {nav.map((item) => (
-            <Link key={item.key} href={item.href} className={`${navLink} h-11 tracking-[0.12em] sm:tracking-widest`}>
+            <Link key={item.key} href={item.href} className={`${navLink} h-11 tracking-[0.06em] sm:tracking-widest`}>
               {links(item.key)}
             </Link>
           ))}
-          <CompanyMenu variant="row" className={`${navLink} h-11 tracking-[0.12em] sm:tracking-widest`} />
+          <CompanyMenu variant="row" className={`${navLink} h-11 tracking-[0.06em] sm:tracking-widest`} />
         </div>
       </nav>
     </header>

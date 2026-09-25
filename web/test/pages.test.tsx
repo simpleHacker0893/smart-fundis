@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out"];
 
 const isFromMessages = makeIsFromMessages(en);
 

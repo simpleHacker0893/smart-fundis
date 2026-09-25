@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");

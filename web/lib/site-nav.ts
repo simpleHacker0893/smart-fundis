@@ -1,5 +1,5 @@
 import type messages from "@/messages/en.json";
-import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth-routes";
+import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH, SIGNED_OUT_PATH } from "@/lib/auth-routes";
 
 type Messages = typeof messages;
 
@@ -14,7 +14,7 @@ type Messages = typeof messages;
  * one of those pages, add its route to BUILT_ROUTES (and to the allow-list in
  * test/site-shell.test.tsx) and the link appears.
  */
-export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai"] as const;
+export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", SIGNED_OUT_PATH] as const;
 
 /** The footer directory's anchor, on every page. */
 export const COMPANY_ANCHOR = "#company";

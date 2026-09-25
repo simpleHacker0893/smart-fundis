@@ -891,5 +891,65 @@
       "pending": "Our contact email will be listed here soon.",
       "evidence": "Read how verification works"
     }
+  },
+  "SignIn": {
+    "meta": {
+      "title": "Sign in · Smart Fundis",
+      "description": "Sign in to see your assessments and badges."
+    },
+    "label": "Session / Sign in",
+    "title": "Welcome back.",
+    "body": "Sign in to see your assessments and badges.",
+    "note": "Experts and Admins sign in here too.",
+    "panelTitleLine1": "Kazi yako,",
+    "panelTitleLine2": "sifa yako.",
+    "panelBody": "Your work, your reputation. Show your skill on video, and a trade Expert decides.",
+    "imageAlt": "Spools, screwdrivers and pliers laid out on a workshop bench"
+  },
+  "SignUp": {
+    "meta": {
+      "title": "Join as a fundi · Smart Fundis",
+      "description": "Create your account to verify a skill on video."
+    },
+    "label": "Session / Join",
+    "title": "Join as a fundi.",
+    "body": "Create your account. It takes a minute.",
+    "comingSoon": "Coming soon",
+    "stepsTitle": "How joining works",
+    "frame": "Evidence frame · 01 Account",
+    "frameTag": "Example · Hairdressing",
+    "imageAlt": "Hands braiding cornrows, close up",
+    "steps": {
+      "1": {
+        "tag": "01 Account",
+        "body": "Create your account."
+      },
+      "2": {
+        "tag": "02 Profile",
+        "body": "Phone, county and trade."
+      },
+      "3": {
+        "tag": "03 Consent",
+        "body": "Agree in English or Kiswahili."
+      },
+      "4": {
+        "tag": "04 Record",
+        "body": "Record one short video."
+      }
+    }
+  },
+  "SignedOut": {
+    "meta": {
+      "title": "Signed out · Smart Fundis",
+      "description": "You're signed out. Your badge stays public. Your videos stay private."
+    },
+    "label": "Session ended",
+    "title": "You're signed out.",
+    "body": "Your badge stays public. Your videos stay private.",
+    "signIn": "Sign in again",
+    "home": "Back to home",
+    "frame": "Session closed",
+    "frameTag": "Bench view",
+    "imageAlt": "Spools, screwdrivers and pliers laid out on a workshop bench"
   }
 }
