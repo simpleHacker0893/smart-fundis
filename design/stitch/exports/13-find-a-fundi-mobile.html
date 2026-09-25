@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Find a fundi (Mobile)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: '#050609',
+            'graphite-surface': '#0b0d13',
+            'graphite-elevated': '#121620',
+            'graphite-border': '#1e2433',
+            'instrument-amber': '#ef9a57',
+            'instrument-dim': '#7e8b9e',
+            'instrument-light': '#f2f4f7'
+          },
+          fontFamily: {
+            mono: ['"JetBrains Mono"', 'monospace'],
+            sans: ['"Plus Jakarta Sans"', 'sans-serif']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background-image: radial-gradient(rgba(239, 154, 87, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    .pulse-dot {
+      animation: pulseGlow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulseGlow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+    .scanline {
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.4) 51%);
+      background-size: 100% 4px;
+    }
+    .corner-bracket {
+      position: relative;
+    }
+    .corner-bracket::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+      pointer-events: none;
+    }
+    .corner-bracket::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col items-center antialiased pb-24">
+
+  <!-- Mobile Container (Max 390px / 360px viewport targeted) -->
+  <div class="w-full max-w-[390px] min-h-screen flex flex-col bg-graphite border-x border-graphite-border shadow-2xl relative">
+
+    <!-- 1. STICKY HEADER (48px) -->
+    <header class="sticky top-0 z-50 h-12 w-full bg-graphite/95 backdrop-blur-md border-b border-graphite-border px-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-7 h-7 rounded border border-instrument-amber/40 bg-instrument-amber/10 flex items-center justify-center">
+          <span class="material-symbols-outlined text-instrument-amber text-[18px]">verified</span>
+        </div>
+        <span class="font-mono text-xs font-bold tracking-[0.22em] text-instrument-light uppercase">Smart Fundis</span>
+      </div>
+      <div class="flex items-center gap-3">
+        <a href="#join" class="h-7 px-3 rounded-full bg-instrument-amber text-graphite font-mono text-[11px] font-bold tracking-wider uppercase flex items-center justify-center hover:opacity-90 active:scale-95 transition-all">
+          Join
+        </a>
+        <button aria-label="Menu" class="text-instrument-dim hover:text-instrument-light flex items-center justify-center">
+          <span class="material-symbols-outlined text-[22px]">menu</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 px-4 pt-6 pb-8 flex flex-col gap-8">
+
+      <!-- HERO SECTION -->
+      <section class="flex flex-col gap-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-instrument-amber pulse-dot"></span>
+          <span class="font-mono text-[10px] font-semibold tracking-[0.25em] text-instrument-amber uppercase">
+            Smart Fundis / Directory
+          </span>
+        </div>
+        <h1 class="text-3xl font-extrabold tracking-tight text-instrument-light leading-tight mt-1">
+          Find a verified fundi.
+        </h1>
+        <p class="text-xs font-normal text-instrument-dim leading-relaxed">
+          Only fundis with an Expert-approved badge appear here.
+        </p>
+      </section>
+
+      <!-- 2. FILTER BAR (INSTRUMENT CONTROLS) -->
+      <section class="flex flex-col gap-3 p-4 bg-graphite-surface border border-graphite-border rounded corner-bracket">
+        <div class="flex items-center justify-between pb-1 border-b border-graphite-border/60">
+          <span class="font-mono text-[9px] tracking-[0.2em] text-instrument-dim uppercase">FILTER MATRIX // TELEMETRY QUERY</span>
+          <span class="font-mono text-[9px] text-instrument-amber tracking-widest">ACTIVE READY</span>
+        </div>
+
+        <!-- TRADE SELECT -->
+        <div class="flex flex-col gap-1.5">
+          <label for="trade-select" class="font-mono text-[10px] tracking-wider text-instrument-dim uppercase flex items-center justify-between">
+            <span>Trade</span>
+            <span class="text-[9px] text-graphite-border">PARAM:01</span>
+          </label>
+          <div class="relative">
+            <select id="trade-select" class="w-full h-12 bg-graphite border border-graphite-border rounded px-3.5 pr-10 text-xs font-mono text-instrument-light appearance-none focus:outline-none focus:border-instrument-amber transition-colors">
+              <option value="electrical">Electrical (Live)</option>
+              <option value="hairdressing">Hairdressing (Live)</option>
+              <option value="all">All Live Trades</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-instrument-dim">
+              <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- COUNTY SELECT -->
+        <div class="flex flex-col gap-1.5">
+          <label for="county-select" class="font-mono text-[10px] tracking-wider text-instrument-dim uppercase flex items-center justify-between">
+            <span>County</span>
+            <span class="text-[9px] text-graphite-border">PARAM:02</span>
+          </label>
+          <div class="relative">
+            <select id="county-select" class="w-full h-12 bg-graphite border border-graphite-border rounded px-3.5 pr-10 text-xs font-mono text-instrument-light appearance-none focus:outline-none focus:border-instrument-amber transition-colors">
+              <option value="kiambu">Kiambu County</option>
+              <option value="nairobi">Nairobi County</option>
+              <option value="machakos">Machakos County</option>
+              <option value="nakuru">Nakuru County</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-instrument-dim">
+              <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- ACTION BUTTON -->
+        <button class="w-full h-12 mt-1 rounded-full bg-instrument-amber text-graphite font-mono text-xs font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-2 hover:bg-instrument-amber/90 active:scale-[0.98] transition-all shadow-sm">
+          <span>Show fundis</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </section>
+
+      <!-- 3. RESULTS SECTION (01 — RESULTS) -->
+      <section class="flex flex-col gap-4">
+        <!-- Section Header -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-instrument-amber"></span>
+            <h2 class="font-mono text-[11px] font-bold tracking-[0.22em] text-instrument-amber uppercase">
+              01 — Results
+            </h2>
+          </div>
+          <span class="font-mono text-[9px] text-instrument-dim uppercase tracking-widest">
+            1 MATCH INSPECTED
+          </span>
+        </div>
+
+        <!-- Sample Fundi Card -->
+        <div class="border border-graphite-border bg-graphite-surface rounded overflow-hidden flex flex-col">
+          <!-- Card Meta Header Row -->
+          <div class="px-3.5 py-2 bg-graphite flex items-center justify-between border-b border-graphite-border text-[9px] font-mono">
+            <div class="flex items-center gap-2">
+              <span class="text-instrument-amber font-semibold">REF: EF-4829</span>
+              <span class="text-instrument-dim">// AUDITED</span>
+            </div>
+            <span class="px-1.5 py-0.5 rounded bg-instrument-amber/15 text-instrument-amber font-mono font-bold tracking-wider text-[8px] uppercase">
+              Example
+            </span>
+          </div>
+
+          <!-- Grayscale Photo of Hands at Work (no faces, documentary) -->
+          <div class="relative w-full aspect-video bg-graphite-elevated overflow-hidden border-b border-graphite-border">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhf-x81ilJF_O8PnPBfSfMdFfM8F362NCf9X87L-vsRlJG70t8_piw7OwyxmX-a_EYgUY_5QH9HHmy4gXUNHDx_e58zHaS3yzJrDmLpl4Abuw5N2fWFXJ83yRZI1vq_cgckuhIlRbWdo5g-BwLtpM8ZBPHeS_IPbAJSTTTM6j1iS0odJb4YnFeMSz5bjNExt7uyaCoiHyQOcMgTyy7cPkXLjRku5IT0vol9KgLCz0y5UddliP9Kk_CIZ1_5hKnlvsZOnS4A6pyi1Y" alt="Skilled hands at work with electrical wiring" class="w-full h-full object-cover filter grayscale contrast-125">
+            <div class="absolute inset-0 scanline pointer-events-none opacity-40"></div>
+            <!-- Reticle Brackets -->
+            <div class="absolute top-2 left-2 w-3 h-3 border-t border-l border-instrument-amber/70 pointer-events-none"></div>
+            <div class="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-instrument-amber/70 pointer-events-none"></div>
+            <!-- Telemetry overlay badge -->
+            <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded bg-graphite/90 border border-graphite-border backdrop-blur-sm flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+              <span class="font-mono text-[8px] uppercase tracking-widest text-instrument-light">SINGLE CONTINUOUS TAKE</span>
+            </div>
+          </div>
+
+          <!-- Card Content Body -->
+          <div class="p-4 flex flex-col gap-3.5">
+            <div class="flex flex-col gap-1">
+              <span class="font-mono text-[9px] text-instrument-dim uppercase tracking-wider">VERIFIED ARTISAN PROFILE</span>
+              <h3 class="text-base font-extrabold text-instrument-light tracking-tight">
+                Example Fundi · Kiambu County
+              </h3>
+            </div>
+
+            <!-- Badge Row -->
+            <div class="p-2.5 bg-graphite border border-graphite-border rounded flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-instrument-amber font-bold text-xs font-mono">✓</span>
+                <span class="font-mono text-[11px] font-semibold text-instrument-light tracking-tight">
+                  Electrical: Install a 13A socket
+                </span>
+              </div>
+              <span class="text-[8px] font-mono text-emerald-400 font-bold uppercase tracking-wider">ACTIVE</span>
+            </div>
+
+            <!-- View Profile Button (Outlined Pill >= 48px) -->
+            <a href="#profile" class="w-full h-12 rounded-full border border-instrument-amber/80 text-instrument-amber font-mono text-xs font-bold tracking-[0.2em] uppercase flex items-center justify-center gap-1.5 hover:bg-instrument-amber/10 active:scale-[0.98] transition-all">
+              <span>View profile</span>
+              <span class="material-symbols-outlined text-[16px]">chevron_right</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. EMPTY-STATE EVIDENCE FRAME -->
+      <section class="flex flex-col gap-4">
+        <!-- Section Sub-Header -->
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-1.5 h-1.5 rounded-full bg-instrument-dim"></span>
+            <h2 class="font-mono text-[10px] font-bold tracking-[0.22em] text-instrument-dim uppercase">
+              TELEMETRY LOG // BOUNDARY RADAR
+            </h2>
+          </div>
+        </div>
+
+        <!-- Evidence Frame (No Signal Yet) -->
+        <div class="border border-graphite-border bg-graphite-surface rounded overflow-hidden flex flex-col corner-bracket">
+          <!-- Meta Header Row -->
+          <div class="px-3.5 py-2 bg-graphite flex items-center justify-between border-b border-graphite-border text-[9px] font-mono">
+            <div class="flex items-center gap-2">
+              <span class="text-instrument-dim">FRAME: SF-DIR-00</span>
+              <span class="text-graphite-border">//</span>
+              <span class="text-instrument-dim">INGRESS MONITOR</span>
+            </div>
+            <span class="text-instrument-amber font-mono font-bold tracking-wider text-[9px] uppercase">
+              NO SIGNAL YET
+            </span>
+          </div>
+
+          <!-- Grayscale Photo of Empty Workbench under Single Lamp -->
+          <div class="relative w-full aspect-video bg-graphite-elevated overflow-hidden border-b border-graphite-border">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCcuLOhMlujI_XUjru1NH8M-H9x87nCYEyMqd7s4a51Ubw5s-YlamCh2fDfMDwa6dDqg8nP59UaQqj8shP8JRHw0C9v1j_UER9uTzK7AZUnWPkH12QiYSIHcQzF-qwv1F1gU7pFVW12qrZ8sNsorQIuB1Dmlih_lkyHjdS8Rr-sXuHkM01Srtm55YDJMVO3x0cjqap8YXOaUmdu3fdGw6cN34nGZmEWeldQ5RSq1_6-6EWGQhISAiwaH5EhjoQWG1wdruzh67MFNGA" alt="Empty workbench under single lamp" class="w-full h-full object-cover filter grayscale contrast-125">
+            <div class="absolute inset-0 scanline pointer-events-none opacity-40"></div>
+            <!-- Reticle Brackets -->
+            <div class="absolute top-2 left-2 w-3 h-3 border-t border-l border-instrument-dim/50 pointer-events-none"></div>
+            <div class="absolute bottom-2 right-2 w-3 h-3 border-b border-r border-instrument-dim/50 pointer-events-none"></div>
+            <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+              <div class="w-12 h-12 border border-dashed border-instrument-dim/40 rounded-full flex items-center justify-center">
+                <span class="w-1 h-1 bg-instrument-amber rounded-full pulse-dot"></span>
+              </div>
+            </div>
+            <!-- Standby watermark badge -->
+            <div class="absolute bottom-2 right-2 px-2 py-0.5 rounded bg-graphite/90 border border-graphite-border text-[8px] font-mono text-instrument-dim uppercase tracking-widest">
+              BENCH REST // STANDBY
+            </div>
+          </div>
+
+          <!-- Empty State Text Copy -->
+          <div class="p-4 flex flex-col gap-1.5 text-center items-center">
+            <p class="text-xs font-semibold text-instrument-light leading-snug">
+              No verified fundis here yet.
+            </p>
+            <p class="text-[11px] text-instrument-dim leading-relaxed max-w-[280px]">
+              New badges appear as Experts approve them.
+            </p>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- 5. SHARED FOOTER -->
+    <footer class="w-full bg-graphite border-t border-graphite-border pt-10 pb-8 px-4 flex flex-col gap-8">
+      <!-- Show your work Section -->
+      <div class="flex flex-col gap-3 text-center items-center">
+        <h2 class="text-xl font-extrabold tracking-tight text-instrument-light uppercase">
+          Show your work.
+        </h2>
+        <div class="w-full flex flex-col gap-2.5 mt-1">
+          <a href="#join-fundi" class="w-full h-12 rounded-full bg-instrument-amber text-graphite font-mono text-xs font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-instrument-amber/90 active:scale-[0.98] transition-all">
+            Join as a fundi
+          </a>
+          <a href="#find-fundi" class="w-full h-12 rounded-full border border-graphite-border bg-graphite-surface text-instrument-light font-mono text-xs font-bold tracking-[0.2em] uppercase flex items-center justify-center hover:bg-graphite-elevated active:scale-[0.98] transition-all">
+            Find a fundi
+          </a>
+        </div>
+      </div>
+
+      <!-- Navigation Link Groups Grid (2x2) -->
+      <div class="grid grid-cols-2 gap-y-6 gap-x-4 pt-4 border-t border-graphite-border/60">
+        <!-- FOR FUNDIS -->
+        <div class="flex flex-col gap-2">
+          <span class="font-mono text-[10px] font-bold text-instrument-amber tracking-[0.22em] uppercase">For Fundis</span>
+          <ul class="flex flex-col gap-1.5 text-xs text-instrument-dim">
+            <li><a href="#join" class="hover:text-instrument-light transition-colors">Join as a fundi</a></li>
+            <li><a href="#how" class="hover:text-instrument-light transition-colors">How verification works</a></li>
+            <li><a href="#privacy" class="hover:text-instrument-light transition-colors">Your privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- FOR CLIENTS -->
+        <div class="flex flex-col gap-2">
+          <span class="font-mono text-[10px] font-bold text-instrument-amber tracking-[0.22em] uppercase">For Clients</span>
+          <ul class="flex flex-col gap-1.5 text-xs text-instrument-dim">
+            <li><a href="#find" class="text-instrument-light font-medium underline underline-offset-4 decoration-instrument-amber">Find a fundi</a></li>
+            <li><a href="#what" class="hover:text-instrument-light transition-colors">What 'verified' means</a></li>
+          </ul>
+        </div>
+
+        <!-- FOR EXPERTS -->
+        <div class="flex flex-col gap-2">
+          <span class="font-mono text-[10px] font-bold text-instrument-amber tracking-[0.22em] uppercase">For Experts</span>
+          <ul class="flex flex-col gap-1.5 text-xs text-instrument-dim">
+            <li><a href="#verifier" class="hover:text-instrument-light transition-colors">Become a verifier</a></li>
+          </ul>
+        </div>
+
+        <!-- COMPANY -->
+        <div class="flex flex-col gap-2">
+          <span class="font-mono text-[10px] font-bold text-instrument-amber tracking-[0.22em] uppercase">Company</span>
+          <ul class="flex flex-col gap-1.5 text-xs text-instrument-dim">
+            <li><a href="#about" class="hover:text-instrument-light transition-colors">About</a></li>
+            <li><a href="#contact" class="hover:text-instrument-light transition-colors">Contact us</a></li>
+            <li><a href="#responsible-ai" class="hover:text-instrument-light transition-colors">Responsible AI</a></li>
+            <li><a href="#roadmap" class="hover:text-instrument-light transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Faint Brand Wordmark -->
+      <div class="pt-6 pb-2 text-center">
+        <span class="font-mono text-2xl font-bold tracking-[0.35em] text-graphite-border/70 select-none uppercase">
+          Smart Fundis
+        </span>
+      </div>
+
+      <!-- Legal & Disclaimer -->
+      <div class="flex flex-col gap-1.5 text-center border-t border-graphite-border/40 pt-4">
+        <p class="font-mono text-[9px] text-instrument-dim tracking-wider uppercase">
+          We verify skills. NITA, KNQA and TVETs certify.
+        </p>
+        <p class="font-mono text-[9px] text-graphite-border tracking-wider">
+          © 2026 Smart Fundis. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+    <!-- BOTTOM FIXED TAB BAR (4 Destinations) -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[390px] h-14 bg-graphite/95 backdrop-blur-md border-t border-graphite-border z-50 flex items-center justify-around px-2">
+      <!-- EVIDENCE (Active) -->
+      <a href="#evidence" class="flex flex-col items-center justify-center gap-0.5 text-instrument-amber">
+        <span class="material-symbols-outlined text-[20px]">shield</span>
+        <span class="font-mono text-[9px] font-bold tracking-[0.2em] uppercase">Evidence</span>
+      </a>
+
+      <!-- TRADES -->
+      <a href="#trades" class="flex flex-col items-center justify-center gap-0.5 text-instrument-dim hover:text-instrument-light transition-colors">
+        <span class="material-symbols-outlined text-[20px]">handyman</span>
+        <span class="font-mono text-[9px] font-medium tracking-[0.2em] uppercase">Trades</span>
+      </a>
+
+      <!-- TELEMETRY -->
+      <a href="#telemetry" class="flex flex-col items-center justify-center gap-0.5 text-instrument-dim hover:text-instrument-light transition-colors">
+        <span class="material-symbols-outlined text-[20px]">sensors</span>
+        <span class="font-mono text-[9px] font-medium tracking-[0.2em] uppercase">Telemetry</span>
+      </a>
+
+      <!-- COMPANY -->
+      <a href="#company" class="flex flex-col items-center justify-center gap-0.5 text-instrument-dim hover:text-instrument-light transition-colors">
+        <span class="material-symbols-outlined text-[20px]">apartment</span>
+        <span class="font-mono text-[9px] font-medium tracking-[0.2em] uppercase">Company</span>
+      </a>
+    </nav>
+
+  </div>
+
+</body>
+</html>

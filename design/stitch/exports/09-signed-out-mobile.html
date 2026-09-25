@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Signed out</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#050609',
+              900: '#0b0d13',
+              800: '#141721',
+              700: '#1f2433',
+            },
+            accent: {
+              DEFAULT: '#ef9a57',
+              hover: '#e28842',
+              glow: 'rgba(239, 154, 87, 0.15)',
+            }
+          },
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    .dot-matrix-bg {
+      background-color: #050609;
+      background-image: radial-gradient(rgba(242, 244, 247, 0.08) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .hud-bracket-tl {
+      position: absolute;
+      top: -1px;
+      left: -1px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-tr {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-bl {
+      position: absolute;
+      bottom: -1px;
+      left: -1px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-br {
+      position: absolute;
+      bottom: -1px;
+      right: -1px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .hud-center-reticle {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 44px;
+      height: 44px;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body class="bg-graphite-950 text-[#f2f4f7] font-sans antialiased selection:bg-accent selection:text-graphite-950 min-h-screen flex flex-col items-center justify-between dot-matrix-bg relative overflow-x-hidden">
+
+  <!-- Mobile Screen Container (360px targeted canvas) -->
+  <div class="w-full max-w-[360px] min-h-screen flex flex-col justify-between bg-graphite-950/90 relative border-x border-[#1a1f2c]/60 shadow-2xl">
+
+    <!-- Sticky Header: 48px standard instrument shell -->
+    <header class="sticky top-0 z-50 w-full h-12 bg-graphite-950/95 backdrop-blur-md border-b border-[#1f2433] px-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <!-- Logo tile with verified-check icon -->
+        <div class="w-7 h-7 rounded border border-[#2a3044] bg-[#0c0f17] flex items-center justify-center text-accent">
+          <span class="material-symbols-outlined text-[16px] text-accent leading-none">verified_user</span>
+        </div>
+        <span class="font-mono text-[11px] font-bold tracking-[0.24em] uppercase text-[#f2f4f7]">SMART FUNDIS</span>
+      </div>
+      <button class="w-8 h-8 rounded border border-[#222838] bg-graphite-900/60 flex items-center justify-center text-[#9aa2b4] hover:text-[#f2f4f7] hover:border-[#38415c] transition-colors" aria-label="Menu">
+        <span class="material-symbols-outlined text-[18px]">menu</span>
+      </button>
+    </header>
+
+    <!-- Main Content Area: Centered vertically -->
+    <main class="flex-1 w-full px-4 py-8 flex flex-col justify-center items-center my-auto">
+      
+      <!-- Enclosure Box / Card wrapper with instrument micro-styling -->
+      <div class="w-full relative p-4 rounded-sm border border-[#1d2333] bg-[#080a0f]/90 backdrop-blur-sm">
+        
+        <!-- Outer corner brackets in amber -->
+        <div class="hud-bracket-tl"></div>
+        <div class="hud-bracket-tr"></div>
+        <div class="hud-bracket-bl"></div>
+        <div class="hud-bracket-br"></div>
+
+        <!-- 1. Evidence Frame -->
+        <div class="w-full rounded border border-[#222a3d] bg-graphite-950 overflow-hidden relative">
+          <!-- Meta Header -->
+          <div class="h-7 px-2.5 bg-[#0d1018] border-b border-[#1f2638] flex items-center justify-between text-[10px] font-mono tracking-[0.2em] uppercase">
+            <div class="flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#525d73]"></span>
+              <span class="text-[#8e98ac] font-medium">SESSION CLOSED</span>
+            </div>
+            <span class="text-[#5b667e] font-semibold tracking-widest">00:00</span>
+          </div>
+
+          <!-- Photo Viewport -->
+          <div class="relative w-full aspect-[16/10] overflow-hidden bg-black flex items-center justify-center">
+            <img 
+              src="https://lh3.googleusercontent.com/aida-public/AB6AXuDOKRuBWF_OGXY6lMp9oJ6Z6S1tcgElQxKAQgAi1iw0HqIQSa-lw21-TEhDi_NXPNEtcECVq0Q-r3w2pBzJKRQsnLGl2N37hlLoFbVzb1WGci-mcVqDfR0zJmIgQ6Tw8fahK0oAIhlrUxadQF8g6s0S3sMOyDBMF8-2akokEDd6qKlvZgXx5QaL0G-NWlbrgtYrKY12V2GpIVC8ETk4LxDJ0sPaTOgOQLp7F1oNadkj_qOJ5oP85DLv96kVgBruYvCrYcqECzupLM0" 
+              alt="Artisan tools neatly arranged on workshop bench at end of day" 
+              class="w-full h-full object-cover grayscale contrast-125 opacity-85"
+            />
+
+            <!-- Subtle scanline overlay -->
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-accent/[0.03] to-transparent pointer-events-none opacity-40"></div>
+            
+            <!-- Still Corner-bracket Reticle in the centre -->
+            <div class="hud-center-reticle flex items-center justify-center">
+              <!-- Centered Reticle graphic -->
+              <div class="relative w-full h-full">
+                <!-- Reticle 4 corners -->
+                <div class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-accent"></div>
+                <div class="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-accent"></div>
+                <div class="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-accent"></div>
+                <div class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-accent"></div>
+                <!-- Precision cross tick marks -->
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <div class="w-1.5 h-[1px] bg-accent/60"></div>
+                  <div class="h-1.5 w-[1px] bg-accent/60 absolute"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom readout ticker inside photo frame -->
+            <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/90 to-transparent p-2 pt-4 flex items-center justify-between text-[9px] font-mono text-[#8b95ab]">
+              <span class="tracking-[0.16em]">BENCH SECURE // LOGGED</span>
+              <span class="text-accent/90 tracking-widest font-mono">STANDBY</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Typography & Status Readouts -->
+        <div class="mt-6 text-center flex flex-col items-center">
+          <!-- Monospace label with static accent dot -->
+          <div class="inline-flex items-center gap-2 px-2 py-0.5 rounded-full border border-[#232b3e] bg-[#0c0f18] mb-3">
+            <span class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"></span>
+            <span class="font-mono text-[10px] font-semibold tracking-[0.24em] uppercase text-accent">SESSION ENDED</span>
+          </div>
+
+          <!-- Tight extra-bold headline -->
+          <h1 class="text-2xl font-extrabold text-[#f2f4f7] tracking-tight leading-tight">
+            You're signed out.
+          </h1>
+
+          <!-- 3. Dim reassurance subline -->
+          <p class="mt-2 text-xs font-normal text-[#8c96ac] leading-relaxed max-w-[260px]">
+            Your badge stays public. Your videos stay private.
+          </p>
+        </div>
+
+        <!-- 4. Two full-width 48px pills -->
+        <div class="mt-6 space-y-2.5 w-full">
+          <!-- Primary Accent Pill: Sign in again (48px) -->
+          <a href="#" class="w-full h-12 rounded-full bg-accent hover:bg-accent-hover text-graphite-950 font-bold text-sm tracking-wide flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98] shadow-sm">
+            <span>Sign in again</span>
+            <span class="material-symbols-outlined text-base font-bold leading-none">arrow_forward</span>
+          </a>
+
+          <!-- Outlined Pill: Back to home (48px) -->
+          <a href="#" class="w-full h-12 rounded-full border border-[#2b334a] hover:border-[#3e4a6b] bg-transparent hover:bg-[#111520] text-[#d6dbe6] font-semibold text-sm tracking-wide flex items-center justify-center gap-2 transition-all duration-150 active:scale-[0.98]">
+            <span class="material-symbols-outlined text-base text-[#8e98ac] leading-none">home</span>
+            <span>Back to home</span>
+          </a>
+        </div>
+
+        <!-- Micro telemetry metadata footer inside card -->
+        <div class="mt-5 pt-3 border-t border-[#171c28] flex items-center justify-between text-[9px] font-mono text-[#545f76] tracking-[0.18em]">
+          <span>TOKEN: TERMINATED</span>
+          <span>INGRESS: CLOSED</span>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- 5. Compact One-Line Footer (Auth pages have NO bottom tab bar) -->
+    <footer class="w-full py-4 px-3 border-t border-[#151924] bg-graphite-950/90 text-center">
+      <p class="font-mono text-[9px] uppercase tracking-[0.16em] text-[#69748b] leading-relaxed">
+        We verify skills. NITA, KNQA and TVETs certify. · © 2026 Smart Fundis
+      </p>
+    </footer>
+
+  </div>
+
+</body>
+</html>

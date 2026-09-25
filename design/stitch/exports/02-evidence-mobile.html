@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Evidence</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#030406',
+              900: '#050609',
+              850: '#0a0d12',
+              800: '#0f131a',
+              700: '#161c24',
+              600: '#232b36'
+            },
+            accent: {
+              DEFAULT: '#ef9a57',
+              dim: '#ef9a5733',
+              glow: '#ef9a571a'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .instrument-grid {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.04) 1px, transparent 0);
+      background-size: 16px 16px;
+    }
+    .scanline {
+      background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.35) 51%);
+      background-size: 100% 4px;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .accent-pulse {
+      animation: pulseDot 2.2s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-graphite-900 text-[#f2f4f7] min-h-screen selection:bg-accent selection:text-graphite-950 font-sans pb-24">
+
+  <!-- TOP APP BAR / HEADER -->
+  <header class="sticky top-0 z-50 bg-graphite-900/95 backdrop-blur-md border-b border-white/[0.08] h-12 w-full max-w-[360px] mx-auto px-3.5 flex items-center justify-between">
+    <!-- Brand / Logo Tile -->
+    <a href="#hero" class="flex items-center gap-2 group">
+      <div class="w-6 h-6 rounded border border-white/10 bg-graphite-800 flex items-center justify-center">
+        <span class="material-symbols-outlined text-accent text-[15px]">verified</span>
+      </div>
+      <span class="font-mono text-xs font-bold tracking-[0.24em] uppercase text-[#f2f4f7]">SMART FUNDIS</span>
+    </a>
+
+    <!-- Trailing Actions -->
+    <div class="flex items-center gap-2">
+      <a href="#join" class="h-7 px-3 bg-accent text-graphite-950 font-mono text-[10px] font-bold tracking-widest uppercase rounded flex items-center justify-center active:scale-95 transition-transform">
+        JOIN
+      </a>
+      <button aria-label="Open navigation menu" class="w-7 h-7 flex items-center justify-center text-white/70 hover:text-white border border-white/10 rounded bg-graphite-800/60 active:scale-95 transition-transform">
+        <span class="material-symbols-outlined text-[17px]">menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN VIEWPORT CONTAINER (Strict 360px mobile canvas) -->
+  <main class="w-full max-w-[360px] mx-auto px-4 pt-5 pb-8 space-y-10 instrument-grid">
+
+    <!-- ==================== 1. HERO ==================== -->
+    <section id="hero" class="space-y-4">
+      <!-- Mono Sub-heading with Pulsing Accent Dot -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent accent-pulse"></span>
+        <span class="font-mono text-[10px] tracking-[0.26em] uppercase text-accent font-semibold">SMART FUNDIS / EVIDENCE</span>
+      </div>
+
+      <!-- Headline & Subtitle -->
+      <div class="space-y-2">
+        <h1 class="text-2xl font-black tracking-tight leading-[1.15] text-[#f2f4f7]">
+          Proof you can inspect.
+        </h1>
+        <p class="text-xs text-white/60 leading-relaxed font-normal">
+          Every badge traces back to one video, one fresh code, every step checked, and one Expert’s decision.
+        </p>
+      </div>
+
+      <!-- Evidence Frame: EF-2207 -->
+      <div class="border border-white/10 bg-graphite-950 rounded-sm overflow-hidden shadow-2xl">
+        <!-- Meta header row -->
+        <div class="px-2.5 py-1.5 bg-graphite-800/90 border-b border-white/[0.08] flex items-center justify-between font-mono text-[9px] tracking-wider">
+          <div class="flex items-center gap-1.5 text-white/70">
+            <span class="text-accent">EVIDENCE FRAME:</span>
+            <span class="text-white font-medium">EF-2207</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="text-white/40">EXAMPLE</span>
+            <span class="text-white/20">·</span>
+            <span class="text-accent font-semibold tracking-widest">HAIRDRESSING</span>
+          </div>
+        </div>
+
+        <!-- Grayscale Documentary Photo with HUD overlay -->
+        <div class="relative aspect-[4/3] w-full bg-graphite-950 overflow-hidden select-none">
+          <img 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDK-pCpQik_j4Mu4pMv3Pvl-oY_ZYxNCx_okeOdFD2dMHvKKbWQ8iUmVCFRBJLJeoYqzBySyL7tnrN9v5tz1qF9J6t3n8BfV_ZI5zLesHJAvSmVvE9-HFU2ZMmbJvbV3hl1sIiuiTweitcdzRqgUkYT4tY1jIVznztEeRE87xhl91Ku71zNTFzR6EYSJbBYuF4r-Uo3nNUMV8ODMIsM-IpdyuXXxQjMZp0AZGRLWEbUtoff6QQuXMZsCj0h7gZ9D6nxcElTmEP6N80" 
+            alt="Hairdressing Cornrows Craft Evidence Frame" 
+            class="w-full h-full object-cover grayscale contrast-125 opacity-85"
+          />
+
+          <!-- Scanline overlay -->
+          <div class="absolute inset-0 scanline pointer-events-none opacity-50"></div>
+
+          <!-- Hairline telemetry grid & crosshairs -->
+          <div class="absolute inset-0 border border-white/10 pointer-events-none"></div>
+
+          <!-- Active Marker 01: PARTING -->
+          <div class="absolute top-[22%] left-[28%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+            <div class="relative flex items-center">
+              <span class="text-accent text-[11px] leading-none drop-shadow">◆</span>
+              <!-- Corner reticle frame -->
+              <div class="absolute -inset-2 border border-white/20 border-dashed rounded-none pointer-events-none"></div>
+              <div class="ml-2 bg-graphite-950/90 backdrop-blur-sm border border-white/15 px-1.5 py-0.5 rounded-none shadow-lg">
+                <span class="font-mono text-[8px] font-semibold text-white/90 tracking-wider whitespace-nowrap">01 PARTING · 00:06</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Marker 02: BRAID TENSION -->
+          <div class="absolute top-[52%] left-[62%] -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+            <div class="relative flex items-center">
+              <span class="text-accent text-[11px] leading-none drop-shadow">◆</span>
+              <div class="absolute -inset-2.5 border border-accent/40 rounded-none pointer-events-none"></div>
+              <div class="ml-2 bg-graphite-950/90 backdrop-blur-sm border border-accent/40 px-1.5 py-0.5 rounded-none shadow-lg">
+                <span class="font-mono text-[8px] font-semibold text-accent tracking-wider whitespace-nowrap">02 BRAID TENSION · 00:27</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Active Marker 03: FINISH -->
+          <div class="absolute bottom-[20%] right-[16%] pointer-events-none">
+            <div class="relative flex items-center justify-end">
+              <div class="mr-2 bg-graphite-950/90 backdrop-blur-sm border border-white/15 px-1.5 py-0.5 rounded-none shadow-lg">
+                <span class="font-mono text-[8px] font-semibold text-white/80 tracking-wider whitespace-nowrap">03 FINISH · 01:12</span>
+              </div>
+              <span class="text-accent text-[11px] leading-none drop-shadow">◆</span>
+            </div>
+          </div>
+
+          <!-- Corner Telemetry Brackets (HUD style) -->
+          <div class="absolute top-2 left-2 w-2 h-2 border-t border-l border-white/40"></div>
+          <div class="absolute top-2 right-2 w-2 h-2 border-t border-r border-white/40"></div>
+          <div class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-white/40"></div>
+          <div class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-white/40"></div>
+        </div>
+
+        <!-- Frame Footnote / Telemetry Readout Bar -->
+        <div class="px-2.5 py-2 bg-graphite-900 border-t border-white/[0.08] flex items-center justify-between font-mono text-[9px]">
+          <div class="flex items-center gap-1.5 text-white/80">
+            <span class="w-1.5 h-1.5 bg-accent rounded-full"></span>
+            <span class="tracking-wide">INSPECTION TIMELINE: 3 STEPS LOGGED</span>
+          </div>
+          <span class="text-white/40 tracking-wider">TELEM // SF-REC-NAI</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 2. CHAIN OF EVIDENCE ==================== -->
+    <section id="chain" class="space-y-4 pt-2">
+      <!-- Section Tag -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent accent-pulse"></span>
+        <span class="font-mono text-[10px] tracking-[0.26em] uppercase text-accent font-semibold">01 — THE CHAIN OF EVIDENCE</span>
+      </div>
+
+      <h2 class="text-lg font-bold tracking-tight text-[#f2f4f7]">
+        Five steps. Zero shortcuts.
+      </h2>
+
+      <!-- Vertical Timeline -->
+      <div class="relative pl-6 py-2 space-y-6">
+        <!-- Connecting Hairline -->
+        <div class="absolute left-[7px] top-3 bottom-7 w-[1px] bg-white/20"></div>
+
+        <!-- Node 1: CONSENT -->
+        <div class="relative group">
+          <div class="absolute -left-[24px] top-1 w-3.5 h-3.5 rounded-full bg-graphite-900 border border-white/30 flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-white/70"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="font-mono text-[11px] font-bold text-[#f2f4f7] tracking-wider uppercase">
+              CONSENT
+            </div>
+            <p class="text-xs text-white/60 leading-relaxed">
+              Before every upload, in English and Kiswahili.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 2: CODE -->
+        <div class="relative group">
+          <div class="absolute -left-[24px] top-1 w-3.5 h-3.5 rounded-full bg-graphite-900 border border-white/30 flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-white/70"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="font-mono text-[11px] font-bold text-[#f2f4f7] tracking-wider uppercase">
+              CODE
+            </div>
+            <p class="text-xs text-white/60 leading-relaxed">
+              A fresh code, written on paper and shown to the camera.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 3: VIDEO -->
+        <div class="relative group">
+          <div class="absolute -left-[24px] top-1 w-3.5 h-3.5 rounded-full bg-graphite-900 border border-white/30 flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-white/70"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="font-mono text-[11px] font-bold text-[#f2f4f7] tracking-wider uppercase">
+              VIDEO
+            </div>
+            <p class="text-xs text-white/60 leading-relaxed">
+              One continuous in-app shot, 10 to 90 seconds.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 4: AI CHECK -->
+        <div class="relative group">
+          <div class="absolute -left-[24px] top-1 w-3.5 h-3.5 rounded-full bg-graphite-900 border border-white/30 flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-white/70"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="font-mono text-[11px] font-bold text-[#f2f4f7] tracking-wider uppercase">
+              AI CHECK
+            </div>
+            <p class="text-xs text-white/60 leading-relaxed">
+              NVIDIA AI marks every step. Safety steps are never passed automatically.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 5: EXPERT -->
+        <div class="relative group">
+          <div class="absolute -left-[24px] top-1 w-3.5 h-3.5 rounded-full bg-graphite-900 border border-white/30 flex items-center justify-center">
+            <div class="w-1.5 h-1.5 rounded-full bg-white/70"></div>
+          </div>
+          <div class="space-y-1">
+            <div class="font-mono text-[11px] font-bold text-[#f2f4f7] tracking-wider uppercase">
+              EXPERT
+            </div>
+            <p class="text-xs text-white/60 leading-relaxed">
+              A skilled Expert in your trade makes the final call.
+            </p>
+          </div>
+        </div>
+
+        <!-- Timeline Terminal Badge Seal -->
+        <div class="pt-2 flex items-center gap-3">
+          <div class="w-8 h-8 rounded-full border border-accent/40 bg-accent/10 flex items-center justify-center shadow-lg">
+            <span class="material-symbols-outlined text-accent text-[18px]">verified_user</span>
+          </div>
+          <div class="font-mono text-[10px] tracking-widest uppercase text-accent font-semibold">
+            VERIFIED BADGE SEAL ISSUED
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 3. WHAT A BADGE SAYS ==================== -->
+    <section id="badge-readout" class="space-y-3 pt-2">
+      <!-- Section Tag -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent accent-pulse"></span>
+        <span class="font-mono text-[10px] tracking-[0.26em] uppercase text-accent font-semibold">02 — WHAT A BADGE SAYS</span>
+      </div>
+
+      <p class="text-xs text-white/60 leading-relaxed">
+        Badges are narrow, tamper-evident declarations of demonstrable competence.
+      </p>
+
+      <!-- Readout Card Tagged EXAMPLE -->
+      <div class="border border-white/10 bg-graphite-950 p-4 rounded-sm space-y-3 relative overflow-hidden">
+        <!-- Top Tag row -->
+        <div class="flex items-center justify-between font-mono text-[9px]">
+          <span class="px-1.5 py-0.5 bg-white/10 text-white/80 rounded tracking-widest font-semibold">EXAMPLE</span>
+          <span class="text-white/40 tracking-wider">LEDGER REF // BDG-881</span>
+        </div>
+
+        <!-- Verified declaration box -->
+        <div class="p-3 bg-graphite-850 border border-white/[0.08] rounded-sm space-y-1.5">
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-white text-[16px] mt-0.5">check_circle</span>
+            <div class="space-y-1">
+              <div class="font-mono text-xs font-bold text-white tracking-tight">
+                Verified by Smart Fundis
+              </div>
+              <div class="font-mono text-[11px] text-accent font-medium tracking-tight">
+                Electrical: Install a 13A socket · 25 Sep 2026
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Micro Readout Metadata -->
+        <div class="pt-1 border-t border-white/[0.06] flex items-center justify-between font-mono text-[9px] text-white/50">
+          <span>SIGNATURE: HARDWARE_TETHERED</span>
+          <span class="text-white/40">100% AUDITABLE</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 4. A PUBLIC PROFILE ==================== -->
+    <section id="profile" class="space-y-3 pt-2">
+      <!-- Section Tag -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent accent-pulse"></span>
+        <span class="font-mono text-[10px] tracking-[0.26em] uppercase text-accent font-semibold">03 — A PUBLIC PROFILE</span>
+      </div>
+
+      <p class="text-xs text-white/60 leading-relaxed">
+        Clients only see verified skills and trade facts. Nothing invasive.
+      </p>
+
+      <!-- Sample Profile Panel Tagged EXAMPLE -->
+      <div class="border border-white/10 bg-graphite-950 rounded-sm overflow-hidden space-y-0">
+        <!-- Panel Header -->
+        <div class="px-3 py-2 bg-graphite-800/80 border-b border-white/[0.08] flex items-center justify-between font-mono text-[9px]">
+          <span class="px-1.5 py-0.5 bg-white/10 text-white/80 rounded tracking-widest font-semibold">EXAMPLE</span>
+          <span class="text-white/40 tracking-wider">PUBLIC VIEW READOUT</span>
+        </div>
+
+        <!-- Workbench Tools Grayscale Photo -->
+        <div class="relative aspect-[16/9] w-full bg-graphite-950 overflow-hidden">
+          <img 
+            src="https://lh3.googleusercontent.com/aida-public/AB6AXuCMQRYvr_U68QJ034qNTB1xY95hFGpRcI9H1xfyJPx4P1KpbaSn5Sm9ts_h-3DVKMoAMZUyfft6vQeOu06WQ8EODlmiF8hUbwoq5ogcR48NBc9zUBRZOPl-lA9JJW9o7bFPCov0lod2hHm5ScnjN7w5W4QGuC-WtDwLVeX9QVADt5giNoeGr1kw-PR3l2Odqld4_rkTa-gMC4D8zrM826Q2CiusnwsNmPNcGhrb_iDr-ioKSPX9gKODllxURxradr4JGozqwjD7N_A" 
+            alt="Artisan Electrical Tools on Workbench" 
+            class="w-full h-full object-cover grayscale contrast-125 opacity-80"
+          />
+          <div class="absolute inset-0 scanline pointer-events-none opacity-40"></div>
+          <div class="absolute bottom-2 left-2 bg-graphite-950/85 backdrop-blur-sm border border-white/15 px-2 py-0.5 font-mono text-[8px] text-white/80">
+            WORKBENCH & TOOLS // KIAMBU
+          </div>
+        </div>
+
+        <!-- Fundi Info Ledger -->
+        <div class="p-3.5 space-y-3">
+          <div>
+            <h3 class="text-sm font-bold text-white tracking-tight">Example Fundi</h3>
+            <p class="font-mono text-[10px] text-white/60 tracking-wider uppercase">Kiambu County</p>
+          </div>
+
+          <!-- Attributes hairline list -->
+          <div class="border-t border-white/[0.08] divide-y divide-white/[0.06] font-mono text-[10px]">
+            <div class="py-1.5 flex justify-between">
+              <span class="text-white/40">Trades:</span>
+              <span class="text-white font-medium">Electrical</span>
+            </div>
+            <div class="py-1.5 flex justify-between">
+              <span class="text-white/40">Experience:</span>
+              <span class="text-white font-medium">6 years</span>
+            </div>
+            <div class="py-1.5 flex justify-between">
+              <span class="text-white/40">Languages:</span>
+              <span class="text-white font-medium">English, Kiswahili</span>
+            </div>
+          </div>
+
+          <!-- Verified Badges Row -->
+          <div class="pt-2 space-y-1.5">
+            <span class="font-mono text-[9px] tracking-widest uppercase text-white/40 block">VERIFIED BADGES</span>
+            <div class="p-2 bg-graphite-850 border border-white/10 rounded flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-white text-xs font-bold">✓</span>
+                <span class="font-mono text-[10px] text-white/90">Install a 13A socket</span>
+              </div>
+              <span class="font-mono text-[8px] text-accent tracking-widest uppercase">ACTIVE</span>
+            </div>
+          </div>
+
+          <!-- Showcase - not verified link row -->
+          <div class="p-2 border border-white/[0.08] border-dashed rounded flex items-center justify-between text-white/50 hover:text-white/80 transition-colors">
+            <span class="font-mono text-[10px]">Showcase — not verified</span>
+            <span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+          </div>
+
+          <!-- Dim Note on Privacy -->
+          <p class="text-[10px] text-white/40 leading-relaxed font-mono pt-1">
+            Phone, email, videos and AI feedback are never public.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ==================== 5. SCOPE ==================== -->
+    <section id="scope" class="space-y-3 pt-2">
+      <!-- Section Tag -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-accent accent-pulse"></span>
+        <span class="font-mono text-[10px] tracking-[0.26em] uppercase text-accent font-semibold">04 — SCOPE</span>
+      </div>
+
+      <h2 class="text-xl font-bold tracking-tight text-[#f2f4f7]">
+        One word, exactly defined.
+      </h2>
+
+      <!-- WHAT WE CHECK / WHAT WE DON'T CHECK LEDGERS -->
+      <div class="border border-white/10 bg-graphite-950 rounded-sm overflow-hidden divide-y divide-white/[0.08]">
+        <!-- Ledger 1: WHAT WE CHECK -->
+        <div class="p-3.5 space-y-2.5">
+          <div class="font-mono text-[10px] tracking-[0.22em] text-accent font-bold uppercase flex items-center gap-1.5">
+            <span class="w-1 h-1 bg-accent"></span>
+            WHAT WE CHECK
+          </div>
+
+          <div class="space-y-2">
+            <!-- Row 1 -->
+            <div class="flex items-center gap-2.5">
+              <span class="text-white text-xs font-bold leading-none select-none">✓</span>
+              <span class="text-xs text-white/90">Recorded in the app</span>
+            </div>
+            <!-- Row 2 -->
+            <div class="flex items-center gap-2.5">
+              <span class="text-white text-xs font-bold leading-none select-none">✓</span>
+              <span class="text-xs text-white/90">Fresh code on camera</span>
+            </div>
+            <!-- Row 3 -->
+            <div class="flex items-center gap-2.5">
+              <span class="text-white text-xs font-bold leading-none select-none">✓</span>
+              <span class="text-xs text-white/90">Every step checked by AI</span>
+            </div>
+            <!-- Row 4 -->
+            <div class="flex items-center gap-2.5">
+              <span class="text-white text-xs font-bold leading-none select-none">✓</span>
+              <span class="text-xs text-white/90">Safety never auto-passed</span>
+            </div>
+            <!-- Row 5 -->
+            <div class="flex items-center gap-2.5">
+              <span class="text-white text-xs font-bold leading-none select-none">✓</span>
+              <span class="text-xs text-white/90">An Expert in your trade decides</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Ledger 2: WHAT WE DON'T CHECK -->
+        <div class="p-3.5 space-y-2.5 bg-graphite-850/50">
+          <div class="font-mono text-[10px] tracking-[0.22em] text-white/40 font-bold uppercase flex items-center gap-1.5">
+            <span class="w-1 h-1 bg-white/30"></span>
+            WHAT WE DON'T CHECK
+          </div>
+
+          <div class="space-y-2">
+            <!-- Struck-through row 1 -->
+            <div class="flex items-center gap-2.5 text-white/40">
+              <span class="text-white/30 text-xs font-mono select-none">✕</span>
+              <span class="text-xs line-through">ID or background</span>
+            </div>
+            <!-- Struck-through row 2 -->
+            <div class="flex items-center gap-2.5 text-white/40">
+              <span class="text-white/30 text-xs font-mono select-none">✕</span>
+              <span class="text-xs line-through">Licences or insurance</span>
+            </div>
+            <!-- Struck-through row 3 -->
+            <div class="flex items-center gap-2.5 text-white/40">
+              <span class="text-white/30 text-xs font-mono select-none">✕</span>
+              <span class="text-xs line-through">Formal qualifications</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Scope Distinction Tagline -->
+      <div class="p-3 border border-white/[0.08] bg-graphite-800/40 rounded-sm">
+        <p class="text-xs text-white/70 leading-relaxed font-mono">
+          NITA, KNQA and TVETs certify qualifications. We verify a skill, on video.
+        </p>
+      </div>
+    </section>
+
+    <!-- ==================== 6. FOOTER ==================== -->
+    <footer class="pt-6 border-t border-white/10 space-y-8">
+      <!-- Show your work CTA section -->
+      <div id="join" class="space-y-3">
+        <h2 class="text-2xl font-black tracking-tight uppercase text-white">
+          Show your work.
+        </h2>
+        
+        <div class="space-y-2.5 pt-1">
+          <!-- Full-width pill button >= 48px -->
+          <a href="#" class="h-12 w-full bg-accent text-graphite-950 font-bold text-xs tracking-wider uppercase rounded-full flex items-center justify-center hover:opacity-95 active:scale-[0.98] transition-all">
+            Join as a fundi
+          </a>
+          <!-- Outline pill button >= 48px -->
+          <a href="#" class="h-12 w-full border border-white/20 bg-transparent text-white font-bold text-xs tracking-wider uppercase rounded-full flex items-center justify-center hover:bg-white/[0.04] active:scale-[0.98] transition-all">
+            Find a fundi
+          </a>
+        </div>
+      </div>
+
+      <!-- Link Groups -->
+      <div class="grid grid-cols-2 gap-6 pt-3 border-t border-white/[0.08] font-sans text-xs">
+        <!-- Group: FOR FUNDIS -->
+        <div class="space-y-2.5">
+          <h4 class="font-mono text-[9px] tracking-[0.24em] uppercase text-white/40 font-bold">FOR FUNDIS</h4>
+          <ul class="space-y-1.5 text-white/70">
+            <li><a href="#" class="hover:text-accent transition-colors">Join as a fundi</a></li>
+            <li><a href="#" class="hover:text-accent transition-colors">How verification works</a></li>
+            <li><a href="#" class="hover:text-accent transition-colors">Your privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- Group: FOR CLIENTS -->
+        <div class="space-y-2.5">
+          <h4 class="font-mono text-[9px] tracking-[0.24em] uppercase text-white/40 font-bold">FOR CLIENTS</h4>
+          <ul class="space-y-1.5 text-white/70">
+            <li><a href="#" class="hover:text-accent transition-colors">Find a fundi</a></li>
+            <li><a href="#" class="hover:text-accent transition-colors">What 'verified' means</a></li>
+          </ul>
+        </div>
+
+        <!-- Group: FOR EXPERTS -->
+        <div class="space-y-2.5">
+          <h4 class="font-mono text-[9px] tracking-[0.24em] uppercase text-white/40 font-bold">FOR EXPERTS</h4>
+          <ul class="space-y-1.5 text-white/70">
+            <li><a href="#" class="hover:text-accent transition-colors">Become a verifier</a></li>
+          </ul>
+        </div>
+
+        <!-- Group: COMPANY -->
+        <div class="space-y-2.5">
+          <h4 class="font-mono text-[9px] tracking-[0.24em] uppercase text-white/40 font-bold">COMPANY</h4>
+          <ul class="space-y-1.5 text-white/70">
+            <li><a href="#" class="hover:text-accent transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-accent transition-colors">Contact us</a></li>
+            <li><a href="#" class="hover:text-accent transition-colors">Responsible AI</a></li>
+            <li><a href="#" class="hover:text-accent transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <!-- Faint Large SMART FUNDIS Mono Wordmark -->
+      <div class="pt-6 pb-2 text-center select-none overflow-hidden">
+        <span class="font-mono font-black text-2xl tracking-[0.38em] uppercase text-white/[0.08] block w-full whitespace-nowrap">
+          SMART FUNDIS
+        </span>
+      </div>
+
+      <!-- Legal and Accreditation Note -->
+      <div class="pt-3 border-t border-white/[0.08] space-y-1 font-mono text-[9px] text-white/40 text-left">
+        <p>We verify skills. NITA, KNQA and TVETs certify.</p>
+        <p>© 2026 Smart Fundis. All rights reserved.</p>
+      </div>
+    </footer>
+  </main>
+
+  <!-- ==================== FIXED BOTTOM TAB BAR ==================== -->
+  <nav class="fixed bottom-0 left-0 right-0 z-50 bg-graphite-950/95 backdrop-blur-md border-t border-white/[0.1] h-14 max-w-[360px] mx-auto px-2 flex items-center justify-around">
+    <!-- Tab 1: EVIDENCE (active, accent) -->
+    <a href="#hero" class="flex flex-col items-center justify-center text-accent py-1 group">
+      <span class="material-symbols-outlined text-[19px]">fact_check</span>
+      <span class="font-mono text-[9px] tracking-[0.18em] uppercase font-bold mt-0.5">EVIDENCE</span>
+    </a>
+
+    <!-- Tab 2: TRADES -->
+    <a href="#" class="flex flex-col items-center justify-center text-white/45 hover:text-white/80 py-1 transition-colors group">
+      <span class="material-symbols-outlined text-[19px]">construction</span>
+      <span class="font-mono text-[9px] tracking-[0.18em] uppercase font-medium mt-0.5">TRADES</span>
+    </a>
+
+    <!-- Tab 3: TELEMETRY -->
+    <a href="#" class="flex flex-col items-center justify-center text-white/45 hover:text-white/80 py-1 transition-colors group">
+      <span class="material-symbols-outlined text-[19px]">radar</span>
+      <span class="font-mono text-[9px] tracking-[0.18em] uppercase font-medium mt-0.5">TELEMETRY</span>
+    </a>
+
+    <!-- Tab 4: COMPANY -->
+    <a href="#" class="flex flex-col items-center justify-center text-white/45 hover:text-white/80 py-1 transition-colors group">
+      <span class="material-symbols-outlined text-[19px]">corporate_fare</span>
+      <span class="font-mono text-[9px] tracking-[0.18em] uppercase font-medium mt-0.5">COMPANY</span>
+    </a>
+  </nav>
+
+</body>
+</html>

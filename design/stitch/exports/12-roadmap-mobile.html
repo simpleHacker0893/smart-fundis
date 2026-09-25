@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Roadmap (Mobile)</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            graphite: '#050609',
+            'graphite-elevated': '#0c0e14',
+            'graphite-border': '#1e222d',
+            'graphite-border-subtle': '#141720',
+            amber: '#ef9a57',
+            'amber-dim': 'rgba(239, 154, 87, 0.15)',
+            'muted-text': '#8e95a5',
+            'dim-text': '#5a6170'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    /* Dot Matrix Background Pattern */
+    .bg-dot-matrix {
+      background-color: #050609;
+      background-image: radial-gradient(rgba(242, 244, 247, 0.08) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    /* Scanline effect overlay */
+    .scanline-overlay {
+      background: linear-gradient(
+        to bottom,
+        rgba(255,255,255,0),
+        rgba(255,255,255,0) 50%,
+        rgba(0, 0, 0, 0.3) 50%,
+        rgba(0, 0, 0, 0.3)
+      );
+      background-size: 100% 4px;
+    }
+    /* Pulse dot animation */
+    @keyframes pulse-amber {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulse-dot {
+      animation: pulse-amber 2.4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="bg-dot-matrix min-h-screen text-[#f2f4f7] flex flex-col justify-start items-center">
+
+  <!-- Mobile Screen Container (360px targeted canvas) -->
+  <div class="w-full max-w-[360px] min-h-screen flex flex-col border-x border-graphite-border bg-[#050609] relative pb-20">
+
+    <!-- 1. HEADER (Sticky 48px) -->
+    <header class="sticky top-0 z-50 h-12 w-full bg-[#050609]/95 backdrop-blur-md border-b border-graphite-border px-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded border border-amber/40 bg-amber/10 flex items-center justify-center text-amber">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+        </div>
+        <span class="font-mono text-[11px] font-bold tracking-[0.24em] text-[#f2f4f7] uppercase">SMART FUNDIS</span>
+      </div>
+
+      <div class="flex items-center gap-2">
+        <a href="#join" class="h-7 px-3 rounded-full bg-amber text-graphite font-mono text-[10px] font-bold tracking-wider uppercase flex items-center justify-center hover:brightness-110 active:scale-95 transition-all">
+          JOIN
+        </a>
+        <button class="w-8 h-8 rounded border border-graphite-border flex flex-col items-center justify-center gap-1 text-[#f2f4f7] hover:border-graphite-border active:bg-graphite-elevated">
+          <span class="w-3.5 h-[1.5px] bg-[#f2f4f7]"></span>
+          <span class="w-3.5 h-[1.5px] bg-[#f2f4f7]"></span>
+          <span class="w-3.5 h-[1.5px] bg-[#f2f4f7]"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN BODY -->
+    <main class="flex-1 px-4 pt-5 pb-6 flex flex-col">
+
+      <!-- HERO BREADCRUMB / LABEL -->
+      <div class="flex items-center gap-2 mb-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber pulse-dot"></span>
+        <span class="font-mono text-[10px] font-semibold tracking-[0.22em] text-amber uppercase">SMART FUNDIS / ROADMAP</span>
+      </div>
+
+      <!-- HERO HEADLINE -->
+      <h1 class="text-2xl font-black tracking-tight leading-[1.15] text-[#f2f4f7] mb-2">
+        Coming next: earn from your skills.
+      </h1>
+
+      <!-- DIM SUB-LINE -->
+      <p class="font-mono text-[11px] leading-relaxed text-dim-text mb-5">
+        Nothing here is live yet. The order is a plan, not a promise of dates.
+      </p>
+
+      <!-- HERO EVIDENCE FRAME -->
+      <div class="w-full border border-graphite-border bg-graphite-elevated rounded-sm relative overflow-hidden mb-8">
+        <!-- Frame Meta Header -->
+        <div class="px-2.5 py-1.5 border-b border-graphite-border flex items-center justify-between bg-[#080a0f]">
+          <div class="flex items-center gap-1.5">
+            <span class="text-amber text-[9px] font-mono font-bold tracking-widest">◆ FRAME: SF-RDMP-01</span>
+            <span class="text-dim-text text-[9px] font-mono">// WORKBENCH</span>
+          </div>
+          <span class="font-mono text-[9px] font-bold tracking-wider px-1.5 py-0.5 rounded bg-amber/10 text-amber border border-amber/30 uppercase">
+            COMING SOON
+          </span>
+        </div>
+
+        <!-- Image Container with Reticles and Scanline -->
+        <div class="relative w-full aspect-[16/9] bg-black">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuCuWGbOHwi9xyQmOREF6pON8k9ZUWHDO-NEuqWmC-SsxZSu1jRyCTx7IrOTi-Pnd8uxJYDEhupGhDAZbVpjaGeGRdA4ZA_f5z1rwrnRM8ZnOMMPHW99hIQEL_Q6kBXE3VF5BA4YqMz_ofaapdpwH0wcd5DeHBF2CD8mP2ZCmkurnMKjPsV-vgoJO1NGbOWAd0n27ZtWCvQsxYeqDC4mXciAwbVwTg0qr6-1CpffVvd4W9h5u9AUPseH7uwlnRJg3tKyyJcYlEu1rZ0" alt="Craftsman tools arranged on Kenyan workshop bench" class="w-full h-full object-cover grayscale contrast-125 brightness-90">
+          <div class="absolute inset-0 scanline-overlay pointer-events-none opacity-40"></div>
+
+          <!-- Top-left Reticle -->
+          <div class="absolute top-2 left-2 w-3 h-3 border-t-2 border-l-2 border-amber"></div>
+          <!-- Bottom-right Reticle -->
+          <div class="absolute bottom-2 right-2 w-3 h-3 border-b-2 border-r-2 border-amber"></div>
+
+          <!-- HUD Telemetry Stamp -->
+          <div class="absolute bottom-2 left-2 px-1.5 py-0.5 bg-black/80 backdrop-blur-sm border border-graphite-border text-[8px] font-mono text-muted-text uppercase tracking-widest flex items-center gap-1.5">
+            <span class="w-1 h-1 rounded-full bg-amber"></span>
+            BENCH SPEC // NAIROBI JUA KALI
+          </div>
+        </div>
+
+        <!-- Frame Sub-bar -->
+        <div class="px-2.5 py-1.5 border-t border-graphite-border flex items-center justify-between text-[9px] font-mono text-dim-text bg-[#080a0f]">
+          <span>PHASE: ADVANCED CAPABILITIES</span>
+          <span>FPS: 00 // REST</span>
+        </div>
+      </div>
+
+      <!-- SECTION 01 — ON THE BENCH -->
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber pulse-dot"></span>
+          <span class="font-mono text-[10px] font-bold tracking-[0.24em] text-amber uppercase">01 — ON THE BENCH</span>
+        </div>
+        <span class="font-mono text-[9px] tracking-wider text-dim-text uppercase">PIPELINE QUEUE</span>
+      </div>
+
+      <!-- ROADMAP VERTICAL RAIL (Hairline with Diamond Nodes) -->
+      <div class="relative pl-6 space-y-4 mb-8">
+        <!-- Continuous vertical hairline rail -->
+        <div class="absolute left-[7px] top-3 bottom-3 w-[1px] bg-graphite-border"></div>
+
+        <!-- Node 1: Smart Fundis Data Co-op -->
+        <div class="relative group">
+          <!-- Diamond Node -->
+          <div class="absolute -left-[24px] top-3 w-3 h-3 flex items-center justify-center">
+            <span class="text-[9px] text-amber leading-none select-none">◆</span>
+          </div>
+          <!-- Readout Card -->
+          <div class="border border-graphite-border bg-graphite-elevated rounded-sm p-3 hover:border-muted-text/30 transition-colors">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[8.5px] font-bold tracking-wider text-amber uppercase">QUEUE 01 // DATA CO-OP</span>
+              <span class="font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-0.5 rounded bg-graphite-border text-muted-text uppercase border border-graphite-border">
+                COMING SOON
+              </span>
+            </div>
+            <h3 class="font-bold text-[13px] text-[#f2f4f7] tracking-tight mb-1">
+              Smart Fundis Data Co-op
+            </h3>
+            <p class="font-mono text-[10.5px] text-dim-text leading-snug">
+              Earn from your skills, by choice.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 2: Bookings & M-Pesa payments -->
+        <div class="relative group">
+          <!-- Diamond Node -->
+          <div class="absolute -left-[24px] top-3 w-3 h-3 flex items-center justify-center">
+            <span class="text-[9px] text-amber leading-none select-none">◆</span>
+          </div>
+          <!-- Readout Card -->
+          <div class="border border-graphite-border bg-graphite-elevated rounded-sm p-3 hover:border-muted-text/30 transition-colors">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[8.5px] font-bold tracking-wider text-amber uppercase">QUEUE 02 // PAYMENTS</span>
+              <span class="font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-0.5 rounded bg-graphite-border text-muted-text uppercase border border-graphite-border">
+                COMING SOON
+              </span>
+            </div>
+            <h3 class="font-bold text-[13px] text-[#f2f4f7] tracking-tight mb-1">
+              Bookings &amp; M-Pesa payments
+            </h3>
+            <p class="font-mono text-[10.5px] text-dim-text leading-snug">
+              Get hired and paid through your profile.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 3: Fundi Pro -->
+        <div class="relative group">
+          <!-- Diamond Node -->
+          <div class="absolute -left-[24px] top-3 w-3 h-3 flex items-center justify-center">
+            <span class="text-[9px] text-amber leading-none select-none">◆</span>
+          </div>
+          <!-- Readout Card -->
+          <div class="border border-graphite-border bg-graphite-elevated rounded-sm p-3 hover:border-muted-text/30 transition-colors">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[8.5px] font-bold tracking-wider text-amber uppercase">QUEUE 03 // WORKFLOW</span>
+              <span class="font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-0.5 rounded bg-graphite-border text-muted-text uppercase border border-graphite-border">
+                COMING SOON
+              </span>
+            </div>
+            <h3 class="font-bold text-[13px] text-[#f2f4f7] tracking-tight mb-1">
+              Fundi Pro
+            </h3>
+            <p class="font-mono text-[10.5px] text-dim-text leading-snug">
+              Tools for busy fundis.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 4: Training partners -->
+        <div class="relative group">
+          <!-- Diamond Node -->
+          <div class="absolute -left-[24px] top-3 w-3 h-3 flex items-center justify-center">
+            <span class="text-[9px] text-amber leading-none select-none">◆</span>
+          </div>
+          <!-- Readout Card -->
+          <div class="border border-graphite-border bg-graphite-elevated rounded-sm p-3 hover:border-muted-text/30 transition-colors">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[8.5px] font-bold tracking-wider text-amber uppercase">QUEUE 04 // UPGRADE</span>
+              <span class="font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-0.5 rounded bg-graphite-border text-muted-text uppercase border border-graphite-border">
+                COMING SOON
+              </span>
+            </div>
+            <h3 class="font-bold text-[13px] text-[#f2f4f7] tracking-tight mb-1">
+              Training partners
+            </h3>
+            <p class="font-mono text-[10.5px] text-dim-text leading-snug">
+              Learn and level up.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 5: More trades -->
+        <div class="relative group">
+          <!-- Diamond Node -->
+          <div class="absolute -left-[24px] top-3 w-3 h-3 flex items-center justify-center">
+            <span class="text-[9px] text-amber leading-none select-none">◆</span>
+          </div>
+          <!-- Readout Card -->
+          <div class="border border-graphite-border bg-graphite-elevated rounded-sm p-3 hover:border-muted-text/30 transition-colors">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[8.5px] font-bold tracking-wider text-amber uppercase">QUEUE 05 // RUBRICS</span>
+              <span class="font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-0.5 rounded bg-graphite-border text-muted-text uppercase border border-graphite-border">
+                COMING SOON
+              </span>
+            </div>
+            <h3 class="font-bold text-[13px] text-[#f2f4f7] tracking-tight mb-1">
+              More trades
+            </h3>
+            <p class="font-mono text-[10.5px] text-dim-text leading-snug">
+              Plumbing, masonry, carpentry and seven more.
+            </p>
+          </div>
+        </div>
+
+        <!-- Node 6: Kiswahili app -->
+        <div class="relative group">
+          <!-- Diamond Node -->
+          <div class="absolute -left-[24px] top-3 w-3 h-3 flex items-center justify-center">
+            <span class="text-[9px] text-amber leading-none select-none">◆</span>
+          </div>
+          <!-- Readout Card -->
+          <div class="border border-graphite-border bg-graphite-elevated rounded-sm p-3 hover:border-muted-text/30 transition-colors">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="font-mono text-[8.5px] font-bold tracking-wider text-amber uppercase">QUEUE 06 // LOCALIZATION</span>
+              <span class="font-mono text-[8.5px] font-semibold tracking-wider px-1.5 py-0.5 rounded bg-graphite-border text-muted-text uppercase border border-graphite-border">
+                COMING SOON
+              </span>
+            </div>
+            <h3 class="font-bold text-[13px] text-[#f2f4f7] tracking-tight mb-1">
+              Kiswahili app
+            </h3>
+            <p class="font-mono text-[10.5px] text-dim-text leading-snug">
+              The full app in Kiswahili.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- READOUT NOTE -->
+      <div class="w-full border border-graphite-border bg-graphite-elevated/70 rounded-sm p-3.5 relative overflow-hidden mb-8">
+        <div class="flex items-start gap-2.5">
+          <div class="text-amber mt-0.5">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <div class="font-mono text-[9px] font-bold tracking-widest text-amber uppercase mb-1">
+              DISPATCH READOUT // CO-OP UPDATES
+            </div>
+            <p class="text-[11.5px] leading-relaxed text-[#f2f4f7]/90 font-normal">
+              Want to hear when the Co-op launches? Join as a fundi and switch on <span class="font-medium text-amber">‘Tell me when it launches’</span> in your dashboard.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 3. FOOTER SECTION -->
+      <div class="w-full border-t border-graphite-border pt-8 mt-2">
+        <!-- Show your work Call to Action -->
+        <h2 class="text-center font-black text-xl tracking-tight uppercase text-[#f2f4f7] mb-4">
+          SHOW YOUR WORK.
+        </h2>
+
+        <!-- Primary Pill Buttons (>= 48px) -->
+        <div class="flex flex-col gap-2.5 mb-8">
+          <a id="join" href="#join" class="h-12 w-full rounded-full bg-amber text-graphite font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center hover:brightness-110 active:scale-[0.98] transition-all">
+            JOIN AS A FUNDI
+          </a>
+          <a href="#find" class="h-12 w-full rounded-full border border-graphite-border bg-transparent text-[#f2f4f7] font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center hover:bg-graphite-elevated active:scale-[0.98] transition-all">
+            FIND A FUNDI
+          </a>
+        </div>
+
+        <!-- Link Groups (2-column layout) -->
+        <div class="grid grid-cols-2 gap-x-4 gap-y-6 mb-8 text-[11px] font-mono">
+          <!-- FOR FUNDIS -->
+          <div>
+            <div class="text-amber text-[9.5px] font-bold tracking-[0.2em] uppercase mb-2">FOR FUNDIS</div>
+            <ul class="space-y-1.5 text-muted-text">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Join as a fundi</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">How verification works</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Your privacy</a></li>
+            </ul>
+          </div>
+
+          <!-- FOR CLIENTS -->
+          <div>
+            <div class="text-amber text-[9.5px] font-bold tracking-[0.2em] uppercase mb-2">FOR CLIENTS</div>
+            <ul class="space-y-1.5 text-muted-text">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Find a fundi</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">What 'verified' means</a></li>
+            </ul>
+          </div>
+
+          <!-- FOR EXPERTS -->
+          <div>
+            <div class="text-amber text-[9.5px] font-bold tracking-[0.2em] uppercase mb-2">FOR EXPERTS</div>
+            <ul class="space-y-1.5 text-muted-text">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Become a verifier</a></li>
+            </ul>
+          </div>
+
+          <!-- COMPANY -->
+          <div>
+            <div class="text-amber text-[9.5px] font-bold tracking-[0.2em] uppercase mb-2">COMPANY</div>
+            <ul class="space-y-1.5 text-muted-text">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">About</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Contact us</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Responsible AI</a></li>
+              <li><a href="#" class="text-amber font-semibold border-b border-amber/40 pb-0.5">Roadmap</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Faint SMART FUNDIS Mono Wordmark -->
+        <div class="text-center my-6 select-none">
+          <div class="font-mono text-xl tracking-[0.35em] text-[#f2f4f7]/15 font-bold uppercase">
+            SMART FUNDIS
+          </div>
+        </div>
+
+        <!-- Accreditation Disclaimer & Copyright -->
+        <div class="text-center font-mono text-[9px] text-dim-text leading-relaxed pb-4">
+          <p class="mb-1">WE VERIFY SKILLS. NITA, KNQA AND TVETS CERTIFY.</p>
+          <p>© 2026 SMART FUNDIS. ALL RIGHTS RESERVED.</p>
+        </div>
+
+      </div>
+
+    </main>
+
+    <!-- 4. FIXED BOTTOM TAB BAR (360px docked) -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[360px] h-14 bg-[#050609]/95 backdrop-blur-md border-t border-graphite-border px-1 flex items-center justify-around z-50">
+      
+      <!-- EVIDENCE -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2 text-muted-text hover:text-[#f2f4f7] transition-colors">
+        <svg class="w-4 h-4 stroke-[1.8]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+        <span class="font-mono text-[8.5px] tracking-wider uppercase">EVIDENCE</span>
+      </a>
+
+      <!-- TRADES -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2 text-muted-text hover:text-[#f2f4f7] transition-colors">
+        <svg class="w-4 h-4 stroke-[1.8]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+        <span class="font-mono text-[8.5px] tracking-wider uppercase">TRADES</span>
+      </a>
+
+      <!-- TELEMETRY -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2 text-muted-text hover:text-[#f2f4f7] transition-colors">
+        <svg class="w-4 h-4 stroke-[1.8]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <path d="M4.9 19.1C1 15.2 1 8.8 4.9 4.9"/>
+          <path d="M7.8 16.2c-2.3-2.3-2.3-6.1 0-8.5"/>
+          <circle cx="12" cy="12" r="2"/>
+          <path d="M16.2 7.8c2.3 2.3 2.3 6.1 0 8.5"/>
+          <path d="M19.1 4.9C23 8.8 23 15.1 19.1 19"/>
+        </svg>
+        <span class="font-mono text-[8.5px] tracking-wider uppercase">TELEMETRY</span>
+      </a>
+
+      <!-- COMPANY (Active, Amber Accent) -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 py-1 px-2 text-amber font-semibold">
+        <svg class="w-4 h-4 stroke-[2]" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+          <rect x="4" y="2" width="16" height="20" rx="2" ry="2"/>
+          <path d="M9 22v-4h6v4"/>
+          <path d="M8 6h.01"/>
+          <path d="M16 6h.01"/>
+          <path d="M8 10h.01"/>
+          <path d="M16 10h.01"/>
+          <path d="M8 14h.01"/>
+          <path d="M16 14h.01"/>
+        </svg>
+        <span class="font-mono text-[8.5px] tracking-wider uppercase text-amber">COMPANY</span>
+      </a>
+
+    </nav>
+
+  </div>
+
+</body>
+</html>

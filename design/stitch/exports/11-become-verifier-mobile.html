@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=360, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Smart Fundis — Become a verifier (Mobile)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#050609',
+              900: '#090b10',
+              850: '#0e1117',
+              800: '#141822',
+              700: '#1c2230',
+              600: '#2b3347',
+              400: '#5a657d',
+              300: '#8b95a8',
+              100: '#f2f4f7',
+            },
+            amber: {
+              DEFAULT: '#ef9a57',
+              dim: 'rgba(239, 154, 87, 0.15)',
+              border: 'rgba(239, 154, 87, 0.35)',
+              glow: 'rgba(239, 154, 87, 0.25)',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+          backgroundImage: {
+            'dot-grid': 'radial-gradient(circle, rgba(242, 244, 247, 0.07) 1px, transparent 1px)',
+          },
+          backgroundSize: {
+            'dot-grid': '16px 16px',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .instrument-bracket {
+      position: relative;
+    }
+    .instrument-bracket::before, .instrument-bracket::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-color: #ef9a57;
+      pointer-events: none;
+    }
+    .instrument-bracket::before {
+      top: -1px;
+      left: -1px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .instrument-bracket::after {
+      bottom: -1px;
+      right: -1px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .scan-line {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(239, 154, 87, 0.8), transparent);
+      box-shadow: 0 0 8px rgba(239, 154, 87, 0.6);
+      animation: scan 4s ease-in-out infinite alternate;
+    }
+    @keyframes scan {
+      0% { top: 4%; opacity: 0.3; }
+      50% { opacity: 0.9; }
+      100% { top: 96%; opacity: 0.3; }
+    }
+    .pulse-dot {
+      animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.3; transform: scale(0.85); }
+    }
+    /* Hide scrollbar */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="w-[360px] min-h-screen mx-auto bg-graphite-950 text-graphite-100 relative overflow-x-hidden border-x border-graphite-850 pb-20 select-none">
+  <!-- Dot Grid Texture Overlay -->
+  <div class="fixed inset-0 w-[360px] mx-auto bg-dot-grid pointer-events-none z-0"></div>
+
+  <!-- STICKY HEADER (48px) -->
+  <header class="sticky top-0 z-40 w-full h-12 bg-graphite-950/95 backdrop-blur-md border-b border-graphite-800/80 px-4 flex items-center justify-between">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded flex items-center justify-center border border-amber-border bg-amber-dim text-amber">
+        <span class="material-symbols-outlined text-[15px]">verified</span>
+      </div>
+      <span class="font-mono text-xs font-bold tracking-[0.22em] text-graphite-100 uppercase">SMART FUNDIS</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="#" class="h-7 px-3 rounded-full bg-amber text-graphite-950 font-mono text-[11px] font-bold tracking-wider uppercase flex items-center justify-center hover:brightness-110 active:scale-95 transition-all">
+        JOIN
+      </a>
+      <button class="w-7 h-7 flex items-center justify-center rounded border border-graphite-800 text-graphite-300 hover:text-white active:bg-graphite-850" aria-label="Menu">
+        <span class="material-symbols-outlined text-[18px]">menu</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT CONTAINER -->
+  <main class="relative z-10 px-4 pt-6 flex flex-col gap-8">
+
+    <!-- 1. HERO SECTION -->
+    <section class="flex flex-col gap-3">
+      <!-- Mono Sub-Tag -->
+      <div class="flex items-center gap-2">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber pulse-dot"></span>
+        <span class="font-mono text-[10px] tracking-[0.24em] text-amber font-semibold uppercase">SMART FUNDIS / EXPERTS</span>
+      </div>
+
+      <!-- Tight Bold Headline -->
+      <h1 class="text-[30px] leading-[1.08] font-black tracking-[-0.035em] text-white">
+        Your trade needs judges.
+      </h1>
+
+      <!-- Dim Sub-Line -->
+      <p class="text-[13px] leading-[1.5] text-graphite-300 font-normal">
+        Experts make the final call on every badge. AI does the watching; you do the deciding.
+      </p>
+
+      <!-- Evidence Frame -->
+      <div class="mt-2 instrument-bracket border border-graphite-800 bg-graphite-900 rounded-none overflow-hidden relative">
+        <!-- Frame Meta Header Row -->
+        <div class="px-2.5 py-1.5 bg-graphite-950/90 border-b border-graphite-800/80 flex items-center justify-between font-mono text-[9px] tracking-[0.16em] uppercase text-graphite-400">
+          <div class="flex items-center gap-1.5">
+            <span class="text-amber">◆</span>
+            <span class="text-graphite-300">FRAME: SF-EXP-01</span>
+            <span class="text-graphite-600">//</span>
+            <span class="text-graphite-300">BENCH AUDIT</span>
+          </div>
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber pulse-dot"></span>
+            <span class="text-amber font-medium">EXPERT INGRESS</span>
+          </div>
+        </div>
+
+        <!-- Frame Image with Reticle & HUD Overlay -->
+        <div class="relative w-full aspect-[16/9] bg-graphite-950 overflow-hidden">
+          <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuBErfnJQWTrH0gHtK4hw90iSPO9XuYxlNvrtpI4m6mbl4koxk0bLQQGafk4XgwZSsRoSI9vFCmpvy0-_NcgZyTJEeRB9M8_jtRZOlHX5ZC3qXGD0CTS05cK7iGGimqB-DiE2AthnKCzXUaHQnwJlRYAGgW2AbUs2eddhhqbQnd7WxEZvh3VM_X6ovhMJx3ZmYNQPSeT8JkPeRWgXgY5XuZobJWDytveq4GbxYERVGU83oyZuR3yBQowHS3G4dNkk3FMEFRzJ4K37As" alt="Grayscale documentary evidence frame of master artisan hands inspecting electrical terminals" class="w-full h-full object-cover grayscale contrast-125 opacity-90">
+          
+          <!-- Subtle Animated Scan Line -->
+          <div class="scan-line"></div>
+
+          <!-- Technical Corner Reticle Overlay -->
+          <div class="absolute inset-3 pointer-events-none border border-graphite-100/10">
+            <!-- Reticle Crossbars -->
+            <div class="absolute -top-1 left-1/2 -translate-x-1/2 w-4 h-[1px] bg-amber/60"></div>
+            <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 w-4 h-[1px] bg-amber/60"></div>
+            <div class="absolute top-1/2 -left-1 -translate-y-1/2 w-[1px] h-4 bg-amber/60"></div>
+            <div class="absolute top-1/2 -right-1 -translate-y-1/2 w-[1px] h-4 bg-amber/60"></div>
+
+            <!-- Target Diamond Label -->
+            <div class="absolute bottom-2 left-2 bg-graphite-950/90 border border-amber/40 px-2 py-0.5 flex items-center gap-1.5 font-mono text-[8.5px] tracking-widest text-amber uppercase">
+              <span class="text-[9px]">◆</span>
+              <span>VERIFIER BENCH // JURY JURISDICTION</span>
+            </div>
+            
+            <div class="absolute top-2 right-2 bg-graphite-950/85 border border-graphite-800 px-1.5 py-0.5 font-mono text-[8px] tracking-wider text-graphite-400">
+              FPS: 30 // TELEMETRY
+            </div>
+          </div>
+        </div>
+
+        <!-- Frame Meta Footer -->
+        <div class="px-2.5 py-1.5 bg-graphite-950/95 border-t border-graphite-800/80 flex items-center justify-between font-mono text-[8.5px] tracking-[0.16em] uppercase text-graphite-400">
+          <span>ELECTRICAL TERMINAL AUDIT</span>
+          <span class="text-graphite-300">100% HUMAN FINAL JURY</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. "01 — WHAT EXPERTS DO" SECTION -->
+    <section class="flex flex-col gap-3">
+      <!-- Section Header -->
+      <div class="flex items-center justify-between border-b border-graphite-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+          <h2 class="font-mono text-[11px] tracking-[0.24em] text-amber font-bold uppercase">
+            01 — WHAT EXPERTS DO
+          </h2>
+        </div>
+        <span class="font-mono text-[9px] tracking-widest text-graphite-400 uppercase">DUTY LEDGER</span>
+      </div>
+
+      <!-- Instrument Ledger Table -->
+      <div class="border border-graphite-800 bg-graphite-900 divide-y divide-graphite-800">
+        <!-- Row 1: Review -->
+        <div class="p-3.5 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-bold tracking-wider text-white uppercase flex items-center gap-2">
+              <span class="text-amber text-[10px]">◆</span>
+              Review
+            </span>
+            <span class="font-mono text-[9px] tracking-widest px-1.5 py-0.5 border border-graphite-700 bg-graphite-950 text-graphite-300 uppercase">
+              AI TIMESTAMPS
+            </span>
+          </div>
+          <p class="text-[12.5px] leading-relaxed text-graphite-300 font-normal pl-4">
+            See the AI's step-by-step observations with timestamps.
+          </p>
+        </div>
+
+        <!-- Row 2: Decide -->
+        <div class="p-3.5 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-bold tracking-wider text-white uppercase flex items-center gap-2">
+              <span class="text-amber text-[10px]">◆</span>
+              Decide
+            </span>
+            <span class="font-mono text-[9px] tracking-widest px-1.5 py-0.5 border border-amber/30 bg-amber-dim text-amber uppercase">
+              FINAL CALL
+            </span>
+          </div>
+          <p class="text-[12.5px] leading-relaxed text-graphite-300 font-normal pl-4">
+            Approve, reject, or ask for a reshoot.
+          </p>
+        </div>
+
+        <!-- Row 3: Appeals -->
+        <div class="p-3.5 flex flex-col gap-1.5">
+          <div class="flex items-center justify-between">
+            <span class="font-mono text-xs font-bold tracking-wider text-white uppercase flex items-center gap-2">
+              <span class="text-amber text-[10px]">◆</span>
+              Appeals
+            </span>
+            <span class="font-mono text-[9px] tracking-widest px-1.5 py-0.5 border border-graphite-700 bg-graphite-950 text-graphite-300 uppercase">
+              PEER ROTATION
+            </span>
+          </div>
+          <p class="text-[12.5px] leading-relaxed text-graphite-300 font-normal pl-4">
+            A rejected fundi can appeal once. A different Expert decides.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. "02 — WHO WE NEED" SECTION -->
+    <section class="flex flex-col gap-3">
+      <!-- Section Header -->
+      <div class="flex items-center justify-between border-b border-graphite-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+          <h2 class="font-mono text-[11px] tracking-[0.24em] text-amber font-bold uppercase">
+            02 — WHO WE NEED
+          </h2>
+        </div>
+        <span class="font-mono text-[9px] tracking-widest text-graphite-400 uppercase">ACTIVE TRADES</span>
+      </div>
+
+      <!-- Trade Readout Cards Grid -->
+      <div class="flex flex-col gap-2.5">
+        <!-- Card 1: Electrical · LIVE -->
+        <div class="border border-graphite-800 bg-graphite-900 p-3.5 flex items-center justify-between relative overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber"></div>
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-8 h-8 rounded border border-graphite-800 bg-graphite-950 flex items-center justify-center text-amber">
+              <span class="material-symbols-outlined text-[18px]">bolt</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-mono text-xs font-bold tracking-wider text-white uppercase">ELECTRICAL</span>
+              <span class="font-mono text-[9.5px] tracking-wider text-graphite-400 uppercase">BENCH RUBRIC: 13A SOCKET</span>
+            </div>
+          </div>
+          <span class="font-mono text-[9.5px] font-bold tracking-widest px-2 py-0.5 rounded-full border border-amber/40 bg-amber-dim text-amber uppercase">
+            LIVE
+          </span>
+        </div>
+
+        <!-- Card 2: Hairdressing · LIVE -->
+        <div class="border border-graphite-800 bg-graphite-900 p-3.5 flex items-center justify-between relative overflow-hidden">
+          <div class="absolute left-0 top-0 bottom-0 w-1 bg-amber"></div>
+          <div class="flex items-center gap-3 pl-1">
+            <div class="w-8 h-8 rounded border border-graphite-800 bg-graphite-950 flex items-center justify-center text-amber">
+              <span class="material-symbols-outlined text-[18px]">content_cut</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-mono text-xs font-bold tracking-wider text-white uppercase">HAIRDRESSING</span>
+              <span class="font-mono text-[9.5px] tracking-wider text-graphite-400 uppercase">BENCH RUBRIC: CORNROWS</span>
+            </div>
+          </div>
+          <span class="font-mono text-[9.5px] font-bold tracking-widest px-2 py-0.5 rounded-full border border-amber/40 bg-amber-dim text-amber uppercase">
+            LIVE
+          </span>
+        </div>
+
+        <!-- Card 3: Other Trades · COMING SOON -->
+        <div class="border border-graphite-800/80 bg-graphite-900/60 p-3.5 flex items-center justify-between border-dashed">
+          <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded border border-graphite-800 bg-graphite-950 flex items-center justify-center text-graphite-500">
+              <span class="material-symbols-outlined text-[18px]">build</span>
+            </div>
+            <div class="flex flex-col">
+              <span class="font-mono text-xs font-semibold tracking-wider text-graphite-300 uppercase">OTHER TRADES</span>
+              <span class="font-mono text-[9.5px] tracking-wider text-graphite-500 uppercase">10 TRADES ON BENCH</span>
+            </div>
+          </div>
+          <span class="font-mono text-[9.5px] tracking-widest px-2 py-0.5 rounded-full border border-graphite-800 bg-graphite-950 text-graphite-400 uppercase">
+            COMING SOON
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. "03 — REGISTER INTEREST" SECTION -->
+    <section class="flex flex-col gap-3">
+      <!-- Section Header -->
+      <div class="flex items-center justify-between border-b border-graphite-800 pb-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber"></span>
+          <h2 class="font-mono text-[11px] tracking-[0.24em] text-amber font-bold uppercase">
+            03 — REGISTER INTEREST
+          </h2>
+        </div>
+        <span class="font-mono text-[9px] tracking-widest text-graphite-400 uppercase">INVITATION ONLY</span>
+      </div>
+
+      <!-- Note Callout -->
+      <div class="p-3 border-l-2 border-amber bg-graphite-900 border-r border-t border-b border-graphite-800">
+        <p class="text-[12.5px] leading-relaxed text-graphite-300 font-normal">
+          During the pilot, Experts join by invitation. Tell us about yourself and we'll be in touch.
+        </p>
+      </div>
+
+      <!-- Instrument-Panel Form -->
+      <form class="flex flex-col gap-3.5" onsubmit="event.preventDefault();">
+        <!-- Field 1: NAME -->
+        <div class="flex flex-col gap-1.5">
+          <label class="font-mono text-[10px] font-bold tracking-[0.18em] text-graphite-300 uppercase flex items-center gap-1.5">
+            <span class="text-amber text-[9px]">◆</span>
+            NAME
+          </label>
+          <div class="relative">
+            <input 
+              type="text" 
+              placeholder="e.g. Samuel Mutua" 
+              class="w-full h-12 px-3.5 bg-graphite-900 border border-graphite-800 text-white font-mono text-xs placeholder:text-graphite-600 focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors rounded-none"
+            >
+          </div>
+        </div>
+
+        <!-- Field 2: EMAIL -->
+        <div class="flex flex-col gap-1.5">
+          <label class="font-mono text-[10px] font-bold tracking-[0.18em] text-graphite-300 uppercase flex items-center gap-1.5">
+            <span class="text-amber text-[9px]">◆</span>
+            EMAIL
+          </label>
+          <div class="relative">
+            <input 
+              type="email" 
+              placeholder="e.g. expert@example.com" 
+              class="w-full h-12 px-3.5 bg-graphite-900 border border-graphite-800 text-white font-mono text-xs placeholder:text-graphite-600 focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors rounded-none"
+            >
+          </div>
+        </div>
+
+        <!-- Field 3: TRADE (SELECT) -->
+        <div class="flex flex-col gap-1.5">
+          <label class="font-mono text-[10px] font-bold tracking-[0.18em] text-graphite-300 uppercase flex items-center gap-1.5">
+            <span class="text-amber text-[9px]">◆</span>
+            TRADE
+          </label>
+          <div class="relative">
+            <select 
+              class="w-full h-12 px-3.5 bg-graphite-900 border border-graphite-800 text-white font-mono text-xs appearance-none focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors rounded-none cursor-pointer"
+            >
+              <option value="" disabled selected>Select your trade</option>
+              <option value="electrical">Electrical</option>
+              <option value="hairdressing">Hairdressing</option>
+              <option value="other">Other</option>
+            </select>
+            <div class="absolute right-3.5 top-1/2 -translate-y-1/2 pointer-events-none text-graphite-400">
+              <span class="material-symbols-outlined text-[18px]">expand_more</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Field 4: YEARS IN THE TRADE -->
+        <div class="flex flex-col gap-1.5">
+          <label class="font-mono text-[10px] font-bold tracking-[0.18em] text-graphite-300 uppercase flex items-center gap-1.5">
+            <span class="text-amber text-[9px]">◆</span>
+            YEARS IN THE TRADE
+          </label>
+          <div class="relative">
+            <input 
+              type="number" 
+              placeholder="e.g. 12" 
+              min="0"
+              class="w-full h-12 px-3.5 bg-graphite-900 border border-graphite-800 text-white font-mono text-xs placeholder:text-graphite-600 focus:outline-none focus:border-amber focus:ring-1 focus:ring-amber transition-colors rounded-none"
+            >
+          </div>
+        </div>
+
+        <!-- Full-Width Accent Pill Button (Min 48px) -->
+        <button 
+          type="button" 
+          class="w-full h-12 mt-2 rounded-full bg-amber text-graphite-950 font-mono text-xs font-bold tracking-[0.16em] uppercase flex items-center justify-center gap-2 hover:brightness-110 active:scale-[0.99] transition-all shadow-[0_0_12px_rgba(239,154,87,0.25)]"
+        >
+          <span>Register interest</span>
+          <span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+        </button>
+      </form>
+    </section>
+
+    <!-- 5. SHARED FOOTER -->
+    <footer class="pt-8 pb-10 flex flex-col gap-8 border-t border-graphite-800 text-left">
+      <!-- Show Your Work CTA Block -->
+      <div class="flex flex-col items-center text-center gap-3">
+        <h3 class="text-lg font-black tracking-tight text-white uppercase">SHOW YOUR WORK.</h3>
+        <div class="w-full flex flex-col gap-2">
+          <button class="w-full h-12 rounded-full bg-amber text-graphite-950 font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center hover:brightness-110 active:scale-95 transition-all">
+            JOIN AS A FUNDI
+          </button>
+          <button class="w-full h-12 rounded-full border border-graphite-800 bg-graphite-900 text-white font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center hover:border-graphite-700 active:bg-graphite-850 transition-all">
+            FIND A FUNDI
+          </button>
+        </div>
+      </div>
+
+      <!-- Link Groups 2x2 Grid -->
+      <div class="grid grid-cols-2 gap-6 pt-4 font-mono text-xs border-t border-graphite-800/60">
+        <!-- FOR FUNDIS -->
+        <div class="flex flex-col gap-2">
+          <span class="text-[10px] tracking-[0.2em] text-amber font-semibold uppercase">FOR FUNDIS</span>
+          <div class="flex flex-col gap-1.5 text-graphite-400 text-[11px]">
+            <a href="#" class="hover:text-white transition-colors">Join as a fundi</a>
+            <a href="#" class="hover:text-white transition-colors">How verification works</a>
+            <a href="#" class="hover:text-white transition-colors">Your privacy</a>
+          </div>
+        </div>
+
+        <!-- FOR CLIENTS -->
+        <div class="flex flex-col gap-2">
+          <span class="text-[10px] tracking-[0.2em] text-amber font-semibold uppercase">FOR CLIENTS</span>
+          <div class="flex flex-col gap-1.5 text-graphite-400 text-[11px]">
+            <a href="#" class="hover:text-white transition-colors">Find a fundi</a>
+            <a href="#" class="hover:text-white transition-colors">What 'verified' means</a>
+          </div>
+        </div>
+
+        <!-- FOR EXPERTS (Active Page) -->
+        <div class="flex flex-col gap-2">
+          <span class="text-[10px] tracking-[0.2em] text-amber font-semibold uppercase">FOR EXPERTS</span>
+          <div class="flex flex-col gap-1.5 text-white text-[11px] font-medium">
+            <a href="#" class="text-amber underline underline-offset-4">Become a verifier</a>
+          </div>
+        </div>
+
+        <!-- COMPANY -->
+        <div class="flex flex-col gap-2">
+          <span class="text-[10px] tracking-[0.2em] text-amber font-semibold uppercase">COMPANY</span>
+          <div class="flex flex-col gap-1.5 text-graphite-400 text-[11px]">
+            <a href="#" class="hover:text-white transition-colors">About</a>
+            <a href="#" class="hover:text-white transition-colors">Contact us</a>
+            <a href="#" class="hover:text-white transition-colors">Responsible AI</a>
+            <a href="#" class="hover:text-white transition-colors">Roadmap</a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faint Brand Wordmark & Legal Disclaimer -->
+      <div class="pt-6 flex flex-col items-center text-center gap-2 border-t border-graphite-850">
+        <span class="font-mono text-base tracking-[0.3em] font-bold text-graphite-700 select-none">
+          SMART FUNDIS
+        </span>
+        <p class="font-mono text-[9px] tracking-wider text-graphite-500 uppercase leading-relaxed">
+          We verify skills. NITA, KNQA and TVETs certify.<br>
+          © 2026 Smart Fundis. All rights reserved.
+        </p>
+      </div>
+    </footer>
+
+  </main>
+
+  <!-- FIXED BOTTOM TAB BAR -->
+  <!-- EVIDENCE · TRADES · TELEMETRY · COMPANY (active, accent) -->
+  <nav class="fixed bottom-0 left-0 right-0 w-[360px] mx-auto h-14 bg-graphite-950/95 backdrop-blur-md border-t border-graphite-800 z-50 px-2 flex items-center justify-around">
+    <!-- EVIDENCE -->
+    <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-graphite-500 hover:text-graphite-300 py-1 transition-colors">
+      <span class="material-symbols-outlined text-[19px]">shield</span>
+      <span class="font-mono text-[8.5px] tracking-[0.16em] uppercase">EVIDENCE</span>
+    </a>
+
+    <!-- TRADES -->
+    <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-graphite-500 hover:text-graphite-300 py-1 transition-colors">
+      <span class="material-symbols-outlined text-[19px]">construction</span>
+      <span class="font-mono text-[8.5px] tracking-[0.16em] uppercase">TRADES</span>
+    </a>
+
+    <!-- TELEMETRY -->
+    <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-graphite-500 hover:text-graphite-300 py-1 transition-colors">
+      <span class="material-symbols-outlined text-[19px]">sensors</span>
+      <span class="font-mono text-[8.5px] tracking-[0.16em] uppercase">TELEMETRY</span>
+    </a>
+
+    <!-- COMPANY (active, accent) -->
+    <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-amber py-1">
+      <span class="material-symbols-outlined text-[19px]">apartment</span>
+      <span class="font-mono text-[8.5px] font-bold tracking-[0.16em] uppercase">COMPANY</span>
+    </a>
+  </nav>
+</body>
+</html>

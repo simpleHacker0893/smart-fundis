@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Trades</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#030406',
+              900: '#050609',
+              850: '#0a0c10',
+              800: '#0f1218',
+              700: '#171b22',
+              600: '#222733',
+            },
+            instrument: {
+              amber: '#ef9a57',
+              amberHover: '#f2a96f',
+              dimAmber: 'rgba(239, 154, 87, 0.15)',
+              borderAmber: 'rgba(239, 154, 87, 0.45)'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .dot-grid {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.07) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(239, 154, 87, 0.6) 50%, transparent 100%);
+      box-shadow: 0 0 8px rgba(239, 154, 87, 0.5);
+    }
+    .hud-bracket-tl {
+      position: absolute;
+      top: 6px;
+      left: 6px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-br {
+      position: absolute;
+      bottom: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-tr {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-bl {
+      position: absolute;
+      bottom: 6px;
+      left: 6px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+    .pulsing-accent {
+      animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-graphite-900 text-[#f2f4f7] selection:bg-instrument-amber selection:text-graphite-900 min-h-screen relative flex justify-center">
+
+  <!-- Mobile Viewport Container 360px max -->
+  <div class="w-full max-w-[360px] min-h-screen bg-graphite-900 border-x border-[#1a1e27] relative flex flex-col pb-20 dot-grid shadow-2xl">
+
+    <!-- 1. STICKY HEADER (48px) -->
+    <header class="sticky top-0 z-50 h-12 w-full bg-graphite-950/95 backdrop-blur-md border-b border-[#1f2430] px-3 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded bg-[#10141c] border border-instrument-borderAmber flex items-center justify-center text-instrument-amber">
+          <span class="material-symbols-outlined text-[15px]" style="font-variation-settings: 'FILL' 1, 'wght' 600;">verified</span>
+        </div>
+        <span class="font-mono text-xs font-bold tracking-[0.22em] text-[#f2f4f7] uppercase">Smart Fundis</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <button class="h-7 px-3 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-[11px] font-bold tracking-wider uppercase rounded-full transition-all flex items-center justify-center active:scale-95">
+          Join
+        </button>
+        <button class="w-7 h-7 flex items-center justify-center text-[#8e95a5] hover:text-[#f2f4f7] transition-colors" aria-label="Open menu">
+          <span class="material-symbols-outlined text-[20px]">menu</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col px-4 pt-5 pb-8 space-y-7">
+
+      <!-- HERO SECTION -->
+      <section class="space-y-2.5">
+        <div class="flex items-center gap-1.5">
+          <span class="w-1.5 h-1.5 rounded-full bg-instrument-amber pulsing-accent"></span>
+          <p class="font-mono text-[10px] tracking-[0.24em] uppercase text-instrument-amber font-semibold">SMART FUNDIS / TRADES</p>
+        </div>
+        <h1 class="font-sans text-[26px] leading-[1.12] font-black tracking-[-0.03em] text-[#f2f4f7]">
+          Two trades live.<br>Ten on the bench.
+        </h1>
+        <p class="font-sans text-xs text-[#8e95a5] leading-relaxed pr-2">
+          Pick your trade, see exactly what the video must show, then record.
+        </p>
+      </section>
+
+      <!-- 01 — LIVE SECTION -->
+      <section class="space-y-4">
+        <!-- Section label -->
+        <div class="flex items-center justify-between border-b border-[#1b202a] pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-instrument-amber"></span>
+            <span class="font-mono text-[11px] tracking-[0.22em] uppercase font-bold text-[#f2f4f7]">01 — LIVE</span>
+          </div>
+          <span class="font-mono text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase">TELEMETRY DEPLOYED</span>
+        </div>
+
+        <!-- TRADE 01: ELECTRICAL EVIDENCE FRAME -->
+        <article class="bg-graphite-850 border border-[#232936] rounded-sm overflow-hidden flex flex-col shadow-lg">
+          <!-- Meta Header Row -->
+          <div class="bg-graphite-950 px-3 py-2 border-b border-[#1e2430] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[10px] tracking-[0.16em] uppercase text-[#d6dae3] font-bold">TRADE 01 · ELECTRICAL</span>
+            </div>
+            <span class="font-mono text-[9px] font-bold tracking-[0.16em] uppercase text-graphite-950 bg-instrument-amber px-1.5 py-0.5 rounded-[2px]">
+              LIVE
+            </span>
+          </div>
+
+          <!-- Video / Photo Frame -->
+          <div class="relative w-full h-[180px] bg-black overflow-hidden border-b border-[#202633]">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAE0Qs8cimpmdFIDaJgr1OXa8Snmhna3ZgLmpNGLz_eUSMAnSLQPep8e6vA8Z5v8dKlggwDVYnDxk7aPU0vvMly7Kc3uK5rTwA-_vsdVZ_Oszcyhfs2AHQwFvnRHn9mopeoV1REt9Asp8zt5wE60v7CIyu2J0-219wD85Lp26vHa7X8J0PAh-2lmh-_vo-O_5WeXFwtwCyqFprGEwhbWF1sfVXmPW2gh6CiXFWgAfvx2sDB3nTiE4s34QrjX6prHL77VbymoIwtS_k" alt="Kenyan electrician terminating copper conductors into 13A socket" class="w-full h-full object-cover filter contrast-[1.12] brightness-[0.92]">
+            <div class="absolute inset-0 bg-gradient-to-t from-graphite-950/80 via-transparent to-graphite-950/30"></div>
+            
+            <!-- Scan line -->
+            <div class="scan-line top-1/2 -translate-y-1/2"></div>
+
+            <!-- HUD Reticles and Step Markers -->
+            <div class="hud-bracket-tl"></div>
+            <div class="hud-bracket-tr"></div>
+            <div class="hud-bracket-bl"></div>
+            <div class="hud-bracket-br"></div>
+
+            <!-- Step marker 01 -->
+            <div class="absolute top-4 left-3 bg-graphite-950/90 border border-instrument-borderAmber px-2 py-0.5 rounded flex items-center gap-1.5 backdrop-blur-sm">
+              <span class="text-instrument-amber text-[9px]">◆</span>
+              <span class="font-mono text-[9px] tracking-wider text-[#f2f4f7] font-semibold">01 ISOLATE · 00:04</span>
+            </div>
+
+            <!-- Step marker 03 Earth Continuity active inspect -->
+            <div class="absolute bottom-3 right-3 bg-graphite-950/90 border border-instrument-amber px-2 py-0.5 rounded flex items-center gap-1.5 backdrop-blur-sm shadow-[0_0_8px_rgba(239,154,87,0.3)]">
+              <span class="text-instrument-amber text-[9px] pulsing-accent">◆</span>
+              <span class="font-mono text-[9px] tracking-wider text-instrument-amber font-bold">03 EARTH · 00:41</span>
+            </div>
+
+            <!-- Telemetry readout strip at bottom left -->
+            <div class="absolute bottom-2 left-3">
+              <span class="font-mono text-[8px] tracking-[0.2em] text-[#8e95a5] uppercase">FPS: 30 // HARDWARE TETHER</span>
+            </div>
+          </div>
+
+          <!-- Frame Body Content -->
+          <div class="p-3.5 space-y-3.5">
+            <div>
+              <div class="font-mono text-[9px] tracking-[0.2em] uppercase text-[#8e95a5]">PRIMARY BENCHMARK TASK</div>
+              <h2 class="font-sans text-base font-bold text-[#f2f4f7] tracking-tight mt-0.5">Install a 13A socket</h2>
+            </div>
+
+            <!-- Mini Ledger: Rubric Preview -->
+            <div class="border border-[#1f2533] bg-graphite-900 rounded-sm">
+              <div class="px-2.5 py-1.5 bg-[#0c0f15] border-b border-[#1f2533] flex items-center justify-between">
+                <span class="font-mono text-[9px] tracking-[0.18em] uppercase text-[#9fa7b8] font-semibold">RUBRIC PREVIEW</span>
+                <span class="font-mono text-[8px] tracking-[0.16em] text-instrument-amber uppercase border border-instrument-borderAmber/60 px-1 rounded-sm">EXAMPLE</span>
+              </div>
+              <ul class="divide-y divide-[#181d27]">
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Isolate power
+                  </span>
+                  <span class="font-mono text-[8px] tracking-[0.14em] text-instrument-amber border border-instrument-borderAmber px-1 py-0.2 rounded uppercase font-semibold">SAFETY</span>
+                </li>
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Strip & terminate
+                  </span>
+                  <span class="font-mono text-[9px] text-[#6b7280]">AI 00:19</span>
+                </li>
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Earth continuity
+                  </span>
+                  <span class="font-mono text-[8px] tracking-[0.14em] text-instrument-amber border border-instrument-borderAmber px-1 py-0.2 rounded uppercase font-semibold">SAFETY</span>
+                </li>
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Faceplate secure
+                  </span>
+                  <span class="font-mono text-[9px] text-[#6b7280]">AI 00:58</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Full-width Action Pill -->
+            <button class="w-full h-12 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-xs font-bold tracking-[0.14em] uppercase rounded-full transition-transform active:scale-[0.98] flex items-center justify-center gap-1.5 shadow-sm">
+              <span>Verify now</span>
+              <span class="text-sm font-black">→</span>
+            </button>
+          </div>
+        </article>
+
+        <!-- TRADE 02: HAIRDRESSING EVIDENCE FRAME -->
+        <article class="bg-graphite-850 border border-[#232936] rounded-sm overflow-hidden flex flex-col shadow-lg">
+          <!-- Meta Header Row -->
+          <div class="bg-graphite-950 px-3 py-2 border-b border-[#1e2430] flex items-center justify-between">
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[10px] tracking-[0.16em] uppercase text-[#d6dae3] font-bold">TRADE 02 · HAIRDRESSING</span>
+            </div>
+            <span class="font-mono text-[9px] font-bold tracking-[0.16em] uppercase text-graphite-950 bg-instrument-amber px-1.5 py-0.5 rounded-[2px]">
+              LIVE
+            </span>
+          </div>
+
+          <!-- Video / Photo Frame -->
+          <div class="relative w-full h-[180px] bg-black overflow-hidden border-b border-[#202633]">
+            <img src="https://lh3.googleusercontent.com/aida/AEtjO1XXvt2Rw2UHKUAxmnQZ6ixX7gHA59-Njl15g86RhqBHRn8C1c9M5Xj7ngbr1BJYGX-e4O3YrLsM3A3TZSb4fPDlDVXRbSgyiqSmPNUlDZYDM9MU1nmRhcSTyDF3f7baIX-D_IKQlkOMDxrEgENUx1LIEkuiNzj8CAvzlqMGiN7XqslkGbi_roqFTNqnBWnm7Fdzce2zVKacTe5ELLZKuNPxIAxWZe2a6dEQZ7tcVvncst-6oyCv4WlBldg" alt="Documentary photo of African hands braiding cornrows in salon" class="w-full h-full object-cover filter contrast-[1.12] brightness-[0.92]">
+            <div class="absolute inset-0 bg-gradient-to-t from-graphite-950/80 via-transparent to-graphite-950/30"></div>
+            
+            <!-- Scan line -->
+            <div class="scan-line top-1/2 -translate-y-1/2"></div>
+
+            <!-- HUD Reticles and Step Markers -->
+            <div class="hud-bracket-tl"></div>
+            <div class="hud-bracket-tr"></div>
+            <div class="hud-bracket-bl"></div>
+            <div class="hud-bracket-br"></div>
+
+            <!-- Step marker 01 -->
+            <div class="absolute top-4 left-3 bg-graphite-950/90 border border-instrument-borderAmber px-2 py-0.5 rounded flex items-center gap-1.5 backdrop-blur-sm">
+              <span class="text-instrument-amber text-[9px]">◆</span>
+              <span class="font-mono text-[9px] tracking-wider text-[#f2f4f7] font-semibold">01 PARTING · 00:06</span>
+            </div>
+
+            <!-- Step marker 02 -->
+            <div class="absolute bottom-3 right-3 bg-graphite-950/90 border border-instrument-amber px-2 py-0.5 rounded flex items-center gap-1.5 backdrop-blur-sm shadow-[0_0_8px_rgba(239,154,87,0.3)]">
+              <span class="text-instrument-amber text-[9px] pulsing-accent">◆</span>
+              <span class="font-mono text-[9px] tracking-wider text-instrument-amber font-bold">02 TENSION · 00:27</span>
+            </div>
+
+            <!-- Telemetry readout strip at bottom left -->
+            <div class="absolute bottom-2 left-3">
+              <span class="font-mono text-[8px] tracking-[0.2em] text-[#8e95a5] uppercase">FPS: 30 // HARDWARE TETHER</span>
+            </div>
+          </div>
+
+          <!-- Frame Body Content -->
+          <div class="p-3.5 space-y-3.5">
+            <div>
+              <div class="font-mono text-[9px] tracking-[0.2em] uppercase text-[#8e95a5]">PRIMARY BENCHMARK TASK</div>
+              <h2 class="font-sans text-base font-bold text-[#f2f4f7] tracking-tight mt-0.5">Cornrows / braiding</h2>
+            </div>
+
+            <!-- Mini Ledger: Rubric Preview -->
+            <div class="border border-[#1f2533] bg-graphite-900 rounded-sm">
+              <div class="px-2.5 py-1.5 bg-[#0c0f15] border-b border-[#1f2533] flex items-center justify-between">
+                <span class="font-mono text-[9px] tracking-[0.18em] uppercase text-[#9fa7b8] font-semibold">RUBRIC PREVIEW</span>
+                <span class="font-mono text-[8px] tracking-[0.16em] text-instrument-amber uppercase border border-instrument-borderAmber/60 px-1 rounded-sm">EXAMPLE</span>
+              </div>
+              <ul class="divide-y divide-[#181d27]">
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Clean tools & hands
+                  </span>
+                  <span class="font-mono text-[8px] tracking-[0.14em] text-instrument-amber border border-instrument-borderAmber px-1 py-0.2 rounded uppercase font-semibold">SAFETY</span>
+                </li>
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Even parting
+                  </span>
+                  <span class="font-mono text-[9px] text-[#6b7280]">AI 00:12</span>
+                </li>
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Consistent tension
+                  </span>
+                  <span class="font-mono text-[9px] text-[#6b7280]">AI 00:27</span>
+                </li>
+                <li class="px-2.5 py-1.5 flex items-center justify-between text-[11px]">
+                  <span class="font-sans text-[#d6dae3] flex items-center gap-1.5">
+                    <span class="text-[#f2f4f7] font-bold text-xs">✓</span> Neat finish
+                  </span>
+                  <span class="font-mono text-[9px] text-[#6b7280]">AI 01:12</span>
+                </li>
+              </ul>
+            </div>
+
+            <!-- Full-width Action Pill -->
+            <button class="w-full h-12 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-xs font-bold tracking-[0.14em] uppercase rounded-full transition-transform active:scale-[0.98] flex items-center justify-center gap-1.5 shadow-sm">
+              <span>Verify now</span>
+              <span class="text-sm font-black">→</span>
+            </button>
+          </div>
+        </article>
+      </section>
+
+      <!-- 02 — ON THE BENCH SECTION -->
+      <section class="space-y-4 pt-2">
+        <!-- Section label -->
+        <div class="flex items-center justify-between border-b border-[#1b202a] pb-2">
+          <div class="flex items-center gap-1.5">
+            <span class="w-1.5 h-1.5 rounded-full bg-[#8e95a5]"></span>
+            <span class="font-mono text-[11px] tracking-[0.22em] uppercase font-bold text-[#f2f4f7]">02 — ON THE BENCH</span>
+          </div>
+          <span class="font-mono text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase">10 QUEUED</span>
+        </div>
+
+        <!-- 2-Column Grid of 10 Plain Readout Cards (not buttons, not greyed out) -->
+        <div class="grid grid-cols-2 gap-2.5">
+
+          <!-- 1. Plumbing -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8LqtbpB2j_Ui6ZsX8FW8j1amCw4tpdhy_xDfb8EDtqHCBqXZjcvB9TdpR5RNXXX3Iwc9p5zsBH6Hzo5WOP5Jt3CuTx9AmudOL9iQhArIgVoMATUEq7vKxn-KGm5Tc1Cc8v_1HLfZrELrpIXdqhWAbbkEEg8pZELk8_3dczIv6OfWc1T1FLssZQYZXJyWnyFrx5GVfIofcnXR1m7GcYSRw_ZJMtUJQRsvOJWhbDikjMX7Q89B2F0yC669hJ1Nv4PXmK9ao9bE3OS8" alt="Plumbing tools" class="w-full h-full object-cover object-[15%_65%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Plumbing</div>
+            </div>
+          </div>
+
+          <!-- 2. Masonry -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8LqtbpB2j_Ui6ZsX8FW8j1amCw4tpdhy_xDfb8EDtqHCBqXZjcvB9TdpR5RNXXX3Iwc9p5zsBH6Hzo5WOP5Jt3CuTx9AmudOL9iQhArIgVoMATUEq7vKxn-KGm5Tc1Cc8v_1HLfZrELrpIXdqhWAbbkEEg8pZELk8_3dczIv6OfWc1T1FLssZQYZXJyWnyFrx5GVfIofcnXR1m7GcYSRw_ZJMtUJQRsvOJWhbDikjMX7Q89B2F0yC669hJ1Nv4PXmK9ao9bE3OS8" alt="Masonry trowel" class="w-full h-full object-cover object-[50%_65%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Masonry</div>
+            </div>
+          </div>
+
+          <!-- 3. Carpentry -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1UAjuUM1Pp_NZZex-8Med1e8-ZTgBo4nMZheLdRsM84O_5m0xY4CI4EcyD0VFi6uv5f3TIFASpYCFJjUxbEW-ktW3854qvmQwxYUk5JW5P3LJoS5XfUgLQ3IfqxKQbyX_wZ1U-Or3CPCZSMvnIf9wRKOZTx4qGxknfF3ktRFOBkZBFQsjHCpRYvNTuow_rhH8kO2nzqC67I8fOoV2M1wGUKyrqZtIOQXVgojpQsXrOQUOG8-b-rnLSr8TI" alt="Carpentry workbench" class="w-full h-full object-cover object-[30%_40%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Carpentry</div>
+            </div>
+          </div>
+
+          <!-- 4. Welding -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8LqtbpB2j_Ui6ZsX8FW8j1amCw4tpdhy_xDfb8EDtqHCBqXZjcvB9TdpR5RNXXX3Iwc9p5zsBH6Hzo5WOP5Jt3CuTx9AmudOL9iQhArIgVoMATUEq7vKxn-KGm5Tc1Cc8v_1HLfZrELrpIXdqhWAbbkEEg8pZELk8_3dczIv6OfWc1T1FLssZQYZXJyWnyFrx5GVfIofcnXR1m7GcYSRw_ZJMtUJQRsvOJWhbDikjMX7Q89B2F0yC669hJ1Nv4PXmK9ao9bE3OS8" alt="Welding mask" class="w-full h-full object-cover object-[70%_65%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Welding</div>
+            </div>
+          </div>
+
+          <!-- 5. Mechanic -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1UAjuUM1Pp_NZZex-8Med1e8-ZTgBo4nMZheLdRsM84O_5m0xY4CI4EcyD0VFi6uv5f3TIFASpYCFJjUxbEW-ktW3854qvmQwxYUk5JW5P3LJoS5XfUgLQ3IfqxKQbyX_wZ1U-Or3CPCZSMvnIf9wRKOZTx4qGxknfF3ktRFOBkZBFQsjHCpRYvNTuow_rhH8kO2nzqC67I8fOoV2M1wGUKyrqZtIOQXVgojpQsXrOQUOG8-b-rnLSr8TI" alt="Mechanical diagnostic meters" class="w-full h-full object-cover object-[55%_50%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Mechanic</div>
+            </div>
+          </div>
+
+          <!-- 6. Tailoring -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3VdhKG9HxKiedWoRFzFdCWKXMDuUfbWdi6jf3mGrowiRGhPBaNJwZJpICqPdbaREx69YArp4CY8HtEhxQfECJDJlFJUbdmQgjmE6MEv6fFuQF7NqRk2qhB-bNK-E5WF9uIl__usu39LOKlSvTy_gfmeT5joqnJmuLL3x6GGmdDwfNNbdIK2l_amThoD-7ZVzNuSCiIjpkNLTNq5RYJ4O0okC3oMzuisU_dvSIEtj7fhrJGq_bOc7d4lZ8neL3N1X6fMn-lKmzWZA" alt="Tailoring thread coils and tape" class="w-full h-full object-cover object-[65%_50%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Tailoring</div>
+            </div>
+          </div>
+
+          <!-- 7. Beauty -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1XXvt2Rw2UHKUAxmnQZ6ixX7gHA59-Njl15g86RhqBHRn8C1c9M5Xj7ngbr1BJYGX-e4O3YrLsM3A3TZSb4fPDlDVXRbSgyiqSmPNUlDZYDM9MU1nmRhcSTyDF3f7baIX-D_IKQlkOMDxrEgENUx1LIEkuiNzj8CAvzlqMGiN7XqslkGbi_roqFTNqnBWnm7Fdzce2zVKacTe5ELLZKuNPxIAxWZe2a6dEQZ7tcVvncst-6oyCv4WlBldg" alt="Salon craft combs" class="w-full h-full object-cover object-[40%_20%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Beauty</div>
+            </div>
+          </div>
+
+          <!-- 8. Solar installation -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuAE0Qs8cimpmdFIDaJgr1OXa8Snmhna3ZgLmpNGLz_eUSMAnSLQPep8e6vA8Z5v8dKlggwDVYnDxk7aPU0vvMly7Kc3uK5rTwA-_vsdVZ_Oszcyhfs2AHQwFvnRHn9mopeoV1REt9Asp8zt5wE60v7CIyu2J0-219wD85Lp26vHa7X8J0PAh-2lmh-_vo-O_5WeXFwtwCyqFprGEwhbWF1sfVXmPW2gh6CiXFWgAfvx2sDB3nTiE4s34QrjX6prHL77VbymoIwtS_k" alt="Solar terminal cabling" class="w-full h-full object-cover object-[30%_40%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Solar installation</div>
+            </div>
+          </div>
+
+          <!-- 9. Mama fua (laundry) -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuB3VdhKG9HxKiedWoRFzFdCWKXMDuUfbWdi6jf3mGrowiRGhPBaNJwZJpICqPdbaREx69YArp4CY8HtEhxQfECJDJlFJUbdmQgjmE6MEv6fFuQF7NqRk2qhB-bNK-E5WF9uIl__usu39LOKlSvTy_gfmeT5joqnJmuLL3x6GGmdDwfNNbdIK2l_amThoD-7ZVzNuSCiIjpkNLTNq5RYJ4O0okC3oMzuisU_dvSIEtj7fhrJGq_bOc7d4lZ8neL3N1X6fMn-lKmzWZA" alt="Textile cords and measuring" class="w-full h-full object-cover object-[75%_50%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Mama fua (laundry)</div>
+            </div>
+          </div>
+
+          <!-- 10. Movers -->
+          <div class="bg-graphite-850 border border-[#202633] rounded-sm p-2.5 flex flex-col justify-between space-y-2.5">
+            <div class="w-full h-11 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+              <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8LqtbpB2j_Ui6ZsX8FW8j1amCw4tpdhy_xDfb8EDtqHCBqXZjcvB9TdpR5RNXXX3Iwc9p5zsBH6Hzo5WOP5Jt3CuTx9AmudOL9iQhArIgVoMATUEq7vKxn-KGm5Tc1Cc8v_1HLfZrELrpIXdqhWAbbkEEg8pZELk8_3dczIv6OfWc1T1FLssZQYZXJyWnyFrx5GVfIofcnXR1m7GcYSRw_ZJMtUJQRsvOJWhbDikjMX7Q89B2F0yC669hJ1Nv4PXmK9ao9bE3OS8" alt="Cargo measuring and level tools" class="w-full h-full object-cover object-[85%_65%] filter grayscale contrast-125 brightness-90">
+              <div class="absolute inset-0 bg-graphite-950/20"></div>
+            </div>
+            <div>
+              <span class="font-mono text-[8px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+              <div class="font-sans text-xs font-bold text-[#f2f4f7] tracking-tight mt-0.5">Movers</div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- 4. READOUT NOTE & ROADMAP LINK -->
+        <div class="bg-graphite-850/80 border border-[#1e2430] p-3.5 rounded-sm space-y-2">
+          <p class="font-sans text-xs text-[#a0a8b8] leading-relaxed">
+            New trades open when their rubric and Experts are ready.
+          </p>
+          <div>
+            <a href="#roadmap" class="inline-flex items-center gap-1.5 font-mono text-[11px] font-bold text-instrument-amber hover:underline tracking-wide">
+              <span>See the roadmap</span>
+              <span>→</span>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. SHARED FOOTER ACCORDING TO SPECS -->
+      <footer class="pt-8 border-t border-[#1e2430] space-y-8">
+        
+        <!-- "Show your work." CTA block -->
+        <div class="text-center space-y-3">
+          <h3 class="font-sans text-2xl font-black uppercase tracking-tight text-[#f2f4f7]">
+            Show your work.
+          </h3>
+          <div class="space-y-2.5 pt-1">
+            <button class="w-full h-12 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-xs font-bold tracking-[0.14em] uppercase rounded-full transition-transform active:scale-[0.98] flex items-center justify-center shadow-sm">
+              Join as a fundi
+            </button>
+            <button class="w-full h-12 bg-transparent hover:bg-graphite-800 text-[#f2f4f7] border border-[#282f3d] font-mono text-xs font-bold tracking-[0.14em] uppercase rounded-full transition-colors active:scale-[0.98] flex items-center justify-center">
+              Find a fundi
+            </button>
+          </div>
+        </div>
+
+        <!-- Link Groups Grid -->
+        <div class="grid grid-cols-2 gap-x-4 gap-y-6 pt-2 font-mono">
+          <!-- Group 1: FOR FUNDIS -->
+          <div class="space-y-2.5">
+            <div class="text-[9px] tracking-[0.22em] uppercase text-instrument-amber font-bold">FOR FUNDIS</div>
+            <ul class="space-y-1.5 text-[11px] text-[#8e95a5]">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Join as a fundi</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">How verification works</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Your privacy</a></li>
+            </ul>
+          </div>
+
+          <!-- Group 2: FOR CLIENTS -->
+          <div class="space-y-2.5">
+            <div class="text-[9px] tracking-[0.22em] uppercase text-instrument-amber font-bold">FOR CLIENTS</div>
+            <ul class="space-y-1.5 text-[11px] text-[#8e95a5]">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Find a fundi</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">What 'verified' means</a></li>
+            </ul>
+          </div>
+
+          <!-- Group 3: FOR EXPERTS -->
+          <div class="space-y-2.5">
+            <div class="text-[9px] tracking-[0.22em] uppercase text-instrument-amber font-bold">FOR EXPERTS</div>
+            <ul class="space-y-1.5 text-[11px] text-[#8e95a5]">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Become a verifier</a></li>
+            </ul>
+          </div>
+
+          <!-- Group 4: COMPANY -->
+          <div class="space-y-2.5">
+            <div class="text-[9px] tracking-[0.22em] uppercase text-instrument-amber font-bold">COMPANY</div>
+            <ul class="space-y-1.5 text-[11px] text-[#8e95a5]">
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">About</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Contact us</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Responsible AI</a></li>
+              <li><a href="#" class="hover:text-[#f2f4f7] transition-colors">Roadmap</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Faint Mono Brand Wordmark -->
+        <div class="pt-4 text-center select-none">
+          <span class="font-mono text-xl tracking-[0.35em] uppercase font-black text-[#1b202c]">
+            SMART FUNDIS
+          </span>
+        </div>
+
+        <!-- Legal & Accreditation disclaimer -->
+        <div class="border-t border-[#1a1f2b] pt-4 pb-4 space-y-1.5 text-center">
+          <p class="font-sans text-[10px] text-[#6b7280]">
+            We verify skills. NITA, KNQA and TVETs certify.
+          </p>
+          <p class="font-mono text-[9px] text-[#4b5563]">
+            © 2026 Smart Fundis. All rights reserved.
+          </p>
+        </div>
+
+      </footer>
+    </main>
+
+    <!-- FIXED BOTTOM TAB BAR (EVIDENCE · TRADES [active] · TELEMETRY · COMPANY) -->
+    <nav class="fixed bottom-0 z-50 w-full max-w-[360px] h-14 bg-graphite-950/95 backdrop-blur-md border-t border-[#1e2430] px-2 flex items-center justify-around">
+      
+      <!-- EVIDENCE -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-[#6b7280] hover:text-[#9fa7b8] transition-colors">
+        <span class="material-symbols-outlined text-[19px]">view_timeline</span>
+        <span class="font-mono text-[9px] tracking-[0.16em] uppercase">EVIDENCE</span>
+      </a>
+
+      <!-- TRADES (active, accent) -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-instrument-amber">
+        <span class="material-symbols-outlined text-[19px]" style="font-variation-settings: 'FILL' 1;">construction</span>
+        <span class="font-mono text-[9px] tracking-[0.16em] uppercase font-bold">TRADES</span>
+      </a>
+
+      <!-- TELEMETRY -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-[#6b7280] hover:text-[#9fa7b8] transition-colors">
+        <span class="material-symbols-outlined text-[19px]">radar</span>
+        <span class="font-mono text-[9px] tracking-[0.16em] uppercase">TELEMETRY</span>
+      </a>
+
+      <!-- COMPANY -->
+      <a href="#" class="flex flex-col items-center justify-center gap-0.5 text-[#6b7280] hover:text-[#9fa7b8] transition-colors">
+        <span class="material-symbols-outlined text-[19px]">corporate_fare</span>
+        <span class="font-mono text-[9px] tracking-[0.16em] uppercase">COMPANY</span>
+      </a>
+
+    </nav>
+
+  </div>
+
+</body>
+</html>

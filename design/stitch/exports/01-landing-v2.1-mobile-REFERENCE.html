@@ -1,0 +1,893 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Smart Fundis — Kazi yako, sifa yako</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Inter & Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=Public+Sans:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-container": "#44474a",
+            "on-surface": "#e3e2e7",
+            "outline-variant": "#474747",
+            "surface-container-high": "#292a2e",
+            "surface-tint": "#ffb782",
+            "primary": "#ffffff",
+            "inverse-on-surface": "#2f3034",
+            "on-primary-container": "#000000",
+            "tertiary-fixed-dim": "#45474d",
+            "tertiary-container": "#8f9097",
+            "surface-container-lowest": "#050609",
+            "surface-variant": "#343539",
+            "on-surface-variant": "#c6c6c6",
+            "on-tertiary-fixed": "#ffffff",
+            "surface-container-highest": "#343539",
+            "secondary-fixed": "#c4c7ca",
+            "on-primary-fixed-variant": "#ffdcc5",
+            "on-error": "#690005",
+            "secondary-fixed-dim": "#a9abae",
+            "on-tertiary-container": "#000000",
+            "on-secondary-container": "#e0e3e6",
+            "on-tertiary-fixed-variant": "#e2e2e9",
+            "secondary": "#c4c7ca",
+            "primary-fixed-dim": "#703800",
+            "error-container": "#93000a",
+            "surface": "#0d0f14",
+            "primary-container": "#ef9a57",
+            "background": "#050609",
+            "inverse-surface": "#e3e2e7",
+            "on-primary": "#050609",
+            "surface-dim": "#050609",
+            "on-tertiary": "#1a1b21",
+            "on-secondary": "#191c1e",
+            "inverse-primary": "#904d0e",
+            "tertiary": "#e2e2e9",
+            "on-secondary-fixed-variant": "#383c3e",
+            "on-background": "#f2f4f7",
+            "on-primary-fixed": "#ffffff",
+            "surface-container-low": "#0b0d12",
+            "outline": "#1f242e",
+            "tertiary-fixed": "#5d5e64",
+            "surface-container": "#13171f",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed": "#191c1e",
+            "primary-fixed": "#904d0e",
+            "error": "#ffb4ab",
+            "surface-bright": "#38393d",
+            "amber-brand": "#ef9a57"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Inter", "sans-serif"],
+            "display": ["Inter", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Public Sans", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-feature-settings: "tnum" 1;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    @keyframes scanline {
+      0% { top: 0%; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .animate-scan {
+      animation: scanline 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .film-grain {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.03) 1px, transparent 0);
+      background-size: 4px 4px;
+    }
+    /* Hide scrollbar for step tabs */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen selection:bg-amber-brand selection:text-black">
+<!-- Container for strict 360px mobile view -->
+<div class="w-full max-w-[360px] mx-auto min-h-screen flex flex-col relative border-x border-[#1f242e]/40 shadow-2xl bg-[#050609]">
+<!-- 1. HEADER (TopAppBar Anchor) -->
+<header class="docked full-width top-0 sticky z-50 bg-surface-container-lowest/90 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center w-full px-4 h-12 max-w-[360px] mx-auto">
+<div class="flex items-center gap-2">
+<div class="w-6 h-6 rounded border border-amber-brand/60 flex items-center justify-center bg-surface-container-low text-amber-brand">
+<span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-display text-sm tracking-[0.26em] uppercase font-bold text-on-surface">SMART FUNDIS</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="bg-[#ef9a57] text-[#050609] font-bold text-[11px] px-3 py-1.5 rounded-full uppercase tracking-wider min-h-[32px] flex items-center justify-center active:scale-95 transition-transform duration-100">
+          VERIFY
+        </button>
+<button aria-label="Open Menu" class="w-10 h-10 min-w-[40px] flex items-center justify-center text-on-surface hover:text-amber-brand transition-colors">
+<span class="material-symbols-outlined text-xl">menu</span>
+</button>
+</div>
+</header>
+<!-- MAIN SCROLLABLE CONTENT -->
+<main class="flex-1 flex flex-col w-full pb-20">
+<!-- 2. 01 — PROOF OF SKILL (HERO) -->
+<section class="px-4 pt-6 pb-8 border-b border-outline flex flex-col relative film-grain">
+<!-- Telemetry readout -->
+<div class="flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-brand animate-pulse"></span>
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase font-medium">SMART FUNDIS / 01 — PROOF OF SKILL</span>
+</div>
+<!-- Headline -->
+<h1 class="font-headline text-3xl font-black tracking-tight text-[#f2f4f7] leading-[1.08] mb-3">
+          Kazi yako,<br/>sifa yako.
+        </h1>
+<!-- Dim Sub-line -->
+<p class="text-xs text-[#9ca3af] leading-relaxed mb-6 font-normal">
+          Your work, your reputation. Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.
+        </p>
+<!-- CTA Buttons (Min 48px tap targets) -->
+<div class="flex flex-col gap-2.5 mb-6">
+<a class="w-full h-12 min-h-[48px] rounded-full bg-[#ef9a57] text-[#050609] font-bold text-xs tracking-wider uppercase flex items-center justify-center active:scale-[0.98] transition-all" href="#trades">
+            Join as a fundi
+          </a>
+<button class="w-full h-12 min-h-[48px] rounded-full border border-[#374151] text-[#f2f4f7] font-semibold text-xs tracking-wider uppercase flex items-center justify-center hover:border-amber-brand transition-colors active:scale-[0.98]">
+            Find a fundi
+          </button>
+</div>
+<!-- Step Inspection Selector Bar -->
+<div class="flex items-center justify-between mb-1.5 px-0.5">
+<span class="text-[9px] font-mono uppercase tracking-widest text-[#9ca3af] flex items-center gap-1">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-brand animate-ping"></span>
+    INSPECT STEP
+  </span>
+<span class="text-[9px] font-mono text-amber-brand" id="stepCounter">STEP 03 / 04</span>
+</div>
+<div class="grid grid-cols-4 gap-1 mb-2" id="stepTabsBar">
+<button class="step-tab py-1.5 px-1 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group" data-step="1">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-[8px] font-bold text-[#9ca3af] group-[.active]:text-amber-brand">01</span>
+<span class="font-mono text-[7px] text-[#9ca3af]">00:04</span>
+</div>
+<div class="font-mono text-[8px] truncate text-[#f2f4f7] font-medium leading-tight mt-0.5 group-[.active]:text-white">ISOLATE</div>
+<div class="mt-1 flex items-center gap-0.5">
+<span class="text-[7px] text-[#10b981]">✓</span>
+<span class="font-mono text-[6.5px] uppercase tracking-tighter text-[#9ca3af]">OBSVD</span>
+</div>
+</button>
+<button class="step-tab py-1.5 px-1 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group" data-step="2">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-[8px] font-bold text-[#9ca3af] group-[.active]:text-amber-brand">02</span>
+<span class="font-mono text-[7px] text-[#9ca3af]">00:19</span>
+</div>
+<div class="font-mono text-[8px] truncate text-[#f2f4f7] font-medium leading-tight mt-0.5 group-[.active]:text-white">STRIP</div>
+<div class="mt-1 flex items-center gap-0.5">
+<span class="text-[7px] text-[#10b981]">✓</span>
+<span class="font-mono text-[6.5px] uppercase tracking-tighter text-[#9ca3af]">OBSVD</span>
+</div>
+</button>
+<button class="step-tab active py-1.5 px-1 bg-[#13171f] border-2 border-amber-brand shadow-[0_0_10px_rgba(239,154,87,0.25)] rounded text-left flex flex-col justify-between transition-all duration-150 group" data-step="3">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-[8px] font-bold text-amber-brand">03</span>
+<span class="font-mono text-[7px] text-amber-brand font-semibold">00:41</span>
+</div>
+<div class="font-mono text-[8px] truncate text-white font-bold leading-tight mt-0.5">EARTH</div>
+<div class="mt-1 flex items-center gap-0.5">
+<span class="text-[7px] text-amber-brand">◐</span>
+<span class="font-mono text-[6.5px] uppercase tracking-tighter text-amber-brand font-bold">REVIEW</span>
+</div>
+</button>
+<button class="step-tab py-1.5 px-1 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group" data-step="4">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-[8px] font-bold text-[#9ca3af] group-[.active]:text-amber-brand">04</span>
+<span class="font-mono text-[7px] text-[#9ca3af]">00:58</span>
+</div>
+<div class="font-mono text-[8px] truncate text-[#f2f4f7] font-medium leading-tight mt-0.5 group-[.active]:text-white">SECURE</div>
+<div class="mt-1 flex items-center gap-0.5">
+<span class="text-[7px] text-[#10b981]">✓</span>
+<span class="font-mono text-[6.5px] uppercase tracking-tighter text-[#9ca3af]">OBSVD</span>
+</div>
+</button>
+</div>
+<!-- 4:3 Evidence Plate Frame -->
+<div class="w-full rounded-sm border border-[#2d3340] bg-[#0b0d12] p-1.5 relative overflow-hidden flex flex-col">
+<!-- Frame Meta Header -->
+<div class="flex justify-between items-center px-1.5 py-1 text-[9px] font-mono text-[#9ca3af] border-b border-[#1f242e] mb-1">
+<span>EVIDENCE FRAME: EF-4829</span>
+<span class="text-amber-brand tracking-widest flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-brand animate-pulse inline-block"></span><span id="frameTelemetryStatus">LIVE INSPECT · STEP 03</span></span>
+</div>
+<!-- Video Simulation viewport with scan line -->
+<div class="relative w-full aspect-[4/3] bg-[#050609] overflow-hidden rounded-[2px]" id="evidenceViewport">
+<img alt="Electrical installation work" class="w-full h-full object-cover filter grayscale contrast-125 opacity-75" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB0WqyMUOdiV-dVQYx5Kz1ZxHbGBeBmIWYDNRDQSjJ_wdbWgkkVLGQ0doOktpbzKJQQe3AjUIbGqJLdneXiDclhEPkh0x_1JGr0v_s0jyzBejHwnZWZtLAqQzTq0wUD-mrsrR4ogeaXZjuMKw0M5z6kCQDlfz5eTSPFi5-BE2p1ey5q-lmfeWI9GEDyvQCIoMS69PeDrF_bWh35miDC8aGWMTNNf31Vuow5KZVAez3__eqlf_Fk536viiu_EXK4CaKXlA"/>
+<!-- Scan line -->
+<div class="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#ef9a57] to-transparent shadow-[0_0_8px_#ef9a57] pointer-events-none animate-scan"></div>
+<!-- Dynamic Reticle Box / Crosshair Overlay (Transforms based on active step) -->
+<div class="absolute pointer-events-none border-2 border-amber-brand transition-all duration-300 ease-out z-10 shadow-[0_0_12px_rgba(239,154,87,0.4)]" id="hudReticle" style="top: 31%; left: 63%; width: 22%; height: 32%;">
+<!-- Corner L brackets -->
+<div class="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-amber-brand"></div>
+<div class="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-amber-brand"></div>
+<div class="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-amber-brand"></div>
+<div class="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-amber-brand"></div>
+<!-- Center pulse target -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-amber-brand/70 animate-ping"></div>
+</div>
+<!-- Reticle Label tag -->
+<div class="absolute -top-3.5 left-0 bg-[#050609] text-[7.5px] font-mono px-1 border border-amber-brand text-amber-brand uppercase tracking-tighter whitespace-nowrap" id="reticleTag">
+    EARTH TERM // POS: X63 Y31
+  </div>
+</div>
+<!-- Step Diamond Markers & Timestamps -->
+<div class="absolute top-2 left-2 bg-[#050609]/85 backdrop-blur border border-[#2d3340] px-2 py-0.5 rounded-[2px] flex items-center gap-1.5 z-10 transition-all" id="stepMarkerTop">
+<span class="text-amber-brand text-[8px]">◆</span>
+<span class="font-mono text-[8.5px] text-[#f2f4f7] tracking-wider uppercase" id="stepMarkerTopText">03 EARTH CONTINUITY · 00:41</span>
+</div>
+<div class="absolute bottom-2 right-2 bg-[#050609]/90 backdrop-blur border border-amber-brand/70 px-2 py-0.5 rounded-[2px] flex items-center gap-1.5 shadow-lg z-10 transition-all" id="stepMarkerBottom">
+<span class="text-amber-brand text-[8px]" id="stepMarkerBottomIcon">◐</span>
+<span class="font-mono text-[8.5px] text-amber-brand tracking-wider uppercase font-semibold" id="stepMarkerBottomText">NEEDS REVIEW · SAFETY CRITICAL</span>
+</div>
+<!-- Optical Grid Overlay -->
+<div class="absolute inset-0 pointer-events-none border border-white/5 flex items-center justify-center">
+<div class="w-8 h-8 border border-white/10 rounded-full flex items-center justify-center">
+<div class="w-1 h-1 bg-amber-brand/80 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Badge sample block under plate -->
+<div class="mt-2 p-2.5 bg-[#13171f] rounded-[2px] border border-[#1f242e] flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<span class="text-amber-brand text-xs font-bold">✓</span>
+<span class="text-[11px] font-semibold tracking-wide text-white">Verified by Smart Fundis</span>
+</div>
+<span class="text-[9px] font-mono text-[#9ca3af] uppercase tracking-wider mt-0.5" id="badgeStepCaption">Electrical · Install a 13A socket · Step 03 Inspection</span>
+</div>
+<div class="border border-white/20 px-2 py-0.5 rounded text-[9px] font-mono text-[#9ca3af] tracking-widest uppercase bg-black/40">
+              EXAMPLE
+            </div>
+</div>
+</div>
+</section>
+<!-- 3. 02 — RECORD -->
+<section class="px-4 py-8 border-b border-outline flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">02 — RECORD</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-2">Record your work.</h2>
+<p class="text-xs text-[#9ca3af] leading-relaxed mb-5">
+          Write your code on paper, show it to the camera, then do the job in one continuous shot. A fresh code every time, so the video is really yours, really now.
+        </p>
+<!-- Liveness Code Card -->
+<div class="w-full bg-[#0b0d12] border border-[#2d3340] rounded p-4 relative overflow-hidden">
+<div class="flex justify-between items-center mb-3">
+<div class="flex items-center gap-1.5">
+<span class="w-2 h-2 rounded-full bg-amber-brand animate-ping"></span>
+<span class="font-mono text-[9px] tracking-[0.2em] text-amber-brand uppercase">LIVENESS ACTIVE</span>
+</div>
+<span class="font-mono text-[9px] text-[#9ca3af]">SYNC: 254-NBO</span>
+</div>
+<!-- Paper Slip Simulation -->
+<div class="bg-[#1a1b1f] border border-dashed border-[#474747] p-4 text-center rounded relative shadow-inner">
+<div class="text-[9px] font-mono text-[#9ca3af] tracking-widest uppercase mb-1">PHYSICAL TETHER CODE</div>
+<div class="font-mono text-4xl font-black tracking-widest text-[#f2f4f7] my-1 font-mono">
+              315
+            </div>
+<div class="text-[8px] font-mono text-amber-brand tracking-widest uppercase mt-1">
+              LIVENESS CODE · 315 · ISSUED 00:00:03 AGO
+            </div>
+</div>
+<div class="mt-3 flex items-center justify-between text-[9px] font-mono text-[#9ca3af] pt-2 border-t border-[#1f242e]">
+<span>CONTINUOUS TELEMETRY</span>
+<span>NO POST-EDITS ACCEPTED</span>
+</div>
+</div>
+</section>
+<!-- 4. 03 — CHECK -->
+<section class="px-4 py-8 border-b border-outline flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">03 — CHECK</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-2">AI checks each step.</h2>
+<p class="text-xs text-[#9ca3af] leading-relaxed mb-4">
+          NVIDIA AI watches every step of the task and marks exactly where it happens in your video.
+        </p>
+<!-- Simulated Loupe View -->
+<div class="relative w-full aspect-[16/10] bg-[#0b0d12] border border-[#2d3340] rounded p-2 overflow-hidden flex items-center justify-center mb-3">
+<div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ef9a57_1px,transparent_1px)] [background-size:8px_8px]"></div>
+<!-- Circular Loupe Visual -->
+<div class="relative w-28 h-28 rounded-full border border-amber-brand/70 bg-[#13171f] flex items-center justify-center shadow-[0_0_15px_rgba(239,154,87,0.15)]">
+<!-- Reticle Crosshair -->
+<div class="absolute w-full h-[1px] bg-amber-brand/30"></div>
+<div class="absolute h-full w-[1px] bg-amber-brand/30"></div>
+<div class="w-14 h-14 rounded-full border border-dashed border-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-brand text-xl" style="font-variation-settings: 'FILL' 1;">electric_bolt</span>
+</div>
+<!-- Loupe Dial label -->
+<div class="absolute -top-3 bg-[#050609] px-1.5 text-[8px] font-mono text-amber-brand border border-[#2d3340]">MAG: 4.8X</div>
+</div>
+<!-- Bottom Floating Readout Overlay -->
+<div class="absolute bottom-2 inset-x-2 bg-[#050609]/90 border border-outline px-2 py-1.5 rounded flex items-center justify-between">
+<span class="font-mono text-[8.5px] text-[#f2f4f7] tracking-wider uppercase font-semibold">
+              STEP 03 · EARTH CONTINUITY · OBSERVED ✓
+            </span>
+<span class="font-mono text-[8.5px] text-amber-brand font-bold">00:41</span>
+</div>
+</div>
+<div class="flex items-center gap-1.5 text-[10px] text-amber-brand font-mono uppercase tracking-wide">
+<span class="material-symbols-outlined text-xs">warning</span>
+<span>Safety steps are never passed automatically.</span>
+</div>
+</section>
+<!-- 5. 04 — DECIDE -->
+<section class="px-4 py-8 border-b border-outline flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">04 — DECIDE</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-2">An Expert decides.</h2>
+<!-- Stacked Instrument Ledger Table -->
+<div class="w-full border border-[#2d3340] rounded bg-[#0b0d12] overflow-hidden my-3">
+<div class="grid grid-cols-12 px-3 py-2 bg-[#13171f] border-b border-[#2d3340] font-mono text-[8px] text-[#9ca3af] tracking-widest uppercase">
+<span class="col-span-5">STEP NAME</span>
+<span class="col-span-2 text-center">TIME</span>
+<span class="col-span-5 text-right">STATUS</span>
+</div>
+<!-- Row 1 -->
+<div class="ledger-row grid grid-cols-12 px-3 py-2.5 border-b border-[#1f242e] text-[10px] items-center transition-colors" id="ledgerRow1">
+<span class="col-span-5 font-medium text-[#f2f4f7]">Isolate power</span>
+<span class="col-span-2 text-center font-mono text-[9px] text-[#9ca3af]">00:04</span>
+<span class="col-span-5 text-right font-mono text-[9px] text-[#f2f4f7]">✓ Observed</span>
+</div>
+<!-- Row 2 -->
+<div class="ledger-row grid grid-cols-12 px-3 py-2.5 border-b border-[#1f242e] text-[10px] items-center transition-colors" id="ledgerRow2">
+<span class="col-span-5 font-medium text-[#f2f4f7]">Strip &amp; terminate</span>
+<span class="col-span-2 text-center font-mono text-[9px] text-[#9ca3af]">00:19</span>
+<span class="col-span-5 text-right font-mono text-[9px] text-[#f2f4f7]">✓ Observed</span>
+</div>
+<!-- Row 3: Needs Review (Amber) -->
+<div class="ledger-row grid grid-cols-12 px-3 py-2.5 border-b border-[#1f242e] text-[10px] items-center bg-[#ef9a57]/10 transition-colors" id="ledgerRow3">
+<span class="col-span-5 font-medium text-[#ef9a57]">Earth continuity</span>
+<span class="col-span-2 text-center font-mono text-[9px] text-[#ef9a57]">00:41</span>
+<span class="col-span-5 text-right font-mono text-[9px] text-[#ef9a57] font-bold flex items-center justify-end gap-1">
+<span>◐</span> Needs review
+            </span>
+</div>
+<!-- Row 4 -->
+<div class="ledger-row grid grid-cols-12 px-3 py-2.5 border-b border-[#2d3340] text-[10px] items-center transition-colors" id="ledgerRow4">
+<span class="col-span-5 font-medium text-[#f2f4f7]">Faceplate secure</span>
+<span class="col-span-2 text-center font-mono text-[9px] text-[#9ca3af]">00:58</span>
+<span class="col-span-5 text-right font-mono text-[9px] text-[#f2f4f7]">✓ Observed</span>
+</div>
+<!-- Emphasized Final Row -->
+<div class="grid grid-cols-12 px-3 py-3 bg-[#13171f] text-[10px] items-center border-l-2 border-l-amber-brand">
+<span class="col-span-6 font-mono text-[9px] tracking-wider uppercase font-bold text-white">EXPERT DECISION</span>
+<span class="col-span-6 text-right font-mono text-[10px] font-bold text-amber-brand flex items-center justify-end gap-1">
+<span>✓</span> Badge issued
+            </span>
+</div>
+</div>
+<p class="text-[11px] text-[#9ca3af] leading-normal italic">
+          A safety step marked unclear caps the AI at "needs review". AI recommends. Experts decide.
+        </p>
+</section>
+<!-- 6. 05 — BADGE -->
+<section class="px-4 py-8 border-b border-outline flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">05 — BADGE</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-2">Your work, your badge.</h2>
+<p class="text-xs text-[#9ca3af] leading-relaxed mb-4">
+          Your video stays private. Only your badge is public, on a profile you can share with any client.
+        </p>
+<!-- Converging Layers Schematic Diagram -->
+<div class="w-full bg-[#0b0d12] border border-[#2d3340] rounded p-4 flex flex-col items-center">
+<!-- 4 Layers stack representation -->
+<div class="w-full flex flex-col gap-1.5 mb-4">
+<div class="w-full h-7 border border-[#2d3340] bg-[#13171f]/80 rounded-[2px] flex items-center justify-between px-3 text-[9px] font-mono">
+<span class="text-[#9ca3af]">LAYER 01: RAW CAPTURE</span>
+<span class="text-white font-bold">VIDEO</span>
+</div>
+<div class="w-full h-7 border border-[#2d3340] bg-[#13171f]/80 rounded-[2px] flex items-center justify-between px-3 text-[9px] font-mono">
+<span class="text-[#9ca3af]">LAYER 02: TETHER</span>
+<span class="text-white font-bold">CODE</span>
+</div>
+<div class="w-full h-7 border border-[#2d3340] bg-[#13171f]/80 rounded-[2px] flex items-center justify-between px-3 text-[9px] font-mono">
+<span class="text-[#9ca3af]">LAYER 03: TELEMETRY MAP</span>
+<span class="text-amber-brand font-bold">AI CHECK</span>
+</div>
+<div class="w-full h-7 border border-amber-brand/40 bg-[#13171f] rounded-[2px] flex items-center justify-between px-3 text-[9px] font-mono">
+<span class="text-[#9ca3af]">LAYER 04: JURY SIGN-OFF</span>
+<span class="text-white font-bold">EXPERT</span>
+</div>
+</div>
+<!-- Convergence Vector Icon -->
+<span class="material-symbols-outlined text-amber-brand text-base mb-2">arrow_downward</span>
+<!-- Sealed Badge -->
+<div class="w-24 h-24 rounded-full border-2 border-amber-brand bg-[#13171f] p-1 flex items-center justify-center relative shadow-[0_0_20px_rgba(239,154,87,0.15)]">
+<div class="w-full h-full rounded-full border border-dashed border-amber-brand/50 flex flex-col items-center justify-center text-center p-1 bg-[#050609]">
+<span class="material-symbols-outlined text-amber-brand text-lg" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-mono text-[7px] text-[#9ca3af] uppercase tracking-wider mt-0.5">SMART FUNDIS</span>
+<span class="font-mono text-[8px] text-white font-bold uppercase tracking-widest mt-0.5 border border-white/20 px-1 rounded">EXAMPLE</span>
+</div>
+</div>
+<div class="font-mono text-[8px] text-amber-brand tracking-widest uppercase mt-3">
+            SEPARATION 0.00 mm · SEATED
+          </div>
+</div>
+</section>
+<!-- 7. 06 — TRADES -->
+<section class="px-4 py-8 border-b border-outline flex flex-col" id="trades">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">06 — TRADES</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-4">
+          Two trades live.<br/>Ten on the bench.
+        </h2>
+<!-- 2-column Grid of 12 Instrument Cards -->
+<div class="grid grid-cols-2 gap-2">
+<!-- Live Card 1: Electrical -->
+<div class="p-3 bg-[#0b0d12] border border-amber-brand/60 rounded flex flex-col justify-between h-28 relative">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-amber-brand text-lg">electrical_services</span>
+<span class="font-mono text-[8px] text-[#050609] bg-amber-brand px-1.5 py-0.5 font-bold rounded">LIVE</span>
+</div>
+<div>
+<div class="font-headline text-xs font-bold text-white uppercase">Electrical</div>
+<a class="font-mono text-[9px] text-amber-brand tracking-wider uppercase mt-1 inline-block hover:underline" href="#">Verify now →</a>
+</div>
+</div>
+<!-- Live Card 2: Hairdressing -->
+<div class="p-3 bg-[#0b0d12] border border-amber-brand/60 rounded flex flex-col justify-between h-28 relative">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-amber-brand text-lg">content_cut</span>
+<span class="font-mono text-[8px] text-[#050609] bg-amber-brand px-1.5 py-0.5 font-bold rounded">LIVE</span>
+</div>
+<div>
+<div class="font-headline text-xs font-bold text-white uppercase">Hairdressing</div>
+<a class="font-mono text-[9px] text-amber-brand tracking-wider uppercase mt-1 inline-block hover:underline" href="#">Verify now →</a>
+</div>
+</div>
+<!-- 10 Bench Trades (Disabled Telemetry Style) -->
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Plumbing</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Masonry</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Carpentry</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Welding</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Mechanic</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Tailoring</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Beauty</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Solar install</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Mama fua</div>
+</div>
+<div class="p-2.5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between opacity-60">
+<div class="font-mono text-[7px] text-[#9ca3af] uppercase">COMING SOON</div>
+<div class="text-[11px] font-mono text-[#c6c6c6]">Movers</div>
+</div>
+</div>
+</section>
+<!-- 8. 07 — SCOPE -->
+<section class="px-4 py-8 border-b border-outline flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">07 — SCOPE</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-4">One word, exactly defined.</h2>
+<!-- Vertical Prism Ray Diagram -->
+<div class="border border-[#2d3340] rounded bg-[#0b0d12] p-3 mb-4">
+<!-- Ingress Ray -->
+<div class="flex items-center gap-2 pb-3 border-b border-[#1f242e]">
+<span class="font-mono text-[9px] text-[#9ca3af] tracking-wider">RAY INGRESS:</span>
+<span class="font-mono text-[10px] text-amber-brand font-bold bg-[#13171f] px-2 py-0.5 border border-amber-brand/30">VIDEO CAPTURE</span>
+</div>
+<div class="py-2 text-[9px] font-mono text-center text-[#9ca3af] tracking-widest uppercase">
+            ▼ PASSED THROUGH SMART FUNDIS VERIFICATION PRISM ▼
+          </div>
+<!-- Verified Outputs (5 items) -->
+<div class="flex flex-col gap-1.5 py-2">
+<div class="flex items-center gap-2 text-[10px] text-[#f2f4f7]">
+<span class="text-amber-brand font-bold">✓</span>
+<span>Recorded in the app</span>
+</div>
+<div class="flex items-center gap-2 text-[10px] text-[#f2f4f7]">
+<span class="text-amber-brand font-bold">✓</span>
+<span>Fresh code on camera</span>
+</div>
+<div class="flex items-center gap-2 text-[10px] text-[#f2f4f7]">
+<span class="text-amber-brand font-bold">✓</span>
+<span>Every step checked by AI</span>
+</div>
+<div class="flex items-center gap-2 text-[10px] text-[#f2f4f7]">
+<span class="text-amber-brand font-bold">✓</span>
+<span>Safety never auto-passed</span>
+</div>
+<div class="flex items-center gap-2 text-[10px] text-[#f2f4f7]">
+<span class="text-amber-brand font-bold">✓</span>
+<span>An Expert in your trade decides</span>
+</div>
+</div>
+<div class="border-t border-dashed border-[#2d3340] my-2"></div>
+<!-- Excluded Outputs (3 items) -->
+<div class="flex flex-col gap-1.5 opacity-40">
+<div class="flex items-center gap-2 text-[10px] text-[#9ca3af] line-through decoration-[#ef9a57]">
+<span>✕</span>
+<span>ID or background</span>
+</div>
+<div class="flex items-center gap-2 text-[10px] text-[#9ca3af] line-through decoration-[#ef9a57]">
+<span>✕</span>
+<span>Licences or insurance</span>
+</div>
+<div class="flex items-center gap-2 text-[10px] text-[#9ca3af] line-through decoration-[#ef9a57]">
+<span>✕</span>
+<span>Formal qualifications</span>
+</div>
+</div>
+</div>
+<p class="text-xs text-[#9ca3af] leading-relaxed mb-4">
+          NITA, KNQA and TVETs certify qualifications. We verify a skill, on video.
+        </p>
+<!-- Tap target min 48px -->
+<button class="w-full h-12 min-h-[48px] rounded-full border border-amber-brand text-amber-brand font-mono text-xs tracking-wider uppercase flex items-center justify-center hover:bg-amber-brand/10 transition-colors active:scale-95">
+          Skilled in your trade? Become a verifier
+        </button>
+</section>
+<!-- 9. 08 — NEXT -->
+<section class="px-4 py-8 border-b border-outline flex flex-col">
+<div class="flex items-center gap-2 mb-2">
+<span class="font-mono text-[10px] tracking-[0.26em] text-amber-brand uppercase">08 — NEXT</span>
+</div>
+<h2 class="font-headline text-2xl font-extrabold text-[#f2f4f7] tracking-tight mb-4">
+          Coming next: earn from your skills
+        </h2>
+<!-- Featured Image Frame with Amber Accent -->
+<div class="w-full rounded border border-[#2d3340] bg-[#0b0d12] p-1.5 mb-4 relative">
+<div class="aspect-[16/9] w-full overflow-hidden rounded-[2px] relative">
+<img alt="Smart Fundis tool array" class="w-full h-full object-cover filter grayscale contrast-125 opacity-80" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzznHaLpYz_VoYZHUOIUBu5X_3pf7RXqKqLaSOLUBdOc4UP1FmN3q5UbfTHt-onHJB5r_ueVyjJF0jMhsHONHAispVbdqsNPKAhV5Gmhl8jv6zDfP3EuVpy6-7xCqxzcjjkt_X_l3gN5MXRDNYGAXCYTXgnJCTvG0LeqbJvxXJqW3TsGyP34YvCDLyd0BZdSgljdAcV1g-6kQfuupLHsLRiujDCOVv2r2WgWy2yy2kOhYhxWkmYOqL-7us105qPulkqgSQ1LE7JJU"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#050609] via-transparent to-transparent"></div>
+<div class="absolute bottom-2 left-2 text-[8px] font-mono bg-black/80 px-2 py-0.5 border border-amber-brand/40 text-amber-brand uppercase">
+              CO-OP PROTOCOL // HARDWARE READY
+            </div>
+</div>
+</div>
+<!-- Stacked Roadmap Cards -->
+<div class="flex flex-col gap-2 mb-4">
+<div class="p-3 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col gap-1">
+<span class="font-mono text-[8px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs text-[#f2f4f7]">Smart Fundis Data Co-op: earn from your skills, by choice</span>
+</div>
+<div class="p-3 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col gap-1">
+<span class="font-mono text-[8px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs text-[#f2f4f7]">Bookings &amp; M-Pesa payments</span>
+</div>
+<div class="p-3 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col gap-1">
+<span class="font-mono text-[8px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs text-[#f2f4f7]">Fundi Pro</span>
+</div>
+<div class="p-3 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col gap-1">
+<span class="font-mono text-[8px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs text-[#f2f4f7]">Training partners</span>
+</div>
+</div>
+<a class="font-mono text-xs text-amber-brand tracking-wider uppercase font-semibold flex items-center gap-1 hover:underline" href="#">
+          See the roadmap →
+        </a>
+</section>
+<!-- 10. 09 — SEAL & FOOTER -->
+<section class="px-4 pt-10 pb-6 flex flex-col items-center text-center">
+<!-- Giant Final Headline -->
+<h2 class="font-headline text-3xl font-black text-[#f2f4f7] tracking-tight uppercase mb-6">
+          Show your work.
+        </h2>
+<!-- Action Buttons -->
+<div class="w-full flex flex-col gap-2.5 mb-10">
+<button class="w-full h-12 min-h-[48px] rounded-full bg-[#ef9a57] text-[#050609] font-bold text-xs tracking-wider uppercase flex items-center justify-center active:scale-95 transition-all">
+            Join as a fundi
+          </button>
+<button class="w-full h-12 min-h-[48px] rounded-full border border-[#374151] text-[#f2f4f7] font-semibold text-xs tracking-wider uppercase flex items-center justify-center hover:border-amber-brand transition-colors active:scale-95">
+            Find a fundi
+          </button>
+</div>
+<!-- Stacked Link Groups (Clean Instrument Accordion Style) -->
+<div class="w-full text-left flex flex-col gap-6 pt-4 border-t border-[#1f242e]">
+<div>
+<div class="font-mono text-[9px] text-amber-brand tracking-widest uppercase mb-2">FOR FUNDIS</div>
+<div class="flex flex-col gap-2 text-xs text-[#9ca3af]">
+<a class="hover:text-white transition-colors" href="#">Join as a fundi</a>
+<a class="hover:text-white transition-colors" href="#">How verification works</a>
+<a class="hover:text-white transition-colors" href="#">Your privacy</a>
+</div>
+</div>
+<div>
+<div class="font-mono text-[9px] text-amber-brand tracking-widest uppercase mb-2">FOR CLIENTS</div>
+<div class="flex flex-col gap-2 text-xs text-[#9ca3af]">
+<a class="hover:text-white transition-colors" href="#">Find a fundi</a>
+<a class="hover:text-white transition-colors" href="#">What 'verified' means</a>
+</div>
+</div>
+<div>
+<div class="font-mono text-[9px] text-amber-brand tracking-widest uppercase mb-2">FOR EXPERTS</div>
+<div class="flex flex-col gap-2 text-xs text-[#9ca3af]">
+<a class="hover:text-white transition-colors" href="#">Become a verifier</a>
+</div>
+</div>
+<div>
+<div class="font-mono text-[9px] text-amber-brand tracking-widest uppercase mb-2">ABOUT</div>
+<div class="flex flex-col gap-2 text-xs text-[#9ca3af]">
+<a class="hover:text-white transition-colors" href="#">Responsible AI</a>
+<a class="hover:text-white transition-colors" href="#">Roadmap</a>
+<a class="hover:text-white transition-colors" href="#">Contact</a>
+</div>
+</div>
+</div>
+<!-- Outlined Large Mono Wordmark -->
+<div class="w-full my-8 py-4 border-y border-[#1f242e] flex items-center justify-center">
+<span class="font-mono text-2xl font-black tracking-[0.25em] text-white/20 select-none">
+            SMART FUNDIS
+          </span>
+</div>
+<!-- Legal Disclaimer & Copyright -->
+<div class="w-full text-left flex flex-col gap-1 text-[9px] font-mono text-[#9ca3af]/70 mb-4">
+<p>We verify skills. NITA, KNQA and TVETs certify.</p>
+<p class="text-amber-brand/60">PRECISION VERIFICATION LEDGER // SYSTEM ID: SF-254</p>
+<p>© 2026 Smart Fundis. All rights reserved.</p>
+</div>
+</section>
+</main>
+<!-- BottomNavBar Anchor Component (Contextual mapping: Home/Verification Landing -> LEDGER active) -->
+<nav class="fixed bottom-0 left-0 right-0 w-full z-50 flex justify-around items-center px-2 py-1 max-w-[360px] mx-auto bg-surface-container-lowest/95 backdrop-blur-md border-t border-outline-variant/30">
+<!-- Tab 1: LEDGER (Active Destination) -->
+<a class="flex flex-col items-center justify-center text-surface-tint py-1 active:scale-95 transition-transform duration-100 flex-1" href="#">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">view_timeline</span>
+<span class="font-label uppercase tracking-[0.26em] text-[8px] mt-0.5 font-bold">LEDGER</span>
+</a>
+<!-- Tab 2: EVIDENCE -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 py-1 hover:text-surface-tint active:scale-95 transition-all duration-100 flex-1" href="#">
+<span class="material-symbols-outlined text-[20px]">frame_inspect</span>
+<span class="font-label uppercase tracking-[0.26em] text-[8px] mt-0.5">EVIDENCE</span>
+</a>
+<!-- Tab 3: SEALS -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 py-1 hover:text-surface-tint active:scale-95 transition-all duration-100 flex-1" href="#">
+<span class="material-symbols-outlined text-[20px]">verified_user</span>
+<span class="font-label uppercase tracking-[0.26em] text-[8px] mt-0.5">SEALS</span>
+</a>
+<!-- Tab 4: RADAR -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant/60 py-1 hover:text-surface-tint active:scale-95 transition-all duration-100 flex-1" href="#">
+<span class="material-symbols-outlined text-[20px]">radar</span>
+<span class="font-label uppercase tracking-[0.26em] text-[8px] mt-0.5">RADAR</span>
+</a>
+</nav>
+</div>
+<!-- Interactive Step Switching Logic -->
+<script>
+  (function() {
+    const stepConfig = {
+      1: {
+        num: "01",
+        name: "ISOLATE POWER",
+        time: "00:04",
+        status: "Observed",
+        topText: "01 ISOLATE POWER · 00:04",
+        bottomIcon: "✓",
+        bottomText: "BREAKER OFF · TESTED DEAD",
+        bottomColorClass: "text-[#10b981]",
+        bottomBorderClass: "border-[#10b981]/50",
+        reticle: {
+          top: "14%",
+          left: "22%",
+          width: "28%",
+          height: "30%",
+          tag: "ISOLATOR // POS: X22 Y14",
+          borderColor: "border-[#10b981]",
+          shadow: "shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 01 Inspection"
+      },
+      2: {
+        num: "02",
+        name: "STRIP & TERMINATE",
+        time: "00:19",
+        status: "Observed",
+        topText: "02 STRIP & TERMINATE · 00:19",
+        bottomIcon: "✓",
+        bottomText: "CONDUCTORS TO L/N/E · OBSERVED",
+        bottomColorClass: "text-[#10b981]",
+        bottomBorderClass: "border-[#10b981]/50",
+        reticle: {
+          top: "26%",
+          left: "58%",
+          width: "25%",
+          height: "34%",
+          tag: "TERMINALS // POS: X58 Y26",
+          borderColor: "border-[#10b981]",
+          shadow: "shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 02 Inspection"
+      },
+      3: {
+        num: "03",
+        name: "EARTH CONTINUITY",
+        time: "00:41",
+        status: "Needs review",
+        topText: "03 EARTH CONTINUITY · 00:41",
+        bottomIcon: "◐",
+        bottomText: "NEEDS REVIEW · SAFETY CRITICAL",
+        bottomColorClass: "text-amber-brand",
+        bottomBorderClass: "border-amber-brand/70",
+        reticle: {
+          top: "31%",
+          left: "63%",
+          width: "22%",
+          height: "32%",
+          tag: "EARTH TERM // POS: X63 Y31",
+          borderColor: "border-amber-brand",
+          shadow: "shadow-[0_0_12px_rgba(239,154,87,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 03 Inspection"
+      },
+      4: {
+        num: "04",
+        name: "FACEPLATE SECURE",
+        time: "00:58",
+        status: "Observed",
+        topText: "04 FACEPLATE SECURE · 00:58",
+        bottomIcon: "✓",
+        bottomText: "SCREWS SEATED · FLUSH MOUNT",
+        bottomColorClass: "text-[#10b981]",
+        bottomBorderClass: "border-[#10b981]/50",
+        reticle: {
+          top: "44%",
+          left: "44%",
+          width: "26%",
+          height: "28%",
+          tag: "DRIVER TORQUE // POS: X44 Y44",
+          borderColor: "border-[#10b981]",
+          shadow: "shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 04 Inspection"
+      }
+    };
+
+    const tabs = document.querySelectorAll('.step-tab');
+    const hudReticle = document.getElementById('hudReticle');
+    const reticleTag = document.getElementById('reticleTag');
+    const stepMarkerTopText = document.getElementById('stepMarkerTopText');
+    const stepMarkerBottom = document.getElementById('stepMarkerBottom');
+    const stepMarkerBottomIcon = document.getElementById('stepMarkerBottomIcon');
+    const stepMarkerBottomText = document.getElementById('stepMarkerBottomText');
+    const frameTelemetryStatus = document.getElementById('frameTelemetryStatus');
+    const badgeStepCaption = document.getElementById('badgeStepCaption');
+    const stepCounter = document.getElementById('stepCounter');
+
+    function selectStep(stepId) {
+      const data = stepConfig[stepId];
+      if (!data) return;
+
+      // 1. Update Tabs style
+      tabs.forEach(tab => {
+        const id = tab.getAttribute('data-step');
+        if (id == stepId) {
+          tab.className = "step-tab active py-1.5 px-1 bg-[#13171f] border-2 border-amber-brand shadow-[0_0_10px_rgba(239,154,87,0.25)] rounded text-left flex flex-col justify-between transition-all duration-150 group";
+          const numSpan = tab.querySelector('.font-mono.font-bold');
+          if (numSpan) numSpan.className = "font-mono text-[8px] font-bold text-amber-brand";
+          const title = tab.querySelectorAll('.font-mono')[2];
+          if (title) title.className = "font-mono text-[8px] truncate text-white font-bold leading-tight mt-0.5";
+        } else {
+          tab.className = "step-tab py-1.5 px-1 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group hover:border-[#474747]";
+          const numSpan = tab.querySelector('.font-mono.font-bold');
+          if (numSpan) numSpan.className = "font-mono text-[8px] font-bold text-[#9ca3af]";
+          const title = tab.querySelectorAll('.font-mono')[2];
+          if (title) title.className = "font-mono text-[8px] truncate text-[#f2f4f7] font-medium leading-tight mt-0.5";
+        }
+      });
+
+      // 2. Update Reticle HUD
+      hudReticle.style.top = data.reticle.top;
+      hudReticle.style.left = data.reticle.left;
+      hudReticle.style.width = data.reticle.width;
+      hudReticle.style.height = data.reticle.height;
+      hudReticle.className = `absolute pointer-events-none border-2 transition-all duration-300 ease-out z-10 ${data.reticle.borderColor} ${data.reticle.shadow}`;
+      
+      reticleTag.textContent = data.reticle.tag;
+      reticleTag.className = `absolute -top-3.5 left-0 bg-[#050609] text-[7.5px] font-mono px-1 border uppercase tracking-tighter whitespace-nowrap ${data.reticle.borderColor} ${data.bottomColorClass}`;
+
+      // Update corner brackets color
+      hudReticle.querySelectorAll('div[class*="border-t-2"], div[class*="border-b-2"]').forEach(el => {
+        el.className = el.className.replace(/border-(amber-brand|\[#10b981\])/g, data.status === 'Needs review' ? 'border-amber-brand' : 'border-[#10b981]');
+      });
+
+      // 3. Update Text Overlays
+      stepMarkerTopText.textContent = data.topText;
+      stepMarkerBottomIcon.textContent = data.bottomIcon;
+      stepMarkerBottomText.textContent = data.bottomText;
+      stepMarkerBottom.className = `absolute bottom-2 right-2 bg-[#050609]/90 backdrop-blur border px-2 py-0.5 rounded-[2px] flex items-center gap-1.5 shadow-lg z-10 transition-all ${data.bottomBorderClass}`;
+      stepMarkerBottomIcon.className = `text-[8px] ${data.bottomColorClass}`;
+      stepMarkerBottomText.className = `font-mono text-[8.5px] tracking-wider uppercase font-semibold ${data.bottomColorClass}`;
+
+      // 4. Update Header and Caption
+      frameTelemetryStatus.textContent = `LIVE INSPECT · STEP ${data.num}`;
+      badgeStepCaption.textContent = data.caption;
+      stepCounter.textContent = `STEP ${data.num} / 04`;
+
+      // 5. Sync Ledger Table Rows
+      for (let i = 1; i <= 4; i++) {
+        const row = document.getElementById(`ledgerRow${i}`);
+        if (!row) continue;
+        if (i == stepId) {
+          row.classList.add('bg-amber-brand/15', 'border-l-2', 'border-l-amber-brand');
+        } else {
+          row.classList.remove('bg-amber-brand/15', 'border-l-2', 'border-l-amber-brand');
+          if (i === 3) {
+            row.classList.add('bg-[#ef9a57]/10');
+          } else {
+            row.classList.remove('bg-[#ef9a57]/10');
+          }
+        }
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        const step = this.getAttribute('data-step');
+        selectStep(step);
+      });
+    });
+
+    // Initialize with Step 3 as per screenshot context
+    selectStep(3);
+  })();
+</script>
+</body></html>

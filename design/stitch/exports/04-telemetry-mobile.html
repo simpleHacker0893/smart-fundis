@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Telemetry (Mobile)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#050609',
+              900: '#0b0d13',
+              850: '#11141c',
+              800: '#171b26',
+              700: '#232938',
+              600: '#323a4e',
+            },
+            amber: {
+              accent: '#ef9a57',
+              dim: 'rgba(239, 154, 87, 0.15)',
+              border: 'rgba(239, 154, 87, 0.35)',
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+      background-image: radial-gradient(rgba(242, 244, 247, 0.04) 1px, transparent 0);
+      background-size: 20px 20px;
+    }
+    .scanline {
+      background: linear-gradient(180deg, transparent 0%, rgba(239, 154, 87, 0.08) 50%, transparent 100%);
+      background-size: 100% 8px;
+    }
+    .hud-bracket {
+      position: relative;
+    }
+    .hud-bracket::before {
+      content: '';
+      position: absolute;
+      top: -2px;
+      left: -2px;
+      width: 8px;
+      height: 8px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .hud-bracket::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      right: -2px;
+      width: 8px;
+      height: 8px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    @keyframes pulse-slow {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.9); }
+    }
+    .accent-pulse {
+      animation: pulse-slow 2.4s ease-in-out infinite;
+    }
+  </style>
+</head>
+<body class="min-h-screen pb-24 flex flex-col items-center">
+
+  <!-- MAX CONTAINER CONSTRAINED TO MOBILE 360PX -->
+  <div class="w-full max-w-[360px] bg-graphite-950 border-x border-white/5 relative flex flex-col min-h-screen">
+
+    <!-- HEADER (STICKY 48PX) -->
+    <header class="sticky top-0 z-50 h-12 bg-graphite-950/95 backdrop-blur-md border-b border-white/10 px-4 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="material-symbols-outlined text-amber-accent text-lg">verified</span>
+        <span class="font-mono text-xs font-bold tracking-[0.24em] text-white uppercase">SMART FUNDIS</span>
+      </div>
+      <div class="flex items-center gap-2.5">
+        <button class="h-7 px-3 rounded-full bg-amber-accent text-graphite-950 font-mono text-[11px] font-bold tracking-wider uppercase hover:opacity-90 active:scale-95 transition-all">
+          JOIN
+        </button>
+        <button class="w-8 h-8 flex items-center justify-center text-white/70 hover:text-white">
+          <span class="material-symbols-outlined text-xl">menu</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 px-4 py-6 space-y-9">
+
+      <!-- HERO SECTION -->
+      <section class="space-y-3">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-accent accent-pulse"></span>
+          <span class="font-mono text-[10px] tracking-[0.24em] text-amber-accent uppercase font-medium">SMART FUNDIS / TELEMETRY</span>
+        </div>
+        <h1 class="text-[28px] leading-[1.12] font-black text-white tracking-tight">
+          What the AI sees. What it never decides.
+        </h1>
+        <p class="font-sans text-xs text-white/60 leading-relaxed pt-1">
+          AI recommends. Experts decide. Here is every step between your video and your badge.
+        </p>
+
+        <!-- LIVE STREAM METRIC PILL / LEDGER REF -->
+        <div class="flex items-center justify-between border border-white/10 bg-graphite-900/60 px-3 py-2 rounded font-mono text-[10px] text-white/50">
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            SYS.RUNNING // VERIFICATION_CORE
+          </span>
+          <span class="text-white/70 tracking-widest">SF-TLM-2026</span>
+        </div>
+      </section>
+
+      <!-- 01 — THE PIPELINE -->
+      <section class="space-y-4">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+          <span class="font-mono text-[10px] tracking-[0.22em] text-white/60 uppercase">01 — THE PIPELINE</span>
+        </div>
+        <h2 class="text-lg font-bold text-white tracking-tight">
+          Six stages. Strict boundaries.
+        </h2>
+
+        <!-- VERTICAL SIGNAL FLOW DIAGRAM -->
+        <div class="relative pl-6 space-y-4 before:absolute before:left-[11px] before:top-3 before:bottom-3 before:w-[1px] before:bg-gradient-to-b before:from-amber-accent before:via-white/20 before:to-amber-accent">
+
+          <!-- STAGE 1 -->
+          <div class="relative">
+            <!-- Node Pin -->
+            <div class="absolute -left-[19px] top-3.5 w-3.5 h-3.5 rounded-full bg-graphite-950 border border-amber-accent flex items-center justify-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+            </div>
+            <div class="border border-white/10 bg-graphite-900/70 p-3 rounded space-y-1 relative">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[11px] font-bold text-amber-accent tracking-widest">INGEST</span>
+                <span class="font-mono text-[9px] text-white/40 tracking-wider">STAGE 01</span>
+              </div>
+              <p class="font-sans text-xs text-white/90 leading-snug">
+                Your in-app video arrives.
+              </p>
+              <div class="pt-1 flex items-center gap-1.5 text-[10px] font-mono text-white/40">
+                <span class="material-symbols-outlined text-[12px] text-white/50">videocam</span>
+                <span>Encrypted direct ingress</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 2 -->
+          <div class="relative">
+            <div class="absolute -left-[19px] top-3.5 w-3.5 h-3.5 rounded-full bg-graphite-950 border border-white/30 flex items-center justify-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+            </div>
+            <div class="border border-white/10 bg-graphite-900/70 p-3 rounded space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[11px] font-bold text-white tracking-widest">GUARD</span>
+                <span class="font-mono text-[9px] text-white/40 tracking-wider">STAGE 02</span>
+              </div>
+              <p class="font-sans text-xs text-white/90 leading-snug">
+                Checks length (10–90 s) and one continuous shot.
+              </p>
+              <div class="pt-1 flex items-center gap-1.5 text-[10px] font-mono text-white/40">
+                <span class="material-symbols-outlined text-[12px] text-white/50">timer</span>
+                <span>Telemetry cut detection</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 3 -->
+          <div class="relative">
+            <div class="absolute -left-[19px] top-3.5 w-3.5 h-3.5 rounded-full bg-graphite-950 border border-white/30 flex items-center justify-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+            </div>
+            <div class="border border-white/10 bg-graphite-900/70 p-3 rounded space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[11px] font-bold text-white tracking-widest">OBSERVE</span>
+                <span class="font-mono text-[9px] text-white/40 tracking-wider">STAGE 03</span>
+              </div>
+              <p class="font-sans text-xs text-white/90 leading-snug">
+                NVIDIA Cosmos Reason reads each rubric step and your paper code.
+              </p>
+              <div class="pt-1 flex items-center gap-1.5 text-[10px] font-mono text-white/40">
+                <span class="material-symbols-outlined text-[12px] text-white/50">visibility</span>
+                <span>Spatial visual perception</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 4 -->
+          <div class="relative">
+            <div class="absolute -left-[19px] top-3.5 w-3.5 h-3.5 rounded-full bg-graphite-950 border border-white/30 flex items-center justify-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-white/40"></span>
+            </div>
+            <div class="border border-white/10 bg-graphite-900/70 p-3 rounded space-y-1">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[11px] font-bold text-white tracking-widest">ASSESS</span>
+                <span class="font-mono text-[9px] text-white/40 tracking-wider">STAGE 04</span>
+              </div>
+              <p class="font-sans text-xs text-white/90 leading-snug">
+                NVIDIA Nemotron writes plain-language feedback.
+              </p>
+              <div class="pt-1 flex items-center gap-1.5 text-[10px] font-mono text-white/40">
+                <span class="material-symbols-outlined text-[12px] text-white/50">chat_bubble</span>
+                <span>Structured feedback drafting</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 5 (RULES - CAP AT NEEDS REVIEW) -->
+          <div class="relative">
+            <div class="absolute -left-[19px] top-3.5 w-3.5 h-3.5 rounded-full bg-graphite-950 border border-amber-accent flex items-center justify-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+            </div>
+            <div class="border border-amber-border bg-graphite-900/80 p-3 rounded space-y-1.5">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                  <span class="font-mono text-[11px] font-bold text-amber-accent tracking-widest">RULES</span>
+                  <span class="px-1.5 py-0.5 rounded bg-amber-dim text-amber-accent text-[9px] font-mono font-semibold">GATEWAY</span>
+                </div>
+                <span class="font-mono text-[9px] text-white/40 tracking-wider">STAGE 05</span>
+              </div>
+              <p class="font-sans text-xs text-white leading-snug font-medium">
+                A safety step marked no or unclear, or a code that doesn't match, caps the result at <span class="text-amber-accent font-semibold">Needs review</span>.
+              </p>
+              <div class="pt-1 flex items-center gap-1 text-[10px] font-mono text-amber-accent/80">
+                <span class="material-symbols-outlined text-[12px]">security</span>
+                <span>Hard boundary: safety steps never auto-pass</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- STAGE 6 (EXPERT HUMAN) -->
+          <div class="relative">
+            <div class="absolute -left-[19px] top-3.5 w-3.5 h-3.5 rounded-full bg-white border border-white flex items-center justify-center">
+              <span class="w-1.5 h-1.5 rounded-full bg-graphite-950"></span>
+            </div>
+            <div class="border border-white/20 bg-graphite-900/90 p-3 rounded space-y-1 shadow-lg shadow-black/40">
+              <div class="flex items-center justify-between">
+                <span class="font-mono text-[11px] font-bold text-white tracking-widest">EXPERT</span>
+                <span class="font-mono text-[9px] text-amber-accent tracking-wider font-semibold">FINAL JURY</span>
+              </div>
+              <p class="font-sans text-xs text-white leading-snug font-medium">
+                A human Expert approves, rejects or asks for a reshoot.
+              </p>
+              <div class="pt-1 flex items-center gap-1.5 text-[10px] font-mono text-white/60">
+                <span class="material-symbols-outlined text-[12px] text-amber-accent">how_to_reg</span>
+                <span>Only accredited Kenyan trade masters decide</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 02 — WHAT THE AI CAN RECOMMEND -->
+      <section class="space-y-3 pt-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+          <span class="font-mono text-[10px] tracking-[0.22em] text-white/60 uppercase">02 — WHAT THE AI CAN RECOMMEND</span>
+        </div>
+        <h2 class="text-lg font-bold text-white tracking-tight">
+          Three outputs. Never a final decision.
+        </h2>
+
+        <!-- INSTRUMENT LEDGER -->
+        <div class="border border-white/10 rounded bg-graphite-900/60 divide-y divide-white/10">
+          
+          <!-- LEDGER HEADER -->
+          <div class="px-3 py-2 bg-graphite-850/80 flex items-center justify-between font-mono text-[9px] tracking-[0.2em] text-white/40 uppercase">
+            <span>RECOMMENDATION MATRIX</span>
+            <span>NEXT ACTION</span>
+          </div>
+
+          <!-- ROW 1: PASS -->
+          <div class="p-3 flex items-start justify-between gap-3">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2 font-mono text-xs font-bold text-white">
+                <span class="text-white text-sm">✓</span>
+                <span>Pass</span>
+              </div>
+              <p class="text-[11px] font-sans text-white/50">All rubric checkpoints observed without safety exceptions</p>
+            </div>
+            <div class="text-right">
+              <span class="inline-block px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-[10px] text-white/90">
+                Sent to an Expert
+              </span>
+            </div>
+          </div>
+
+          <!-- ROW 2: NEEDS REVIEW (ACCENT ◐) -->
+          <div class="p-3 flex items-start justify-between gap-3 bg-amber-dim/30">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2 font-mono text-xs font-bold text-amber-accent">
+                <span class="text-amber-accent text-sm">◐</span>
+                <span>Needs review</span>
+              </div>
+              <p class="text-[11px] font-sans text-amber-accent/80">Safety step unclear, obscured angle, or paper code discrepancy</p>
+            </div>
+            <div class="text-right">
+              <span class="inline-block px-2 py-1 rounded bg-amber-dim border border-amber-border font-mono text-[10px] font-semibold text-amber-accent">
+                Sent to an Expert, flagged
+              </span>
+            </div>
+          </div>
+
+          <!-- ROW 3: RESHOOT -->
+          <div class="p-3 flex items-start justify-between gap-3">
+            <div class="space-y-0.5">
+              <div class="flex items-center gap-2 font-mono text-xs font-bold text-white/90">
+                <span class="text-white/80 text-sm">↻</span>
+                <span>Reshoot</span>
+              </div>
+              <p class="text-[11px] font-sans text-white/50">Cut detected, duration out of range, or critical work obscured</p>
+            </div>
+            <div class="text-right">
+              <span class="inline-block px-2 py-1 rounded bg-white/5 border border-white/10 font-mono text-[10px] text-white/80">
+                You record again with a new code
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- CAPTION -->
+        <div class="p-3 border-l-2 border-white/40 bg-white/[0.02] space-y-0.5">
+          <p class="font-mono text-xs font-medium text-white/90">
+            "No badge is ever issued by AI alone."
+          </p>
+          <p class="font-sans text-[11px] text-white/50 leading-relaxed">
+            The neural networks act solely as evidence indexes and pre-screeners. Final verification authority resides exclusively with human craft masters.
+          </p>
+        </div>
+      </section>
+
+      <!-- 03 — PRIVACY TELEMETRY -->
+      <section class="space-y-3 pt-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+          <span class="font-mono text-[10px] tracking-[0.22em] text-white/60 uppercase">03 — PRIVACY TELEMETRY</span>
+        </div>
+        <h2 class="text-lg font-bold text-white tracking-tight">
+          Your video stays guarded.
+        </h2>
+
+        <!-- EVIDENCE FRAME (WITH DOCUMENTARY PHOTO https://lh3.googleusercontent.com/aida-public/AB6AXuDJCqvgWA4dWv6uswQrkLVX9JTbfRSZM6OE82xa4p0btIAi89iKMUjG-KXLsfCvrLGYG0sXigl3a8ha3-a0VeAPOu1BX1EKj-vL3DYCeVhoGVVbO2g0MGyUEO0T0OiXQobW-fiUcsY9xAcfrJZ12HMI9cBOxYrTdE-MOW9QHe9K5YC8QQaosZv6x5Wh79YlFXPzMtHl5h0-UordnDZnr2i8POuZM43SS41JpWsCj6Ebfxs5xJTv08iUK5xQbWCyltlCx4LO9UV8IEw) -->
+        <div class="border border-white/10 bg-graphite-900 rounded overflow-hidden hud-bracket relative">
+          <!-- Meta Header Row -->
+          <div class="px-3 py-2 bg-graphite-850 border-b border-white/10 flex items-center justify-between font-mono text-[9px] tracking-widest text-white/60">
+            <div class="flex items-center gap-2">
+              <span class="text-amber-accent">◆</span>
+              <span>TELEMETRY FRAME: PRIVACY-01</span>
+            </div>
+            <span class="text-white/40">INGRESS CAPTURE</span>
+          </div>
+
+          <!-- Documentary Grayscale Photo with HUD Scanline & Markers -->
+          <div class="relative aspect-video w-full bg-graphite-950 overflow-hidden">
+            <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJCqvgWA4dWv6uswQrkLVX9JTbfRSZM6OE82xa4p0btIAi89iKMUjG-KXLsfCvrLGYG0sXigl3a8ha3-a0VeAPOu1BX1EKj-vL3DYCeVhoGVVbO2g0MGyUEO0T0OiXQobW-fiUcsY9xAcfrJZ12HMI9cBOxYrTdE-MOW9QHe9K5YC8QQaosZv6x5Wh79YlFXPzMtHl5h0-UordnDZnr2i8POuZM43SS41JpWsCj6Ebfxs5xJTv08iUK5xQbWCyltlCx4LO9UV8IEw" alt="Smartphone recording hands at workshop" class="w-full h-full object-cover grayscale contrast-125 opacity-85">
+            <div class="absolute inset-0 scanline pointer-events-none"></div>
+
+            <!-- Diamond Reticle HUD -->
+            <div class="absolute top-3 left-3 border border-amber-accent/70 bg-graphite-950/80 px-2 py-1 rounded text-[9px] font-mono text-amber-accent flex items-center gap-1.5">
+              <span>◆</span>
+              <span>LOCAL ENCLAVE BUFFER</span>
+            </div>
+
+            <!-- Corner Bracket Target -->
+            <div class="absolute bottom-3 right-3 border border-white/20 bg-graphite-950/80 px-2 py-1 rounded text-[9px] font-mono text-white/70">
+              HARDWARE TETHERED
+            </div>
+          </div>
+
+          <!-- Meta Footer Row of Evidence Frame -->
+          <div class="px-3 py-1.5 bg-graphite-850/80 border-t border-white/10 flex items-center justify-between font-mono text-[9px] text-white/40">
+            <span>ISOLATED COMPUTE ENCLAVE</span>
+            <span>ZERO PUBLIC SHARING</span>
+          </div>
+        </div>
+
+        <!-- READOUT ROWS -->
+        <div class="space-y-2 pt-1 font-mono text-xs">
+          
+          <!-- ROW 1 -->
+          <div class="border border-white/10 bg-graphite-900/60 p-3 rounded space-y-1">
+            <div class="flex items-center justify-between text-[10px] tracking-wider text-amber-accent font-bold">
+              <span>WHO SEES YOUR VIDEO</span>
+              <span class="text-white/40 text-[9px]">ENCLAVE ACCESS</span>
+            </div>
+            <p class="font-sans text-xs text-white/90 leading-snug">
+              You, eligible Experts, Admins, and our AI on Smart Fundis' GPU
+            </p>
+          </div>
+
+          <!-- ROW 2 -->
+          <div class="border border-white/10 bg-graphite-900/60 p-3 rounded space-y-1">
+            <div class="flex items-center justify-between text-[10px] tracking-wider text-white font-bold">
+              <span>TRAINING</span>
+              <span class="text-emerald-400 text-[9px]">ISOLATED</span>
+            </div>
+            <p class="font-sans text-xs text-white/90 leading-snug">
+              Your video is not used to train AI
+            </p>
+          </div>
+
+          <!-- ROW 3 -->
+          <div class="border border-white/10 bg-graphite-900/60 p-3 rounded space-y-1">
+            <div class="flex items-center justify-between text-[10px] tracking-wider text-white font-bold">
+              <span>DELETE</span>
+              <span class="text-white/40 text-[9px]">ON-DEMAND PURGE</span>
+            </div>
+            <p class="font-sans text-xs text-white/90 leading-snug">
+              Remove your video once review is finished
+            </p>
+          </div>
+
+          <!-- ROW 4 -->
+          <div class="border border-white/10 bg-graphite-900/60 p-3 rounded space-y-1">
+            <div class="flex items-center justify-between text-[10px] tracking-wider text-white font-bold">
+              <span>TRACES</span>
+              <span class="text-white/40 text-[9px]">CRYPTOGRAPHIC</span>
+            </div>
+            <p class="font-sans text-xs text-white/90 leading-snug">
+              Masked: no video links, prompts or feedback text
+            </p>
+          </div>
+
+        </div>
+      </section>
+
+      <!-- 04 — APPEALS -->
+      <section class="space-y-3 pt-2">
+        <div class="flex items-center gap-2">
+          <span class="w-1.5 h-1.5 rounded-full bg-amber-accent"></span>
+          <span class="font-mono text-[10px] tracking-[0.22em] text-white/60 uppercase">04 — APPEALS</span>
+        </div>
+
+        <!-- READOUT CARD -->
+        <div class="border border-white/15 bg-graphite-900 p-4 rounded space-y-2 relative overflow-hidden">
+          <div class="absolute -right-4 -bottom-4 text-white/5 pointer-events-none">
+            <span class="material-symbols-outlined text-7xl font-thin">gavel</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-white/40"></span>
+            <span class="font-mono text-[10px] tracking-widest uppercase text-white/60 font-semibold">RIGHT TO CONTEST</span>
+          </div>
+          <h3 class="text-base font-bold text-white tracking-tight">
+            Rejected? You can appeal once, with a reason. A different Expert decides.
+          </h3>
+          <p class="font-sans text-xs text-white/60 leading-relaxed pt-1">
+            No machine ruling is irreversible. If an assessment feels incomplete or miscontextualized, request a secondary audit by a senior panelist in your specific trade domain.
+          </p>
+          <div class="pt-2">
+            <div class="inline-flex items-center gap-2 px-2.5 py-1.5 rounded bg-white/5 border border-white/10 text-[10px] font-mono text-white/70">
+              <span class="material-symbols-outlined text-[13px] text-amber-accent">balance</span>
+              <span>100% human appellate process</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </main>
+
+    <!-- FOOTER SECTION -->
+    <footer class="mt-8 border-t border-white/10 bg-graphite-950 px-4 pt-10 pb-8 space-y-8">
+      
+      <!-- SHOW YOUR WORK CTA -->
+      <div class="space-y-4 text-center">
+        <h2 class="text-2xl font-black text-white tracking-tight uppercase">
+          Show your work.
+        </h2>
+        <div class="space-y-2.5">
+          <button class="w-full h-12 rounded-full bg-amber-accent text-graphite-950 font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center hover:opacity-90 active:scale-98 transition-all">
+            Join as a fundi
+          </button>
+          <button class="w-full h-12 rounded-full bg-transparent border border-white/20 text-white font-mono text-xs font-bold tracking-wider uppercase flex items-center justify-center hover:bg-white/5 active:scale-98 transition-all">
+            Find a fundi
+          </button>
+        </div>
+      </div>
+
+      <!-- LINK GROUPS GRID -->
+      <div class="grid grid-cols-2 gap-y-6 gap-x-4 pt-4 border-t border-white/10">
+        
+        <!-- FOR FUNDIS -->
+        <div class="space-y-2">
+          <h4 class="font-mono text-[10px] tracking-[0.2em] text-white/40 uppercase font-semibold">FOR FUNDIS</h4>
+          <ul class="space-y-1.5 font-sans text-xs text-white/70">
+            <li><a href="#" class="hover:text-white transition-colors">Join as a fundi</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">How verification works</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Your privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- FOR CLIENTS -->
+        <div class="space-y-2">
+          <h4 class="font-mono text-[10px] tracking-[0.2em] text-white/40 uppercase font-semibold">FOR CLIENTS</h4>
+          <ul class="space-y-1.5 font-sans text-xs text-white/70">
+            <li><a href="#" class="hover:text-white transition-colors">Find a fundi</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">What 'verified' means</a></li>
+          </ul>
+        </div>
+
+        <!-- FOR EXPERTS -->
+        <div class="space-y-2">
+          <h4 class="font-mono text-[10px] tracking-[0.2em] text-white/40 uppercase font-semibold">FOR EXPERTS</h4>
+          <ul class="space-y-1.5 font-sans text-xs text-white/70">
+            <li><a href="#" class="hover:text-white transition-colors">Become a verifier</a></li>
+          </ul>
+        </div>
+
+        <!-- COMPANY -->
+        <div class="space-y-2">
+          <h4 class="font-mono text-[10px] tracking-[0.2em] text-white/40 uppercase font-semibold">COMPANY</h4>
+          <ul class="space-y-1.5 font-sans text-xs text-white/70">
+            <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Contact us</a></li>
+            <li><a href="#" class="text-amber-accent font-medium">Responsible AI</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- FAINT WORDMARK -->
+      <div class="pt-6 pb-2 text-center select-none opacity-20">
+        <span class="font-mono text-3xl font-black tracking-[0.3em] uppercase text-white/80">SMART FUNDIS</span>
+      </div>
+
+      <!-- COMPLIANCE & LEGAL NOTICE -->
+      <div class="pt-4 border-t border-white/5 space-y-1.5 text-center font-mono text-[10px] text-white/40">
+        <p>We verify skills. NITA, KNQA and TVETs certify.</p>
+        <p>© 2026 Smart Fundis. All rights reserved.</p>
+      </div>
+
+    </footer>
+
+    <!-- BOTTOM TAB BAR (FIXED: EVIDENCE · TRADES · TELEMETRY [ACTIVE] · COMPANY) -->
+    <nav class="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[360px] h-14 bg-graphite-950/95 backdrop-blur-md border-t border-white/10 z-50 flex items-center justify-around px-2">
+      
+      <!-- EVIDENCE -->
+      <button class="flex flex-col items-center justify-center gap-1 text-white/50 hover:text-white active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">verified</span>
+        <span class="font-mono text-[9px] tracking-wider uppercase">EVIDENCE</span>
+      </button>
+
+      <!-- TRADES -->
+      <button class="flex flex-col items-center justify-center gap-1 text-white/50 hover:text-white active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">construction</span>
+        <span class="font-mono text-[9px] tracking-wider uppercase">TRADES</span>
+      </button>
+
+      <!-- TELEMETRY (ACTIVE, ACCENT) -->
+      <button class="flex flex-col items-center justify-center gap-1 text-amber-accent active:scale-95 transition-all relative">
+        <span class="material-symbols-outlined text-[18px]">terminal</span>
+        <span class="font-mono text-[9px] tracking-wider uppercase font-bold">TELEMETRY</span>
+        <span class="absolute -top-1 w-6 h-0.5 bg-amber-accent rounded-full"></span>
+      </button>
+
+      <!-- COMPANY -->
+      <button class="flex flex-col items-center justify-center gap-1 text-white/50 hover:text-white active:scale-95 transition-all">
+        <span class="material-symbols-outlined text-[18px]">business</span>
+        <span class="font-mono text-[9px] tracking-wider uppercase">COMPANY</span>
+      </button>
+
+    </nav>
+
+  </div>
+
+</body>
+</html>

@@ -1,0 +1,865 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Fundis — Kazi yako, sifa yako</title>
+<!-- Typography: Inter & Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=Public+Sans:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Material Symbols Outlined -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "outline-variant": "#474747",
+            "on-error-container": "#ffdad6",
+            "tertiary-fixed": "#5d5e64",
+            "tertiary": "#e2e2e9",
+            "secondary-fixed": "#c4c7ca",
+            "primary-container": "#ffcaa4",
+            "tertiary-fixed-dim": "#45474d",
+            "surface-tint": "#ef9a57",
+            "on-secondary": "#191c1e",
+            "on-tertiary-container": "#000000",
+            "error": "#ffb4ab",
+            "on-surface-variant": "#c6c6c6",
+            "secondary": "#c4c7ca",
+            "tertiary-container": "#8f9097",
+            "inverse-on-surface": "#2f3034",
+            "primary-fixed-dim": "#703800",
+            "secondary-fixed-dim": "#a9abae",
+            "surface-dim": "#050609",
+            "on-secondary-container": "#e0e3e6",
+            "surface-container": "#0b0d12",
+            "on-secondary-fixed-variant": "#383c3e",
+            "secondary-container": "#44474a",
+            "on-tertiary": "#1a1b21",
+            "surface-variant": "#171a21",
+            "on-tertiary-fixed-variant": "#e2e2e9",
+            "on-surface": "#f2f4f7",
+            "surface-container-lowest": "#030406",
+            "inverse-surface": "#e3e2e7",
+            "on-background": "#f2f4f7",
+            "primary-fixed": "#904d0e",
+            "error-container": "#93000a",
+            "on-primary-fixed-variant": "#ffdcc5",
+            "on-primary-fixed": "#ffffff",
+            "on-primary-container": "#000000",
+            "surface-bright": "#1e222b",
+            "background": "#050609",
+            "outline": "#919191",
+            "surface-container-high": "#12151c",
+            "inverse-primary": "#904d0e",
+            "primary": "#ef9a57",
+            "surface-container-low": "#08090d",
+            "on-primary": "#050609",
+            "on-secondary-fixed": "#191c1e",
+            "surface": "#050609",
+            "surface-container-highest": "#1c202a",
+            "on-error": "#690005",
+            "on-tertiary-fixed": "#ffffff"
+          },
+          borderRadius: {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Inter", "sans-serif"],
+            display: ["Inter", "sans-serif"],
+            body: ["Inter", "sans-serif"],
+            label: ["Public Sans", "sans-serif"],
+            mono: ["JetBrains Mono", "monospace"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    /* Precision Instrument Atmospheric Scanline & Grid styling */
+    .bg-grid-subtle {
+      background-size: 32px 32px;
+      background-image: 
+        linear-gradient(to right, rgba(242, 244, 247, 0.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(242, 244, 247, 0.03) 1px, transparent 1px);
+    }
+    .amber-scan-line {
+      animation: scan 4.5s ease-in-out infinite alternate;
+    }
+    @keyframes scan {
+      0% { top: 4%; opacity: 0.3; }
+      50% { opacity: 0.9; }
+      100% { top: 94%; opacity: 0.3; }
+    }
+    .text-outline-stroke {
+      -webkit-text-stroke: 1px rgba(242, 244, 247, 0.15);
+      color: transparent;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="bg-surface text-on-surface antialiased selection:bg-surface-tint selection:text-surface-dim font-body min-h-screen relative overflow-x-hidden">
+<!-- Subtle Ambient Instrument Grid Background -->
+<div class="fixed inset-0 bg-grid-subtle pointer-events-none z-0"></div>
+<!-- SECTION 1: HEADER (Desktop Telemetry Bar adhering strictly to Shared Components JSON) -->
+<header class="fixed top-0 left-0 right-0 z-50 w-full bg-surface-dim/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/30">
+<div class="flex justify-between items-center w-full px-6 py-4 max-w-7xl mx-auto">
+<!-- Brand Logo Anchor -->
+<a class="font-label tracking-[0.26em] uppercase text-sm font-bold text-on-surface dark:text-on-surface flex items-center gap-2.5 group" href="#">
+<div class="w-6 h-6 rounded-lg border border-outline-variant/60 flex items-center justify-center bg-surface-container group-hover:border-surface-tint transition-colors">
+<span class="w-2 h-2 rounded-[1px] bg-surface-tint"></span>
+</div>
+<span>SMART FUNDIS</span>
+</a>
+<!-- Desktop Navigation Links -->
+<nav class="hidden md:flex items-center gap-8 font-label uppercase tracking-[0.26em] text-xs font-semibold">
+<a class="text-surface-tint dark:text-surface-tint border-b border-surface-tint pb-1" href="#how-it-works">EVIDENCE [01]</a>
+<a class="text-secondary dark:text-secondary hover:text-on-surface tracking-[0.26em] transition-colors" href="#trades">TRADES [04]</a>
+<a class="text-secondary dark:text-secondary hover:text-on-surface tracking-[0.26em] transition-colors" href="#check">TELEMETRY</a>
+<a class="text-secondary dark:text-secondary hover:text-on-surface tracking-[0.26em] transition-colors" href="#scope">VERIFICATION PROTOCOL</a>
+</nav>
+<!-- Trailing Action Cluster -->
+<div class="flex items-center gap-4">
+<button class="hidden lg:flex items-center gap-1.5 text-secondary hover:text-on-surface text-xs font-label tracking-[0.26em] uppercase transition-colors px-2 py-2">
+<span class="material-symbols-outlined text-sm" data-icon="terminal">terminal</span>
+          OPERATOR LOGIN
+        </button>
+<a class="h-12 px-6 rounded-full bg-surface-tint text-surface-dim hover:brightness-105 active:scale-[0.99] font-label font-bold text-xs tracking-[0.26em] uppercase flex items-center justify-center transition-all" href="#record">
+          JOIN AS A FUNDI
+        </a>
+</div>
+</div>
+</header>
+<main class="relative z-10 pt-24 space-y-28 md:space-y-36">
+<!-- SECTION 2: HERO (Proof of Skill) -->
+<section class="max-w-7xl mx-auto px-6 pt-10 pb-6 min-h-[calc(100vh-6rem)] flex items-center" id="how-it-works">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center w-full">
+<!-- Left Hero Column -->
+<div class="lg:col-span-6 space-y-8">
+<div class="inline-flex items-center gap-3 px-3 py-1.5 rounded-lg border border-white/10 bg-surface-container font-mono text-[11px] tracking-[0.26em] uppercase text-secondary">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint animate-pulse"></span>
+<span>SMART FUNDIS / 01 — PROOF OF SKILL</span>
+</div>
+<h1 class="font-display font-black text-5xl sm:text-6xl md:text-7xl tracking-tighter text-on-surface leading-[1.02]">
+            Kazi yako,<br/><span class="text-on-surface/90">sifa yako.</span>
+</h1>
+<p class="text-secondary text-base sm:text-lg max-w-xl font-normal leading-relaxed">
+            Your work, your reputation. Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.
+          </p>
+<div class="flex flex-wrap items-center gap-4 pt-2">
+<a class="h-12 px-8 rounded-full bg-surface-tint text-surface-dim hover:brightness-110 font-label font-bold text-xs tracking-[0.26em] uppercase flex items-center justify-center transition-all" href="#record">
+              Join as a fundi
+            </a>
+<a class="h-12 px-8 rounded-full bg-transparent border border-white/20 text-on-surface hover:border-white/40 font-label font-semibold text-xs tracking-[0.26em] uppercase flex items-center justify-center transition-all" href="#trades">
+              Find a fundi
+            </a>
+</div>
+<div class="pt-6 border-t border-white/10 flex items-center gap-8 text-[11px] font-mono tracking-[0.2em] text-secondary">
+<div class="flex items-center gap-2">
+<span class="text-surface-tint">SYS:</span> TELEMETRY ACTIVE
+            </div>
+<div class="flex items-center gap-2">
+<span class="text-surface-tint">ACCURACY:</span> SUB-SECOND TIMESTAMPS
+            </div>
+</div>
+</div>
+<!-- Right Hero Column: Large Evidence Plate -->
+<div class="lg:col-span-6 relative">
+<div class="relative rounded-lg border border-white/15 bg-surface-container p-2.5 overflow-hidden shadow-2xl">
+<!-- Top Telemetry Ribbon inside Frame -->
+<div class="flex items-center justify-between px-3 py-2 border-b border-white/10 text-[10px] font-mono tracking-[0.2em] text-secondary mb-2">
+<span>EVIDENCE FRAME #482 // NAIROBI SEC</span>
+<span class="flex items-center gap-1.5 text-surface-tint">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+                ACTIVE STREAM
+              </span>
+</div>
+<!-- Evidence Video Frame -->
+<div class="relative w-full aspect-[4/3] rounded-sm overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover filter grayscale contrast-125 brightness-90" data-alt="A desaturated, high-contrast, instrument-grade close-up shot of an electrical technician's hands carefully wiring a UK 13A socket faceplate onto a dark painted wall. Precision tools and cables are visible under crisp clinical illumination with sharp graphite shadows, deep tones, and amber highlights." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYGvdIojXzxn2tsl808NlPr7XiMaI4M7poPFhg-Hao1dl7s4i7bgboraVo1O3vyw3Nm2-4fAsHdX_h_KJMiP6hNJYsF2xPMm8SXi-LuRPe9M9alXTPz9O4y2HQbXOIYT5kvNMlDqqpBYhbgPbxL1SnNaS89UK_VlMgSJqnmdgowe21c9yZt9NgmOtQ3lLRLl709dRZIiClZBbCLTy7NOi9Tuo129x8fysl8dJ7p0XPy8HuHFOYxtLRsbv9oO-6UGzc6Xl1JGInr1s"/>
+<!-- Amber Scan Line Animation -->
+<div class="amber-scan-line absolute left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-surface-tint to-transparent shadow-[0_0_12px_#ef9a57] pointer-events-none"></div>
+<!-- Diamond Step Markers pinned to video coords -->
+<div class="absolute top-[18%] left-[12%] flex items-center gap-2 group cursor-default">
+<div class="w-3 h-3 rotate-45 border border-surface-tint bg-surface-tint/20 flex items-center justify-center">
+<div class="w-1 h-1 bg-surface-tint"></div>
+</div>
+<div class="bg-surface-dim/90 border border-white/15 px-2 py-1 rounded text-[10px] font-mono tracking-[0.2em] text-on-surface whitespace-nowrap">
+                  01 ISOLATE POWER · <span class="text-surface-tint tabular-nums">00:04</span>
+</div>
+</div>
+<div class="absolute top-[42%] right-[14%] flex items-center gap-2 group cursor-default">
+<div class="w-3 h-3 rotate-45 border border-surface-tint bg-surface-tint/20 flex items-center justify-center">
+<div class="w-1 h-1 bg-surface-tint"></div>
+</div>
+<div class="bg-surface-dim/90 border border-white/15 px-2 py-1 rounded text-[10px] font-mono tracking-[0.2em] text-on-surface whitespace-nowrap">
+                  02 STRIP &amp; TERMINATE · <span class="text-surface-tint tabular-nums">00:19</span>
+</div>
+</div>
+<div class="absolute bottom-[36%] left-[24%] flex items-center gap-2 group cursor-default">
+<div class="w-3 h-3 rotate-45 border border-surface-tint bg-surface-tint/20 flex items-center justify-center">
+<div class="w-1 h-1 bg-surface-tint"></div>
+</div>
+<div class="bg-surface-dim/90 border border-white/15 px-2 py-1 rounded text-[10px] font-mono tracking-[0.2em] text-on-surface whitespace-nowrap">
+                  03 EARTH CONTINUITY · <span class="text-surface-tint tabular-nums">00:41</span>
+</div>
+</div>
+<div class="absolute bottom-[16%] right-[10%] flex items-center gap-2 group cursor-default">
+<div class="w-3 h-3 rotate-45 border border-surface-tint bg-surface-tint/20 flex items-center justify-center">
+<div class="w-1 h-1 bg-surface-tint"></div>
+</div>
+<div class="bg-surface-dim/90 border border-white/15 px-2 py-1 rounded text-[10px] font-mono tracking-[0.2em] text-on-surface whitespace-nowrap">
+                  04 FACEPLATE SECURE · <span class="text-surface-tint tabular-nums">00:58</span>
+</div>
+</div>
+</div>
+<!-- Overlapping Dark Card at bottom-left -->
+<div class="absolute -bottom-4 -left-4 bg-surface-dim/95 border border-white/15 p-4 rounded-lg shadow-xl backdrop-blur-md max-w-xs">
+<div class="flex items-center gap-2 mb-2">
+<span class="px-1.5 py-0.5 border border-white/20 rounded font-mono text-[9px] tracking-[0.2em] uppercase text-secondary">EXAMPLE</span>
+<span class="font-mono text-[11px] text-surface-tint flex items-center gap-1">
+                  ✓ Verified by Smart Fundis
+                </span>
+</div>
+<div class="text-xs font-semibold text-on-surface">Electrical · Install a 13A socket</div>
+<div class="text-[10px] font-mono text-secondary mt-1">TELEMETRY ID: SF-ELEC-88219</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 3: 02 — RECORD (Continuous shot & Liveness) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24" id="record">
+<div class="border border-white/10 rounded-lg bg-surface-container p-8 lg:p-12">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+<!-- Left Column: Bounded panel with paper slip -->
+<div class="lg:col-span-5 order-2 lg:order-1">
+<div class="border border-white/10 rounded-lg bg-surface-container-lowest p-6 relative overflow-hidden">
+<div class="text-[10px] font-mono tracking-[0.26em] uppercase text-secondary mb-4 flex justify-between">
+<span>SECURITY ENCLAVE</span>
+<span class="text-surface-tint font-semibold">TOKEN DISPATCH</span>
+</div>
+<!-- Liveness paper slip element -->
+<div class="bg-[#e7e5dc] text-[#121317] p-8 rounded shadow-inner rotate-[-1.5deg] border border-[#d5d2c4] transition-transform hover:rotate-0 duration-200">
+<div class="flex justify-between items-start border-b border-black/10 pb-2 mb-4">
+<span class="font-mono text-[10px] tracking-widest text-black/50 uppercase">AUTH CODE</span>
+<span class="font-mono text-[10px] tracking-widest text-black/50 uppercase">NAIROBI SYNC</span>
+</div>
+<div class="text-center py-4">
+<div class="font-display font-black text-6xl tracking-tight text-black select-none">315</div>
+</div>
+<div class="text-[9px] font-mono tracking-wider text-black/60 pt-2 border-t border-black/10 text-center">
+                  SHOW TO CAMERA FIRST 3 SECONDS
+                </div>
+</div>
+<!-- Telemetry Readout -->
+<div class="mt-6 pt-4 border-t border-white/10 flex items-center justify-between font-mono text-xs text-secondary tracking-[0.2em]">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-surface-tint"></span>
+<span>LIVENESS CODE · 315</span>
+</div>
+<div class="tabular-nums text-on-surface">ISSUED 00:00:03 AGO</div>
+</div>
+</div>
+</div>
+<!-- Right Column: Explanatory Copy -->
+<div class="lg:col-span-7 order-1 lg:order-2 space-y-4">
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">
+              PHASE 02 — RECORD
+            </div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-on-surface">
+              Record your work.
+            </h2>
+<p class="text-secondary text-base lg:text-lg leading-relaxed pt-2 max-w-2xl">
+              Write your code on paper, show it to the camera, then do the job in one continuous shot. A fresh code every time, so the video is really yours, really now.
+            </p>
+<div class="pt-4 grid grid-cols-2 gap-4 max-w-md">
+<div class="border-l border-white/15 pl-4 py-1">
+<div class="font-mono text-xs tracking-[0.2em] text-on-surface font-semibold">NO CUTS</div>
+<div class="text-xs text-secondary mt-0.5">Continuous single-take capture</div>
+</div>
+<div class="border-l border-white/15 pl-4 py-1">
+<div class="font-mono text-xs tracking-[0.2em] text-on-surface font-semibold">ZERO FORGERY</div>
+<div class="text-xs text-secondary mt-0.5">Real-time dynamic seed</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: 03 — CHECK (AI Observation Loupe) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24" id="check">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-center">
+<!-- Left Column: Copy -->
+<div class="lg:col-span-5 space-y-4">
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">
+            PHASE 03 — CHECK
+          </div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-on-surface">
+            AI checks each step.
+          </h2>
+<p class="text-secondary text-base lg:text-lg leading-relaxed pt-2">
+            NVIDIA AI watches every step of the task and marks exactly where it happens in your video.
+          </p>
+<div class="p-4 rounded border border-white/10 bg-surface-container-high/60 max-w-lg mt-4">
+<div class="flex items-center gap-2 text-xs font-mono tracking-[0.2em] text-surface-tint">
+<span class="material-symbols-outlined text-sm" data-icon="adjust">adjust</span>
+<span>HARD SAFETY PROTOCOL</span>
+</div>
+<p class="text-xs text-secondary mt-1">Safety steps are never passed automatically.</p>
+</div>
+</div>
+<!-- Right Column: Wide Still Frame with Magnifying Loupe -->
+<div class="lg:col-span-7">
+<div class="relative border border-white/15 rounded-lg bg-surface-container p-3 overflow-hidden shadow-2xl">
+<div class="relative aspect-video rounded overflow-hidden bg-surface-container-lowest">
+<img class="w-full h-full object-cover filter grayscale contrast-125" data-alt="A wide macro telephoto shot of an electrician's insulated hand securing earthing wire and grounding lugs into a precision metal backbox. Monochromatic slate and graphite environment with ultra-sharp copper highlights, filmed under technical inspection laboratory lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoucI9b0tld7ciXx53UpmL45oWxENbv_pinVZwSX3ZgfEU26kHwyoL92cNp6d0wgT_UU3HaqewW-sSeG1dEKObfq7KxyDt2Q4rc5ltfV4x-_ZvyFBUJfVxOBe2oHZWJltXyZ8iw8gS9yNdFXOsDzeCmsfF3nZp9bIr7Y9q-IySn_64kzLcl1j620MP9feQ8KBOHSqk_hedjyAlIkqrjJZEYmeRJOyQon6G0_nb8JggZXUozRpUTJCiGcn_1M2XYcDpE8jLtyIqS0g"/>
+<!-- Circular Magnifying Loupe Overlay -->
+<div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 md:w-56 md:h-56 rounded-full border-2 border-surface-tint/80 shadow-[0_0_25px_rgba(239,154,87,0.35)] backdrop-contrast-150 backdrop-brightness-110 flex items-center justify-center pointer-events-none">
+<!-- Optical Reticle Lines inside Loupe -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-full h-[1px] bg-surface-tint/20"></div>
+<div class="h-full w-[1px] bg-surface-tint/20 absolute"></div>
+</div>
+<div class="w-8 h-8 rounded-full border border-surface-tint/40 flex items-center justify-center">
+<div class="w-1.5 h-1.5 rounded-full bg-surface-tint animate-ping"></div>
+</div>
+</div>
+<!-- Pinned Lit Step Marker inside/beside the Loupe -->
+<div class="absolute bottom-4 left-4 right-4 md:left-auto md:right-4 bg-surface-dim/95 border border-surface-tint/60 px-3.5 py-2.5 rounded shadow-xl backdrop-blur-md">
+<div class="font-mono text-[11px] tracking-[0.22em] text-surface-tint font-semibold flex items-center gap-1.5">
+<span class="w-2 h-2 rotate-45 bg-surface-tint"></span>
+                  STEP 03 · EARTH CONTINUITY · OBSERVED ✓ · <span class="tabular-nums">00:41</span>
+</div>
+<div class="text-[10px] font-mono text-secondary mt-0.5 tracking-wider">
+                  MODEL CONFIDENCE: 98.4% · RESISTANCE VECTOR NOMINAL
+                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 5: 04 — DECIDE (Instrument-Style Data Table) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24">
+<div class="space-y-6">
+<div class="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-white/10 pb-6">
+<div>
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">PHASE 04 — DECIDE</div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl tracking-tight text-on-surface mt-1">
+              An Expert decides.
+            </h2>
+</div>
+<div class="font-mono text-xs tracking-[0.2em] text-secondary max-w-sm">
+            TELEMETRY MATRIX: 13A SOCKET COMMISSIONING
+          </div>
+</div>
+<!-- Table Container -->
+<div class="border border-white/10 rounded-lg bg-surface-container overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="border-b border-white/10 bg-surface-container-high/40 text-[10px] font-mono tracking-[0.26em] uppercase text-secondary">
+<th class="py-3 px-6">STEP</th>
+<th class="py-3 px-6">AI OBSERVATION</th>
+<th class="py-3 px-6 text-right">TIME</th>
+<th class="py-3 px-6 text-right">STATUS</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/5 font-mono text-xs">
+<!-- Row 1 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="py-4 px-6 text-on-surface font-semibold">Isolate power</td>
+<td class="py-4 px-6 text-secondary">Breaker off, tested dead</td>
+<td class="py-4 px-6 text-right tabular-nums text-secondary">00:04</td>
+<td class="py-4 px-6 text-right text-emerald-400 font-semibold tracking-wide">✓ Observed</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="py-4 px-6 text-on-surface font-semibold">Strip &amp; terminate</td>
+<td class="py-4 px-6 text-secondary">Conductors to L/N/E</td>
+<td class="py-4 px-6 text-right tabular-nums text-secondary">00:19</td>
+<td class="py-4 px-6 text-right text-emerald-400 font-semibold tracking-wide">✓ Observed</td>
+</tr>
+<!-- Row 3 (Needs Review in Amber) -->
+<tr class="bg-surface-tint/5 hover:bg-surface-tint/10 transition-colors">
+<td class="py-4 px-6 text-on-surface font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+                  Earth continuity
+                </td>
+<td class="py-4 px-6 text-secondary">Tester reading unclear</td>
+<td class="py-4 px-6 text-right tabular-nums text-secondary">00:41</td>
+<td class="py-4 px-6 text-right text-surface-tint font-bold tracking-wide">◐ Needs review</td>
+</tr>
+<!-- Row 4 -->
+<tr class="hover:bg-white/[0.02] transition-colors">
+<td class="py-4 px-6 text-on-surface font-semibold">Faceplate secure</td>
+<td class="py-4 px-6 text-secondary">Screws seated, flush</td>
+<td class="py-4 px-6 text-right tabular-nums text-secondary">00:58</td>
+<td class="py-4 px-6 text-right text-emerald-400 font-semibold tracking-wide">✓ Observed</td>
+</tr>
+<!-- Emphasized Final Row -->
+<tr class="bg-surface-container-high/80 border-t-2 border-white/20">
+<td class="py-4 px-6 font-bold tracking-widest text-on-surface">EXPERT DECISION</td>
+<td class="py-4 px-6 text-on-surface font-medium">Approved by an Electrical Expert</td>
+<td class="py-4 px-6 text-right text-secondary">—</td>
+<td class="py-4 px-6 text-right text-surface-tint font-bold tracking-widest">✓ Badge issued</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="text-xs font-mono text-secondary tracking-wide pt-1">
+          Caption: A safety step marked unclear caps the AI at 'needs review'. AI recommends. Experts decide.
+        </p>
+</div>
+</section>
+<!-- SECTION 6: 05 — BADGE (Exploded 3D Layer Stack) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24">
+<div class="border border-white/10 rounded-lg bg-surface-container p-8 lg:p-14">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+<!-- Exploded 3D Layer Visualisation -->
+<div class="lg:col-span-6 relative flex items-center justify-center py-10">
+<div class="relative w-72 h-80 flex flex-col justify-between items-center perspective-[1000px]">
+<!-- Layer 1: VIDEO -->
+<div class="w-64 h-16 rounded border border-white/15 bg-surface-container-high/70 backdrop-blur-md flex items-center justify-between px-5 rotate-[-8deg] translate-y-[-10px] shadow-lg">
+<span class="font-mono text-xs tracking-[0.2em] text-secondary">01 · VIDEO</span>
+<span class="text-[10px] font-mono text-surface-tint">CONTINUOUS</span>
+</div>
+<!-- Layer 2: CODE -->
+<div class="w-64 h-16 rounded border border-white/20 bg-surface-container-high/80 backdrop-blur-md flex items-center justify-between px-5 rotate-[-4deg] translate-y-[-5px] shadow-lg">
+<span class="font-mono text-xs tracking-[0.2em] text-secondary">02 · CODE</span>
+<span class="text-[10px] font-mono text-surface-tint">#315 MATCHED</span>
+</div>
+<!-- Layer 3: AI CHECK -->
+<div class="w-64 h-16 rounded border border-white/25 bg-surface-container-high/90 backdrop-blur-md flex items-center justify-between px-5 rotate-[0deg] shadow-lg">
+<span class="font-mono text-xs tracking-[0.2em] text-secondary">03 · AI CHECK</span>
+<span class="text-[10px] font-mono text-surface-tint">4/4 STEPS OBSERVED</span>
+</div>
+<!-- Layer 4: EXPERT -->
+<div class="w-64 h-16 rounded border border-surface-tint/50 bg-surface-container-highest backdrop-blur-md flex items-center justify-between px-5 rotate-[4deg] translate-y-[5px] shadow-lg">
+<span class="font-mono text-xs tracking-[0.2em] text-surface-tint font-bold">04 · EXPERT</span>
+<span class="text-[10px] font-mono text-surface-tint">HUMAN AUDIT PASS</span>
+</div>
+<!-- Converging Badge Seal -->
+<div class="absolute -bottom-8 w-24 h-24 rounded-full border-2 border-surface-tint bg-surface-dim flex flex-col items-center justify-center shadow-[0_0_30px_rgba(239,154,87,0.3)] z-20">
+<span class="font-mono text-[8px] tracking-[0.2em] uppercase text-surface-tint">EXAMPLE</span>
+<span class="material-symbols-outlined text-2xl text-surface-tint my-0.5" data-icon="adjust">adjust</span>
+<span class="font-mono text-[7px] tracking-widest text-on-surface">SEALED</span>
+</div>
+</div>
+</div>
+<!-- Copy Beside Badge -->
+<div class="lg:col-span-6 space-y-4">
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">
+              SEPARATION 0.00 mm · SEATED · BADGE ISSUED
+            </div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-on-surface">
+              Your work, your badge.
+            </h2>
+<p class="text-secondary text-base lg:text-lg leading-relaxed pt-2">
+              Your video stays private. Only your badge is public, on a profile you can share with any client.
+            </p>
+<div class="pt-4 border-t border-white/10 grid grid-cols-2 gap-6">
+<div>
+<div class="font-mono text-xs text-on-surface font-semibold tracking-wider">PRIVACY GUARANTEE</div>
+<div class="text-xs text-secondary mt-1">Raw unedited video footage is strictly kept encrypted and offline.</div>
+</div>
+<div>
+<div class="font-mono text-xs text-on-surface font-semibold tracking-wider">PORTABLE REPUTATION</div>
+<div class="text-xs text-secondary mt-1">Share via WhatsApp, SMS, or QR on quotes and physical cards.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 7: 06 — TRADES (2 Live, 10 on the bench) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24" id="trades">
+<div class="space-y-8">
+<div class="border-b border-white/10 pb-6 flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+<div>
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">TRADE DIRECTORY</div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl tracking-tight text-on-surface mt-1">
+              Two trades live. Ten on the bench.
+            </h2>
+</div>
+<div class="font-mono text-xs tracking-[0.2em] text-secondary">
+            STATUS: ACTIVE DEPLOYMENT
+          </div>
+</div>
+<!-- 4-Column Grid of 12 Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- LIVE 1: Electrical -->
+<div class="border border-surface-tint/60 rounded-lg bg-surface-container p-6 relative group transition-colors">
+<div class="flex items-center justify-between mb-4">
+<span class="w-8 h-8 rounded border border-surface-tint/40 flex items-center justify-center text-surface-tint">
+<span class="material-symbols-outlined text-lg" data-icon="terminal">terminal</span>
+</span>
+<span class="font-mono text-[10px] tracking-[0.26em] uppercase bg-surface-tint text-surface-dim font-bold px-2 py-0.5 rounded">
+                LIVE
+              </span>
+</div>
+<h3 class="font-display font-bold text-lg text-on-surface">Electrical</h3>
+<p class="text-xs text-secondary mt-1 mb-6">Domestic &amp; industrial installs, sockets, boards, breakers.</p>
+<a class="inline-flex items-center gap-1.5 font-label font-bold text-xs tracking-[0.2em] text-surface-tint uppercase hover:underline" href="#record">
+              Verify now →
+            </a>
+</div>
+<!-- LIVE 2: Hairdressing -->
+<div class="border border-surface-tint/60 rounded-lg bg-surface-container p-6 relative group transition-colors">
+<div class="flex items-center justify-between mb-4">
+<span class="w-8 h-8 rounded border border-surface-tint/40 flex items-center justify-center text-surface-tint">
+<span class="material-symbols-outlined text-lg" data-icon="adjust">adjust</span>
+</span>
+<span class="font-mono text-[10px] tracking-[0.26em] uppercase bg-surface-tint text-surface-dim font-bold px-2 py-0.5 rounded">
+                LIVE
+              </span>
+</div>
+<h3 class="font-display font-bold text-lg text-on-surface">Hairdressing</h3>
+<p class="text-xs text-secondary mt-1 mb-6">Braiding tension, line work, sanitization protocols.</p>
+<a class="inline-flex items-center gap-1.5 font-label font-bold text-xs tracking-[0.2em] text-surface-tint uppercase hover:underline" href="#record">
+              Verify now →
+            </a>
+</div>
+<!-- 10 COMING SOON CARDS (Plain dim readouts, not buttons) -->
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">03</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Plumbing</h3>
+<p class="text-xs text-secondary/50 mt-1">PPR welding, trap seals &amp; pitch.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">04</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Masonry</h3>
+<p class="text-xs text-secondary/50 mt-1">Plumb-line, bed joint consistency.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">05</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Carpentry</h3>
+<p class="text-xs text-secondary/50 mt-1">Mitre joints, square alignment.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">06</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Welding</h3>
+<p class="text-xs text-secondary/50 mt-1">Penetration, seam uniformity.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">07</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Mechanic</h3>
+<p class="text-xs text-secondary/50 mt-1">Torque spec, fluid leak checks.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">08</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Tailoring</h3>
+<p class="text-xs text-secondary/50 mt-1">Pattern match, tensioned seams.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">09</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Beauty</h3>
+<p class="text-xs text-secondary/50 mt-1">Skin hygiene, lash isolation.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">10</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Solar installation</h3>
+<p class="text-xs text-secondary/50 mt-1">Inverter polarity, roof seals.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">11</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Mama fua (laundry)</h3>
+<p class="text-xs text-secondary/50 mt-1">Fabric sorting, care integrity.</p>
+</div>
+<div class="border border-white/10 rounded-lg bg-surface-container-low p-6">
+<div class="flex items-center justify-between mb-4">
+<span class="font-mono text-xs text-secondary/60">12</span>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60">COMING SOON</span>
+</div>
+<h3 class="font-display font-medium text-base text-secondary">Movers</h3>
+<p class="text-xs text-secondary/50 mt-1">Secure wrapping, load balance.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 8: 07 — SCOPE (Prism Diagram & Regulatory Demarcation) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24" id="scope">
+<div class="border border-white/10 rounded-lg bg-surface-container p-8 lg:p-12">
+<div class="space-y-4 max-w-3xl mb-12">
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">VERIFICATION BOUNDARIES</div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl lg:text-5xl tracking-tight text-on-surface">
+            One word, exactly defined.
+          </h2>
+<p class="text-secondary text-base lg:text-lg leading-relaxed pt-2">
+            NITA, KNQA and TVETs certify qualifications. We verify a skill, on video.
+          </p>
+</div>
+<!-- Line Diagram / Ray Prism Representation -->
+<div class="border border-white/10 rounded-lg bg-surface-container-lowest p-6 lg:p-10 mb-8 overflow-x-auto">
+<div class="min-w-[650px] grid grid-cols-12 items-center gap-4">
+<!-- Left Ray: VIDEO -->
+<div class="col-span-3 flex items-center justify-end pr-4">
+<div class="flex items-center gap-3">
+<span class="font-mono text-xs tracking-[0.2em] uppercase text-on-surface font-semibold">VIDEO</span>
+<div class="w-16 h-[2px] bg-gradient-to-r from-secondary to-surface-tint"></div>
+</div>
+</div>
+<!-- Center Prism: SMART FUNDIS -->
+<div class="col-span-3">
+<div class="border border-surface-tint/60 bg-surface-container-high p-4 rounded text-center shadow-[0_0_20px_rgba(239,154,87,0.15)]">
+<div class="font-label font-bold text-xs tracking-[0.26em] uppercase text-surface-tint">
+                  SMART FUNDIS
+                </div>
+<div class="text-[9px] font-mono text-secondary mt-1 tracking-widest">
+                  EVALUATION PRISM
+                </div>
+</div>
+</div>
+<!-- Right Diverging Rays -->
+<div class="col-span-6 space-y-3 pl-4 border-l border-white/10">
+<!-- 5 Solid Rays with checkmarks (Verified) -->
+<div class="space-y-2">
+<div class="text-[10px] font-mono tracking-[0.2em] text-surface-tint uppercase">WHAT WE VERIFY (SOLID RAYS):</div>
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface">
+<span class="text-emerald-400">✓</span> Recorded in the app
+                </div>
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface">
+<span class="text-emerald-400">✓</span> Fresh code on camera
+                </div>
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface">
+<span class="text-emerald-400">✓</span> Every step checked by AI
+                </div>
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface">
+<span class="text-emerald-400">✓</span> Safety never auto-passed
+                </div>
+<div class="flex items-center gap-2 text-xs font-mono text-on-surface">
+<span class="text-emerald-400">✓</span> An Expert in your trade decides
+                </div>
+</div>
+<!-- 3 Dashed faint rays with dim labels (Out of Scope) -->
+<div class="space-y-1.5 pt-3 border-t border-white/10">
+<div class="text-[10px] font-mono tracking-[0.2em] text-secondary/60 uppercase">NOT VERIFIED BY US (DASHED RAYS):</div>
+<div class="flex items-center gap-2 text-xs font-mono text-secondary/40">
+<span class="border-b border-dashed border-secondary/40 w-4 inline-block"></span>
+                  ID or background
+                </div>
+<div class="flex items-center gap-2 text-xs font-mono text-secondary/40">
+<span class="border-b border-dashed border-secondary/40 w-4 inline-block"></span>
+                  Licences or insurance
+                </div>
+<div class="flex items-center gap-2 text-xs font-mono text-secondary/40">
+<span class="border-b border-dashed border-secondary/40 w-4 inline-block"></span>
+                  Formal qualifications
+                </div>
+</div>
+</div>
+</div>
+</div>
+<div class="pt-2">
+<button class="h-12 px-6 rounded-full border border-white/20 text-on-surface hover:border-white/40 font-label font-semibold text-xs tracking-[0.26em] uppercase flex items-center justify-center transition-all">
+            Skilled in your trade? Become a verifier
+          </button>
+</div>
+</div>
+</section>
+<!-- SECTION 9: 08 — NEXT (Horizontal Rail) -->
+<section class="max-w-7xl mx-auto px-6 scroll-mt-24">
+<div class="space-y-6">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-white/10 pb-6">
+<div>
+<div class="font-mono text-xs tracking-[0.26em] uppercase text-surface-tint">FUTURE CAPABILITIES</div>
+<h2 class="font-display font-bold text-3xl sm:text-4xl tracking-tight text-on-surface mt-1">
+              Coming next: earn from your skills
+            </h2>
+</div>
+<a class="font-label font-bold text-xs tracking-[0.2em] text-surface-tint uppercase hover:underline" href="#">
+            See the roadmap →
+          </a>
+</div>
+<!-- Horizontal Rail of 4 Dark Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+<!-- Card 1: Data Co-op (with IMAGE_6 texture reference) -->
+<div class="border border-white/10 rounded-lg bg-surface-container overflow-hidden flex flex-col justify-between group">
+<div class="h-32 w-full relative bg-surface-container-lowest overflow-hidden">
+<img class="w-full h-full object-cover filter grayscale contrast-125 group-hover:scale-105 transition-transform duration-300" data-alt="A top-down photographic flatlay of vintage handcrafted brass and copper trade tools, wire spools, and precision measuring devices laid out on a dark weathered timber workshop bench with moody side light and graphite tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWtnLGnAU3HjevZGwYbg2HT7PQo8hVWtCde0h-dcw2FobrjmvPFaHglGYwVRDNdA7GwjF3av6T09JH9_aZhU0xzQtX_1xt7i10U9zlp9rmKIPixPc3awRqbSD9ztonUiC1jlvjUPnduSvPdkHb-Povw4-DMApgzlosAZotLz_puv6iOB3HFY9FHLBNe6qHWGqa4bhx6go27d0tULvejffOBnO5XLsSzZJQGaY-9jG7e16YWH66p83t9l_bwnhr9-Ojz_r_bTBGhM4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-surface-container to-transparent"></div>
+</div>
+<div class="p-5 flex-1 flex flex-col justify-between">
+<div>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60 block mb-2">COMING SOON</span>
+<h3 class="font-display font-bold text-base text-on-surface leading-snug">
+                  Smart Fundis Data Co-op: earn from your skills, by choice
+                </h3>
+</div>
+<p class="text-xs text-secondary mt-3">Monetize verified training sequences with global robotics research teams.</p>
+</div>
+</div>
+<!-- Card 2: Bookings & M-Pesa -->
+<div class="border border-white/10 rounded-lg bg-surface-container p-6 flex flex-col justify-between">
+<div>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60 block mb-3">COMING SOON</span>
+<h3 class="font-display font-bold text-base text-on-surface leading-snug">
+                Bookings &amp; M-Pesa payments
+              </h3>
+<p class="text-xs text-secondary mt-2">Direct escrow deposits linked straight to completed verified job stages.</p>
+</div>
+<div class="pt-6 border-t border-white/5 font-mono text-[10px] text-secondary">
+              INTEGRATION: DARLINGTON API
+            </div>
+</div>
+<!-- Card 3: Fundi Pro -->
+<div class="border border-white/10 rounded-lg bg-surface-container p-6 flex flex-col justify-between">
+<div>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60 block mb-3">COMING SOON</span>
+<h3 class="font-display font-bold text-base text-on-surface leading-snug">
+                Fundi Pro
+              </h3>
+<p class="text-xs text-secondary mt-2">Multi-crew telemetry, enterprise insurance discounts, and bulk equipment leasing.</p>
+</div>
+<div class="pt-6 border-t border-white/5 font-mono text-[10px] text-secondary">
+              TIER: FLEET DISPATCH
+            </div>
+</div>
+<!-- Card 4: Training Partners -->
+<div class="border border-white/10 rounded-lg bg-surface-container p-6 flex flex-col justify-between">
+<div>
+<span class="font-mono text-[9px] tracking-[0.2em] uppercase text-secondary/60 block mb-3">COMING SOON</span>
+<h3 class="font-display font-bold text-base text-on-surface leading-snug">
+                Training partners
+              </h3>
+<p class="text-xs text-secondary mt-2">Direct placement pathways with leading industrial and commercial contractors.</p>
+</div>
+<div class="pt-6 border-t border-white/5 font-mono text-[10px] text-secondary">
+              NETWORK: TVET SYNERGY
+            </div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 10: 09 — SEAL & INSTRUMENT FOOTER -->
+<section class="max-w-7xl mx-auto px-6 pt-10">
+<!-- Closing CTA -->
+<div class="border border-white/15 rounded-lg bg-gradient-to-b from-surface-container-high to-surface-container p-10 lg:p-16 text-center space-y-6">
+<h2 class="font-display font-black text-4xl sm:text-6xl tracking-tight text-on-surface">
+          Show your work.
+        </h2>
+<p class="text-secondary max-w-xl mx-auto text-base">
+          Join thousands of skilled Kenyan artisans verifying their mastery with real video telemetry.
+        </p>
+<div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+<a class="h-12 px-8 rounded-full bg-surface-tint text-surface-dim hover:brightness-110 font-label font-bold text-xs tracking-[0.26em] uppercase flex items-center justify-center transition-all" href="#record">
+            Join as a fundi
+          </a>
+<a class="h-12 px-8 rounded-full bg-transparent border border-white/20 text-on-surface hover:border-white/40 font-label font-semibold text-xs tracking-[0.26em] uppercase flex items-center justify-center transition-all" href="#trades">
+            Find a fundi
+          </a>
+</div>
+</div>
+</section>
+</main>
+<!-- Technical Instrument Footer adhering to Shared Components JSON -->
+<footer class="w-full relative bottom-0 border-t border-outline-variant/30 bg-surface-container-lowest text-on-surface mt-28">
+<div class="w-full px-6 pt-16 pb-12 max-w-7xl mx-auto flex flex-col gap-10">
+<!-- 4 Link Columns -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 font-label text-xs">
+<div>
+<div class="font-bold tracking-[0.26em] uppercase text-surface-tint mb-4">FOR FUNDIS</div>
+<ul class="space-y-2.5 text-secondary">
+<li><a class="hover:text-surface-tint transition-colors" href="#">Start verification</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Supported trades</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Data Co-op</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Fundi app download</a></li>
+</ul>
+</div>
+<div>
+<div class="font-bold tracking-[0.26em] uppercase text-surface-tint mb-4">FOR CLIENTS</div>
+<ul class="space-y-2.5 text-secondary">
+<li><a class="hover:text-surface-tint transition-colors" href="#">Verify badge scan</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Find nearby fundi</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Hire for enterprise</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Safety guarantees</a></li>
+</ul>
+</div>
+<div>
+<div class="font-bold tracking-[0.26em] uppercase text-surface-tint mb-4">FOR EXPERTS</div>
+<ul class="space-y-2.5 text-secondary">
+<li><a class="hover:text-surface-tint transition-colors" href="#">Become a verifier</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Reviewer guidelines</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Audit compensation</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Consortium login</a></li>
+</ul>
+</div>
+<div>
+<div class="font-bold tracking-[0.26em] uppercase text-surface-tint mb-4">ABOUT</div>
+<ul class="space-y-2.5 text-secondary">
+<li><a class="hover:text-surface-tint transition-colors" href="#">Evidence spec v4.2</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">NVIDIA AI telemetry</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Nairobi operations</a></li>
+<li><a class="hover:text-surface-tint transition-colors" href="#">Contact dispatch</a></li>
+</ul>
+</div>
+</div>
+<!-- Technical Links Bar from Shared Components JSON -->
+<div class="border-y border-outline-variant/30 py-4 flex flex-wrap items-center justify-between gap-4 font-label tracking-[0.26em] text-xs uppercase">
+<div class="flex flex-wrap gap-6 text-secondary">
+<a class="hover:text-surface-tint transition-colors" href="#">SECURITY CLEARANCE</a>
+<a class="hover:text-surface-tint transition-colors" href="#">DATA SCHEMATIC</a>
+<a class="hover:text-surface-tint transition-colors" href="#">EVIDENCE SPEC v4.2</a>
+<a class="hover:text-surface-tint transition-colors" href="#">TRADE INDEX</a>
+</div>
+<div class="text-surface-tint font-semibold flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+          SYSTEM STATUS: NOMINAL
+        </div>
+</div>
+<!-- Huge Outlined Brand Wordmark Spanning Full Width -->
+<div class="w-full select-none overflow-hidden py-4 text-center">
+<span class="font-display font-black text-5xl sm:text-7xl md:text-9xl tracking-tighter text-outline-stroke block uppercase">
+          SMART FUNDIS
+        </span>
+</div>
+<!-- Bottom Row Legal & Distinction Copy -->
+<div class="flex flex-col md:flex-row items-center justify-between gap-4 text-secondary text-xs font-mono tracking-wider pt-2">
+<div>
+          SYS.REF 2025 // SMART FUNDIS KENYA — KAZI YAKO, SIFA YAKO. ALL SPECIFICATIONS TELEMETERED.
+        </div>
+<div class="text-secondary/70">
+          We verify skills. NITA, KNQA and TVETs certify. · © 2026 Smart Fundis
+        </div>
+</div>
+</div>
+</footer>
+</body></html>

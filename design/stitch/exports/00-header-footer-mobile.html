@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Fundis - Shared Components Reference Screen</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Plus Jakarta Sans Font -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS v3 -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Tailwind Configuration matching the Design System -->
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-primary-fixed-variant": "#005232",
+            "on-error-container": "#93000a",
+            "secondary-fixed-dim": "#ffb77d",
+            "on-tertiary": "#ffffff",
+            "on-secondary-fixed-variant": "#6e3900",
+            "surface-tint": "#206b48",
+            "on-secondary-container": "#663500",
+            "surface-container-low": "#f5f3ee",
+            "secondary-fixed": "#ffdcc3",
+            "surface": "#fbf9f4",
+            "primary-container": "#0b5d3b",
+            "outline-variant": "#bfc9c0",
+            "tertiary-container": "#823b3d",
+            "surface-bright": "#fbf9f4",
+            "on-secondary": "#ffffff",
+            "tertiary-fixed": "#ffdad9",
+            "inverse-surface": "#30312e",
+            "outline": "#707a72",
+            "on-tertiary-fixed": "#3c060c",
+            "inverse-primary": "#8dd6ab",
+            "secondary-container": "#fc9430",
+            "tertiary": "#652528",
+            "surface-variant": "#e4e2dd",
+            "on-tertiary-container": "#ffafaf",
+            "primary-fixed": "#a8f3c6",
+            "on-surface-variant": "#404942",
+            "on-primary-fixed": "#002111",
+            "inverse-on-surface": "#f2f1ec",
+            "surface-dim": "#dbdad5",
+            "surface-container-lowest": "#ffffff",
+            "tertiary-fixed-dim": "#ffb3b2",
+            "secondary": "#914d00",
+            "primary": "#004429",
+            "on-error": "#ffffff",
+            "on-secondary-fixed": "#2f1500",
+            "background": "#fbf9f4",
+            "on-tertiary-fixed-variant": "#753133",
+            "primary-fixed-dim": "#8dd6ab",
+            "on-primary-container": "#8ad4a8",
+            "on-background": "#1b1c19",
+            "surface-container-highest": "#e4e2dd",
+            "on-primary": "#ffffff",
+            "error-container": "#ffdad6",
+            "error": "#ba1a1a",
+            "surface-container": "#f0eee9",
+            "surface-container-high": "#eae8e3",
+            "on-surface": "#1b1c19"
+          },
+          borderRadius: {
+            "DEFAULT": "0.25rem",
+            "lg": "0.5rem",
+            "xl": "0.75rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            headline: ["Plus Jakarta Sans", "sans-serif"],
+            display: ["Plus Jakarta Sans", "sans-serif"],
+            body: ["Plus Jakarta Sans", "sans-serif"],
+            label: ["Plus Jakarta Sans", "sans-serif"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+  </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface font-body antialiased min-h-screen flex flex-col items-center">
+<!-- Mobile Reference Frame Wrapper (Standard 360px viewport demonstration, expandable on desktop) -->
+<div class="w-full max-w-[420px] bg-surface-container-lowest min-h-screen flex flex-col shadow-2xl relative border-x border-outline-variant">
+<!-- Screen Meta Bar / Info Header for the Reference Canvas -->
+<div class="bg-surface-container-high px-4 py-2 border-b border-outline-variant flex justify-between items-center text-xs text-on-surface-variant font-medium">
+<span>Shared UI Tokens Reference</span>
+<span class="bg-surface-container-lowest px-2 py-0.5 rounded border border-outline-variant font-bold text-primary">Viewport: 360px</span>
+</div>
+<!-- SECTION 1: HEADER (CLOSED STATE) -->
+<!-- Shared TopAppBar component structure based on JSON and Design System specs -->
+<header class="sticky top-0 z-40 bg-surface-container-lowest border-b border-outline-variant h-16 w-full px-4 flex justify-between items-center">
+<!-- Left: Logo & Shield Checkmark -->
+<a class="flex items-center gap-2 text-primary font-headline font-bold text-xl tracking-tight focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="verified_user">verified_user</span>
+<span class="text-on-surface">Smart Fundis</span>
+</a>
+<!-- Right: Compact CTA Button & 48px Touch Hamburger Target -->
+<div class="flex items-center gap-2">
+<a class="h-10 px-3 bg-secondary-container text-on-secondary-container hover:opacity-95 font-bold text-xs rounded-xl flex items-center justify-center transition-transform active:scale-95 border border-outline-variant/30 focus:outline-none focus:ring-2 focus:ring-primary" href="#join">
+          Join as a fundi
+        </a>
+<!-- 48px min tap target hamburger menu trigger -->
+<button aria-label="Open navigation menu" class="w-12 h-12 flex items-center justify-center rounded-xl text-primary hover:bg-surface-container-low transition-colors active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="menu">menu</span>
+</button>
+</div>
+</header>
+<!-- SECTION 2: SPACER / WORKSPACE PLACEHOLDER -->
+<section class="bg-surface-container-low px-4 py-8 border-b border-outline-variant">
+<div class="p-6 rounded-2xl border border-outline-variant bg-surface-container-lowest text-center space-y-3">
+<div class="inline-flex p-3 rounded-full bg-surface-container text-primary mb-1">
+<span class="material-symbols-outlined text-2xl" data-icon="dashboard">dashboard</span>
+</div>
+<h2 class="font-headline font-bold text-base text-on-surface">
+          Page content (body preview / workspace placeholder)
+        </h2>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+          Demonstrates the fixed sticky position of the standard navigation bar above page-level fundi pathways, verifier queues, and client workflows.
+        </p>
+<div class="pt-2">
+<span class="inline-block px-3 py-1 bg-surface-container text-outline text-xs rounded-full font-medium">
+            360px Tap Flow Architecture
+          </span>
+</div>
+</div>
+</section>
+<!-- SECTION 3: HEADER (OPEN STATE / SIDE SHEET REFERENCE FRAME) -->
+<!-- Reference presentation showing mobile menu drawer fully expanded -->
+<section class="bg-surface-container p-4 border-b border-outline-variant">
+<div class="mb-3 px-1 flex items-center justify-between">
+<h3 class="font-headline font-bold text-sm text-primary uppercase tracking-wider">Drawer: Open State Reference</h3>
+<span class="text-xs bg-primary-container text-on-primary-container px-2 py-0.5 rounded-full font-bold">Active Overlay</span>
+</div>
+<!-- Simulated Full-Height Mobile Drawer container -->
+<div class="w-full bg-surface-container-lowest rounded-2xl border border-outline-variant shadow-lg overflow-hidden flex flex-col">
+<!-- Drawer Header -->
+<div class="h-16 px-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-lowest">
+<div class="flex items-center gap-2 font-headline font-bold text-xl text-primary">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="verified_user">verified_user</span>
+<span class="text-on-surface">Smart Fundis</span>
+</div>
+<!-- 48px close touch target -->
+<button aria-label="Close menu drawer" class="w-12 h-12 flex items-center justify-center rounded-xl text-on-surface-variant hover:bg-surface-container-low active:scale-95 transition-colors focus:outline-none focus:ring-2 focus:ring-primary" type="button">
+<span class="material-symbols-outlined text-2xl" data-icon="close">close</span>
+</button>
+</div>
+<!-- Drawer Content Navigation -->
+<div class="p-4 flex flex-col">
+<!-- Primary Navigation Rows (min 48px height) -->
+<nav class="flex flex-col">
+<a class="min-h-[48px] px-3 py-2 flex items-center text-on-surface font-headline font-bold text-base hover:bg-surface-container-low rounded-xl transition-colors" href="#how-it-works">
+              How it works
+            </a>
+<a class="min-h-[48px] px-3 py-2 flex items-center text-on-surface font-headline font-bold text-base hover:bg-surface-container-low rounded-xl transition-colors" href="#trades">
+              Trades
+            </a>
+<a class="min-h-[48px] px-3 py-2 flex items-center text-on-surface font-headline font-bold text-base hover:bg-surface-container-low rounded-xl transition-colors" href="#find-fundi">
+              Find a fundi
+            </a>
+</nav>
+<!-- Thin Divider -->
+<hr class="my-3 border-outline-variant"/>
+<!-- Coming Soon Category Heading -->
+<div class="px-3 pt-1 pb-2">
+<span class="text-xs font-bold uppercase tracking-wider text-outline">Coming soon</span>
+</div>
+<!-- Items with clean neutral pill badge "Coming soon" -->
+<div class="flex flex-col">
+<!-- Data Co-op -->
+<div class="min-h-[48px] px-3 py-2 flex items-center justify-between rounded-xl hover:bg-surface-container-low transition-colors">
+<span class="text-on-surface text-base font-medium">Data Co-op</span>
+<span class="px-2.5 py-1 bg-surface-container text-on-surface-variant text-xs rounded-full font-medium">
+                Coming soon
+              </span>
+</div>
+<!-- Bookings & M-Pesa -->
+<div class="min-h-[48px] px-3 py-2 flex items-center justify-between rounded-xl hover:bg-surface-container-low transition-colors">
+<span class="text-on-surface text-base font-medium">Bookings &amp; M-Pesa</span>
+<span class="px-2.5 py-1 bg-surface-container text-on-surface-variant text-xs rounded-full font-medium">
+                Coming soon
+              </span>
+</div>
+<!-- Fundi Pro -->
+<div class="min-h-[48px] px-3 py-2 flex items-center justify-between rounded-xl hover:bg-surface-container-low transition-colors">
+<span class="text-on-surface text-base font-medium">Fundi Pro</span>
+<span class="px-2.5 py-1 bg-surface-container text-on-surface-variant text-xs rounded-full font-medium">
+                Coming soon
+              </span>
+</div>
+<!-- Training partners -->
+<div class="min-h-[48px] px-3 py-2 flex items-center justify-between rounded-xl hover:bg-surface-container-low transition-colors">
+<span class="text-on-surface text-base font-medium">Training partners</span>
+<span class="px-2.5 py-1 bg-surface-container text-on-surface-variant text-xs rounded-full font-medium">
+                Coming soon
+              </span>
+</div>
+</div>
+<!-- Thin Divider -->
+<hr class="my-3 border-outline-variant"/>
+<!-- Sign in row (min 48px height) -->
+<a class="min-h-[48px] px-3 py-2 flex items-center text-primary font-headline font-bold text-base hover:bg-surface-container-low rounded-xl transition-colors focus:outline-none focus:ring-2 focus:ring-primary" href="#signin">
+            Sign in
+          </a>
+<!-- Full-width Primary CTA Button (min 48px height, dark text on accent) -->
+<div class="mt-4 pt-1">
+<button class="w-full min-h-[48px] px-4 py-3 bg-secondary-container text-on-secondary-container font-headline font-bold text-base rounded-xl flex items-center justify-center transition-transform active:scale-95 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm" type="button">
+              Join as a fundi
+            </button>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 4: FOOTER (SAND-TINTED NEUTRAL BACKGROUND) -->
+<!-- Sand-tinted neutral surface (#F5F2EB / warm earthy stone surface) -->
+<footer class="bg-surface-container-low text-on-surface-variant border-t border-outline-variant px-5 pt-10 pb-8 flex flex-col">
+<!-- Brand Anchor in Footer -->
+<div class="mb-8">
+<div class="flex items-center gap-2 font-headline font-bold text-xl text-primary mb-2">
+<span class="material-symbols-outlined text-primary text-2xl" data-icon="verified_user">verified_user</span>
+<span class="text-on-surface">Smart Fundis</span>
+</div>
+<p class="text-sm text-on-surface-variant leading-relaxed">
+          Kenya's decentralized verification network for skilled, trustworthy tradespeople.
+        </p>
+</div>
+<!-- 4 Stacked Link Groups with >= 48px tap targets -->
+<div class="flex flex-col gap-6">
+<!-- Group 1: For fundis -->
+<div class="flex flex-col">
+<h4 class="font-headline font-bold text-base text-on-surface mb-1">For fundis</h4>
+<nav class="flex flex-col">
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#join">
+              Join as a fundi
+            </a>
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#verification-process">
+              How verification works
+            </a>
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#fundi-privacy">
+              Your privacy
+            </a>
+</nav>
+</div>
+<!-- Group 2: For clients -->
+<div class="flex flex-col">
+<h4 class="font-headline font-bold text-base text-on-surface mb-1">For clients</h4>
+<nav class="flex flex-col">
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#find">
+              Find a fundi
+            </a>
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#meaning-verified">
+              What 'verified' means
+            </a>
+</nav>
+</div>
+<!-- Group 3: For Experts -->
+<div class="flex flex-col">
+<h4 class="font-headline font-bold text-base text-on-surface mb-1">For Experts</h4>
+<nav class="flex flex-col">
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#verifier-apply">
+              Become a verifier
+            </a>
+</nav>
+</div>
+<!-- Group 4: About -->
+<div class="flex flex-col">
+<h4 class="font-headline font-bold text-base text-on-surface mb-1">About</h4>
+<nav class="flex flex-col">
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#responsible-ai">
+              Responsible AI
+            </a>
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="#roadmap">
+              Roadmap
+            </a>
+<a class="min-h-[48px] flex items-center text-on-surface-variant hover:text-primary font-medium text-base transition-colors focus:outline-none focus:ring-2 focus:ring-primary rounded" href="mailto:team@example.com">
+              Contact: team@example.com
+            </a>
+</nav>
+</div>
+</div>
+<!-- Bottom Divider & Compliance Statement -->
+<div class="mt-8 pt-6 border-t border-outline-variant flex flex-col gap-2">
+<p class="text-sm font-medium text-on-surface leading-normal">
+          We verify skills. NITA, KNQA and TVETs certify.
+        </p>
+<p class="text-xs text-outline leading-relaxed">
+          © 2026 Smart Fundis. All rights reserved.
+        </p>
+</div>
+</footer>
+</div>
+</body></html>

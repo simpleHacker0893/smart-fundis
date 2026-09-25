@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Sign in</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              DEFAULT: '#050609',
+              900: '#090b10',
+              800: '#10131b',
+              700: '#171b26',
+              600: '#222838'
+            },
+            instrument: {
+              amber: '#ef9a57',
+              dimAmber: 'rgba(239, 154, 87, 0.15)',
+              borderAmber: 'rgba(239, 154, 87, 0.35)'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    .dot-pattern {
+      background-image: radial-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+      background-size: 16px 16px;
+    }
+    .reticle-corner {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      border-color: rgba(239, 154, 87, 0.7);
+      pointer-events: none;
+    }
+    .reticle-tl { top: -1px; left: -1px; border-top: 1.5px solid; border-left: 1.5px solid; }
+    .reticle-tr { top: -1px; right: -1px; border-top: 1.5px solid; border-right: 1.5px solid; }
+    .reticle-bl { bottom: -1px; left: -1px; border-bottom: 1.5px solid; border-left: 1.5px solid; }
+    .reticle-br { bottom: -1px; right: -1px; border-bottom: 1.5px solid; border-right: 1.5px solid; }
+  </style>
+</head>
+<body class="min-h-screen bg-graphite flex flex-col justify-between selection:bg-instrument-amber selection:text-graphite">
+
+  <!-- TOP HEADER (Mobile 48px sticky, Instrument Shell: Verified icon, SMART FUNDIS, Menu, NO JOIN pill) -->
+  <header class="sticky top-0 z-50 w-full h-12 bg-graphite/95 backdrop-blur-md border-b border-white/10 px-4 flex items-center justify-between">
+    <a href="#" class="flex items-center gap-2 group">
+      <!-- Icon Tile -->
+      <div class="w-7 h-7 rounded border border-instrument-borderAmber bg-instrument-dimAmber flex items-center justify-center text-instrument-amber shadow-sm">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          <path d="m9 12 2 2 4-4"/>
+        </svg>
+      </div>
+      <!-- Wordmark -->
+      <span class="font-mono text-xs font-bold tracking-[0.24em] text-white/95 uppercase group-hover:text-instrument-amber transition-colors">
+        SMART FUNDIS
+      </span>
+    </a>
+
+    <!-- Hamburger / Menu Icon -->
+    <button class="w-8 h-8 rounded flex items-center justify-center text-white/70 hover:text-white hover:bg-white/5 active:scale-95 transition-all" aria-label="Menu">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+  </header>
+
+  <!-- MAIN AUTH CONTAINER -->
+  <main class="relative flex-1 flex flex-col items-center justify-center px-4 py-8 w-full max-w-[360px] mx-auto overflow-hidden">
+    
+    <!-- Faint Full-Bleed Grayscale Photo Background behind Dark Gradient -->
+    <div class="absolute inset-0 z-0 pointer-events-none overflow-hidden">
+      <img 
+        src="https://lh3.googleusercontent.com/aida-public/AB6AXuD1ll-EIggmDLuG43EdWDhs9bagV4L_gca3aBKZxUOWMbxfxkU8MjLz1N-b4Arssyjy2k6Bnb8nYKs0DpZUpd9vmYXCfQVA9G1HdC6eyKqxObs4HYPNHIZX2VSqudV4Ko32NK2pH06APaYp2e_hmx19nn1Rf20f9ia_f4obcWkZqb3sL64fKTuFs5aalMwYBDxfEO1l7Mx-7KNmDu_otkAi2pKKC2GB6-7OBh3LdbbzlM-SpDpu37K-eMoO3iPzHn-7flhJMBGJ7zU" 
+        alt="Hands and tools on workshop workbench" 
+        class="w-full h-full object-cover object-center filter grayscale contrast-125 opacity-20 transform scale-105"
+      />
+      <!-- Layered Vignette and Gradient Overlay -->
+      <div class="absolute inset-0 bg-gradient-to-b from-[#050609]/90 via-[#050609]/80 to-[#050609] dot-pattern"></div>
+    </div>
+
+    <!-- Centered Instrument Panel -->
+    <div class="relative z-10 w-full bg-graphite-900/90 backdrop-blur-xl border border-white/10 p-5 rounded-none shadow-2xl">
+      <!-- Reticle corner brackets -->
+      <div class="reticle-corner reticle-tl"></div>
+      <div class="reticle-corner reticle-tr"></div>
+      <div class="reticle-corner reticle-bl"></div>
+      <div class="reticle-corner reticle-br"></div>
+
+      <!-- Panel Header: Pulsing Dot & Readout -->
+      <div class="flex items-center justify-between mb-4 pb-2 border-b border-white/[0.06]">
+        <div class="flex items-center gap-2">
+          <span class="relative flex h-2 w-2">
+            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-instrument-amber opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-instrument-amber"></span>
+          </span>
+          <span class="font-mono text-[10px] font-semibold tracking-[0.24em] text-instrument-amber uppercase">
+            SESSION / SIGN IN
+          </span>
+        </div>
+        <span class="font-mono text-[9px] tracking-widest text-white/30 uppercase">
+          SECURE ENCLAVE
+        </span>
+      </div>
+
+      <!-- Tight Extra-Bold Headline -->
+      <h1 class="text-2xl font-extrabold text-white tracking-tight mb-6">
+        Welcome back.
+      </h1>
+
+      <!-- Outlined 48px Pill: Continue with Google -->
+      <button 
+        type="button"
+        class="w-full h-12 px-4 rounded-full border border-white/20 bg-white/[0.03] hover:bg-white/[0.08] active:scale-[0.98] transition-all flex items-center justify-center gap-3 text-sm font-semibold text-white/90 group"
+      >
+        <!-- Google G mark -->
+        <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+          <path fill="#EA4335" d="M12 5c1.6 0 3 .6 4.1 1.6l3.1-3.1C17.3 1.7 14.8 1 12 1 7.4 1 3.5 3.6 1.6 7.4l3.7 2.9C6.2 7.3 8.8 5 12 5z"/>
+          <path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.6h6.5c-.3 1.5-1.2 2.8-2.5 3.7l3.8 3c2.2-2.1 3.7-5.1 3.7-9z"/>
+          <path fill="#FBBC05" d="M5.3 14.7c-.2-.7-.4-1.5-.4-2.4s.2-1.7.4-2.4L1.6 7c-.8 1.6-1.3 3.4-1.3 5.3s.5 3.7 1.3 5.3l3.7-2.9z"/>
+          <path fill="#34A853" d="M12 23c3.2 0 6-1.1 8-3l-3.8-3c-1.1.7-2.5 1.2-4.2 1.2-3.2 0-5.8-2.3-6.7-5.3L1.6 16c1.9 3.8 5.8 7 10.4 7z"/>
+        </svg>
+        <span class="tracking-tight text-xs font-medium text-white/90 group-hover:text-white">
+          Continue with Google
+        </span>
+      </button>
+
+      <!-- Hairline Divider with Mono "OR" -->
+      <div class="relative my-5 flex items-center justify-center">
+        <div class="absolute inset-0 flex items-center">
+          <div class="w-full border-t border-white/10"></div>
+        </div>
+        <div class="relative bg-graphite-900 px-3">
+          <span class="font-mono text-[10px] tracking-[0.25em] text-white/40 uppercase">OR</span>
+        </div>
+      </div>
+
+      <!-- Email Input Form -->
+      <form class="space-y-4" onsubmit="event.preventDefault();">
+        <div>
+          <label for="email" class="block font-mono text-[10px] tracking-[0.22em] text-white/60 uppercase mb-1.5">
+            EMAIL ADDRESS
+          </label>
+          <div class="relative">
+            <input 
+              type="email" 
+              id="email" 
+              placeholder="e.g. fundi@smartfundis.ke" 
+              class="w-full h-12 bg-graphite-800 border border-white/15 focus:border-instrument-amber focus:ring-1 focus:ring-instrument-amber px-3.5 text-xs text-white placeholder-white/25 outline-none rounded-none transition-all font-mono"
+              required
+            />
+            <div class="absolute right-3 top-3.5 text-white/20 pointer-events-none">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M16 12a4 4 0 10-8 0 4 4 0 008 0zm0 0v1.5a2.5 2.5 0 005 0V12a9 9 0 10-9 9m4.5-1.206a8.959 8.959 0 01-4.5 1.207" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Full-width Accent Pill "Continue" -->
+        <button 
+          type="submit"
+          class="w-full h-12 rounded-full bg-instrument-amber hover:bg-[#f2a668] active:scale-[0.98] text-graphite font-bold text-xs tracking-wider uppercase flex items-center justify-center gap-1.5 transition-all shadow-[0_0_20px_rgba(239,154,87,0.25)]"
+        >
+          <span>Continue</span>
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.4">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
+          </svg>
+        </button>
+
+        <!-- Dim Helper Text -->
+        <p class="text-center text-[11px] text-white/40 tracking-tight">
+          We'll email you a sign-in code.
+        </p>
+      </form>
+
+      <!-- Auth Routing Links -->
+      <div class="mt-6 pt-5 border-t border-white/[0.08] space-y-2.5 text-center">
+        <div>
+          <a href="#" class="text-xs text-white/70 hover:text-white transition-colors group">
+            New here? <span class="text-instrument-amber font-semibold group-hover:underline underline-offset-4">Join as a fundi</span>
+          </a>
+        </div>
+        <div>
+          <a href="#" class="text-[11px] text-white/40 hover:text-white/70 transition-colors block leading-tight">
+            Expert or Admin? <span class="text-white/60 hover:text-white transition-colors">Use the email you were invited with.</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status Metadata Badge -->
+    <div class="mt-4 flex items-center gap-2">
+      <span class="w-1.5 h-1.5 rounded-full bg-white/20"></span>
+      <span class="font-mono text-[9px] tracking-[0.2em] text-white/30 uppercase">
+        SYS.AUTH // NO PASSWORD REQUIRED
+      </span>
+    </div>
+  </main>
+
+  <!-- COMPACT ONE-LINE FOOTER (Auth pages have NO bottom tab bar) -->
+  <footer class="w-full py-4 px-4 border-t border-white/10 bg-graphite text-center z-10">
+    <p class="font-mono text-[9px] tracking-[0.14em] text-white/40 uppercase leading-relaxed">
+      We verify skills. NITA, KNQA and TVETs certify. · © 2026 Smart Fundis
+    </p>
+  </footer>
+
+</body>
+</html>
