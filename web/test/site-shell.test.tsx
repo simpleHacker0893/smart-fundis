@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -192,6 +192,12 @@ describe("site footer (Stitch landing v3)", () => {
 
   it("links only to real pages and real landing sections", async () => {
     await expectOnlyRealDestinations(await renderFooter(), "the footer");
+  });
+
+  it("points Responsible AI at /responsible-ai (#26)", async () => {
+    const markup = await renderFooter();
+    expect(tagWith(markup, "href", "/responsible-ai")).toBeTruthy();
+    expect(hrefs(markup)).not.toContain("/#telemetry");
   });
 
   it("links to each destination at most once", async () => {

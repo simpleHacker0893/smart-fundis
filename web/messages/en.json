@@ -45,7 +45,8 @@
     "becomeVerifier": "Become a verifier",
     "responsibleAi": "Responsible AI",
     "roadmap": "Roadmap",
-    "company": "Company"
+    "company": "Company",
+    "howVerdictMade": "How a verdict is made"
   },
   "Glyphs": {
     "pass": "✓",
@@ -648,6 +649,247 @@
         "label": "Visibility",
         "body": "Hide or show your public profile."
       }
+    }
+  },
+  "ResponsibleAi": {
+    "meta": {
+      "title": "Responsible AI · Smart Fundis",
+      "description": "How our AI checks a video, what it is never allowed to decide, and how we test it."
+    },
+    "comingSoon": "Coming soon",
+    "example": "Example",
+    "hero": {
+      "label": "Smart Fundis / Responsible AI",
+      "title": "AI recommends. Experts decide.",
+      "body": "How our AI checks a video, what it is never allowed to decide, and how we test it.",
+      "frame": "Evidence frame: EF-3104",
+      "frameTag": "Example · Electrical",
+      "imageAlt": "Hands at an open junction box, one holding up a blank paper code to the camera",
+      "markers": {
+        "1": "01 Code on camera · 00:02",
+        "2": "02 Isolate supply · Safety · 00:09",
+        "3": "03 Terminate · 00:41"
+      },
+      "ledger": {
+        "safetyLabel": "Safety step",
+        "safety": "Unclear",
+        "verdictLabel": "AI verdict",
+        "verdict": "Needs review — a recommendation",
+        "decisionLabel": "Decision",
+        "decision": "Waiting for an Expert"
+      }
+    },
+    "pipeline": {
+      "label": "01 — How a verdict is made",
+      "title": "From video to Badge. One human decision.",
+      "caption": "Every AI result — pass, needs review or fail — goes to an Expert. No Badge is ever issued by AI alone.",
+      "stages": {
+        "guard": {
+          "tag": "Guard",
+          "title": "Is the video usable?",
+          "body": "10–90 seconds, at least 360p, bright enough. If not, you get a clear reason and record again."
+        },
+        "observe": {
+          "tag": "Observe · NVIDIA Cosmos Reason 2",
+          "title": "Watches every step.",
+          "body": "Runs on Smart Fundis' GPU. For each Rubric step it answers yes, no or unclear, with a line of evidence and the moment it happens. It also reads your paper code without being told what it should be."
+        },
+        "assess": {
+          "tag": "Assess · NVIDIA Nemotron",
+          "title": "Drafts a Verdict.",
+          "body": "Reads the observations as text, never your video, and drafts pass, needs review or fail, with plain-language feedback for you."
+        },
+        "rules": {
+          "tag": "Rules · Plain code",
+          "title": "Caps any doubt.",
+          "body": "Checks the paper code and every safety step. It can lower a Verdict. It can never raise one."
+        },
+        "expert": {
+          "tag": "Expert",
+          "title": "A person decides.",
+          "body": "A skilled Expert in your trade watches the video with the AI's notes and approves, asks for a reshoot, or rejects."
+        },
+        "badge": {
+          "tag": "Badge",
+          "title": "Only after approval.",
+          "body": "Verified by Smart Fundis — Trade: Task · date."
+        }
+      }
+    },
+    "never": {
+      "label": "02 — What the AI never decides",
+      "title": "A recommendation, not a decision.",
+      "does": "The AI does",
+      "doesNot": "The AI never",
+      "dash": "—",
+      "doesItems": {
+        "1": "Marks each Rubric step yes, no or unclear, with a timestamp",
+        "2": "Reads the paper code on camera",
+        "3": "Drafts feedback for you",
+        "4": "Recommends pass, needs review or fail"
+      },
+      "neverItems": {
+        "1": "Issues a Badge",
+        "2": "Approves or rejects you",
+        "3": "Passes a safety step it is unsure about",
+        "4": "Decides an appeal",
+        "5": "Receives your name, phone or email (it gets the video, the Task and the Rubric only)"
+      },
+      "ruleTag": "Rule",
+      "rule": "An Expert never reviews their own video. Only an Expert approval creates a Badge."
+    },
+    "caps": {
+      "label": "03 — Safety caps",
+      "title": "Doubt goes to a human.",
+      "intro": "After the AI runs, plain code applies these rules. They are fixed, not learned.",
+      "colIf": "If",
+      "colThen": "Then",
+      "colWhy": "Why",
+      "rows": {
+        "1": {
+          "if": "A safety step is marked no",
+          "then": "Capped at Needs review",
+          "why": "Getting it wrong can hurt someone."
+        },
+        "2": {
+          "if": "A safety step is marked unclear",
+          "then": "Capped at Needs review",
+          "why": "Unsure is not safe."
+        },
+        "3": {
+          "if": "A Rubric step has no observation",
+          "then": "Treated as unclear",
+          "why": "Missing is not a pass."
+        },
+        "4": {
+          "if": "The paper code is unreadable or doesn't match",
+          "then": "Capped at Needs review",
+          "why": "We can't prove the video was made for this check."
+        },
+        "5": {
+          "if": "The AI recommends fail",
+          "then": "Stays fail. An Expert still reviews it.",
+          "why": "Rules never raise a result."
+        }
+      },
+      "paperTag": "Why paper",
+      "paper1": "Our video AI sees but cannot hear. So you write a fresh 3-digit code on paper, show it to the camera, then do the work in one continuous shot.",
+      "paper2": "The AI reads the digits blind. Plain code compares them with your code.",
+      "readBlind": "Read blind",
+      "compared": "Compared in code"
+    },
+    "video": {
+      "label": "04 — Consent and your video",
+      "title": "Your video stays yours.",
+      "rows": {
+        "consent": {
+          "label": "Consent",
+          "value": "Before every upload, in English and Kiswahili. Upload stays off until you agree. We record which version you agreed to, and when."
+        },
+        "who": {
+          "label": "Who sees it",
+          "value": "You, Experts approved for your trade, Admins, and our AI."
+        },
+        "public": {
+          "label": "Public",
+          "value": "Only your Badge. Never your video or the AI's feedback."
+        },
+        "training": {
+          "label": "Training",
+          "value": "Your video is not used to train AI, and never added to the Data Co-op."
+        },
+        "gpu": {
+          "label": "GPU copy",
+          "value": "The copy on our GPU server is deleted once it has been checked."
+        },
+        "storage": {
+          "label": "Storage",
+          "value": "Your video is kept privately until you delete it."
+        },
+        "delete": {
+          "label": "Delete",
+          "value": "Remove your video once review is finished. Your Badge stays."
+        },
+        "appeal": {
+          "label": "Appeal",
+          "value": "Rejected? Appeal once, with a reason. A different Expert decides."
+        }
+      },
+      "tracesTag": "Traces",
+      "traces": "Our AI logs are masked. They keep ids, the trade, the verdict and the status. They drop video links, prompts and feedback text.",
+      "showcaseTag": "Showcase",
+      "showcase": "YouTube and TikTok links are showcase only. We never download them, and they never earn a Badge."
+    },
+    "eval": {
+      "label": "05 — How we test",
+      "title": "Measured before we claim.",
+      "steps": {
+        "1": {
+          "tag": "01 Clips",
+          "body": "Our own recordings of cornrows and socket installs, staged safety faults, and clips with a wrong or missing code, plus licensed stock clips. Never YouTube or TikTok."
+        },
+        "2": {
+          "tag": "02 Blind labels",
+          "body": "People label every clip before the AI sees it."
+        },
+        "3": {
+          "tag": "03 Measure",
+          "body": "How often the AI agrees with the labels, and how many staged safety faults it catches."
+        },
+        "4": {
+          "tag": "04 Split",
+          "body": "Results per trade and per model, split by gender and by lighting."
+        }
+      },
+      "results": "Eval results",
+      "resultsTag": "Example · Not measured yet",
+      "colModel": "Model",
+      "colTrade": "Trade",
+      "colAgreement": "Agreement",
+      "colRecall": "Safety-fault recall",
+      "colSplit": "Split by",
+      "model": "Cosmos Reason 2 8B",
+      "split": "Gender, lighting",
+      "dash": "—",
+      "noNumbers": "No accuracy numbers yet. We make no accuracy claim until the test has run."
+    },
+    "limits": {
+      "label": "06 — Limits and known risks",
+      "title": "What we can't promise.",
+      "items": {
+        "wrong": {
+          "tag": "AI can be wrong",
+          "body": "That is why every result goes to an Expert."
+        },
+        "handwriting": {
+          "tag": "Handwritten codes",
+          "body": "We haven't yet measured how well the AI reads handwritten digits."
+        },
+        "sound": {
+          "tag": "No sound",
+          "body": "The video AI only sees. Saying your code aloud is fine, but it isn't checked."
+        },
+        "links": {
+          "tag": "Video links",
+          "body": "If a private video link leaks, it works until the video is deleted. A fix is planned."
+        },
+        "fallback": {
+          "tag": "Fallback model",
+          "body": "If our main model is down, a smaller one (Cosmos Reason 2 2B) runs, and the record notes it."
+        },
+        "badge": {
+          "tag": "What a badge isn't",
+          "body": "Not a qualification, licence or background check. NITA, KNQA and TVETs certify. We verify one skill, on video."
+        }
+      }
+    },
+    "contact": {
+      "label": "07 — Contact",
+      "title": "Questions about a decision or your data?",
+      "body": "Write to us. A person reads every message.",
+      "email": "Email us",
+      "pending": "Our contact email will be listed here soon.",
+      "evidence": "Read how verification works"
     }
   }
 }

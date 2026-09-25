@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai"];
 
 const isFromMessages = makeIsFromMessages(en);
 
@@ -37,6 +37,7 @@ const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof 
   "/about": { load: () => import("@/app/about/page"), namespace: "About" },
   "/contact": { load: () => import("@/app/contact/page"), namespace: "Contact" },
   "/privacy": { load: () => import("@/app/privacy/page"), namespace: "Privacy" },
+  "/responsible-ai": { load: () => import("@/app/responsible-ai/page"), namespace: "ResponsibleAi" },
 };
 
 async function render(route: string) {
@@ -308,5 +309,54 @@ describe("/privacy (#25)", () => {
   it("drops the export's invented readouts", async () => {
     const text = visibleStrings(await render("/privacy")).join(" ");
     expect(text).not.toMatch(/cold storage|hardware|fps|standby|sovereignty|zero harvest|purge|spec \/\//i);
+  });
+});
+
+describe("/responsible-ai (#26)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "ResponsibleAi" });
+
+  it("has the prompt's eight sections in order", async () => {
+    const markup = await render("/responsible-ai");
+    const ids = ["top", "pipeline", "never", "caps", "video", "eval", "limits", "contact"];
+    const at = ids.map((id) => markup.indexOf(`id="${id}"`));
+    for (const [i, p] of at.entries()) expect(p, ids[i]).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("keeps every eval result a dash: no numbers, percentages or bars", async () => {
+    const evalSection = section(await render("/responsible-ai"), "eval");
+    const metrics = [...evalSection.matchAll(/data-metric="[^"]*"[^>]*>([\s\S]*?)<\/(td|dd)>/g)].map((m) =>
+      visibleStrings(m[1]).join(""),
+    );
+    expect(metrics.length).toBeGreaterThanOrEqual(4);
+    for (const cell of metrics) expect(cell).toBe(t("eval.dash"));
+    expect(visibleStrings(evalSection).join(" ")).not.toMatch(/%|progress|meter/i);
+    expect(evalSection).not.toMatch(/<progress|<meter|role="progressbar"/);
+    expect(visibleStrings(evalSection)).toContain(t("eval.noNumbers"));
+  });
+
+  it("shows DELETE and APPEAL as 'Coming soon' readouts, never buttons", async () => {
+    const markup = await render("/responsible-ai");
+    expect(markup).not.toMatch(/<button/);
+    const video = section(markup, "video");
+    const rows = [...video.matchAll(/<div[^>]*data-row="([^"]+)"[\s\S]*?<\/dd>\s*<\/div>/g)];
+    const row = (key: string) => visibleStrings(rows.find((r) => r[1] === key)![0]);
+    expect(row("delete")).toContain(t("comingSoon"));
+    expect(row("appeal")).toContain(t("comingSoon"));
+    expect(row("training")).not.toContain(t("comingSoon"));
+  });
+
+  it("never prints the Kiswahili consent text, and never says the AI approves or grades", async () => {
+    const text = visibleStrings(await render("/responsible-ai")).join(" ");
+    expect(text).not.toMatch(/ninakubali|video yangu|wataalamu|hadharani/i);
+    expect(text).not.toMatch(/AI (approves|grades|scores|certifies)|system online|\blive\b/i);
+  });
+
+  it("links contact to /evidence and shows no mailto while no contact email is set", async () => {
+    const contact = section(await render("/responsible-ai"), "contact");
+    expect(contact).not.toMatch(/mailto:/);
+    expect([...contact.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])).toEqual(["/evidence"]);
+    expect(visibleStrings(contact)).toContain(t("contact.pending"));
   });
 });
