@@ -15,8 +15,14 @@ loadEnvConfig(repoRoot, process.env.NODE_ENV !== "production", console, true);
 // `convex dev` writes CONVEX_URL and `clerk env pull` writes CLERK_PUBLISHABLE_KEY;
 // the browser needs both as NEXT_PUBLIC_. `||=` (not `??=`) because the .env
 // template leaves the NEXT_PUBLIC_ names present but empty.
-process.env.NEXT_PUBLIC_CONVEX_URL ||= process.env.CONVEX_URL;
-process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY ||= process.env.CLERK_PUBLISHABLE_KEY;
+// Only copy a value that exists: assigning undefined to process.env stores the
+// string "undefined", which then breaks the Convex client and Clerk at build time.
+for (const [target, source] of [
+  ["NEXT_PUBLIC_CONVEX_URL", "CONVEX_URL"],
+  ["NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY", "CLERK_PUBLISHABLE_KEY"],
+] as const) {
+  if (!process.env[target] && process.env[source]) process.env[target] = process.env[source];
+}
 
 const nextConfig: NextConfig = {
   // Agent rules live in the repo-root AGENTS.md; don't let `next dev`
