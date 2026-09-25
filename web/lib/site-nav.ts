@@ -1,4 +1,7 @@
+import type messages from "@/messages/en.json";
 import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth-routes";
+
+type Messages = typeof messages;
 
 /**
  * The site's navigation, as drawn in Stitch (design/HANDOFF.md §0 and §6,
@@ -16,32 +19,33 @@ export function isBuiltRoute(href: string): boolean {
   return (BUILT_ROUTES as readonly string[]).includes(path);
 }
 
-type Link<K extends string> = { readonly key: K; readonly href: string };
+/** A destination: `key` names its label in messages/en.json `Links`. */
+type NavLink = { readonly key: keyof Messages["Links"]; readonly href: string };
 
 export function builtOnly<T extends { href: string }>(items: readonly T[]): T[] {
   return items.filter((item) => isBuiltRoute(item.href));
 }
 
-/** Header nav: EVIDENCE · TRADES · TELEMETRY · COMPANY ▾ (DESIGN.md IA). Keys under Shell.nav. */
+/** Header nav: EVIDENCE · TRADES · TELEMETRY · COMPANY ▾ (DESIGN.md IA). Labels under Links. */
 export const HEADER_NAV = [
   { key: "evidence", href: "/evidence" },
   { key: "trades", href: "/trades" },
   { key: "telemetry", href: "/telemetry" },
-] as const satisfies readonly Link<string>[];
+] as const satisfies readonly NavLink[];
 
 /** COMPANY ▾ opens About and Contact us. */
 export const COMPANY_NAV = [
   { key: "about", href: "/about" },
   { key: "contact", href: "/contact" },
-] as const satisfies readonly Link<string>[];
+] as const satisfies readonly NavLink[];
 
-/** Footer CTAs under "Show your work." Keys under Footer.cta. */
+/** Footer CTAs under "Show your work." Labels under Links. */
 export const FOOTER_CTAS = [
   { key: "joinAsFundi", href: SIGN_UP_PATH, primary: true },
   { key: "findFundi", href: "/fundis", primary: false },
-] as const satisfies readonly (Link<string> & { primary: boolean })[];
+] as const satisfies readonly (NavLink & { primary: boolean })[];
 
-/** Footer link groups from 00-shell-v2.md. Keys under Footer.groups and Footer.links. */
+/** Footer link groups from 00-shell-v2.md. Group labels under Footer.groups, link labels under Links. */
 export const FOOTER_GROUPS = [
   {
     key: "forFundis",
@@ -71,4 +75,4 @@ export const FOOTER_GROUPS = [
       { key: "roadmap", href: "/roadmap" },
     ],
   },
-] as const satisfies readonly { key: string; links: readonly Link<string>[] }[];
+] as const satisfies readonly { key: keyof Messages["Footer"]["groups"]; links: readonly NavLink[] }[];

@@ -1,0 +1,47 @@
+import { cn } from "cn";
+
+/**
+ * Pill buttons (DESIGN.md L85-90): fully rounded, uppercase and bold.
+ * Primary is the amber fill with a graphite label; secondary is a 1 px
+ * --line outline whose border brightens on hover. The one place pill
+ * classes live, for links styled as buttons in the shell.
+ */
+const BASE = "inline-flex items-center justify-center rounded-full font-bold uppercase whitespace-nowrap";
+
+const VARIANTS = {
+  primary: "bg-primary text-primary-foreground",
+  secondary: "border border-line text-foreground hover:border-foreground/40",
+} as const;
+
+const SIZES = {
+  /** The REFERENCE's compact 32 px header pill; wrap it in PILL_HIT_AREA. */
+  compact: "h-8 px-3 text-xs tracking-wider",
+  /** The 02-evidence desktop header pill, 40 px; wrap it in PILL_HIT_AREA. */
+  header: "h-10 px-5 font-mono text-xs tracking-widest",
+  /** A 48 px pill, full width until md (DESIGN.md L90). */
+  full: "h-12 w-full px-8 text-xs tracking-wider",
+} as const;
+
+/** Focus ring on the visible pill when its 48 px hit-area parent is focused. */
+const FOCUS_IN_HIT_AREA =
+  "group-focus-visible:outline-2 group-focus-visible:outline-offset-2 group-focus-visible:outline-ring";
+
+/**
+ * A 48 px tap target around a compact pill (HANDOFF §6: the exports' 32 px
+ * JOIN pill was too small). The pill keeps its look; the link gets the height.
+ */
+export const PILL_HIT_AREA = "group inline-flex h-12 items-center outline-none";
+
+export function pillClass({
+  variant,
+  size,
+  inHitArea = false,
+  className,
+}: {
+  variant: keyof typeof VARIANTS;
+  size: keyof typeof SIZES;
+  inHitArea?: boolean;
+  className?: string;
+}): string {
+  return cn(BASE, VARIANTS[variant], SIZES[size], inHitArea && FOCUS_IN_HIT_AREA, className);
+}
