@@ -6,7 +6,7 @@ export const AFTER_AUTH_PATH = "/dashboard";
 // Architecture spec §4: the proxy only requires sign-in. #3 covers /dashboard;
 // /onboarding, /application-pending, /fundi, /expert and /admin join later.
 // Every protected page must also call auth.protect() itself: Clerk advises
-// never relying on the proxy alone (D-14), so this list is a UX redirect,
+// never relying on the proxy alone (D-15), so this list is a UX redirect,
 // never the only guard.
 const PROTECTED_PREFIXES = ["/dashboard"] as const;
 
