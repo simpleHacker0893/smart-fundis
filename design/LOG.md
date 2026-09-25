@@ -10,4 +10,8 @@ Every Stitch and Canva generation is listed here, for the project card's "prepar
 | 2026-09-25 | Canva edit-design | Deck fixes, and slide 11 "Concept screens" added | session | same deck |
 | | Stitch | 00 header and footer (round 1) | `stitch/prompts/00-header-footer.md` | |
 | | Stitch | 01 landing (round 1) | `stitch/prompts/01-landing.md` | |
-| | Canva generate-image | coop-teaser (round 1) | `canva/prompts/coop-teaser.md` | |
+| 2026-09-25 | Canva generate-image | hero, 4:3 (paper code "482") | `canva/prompts/hero.md` | media `MAHWLBoJf7Y` → `design/canva/exports/web/hero-*.webp` |
+| 2026-09-25 | Canva generate-image | coop-teaser, 16:9 | `canva/prompts/coop-teaser.md` | media `MAHWLM-teLg` → `design/canva/exports/web/coop-teaser-*.webp` |
+| 2026-09-25 | Canva generate-image | paper-code-tip, 4:5 (code "315") | `canva/prompts/paper-code-tip.md` | media `MAHWLAC_qzI` → `design/canva/exports/web/paper-code-tip-*.webp` |
+| 2026-09-25 | Canva generate-image | fundis-empty, 1:1 illustration | `canva/prompts/fundis-empty.md` | media `MAHWLEoeYII` → `design/canva/exports/web/fundis-empty-*.webp` |
+| 2026-09-25 | Canva create-design + export | Export board holding the 4 images at full size (pages 2–5) | this pipeline | https://canva.link/b2200kqjk59wq0m → `design/canva/exports/master/*.png` |

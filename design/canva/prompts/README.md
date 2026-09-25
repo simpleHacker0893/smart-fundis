@@ -19,5 +19,5 @@ There is one file per image slot. Stitch screens show these slots as grey placeh
 ## How to run (Canva, through Claude or by hand)
 1. Generate with Canva **generate-image** using the prompt and aspect ratio in the file. Make 2–3 variants and pick one.
 2. **Export at full size.** Plain asset links only give thumbnails. Instead, insert the chosen image into a blank Canva design at the target size (for example 1440×1080 for 4:3), then export that page as PNG.
-3. Convert the PNG to **WebP (and AVIF), ≤ 70 KB at 720 px wide**, and save it as `web/public/images/<slot>-720.webp`. Also make 360w and 1080w versions for `srcset`.
+3. Convert the PNG to **WebP (and AVIF), ≤ 70 KB at 720 px wide**, and save it as `design/canva/exports/web/<slot>-<width>.webp`. Frontend copies these into `web/public/images/` in V3, because `web/` does not exist until build day.
 4. Add a row to `design/LOG.md`.
