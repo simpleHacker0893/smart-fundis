@@ -2,22 +2,55 @@
 
 Python service for the AI pipeline (FastAPI + LangGraph), run on the Brev box. It is not a pnpm workspace package.
 
-This folder is still mostly a skeleton. It has a minimal uv project (`pyproject.toml`, `uv.lock`, pytest) and the LangSmith tracing module. Ticket #7 (V0: ai-service scaffold) adds FastAPI `/health`, ruff and the rest of the scaffold.
+It is a uv project on Python 3.12 (`.python-version`) with FastAPI, pytest and ruff. V0 serves only `GET /health`; the LangGraph pipeline and model clients arrive in V2.
 
-- `app/`: the service code (ai-pipeline owns it). `app/tracing.py` is the tracing setup.
+- `app/`: the service code (ai-pipeline owns it)
+  - `main.py`: the FastAPI app and `/health`
+  - `settings.py`: env settings, loaded from the repo-root `.env` (see below)
+  - `tracing.py`: LangSmith tracing with ADR-13 masking
 - `eval/`: eval clips list and results (qa owns it)
 - `scripts/`: vLLM serving and smoke scripts (gpu-devops owns it)
 - `tests/`: pytest tests, with fixtures in `tests/fixtures/`
 
-Secrets (`NVIDIA_API_KEY`, `LANGSMITH_API_KEY`, the Hugging Face token) are never committed. On the Brev box they're set in the box's environment. For local runs they go in the git-ignored repo-root `.env`, which `app/tracing.py` loads by path. Values already in the environment always win.
-
 ## Run
 
+All commands run from `ai-service/`. You need [uv](https://docs.astral.sh/uv/); it installs Python 3.12 if it's missing.
+
 ```bash
-cd ai-service
-uv sync
-uv run pytest
+uv sync                                  # install deps from uv.lock
+uv run uvicorn app.main:app --reload     # start on http://localhost:8000
+curl -s localhost:8000/health            # {"status":"ok","service":"ai-service","version":"0.1.0"}
 ```
+
+## Test and lint
+
+```bash
+uv run pytest -q
+uv run ruff check
+uv run ruff format --check               # `uv run ruff format` to fix
+```
+
+CI runs the same four commands, with `uv sync --locked` so a stale `uv.lock` fails the build.
+
+## Settings and secrets (D-13)
+
+Every local secret lives in **one file, the git-ignored `.env` at the repo root**. Never create `ai-service/.env`. `app/settings.py` finds the root file by path (`REPO_ROOT_ENV`), so it works whatever the current directory is. A missing file is fine, for example in CI.
+
+- **The environment wins.** Values already set in the process (the Brev box's own env) override the file.
+- **Nothing is read at import time.** Call `get_settings()` where a value is needed. `/health` reads no settings at all.
+- **Secrets are `SecretStr`** (`nvidia_api_key`, `ai_shared_secret`). They never show in `repr`, logs or `model_dump()`. Call `.get_secret_value()` only where the key is used.
+
+The names follow PRD §7 (the Brev row), plus `COSMOS_FALLBACK_MODEL`. The Hugging Face token and the LangSmith variables are read by vLLM and `app/tracing.py`, not by `Settings`.
+
+```python
+from app.settings import get_settings
+
+s = get_settings()
+s.nemotron_model  # NEMOTRON_MODEL, None until set
+s.nvidia_api_key.get_secret_value()  # NVIDIA_API_KEY; check `is not None` first
+```
+
+Tests never touch the real `.env`: they use `tests/fixtures/root.env` copied into a temp dir.
 
 ## Tracing (LangSmith)
 
@@ -45,8 +78,10 @@ from app.tracing import configure_tracing, pipeline_context, traced
 
 configure_tracing()  # once at startup: loads the repo-root .env, defaults the project
 
+
 @traced("rules")  # a plain function, traced through the masked client
 def apply_rules(observations: list[dict]) -> dict: ...
+
 
 with pipeline_context(assessment_id=assessment_id):  # LangGraph/LangChain runs
     graph.invoke(state)
