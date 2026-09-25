@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry"];
 
 const isFromMessages = makeIsFromMessages(en);
 
@@ -33,6 +33,7 @@ type PageModule = {
 const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof typeof en }> = {
   "/evidence": { load: () => import("@/app/evidence/page"), namespace: "Evidence" },
   "/trades": { load: () => import("@/app/trades/page"), namespace: "Trades" },
+  "/telemetry": { load: () => import("@/app/telemetry/page"), namespace: "Telemetry" },
 };
 
 async function render(route: string) {
@@ -173,5 +174,40 @@ describe("/trades (#22)", () => {
     expect(visibleStrings(bench).filter((s) => s === t("bench.comingSoon"))).toHaveLength(10);
     const tiles = bench.slice(0, bench.indexOf(t("bench.note")));
     expect(tiles).not.toMatch(/<a\s|<button|disabled|opacity-(50|60)/);
+  });
+});
+
+describe("/telemetry (#23)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Telemetry" });
+
+  it("has the prompt's sections in order: hero, pipeline, outputs, privacy, appeals", async () => {
+    const markup = await render("/telemetry");
+    const at = ["top", "pipeline", "outputs", "privacy", "appeals"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+  });
+
+  it("shows the six pipeline stages and the three AI outputs", async () => {
+    const markup = await render("/telemetry");
+    const pipeline = visibleStrings(section(markup, "pipeline"));
+    for (const stage of ["ingest", "guard", "observe", "assess", "rules", "expert"] as const) {
+      expect(pipeline).toContain(t(`pipeline.stages.${stage}.title`));
+    }
+    const outputs = visibleStrings(section(markup, "outputs"));
+    for (const out of ["pass", "review", "reshoot"] as const) expect(outputs).toContain(t(`outputs.${out}.title`));
+    expect(outputs).toContain(t("outputs.caption"));
+  });
+
+  it("marks deletion and appeals 'Coming soon' until V4 ships them (HANDOFF C-6)", async () => {
+    const markup = await render("/telemetry");
+    const privacy = section(markup, "privacy");
+    const deleteRow = privacy.slice(privacy.indexOf(t("privacy.rows.delete.label")));
+    expect(visibleStrings(deleteRow.slice(0, 600))).toContain(t("comingSoon"));
+    expect(visibleStrings(section(markup, "appeals"))).toContain(t("comingSoon"));
+  });
+
+  it("invents no numbers or infrastructure claims", async () => {
+    const text = visibleStrings(await render("/telemetry")).join(" ");
+    expect(text).not.toMatch(/\d+%|enclave|cryptograph|tamper|hardware tethered|isolated gpu|irreversible|senior panel/i);
   });
 });

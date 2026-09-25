@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -137,7 +137,7 @@ describe("site header", () => {
     const navs = [...markup.matchAll(/<nav\s[^>]*>[\s\S]*?<\/nav>/g)].map((m) => m[0]);
     expect(navs).toHaveLength(2);
     for (const navMarkup of navs) {
-      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/#telemetry", "#company"]);
+      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/telemetry", "#company"]);
     }
     // One nav row for mobile, one inline nav for desktop: every width sees one.
     const classes = navs.map((n) => n.match(/class="([^"]*)"/)![1]);

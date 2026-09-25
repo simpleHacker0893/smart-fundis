@@ -14,7 +14,7 @@ type Messages = typeof messages;
  * one of those pages, add its route to BUILT_ROUTES (and to the allow-list in
  * test/site-shell.test.tsx) and the link appears.
  */
-export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades"] as const;
+export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry"] as const;
 
 /** Where the COMPANY tab and nav item point: the footer directory, on every page. */
 export const COMPANY_ANCHOR = "#company";
@@ -36,7 +36,7 @@ export function builtOnly<T extends { href: string }>(items: readonly T[]): T[] 
 export const SECTION_NAV = [
   { key: "evidence", href: "/evidence" },
   { key: "trades", href: "/trades" },
-  { key: "telemetry", href: "/#telemetry" },
+  { key: "telemetry", href: "/telemetry" },
   { key: "company", href: COMPANY_ANCHOR },
 ] as const satisfies readonly NavLink[];
 
