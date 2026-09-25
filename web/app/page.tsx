@@ -2,6 +2,7 @@ import { ArrowDown, ArrowRight, Plug, Scissors, TriangleAlert, Video, Zap, type 
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { ScopeLedgers } from "@/components/landing/scope-ledgers";
 import { ExampleTag, Section, SectionLabel, SectionTitle } from "@/components/landing/section";
 import { Ledger, StepInspector, StepProvider } from "@/components/landing/step-inspector";
 import { SiteLogo } from "@/components/site-logo";
@@ -11,8 +12,6 @@ import {
   BENCH_TRADES,
   LIVE_TRADES,
   NEXT_CARDS,
-  SCOPE_CHECKS,
-  SCOPE_NOT_CHECKED,
 } from "@/lib/landing";
 import { SIGN_UP_PATH } from "@/lib/auth-routes";
 import { PRIMARY_CTAS } from "@/lib/site-nav";
@@ -236,35 +235,7 @@ export default async function HomePage() {
             <SectionTitle>{t("scope.title")}</SectionTitle>
             <p className="text-base leading-relaxed text-foreground/75">{t("scope.body")}</p>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-            <div className="rounded border border-line bg-panel p-5 sm:p-6">
-              <h3 className="mb-4 font-mono text-xs font-bold tracking-widest uppercase">{t("scope.check")}</h3>
-              <ul className="flex flex-col gap-3 text-sm">
-                {SCOPE_CHECKS.map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <span aria-hidden="true">{glyphs("pass")}</span>
-                    {t(`scope.checks.${item}`)}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded border border-line bg-panel p-5 sm:p-6">
-              <h3 className="mb-4 font-mono text-xs font-bold tracking-widest text-foreground/75 uppercase">
-                {t("scope.dontCheck")}
-              </h3>
-              <ul className="flex flex-col gap-3 text-sm text-foreground/75">
-                {SCOPE_NOT_CHECKED.map((item) => (
-                  <li key={item} className="flex items-center gap-3">
-                    <span aria-hidden="true">{glyphs("no")}</span>
-                    {t(`scope.notChecked.${item}`)}
-                  </li>
-                ))}
-              </ul>
-              <p className="mt-6 border-t border-line pt-4 font-mono text-xs leading-relaxed text-foreground/75">
-                {t("scope.certify")}
-              </p>
-            </div>
-          </div>
+          <ScopeLedgers />
         </Section>
 
         {/* 08 — NEXT */}

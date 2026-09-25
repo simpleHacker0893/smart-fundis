@@ -216,5 +216,85 @@
         }
       }
     }
+  },
+  "Evidence": {
+    "meta": {
+      "title": "How verification works · Smart Fundis",
+      "description": "Every badge traces back to one video, one fresh code, every step checked, and one Expert's decision."
+    },
+    "hero": {
+      "label": "Smart Fundis / Evidence",
+      "title": "Proof you can inspect.",
+      "body": "Every badge traces back to one video, one fresh code, every step checked, and one Expert's decision.",
+      "frame": "Evidence frame",
+      "frameTag": "Example · Hairdressing",
+      "imageAlt": "Hands braiding cornrows, close up",
+      "markers": {
+        "1": "01 Parting · 00:06",
+        "2": "02 Braid tension · 00:27",
+        "3": "03 Finish · 01:12"
+      }
+    },
+    "chain": {
+      "label": "01 — The chain of evidence",
+      "title": "Five steps. No shortcuts.",
+      "step": "Step {n}",
+      "steps": {
+        "consent": {
+          "title": "Consent",
+          "body": "Before every upload, in English and Kiswahili."
+        },
+        "code": {
+          "title": "Code",
+          "body": "A fresh code, written on paper and shown to the camera."
+        },
+        "video": {
+          "title": "Video",
+          "body": "One continuous in-app shot, 10 to 90 seconds."
+        },
+        "ai": {
+          "title": "AI check",
+          "body": "NVIDIA AI marks every step. Safety steps are never passed automatically."
+        },
+        "expert": {
+          "title": "Expert",
+          "body": "A skilled Expert in your trade makes the final call."
+        }
+      }
+    },
+    "badge": {
+      "label": "02 — What a badge says",
+      "title": "A badge is a narrow claim: one task, done well, on video.",
+      "verified": "Verified by Smart Fundis",
+      "task": "Electrical: Install a 13A socket · 25 Sep 2026",
+      "body": "One continuous video, checked step by step, approved by an Electrical Expert.",
+      "reviewerLabel": "Decided by",
+      "reviewer": "An Electrical Expert",
+      "videoLabel": "Video",
+      "video": "Private to the fundi",
+      "imageAlt": "Copper conductors terminated in a socket, close up"
+    },
+    "profile": {
+      "label": "03 — A public profile",
+      "title": "Clients see verified skills and trade facts. Nothing more.",
+      "name": "Example Fundi",
+      "county": "Kiambu County",
+      "facts": "Trade facts",
+      "tradesLabel": "Trades",
+      "trades": "Electrical",
+      "experienceLabel": "Experience",
+      "experience": "6 years",
+      "languagesLabel": "Languages",
+      "languages": "English, Kiswahili",
+      "badges": "Verified badges",
+      "badgeTask": "Install a 13A socket",
+      "badgeDate": "Verified 25 Sep 2026 · reviewed by a trade Expert",
+      "showcase": "Showcase — not verified",
+      "private": "Phone, email, videos and AI feedback are never public.",
+      "imageAlt": "Hands wiring a distribution panel with pliers"
+    },
+    "scope": {
+      "label": "04 — Scope"
+    }
   }
 }

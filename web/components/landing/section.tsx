@@ -41,7 +41,7 @@ export function SectionTitle({ children }: { children: ReactNode }) {
 /** The mono "EXAMPLE" tag every sample carries (DESIGN.md L115). */
 export function ExampleTag({ children }: { children: ReactNode }) {
   return (
-    <span className="shrink-0 rounded border border-foreground/20 px-3 py-1 font-mono text-xs tracking-widest text-foreground/75 uppercase">
+    <span className="shrink-0 self-start rounded border border-foreground/20 px-3 py-1 font-mono text-xs tracking-widest text-foreground/75 uppercase">
       {children}
     </span>
   );
