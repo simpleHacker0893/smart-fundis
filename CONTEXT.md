@@ -17,7 +17,7 @@ A skilled or semi-skilled tradesperson (jua kali worker) who uses Smart Fundis t
 *Avoid:* worker, artisan, provider.
 
 ### Client
-A person or business looking to hire a Fundi. **In the MVP a Client has no account.** They browse verified Fundis anonymously. Client accounts, profiles and bookings are post-MVP.
+A person or business looking to hire a Fundi. **In the MVP a Client has no account.** They browse verified Fundis anonymously. They filter by Trade, county and area, and can reveal an opted-in Fundi's phone, without an account. Client accounts, profiles and bookings are post-MVP.
 *Avoid:* customer, hirer.
 
 ### Expert
@@ -38,6 +38,7 @@ A platform operator identified by the admin email allow-list. An Admin approves 
 
 ### Trade
 A field of work, such as Electrical or Hairdressing. A Trade has one or more Tasks.
+In Client-facing copy a Trade may be called a "trade" or "type of work", never a "category"; `trades.category` is an internal grouping (skilled, semi-skilled, odd job).
 
 ### Task
 One specific, observable job within a Trade that a Fundi records on video, for example *Electrical: Install a 13A socket*.
@@ -81,6 +82,10 @@ The public proof that a Fundi's Assessment for one Task was approved. It reads:
 ### Verified Fundi
 A Fundi with at least one Badge. Only Verified Fundis appear in the public **Find a fundi** list.
 
+### Listing
+A Verified Fundi's presence in **Find a fundi**. A Fundi is **Listed** when they have at least one Badge, "Show my profile in Find a fundi" (`publicListing`) is on, and an Admin has not hidden the profile. Only Listed Fundis appear on `/fundis` and have a public profile at `/f/[id]`. A Listing matches a Trade filter only for Trades the Fundi holds a Badge in.
+*Avoid:* ad, post, advert, directory entry.
+
 ### Video deletion
 A Fundi can delete the video of their own Assessment once it reaches a final status (`approved`, `reshoot`, `rejected` or `failed`). Before that, deletion is blocked with the note "You can delete once review is finished". Deletion removes the video. The decision record and any Badge remain.
 
@@ -98,10 +103,30 @@ A Fundi's optional "Tell me when it launches" signal, which is off by default. I
 The Fundi's agreement, shown in English and Kiswahili before any upload, that covers **verification only**: who sees the video, AI plus human review, and deletion. It never covers the Data Co-op.
 
 ### Demo profile
-A made-up Fundi created only by the demo seed, with an invented name, an initials avatar and no photo or video. Every Badge on a Demo profile, and the profile itself, is visibly tagged **"Demo: not a real verification"**. Demo Assessments never enter an Expert's queue.
+A made-up Fundi created only by the demo seed, with an invented name, an initials avatar, no photo or video, no Portfolio items and no phone number. Every Badge on a Demo profile, and the profile itself, is visibly tagged **"Demo: not a real verification"**. Demo Assessments never enter an Expert's queue.
 
 ### Showcase link
 A YouTube, TikTok or other portfolio link that a Fundi adds to their profile. It is labelled "Showcase — not verified" and never earns a Badge.
+
+### Showcase
+Everything on a public profile that shows a Fundi's work **without** verifying it: Showcase links and public Portfolio items. Showcase is always labelled "not verified". Only a Badge is verified work.
+
+### Portfolio item
+A photo or video of their own work that a Fundi uploads to show Clients. It is **private until the Fundi publishes it**, which needs the Portfolio publish consent and a confirmation that everyone recognisable agreed. It is labelled "Not verified", never earns a Badge, and is never an Assessment video. The Fundi can unpublish or delete it at any time, and an Admin can hide it.
+*Avoid:* gallery, verified work, proof.
+
+### Portfolio publish consent
+The Fundi's agreement, shown before their first Portfolio item goes public, that the item will be public, is not verified, is not used for AI or the Data Co-op, and can be removed at any time. It is separate from Verification consent.
+
+### Rates
+A Fundi's own asking prices (up to five lines, each a label, an amount in KSh and a unit such as per job or per hour), shown on the public profile as "Set by the fundi — not verified" with the date. Smart Fundis never suggests, compares or sorts by Rates. Rates are not earnings figures.
+*Avoid:* price list, quote, fee.
+
+### Contact reveal
+Showing an opted-in Fundi's phone number to a Client after the Client taps Call or WhatsApp. The number is never on the page until the tap, reveals are rate-limited, and a Fundi who hasn't turned on "Show my phone to clients" has no contact button at all.
+
+### Report
+A Client's anonymous flag on a profile or Portfolio item (for example stolen work, a wrong number, or someone shown without their consent). An Admin dismisses it or hides the item or profile, with a recorded reason.
 
 ### Roadmap
 The one public page that lists post-MVP features, each tagged "Coming soon": bookings & M-Pesa, Fundi Pro, Data Co-op, training partners and Client accounts. Nothing outside this page may suggest those features are live.

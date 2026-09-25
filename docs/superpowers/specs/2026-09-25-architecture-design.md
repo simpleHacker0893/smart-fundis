@@ -3,6 +3,7 @@
 - **Status:** approved in brainstorming, 24–25 Sep 2026. This is a written spec, pending the owner's review.
 - **Supersedes:** PRD §6 phase order, §7 data model, and §9 prompt sequence. Where this spec and `docs/PRD.md` disagree, this spec wins.
 - **Glossary:** `CONTEXT.md`. **Decisions:** ADR-1 to ADR-17 (PRD §2), plus `docs/adr/0018-derived-roles.md` and `docs/adr/0019-paper-liveness-code.md`.
+- **Extended by:** `docs/superpowers/specs/2026-09-26-find-a-fundi-design.md` (V6, ADR-20 to ADR-22, D-18 to D-23).
 
 ---
 
@@ -233,6 +234,8 @@ The consent version and time are stored on the Assessment.
 
 **What the public profile (`/f/[id]`) shows:** display name, county and area, Trades, years of experience, languages, bio, Badges, and Showcase links embedded with `youtube-nocookie` or the TikTok embed and labelled "Showcase — not verified". It **hides** phone, email, videos, AI feedback, and rejected or pending Assessments.
 
+> **Amended 2026-09-26 for V6 (D-20, ADR-20, ADR-21):** from V6 the profile may also show the Fundi's opt-in public Portfolio ("Not verified"), self-declared Rates ("Set by the fundi — not verified") and, on tap, an opted-in phone. Assessment videos, email and AI output stay hidden. See `docs/superpowers/specs/2026-09-26-find-a-fundi-design.md` §6–§8.
+
 **Data Co-op:**
 - It's a Roadmap feature. The landing page teaser leads with it: "Coming next: earn from your skills".
 - The Fundi dashboard has a card with a "Tell me when it launches" toggle. This is Co-op interest, which means "contact me" and nothing else.
@@ -310,6 +313,7 @@ Each slice cuts through the UI, Convex and the AI, and can be demoed on its own.
 | **V3 Trust and front door** | The Stitch landing page, `/roadmap`, `/fundis`, the header and footer, onboarding with both checkboxes, the restyled consent screen, the guard's reshoot reasons shown to the Fundi, the Co-op card, the visibility toggle | US-1.1–1.6 (English only), 2.2, 2.3, 3.8 | V1 |
 | **V4 Judgement edges** | The Expert application and Admin approval, appeal, Admin override, video deletion, the `failed` screen with "Record again", role-bypass tests | US-2.5, 2.6, 2.8, 5.5, 5.6 | V1 |
 | **V5 Demo** | The seed with Demo tags, the eval over `eval/clips.csv` (8B first), the backup video, the demo script, the project card | US-4.7, 6.1–6.3 | V2, V3 |
+| **V6 Find a Fundi** (added 2026-09-26, after the MVP loop) | A Client with no account goes `/trades` → `/fundis?trade=&county=&area=` → `/f/[id]`, sees Badges, the Fundi's opt-in Portfolio and Rates, and reveals an opted-in phone; a Fundi manages "My public profile"; an Admin handles reports | US-7.1–7.15 (find-a-fundi spec) | V1, V3 |
 
 **`plan-first` tickets** get a `superpowers:writing-plans` plan before implementation: the V1 claim and callback contract, and the V2 pipeline with `rules.py`.
 
@@ -366,7 +370,7 @@ If the eval is cut, the pitch says "no accuracy numbers yet".
 ## 12. Out of scope for the MVP
 
 - Client accounts, bookings, M-Pesa and Fundi Pro
-- search and a geohash index
+- search and a geohash index. **Amended 2026-09-26 (D-18):** filter search by Trade, county and free-text area is in scope for V6 "Find a Fundi"; geohash, maps and distance stay out.
 - the Data Co-op program itself and any licensing
 - a Rubric editor, Whisper, the Kiswahili UI (apart from consent), and a Clerk prod instance
 - serving video through an authenticated HTTP action
