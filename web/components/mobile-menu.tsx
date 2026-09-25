@@ -4,13 +4,14 @@ import { MenuIcon } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useState } from "react";
+import { pillClass } from "@/components/ui/pill";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { useSignedIn } from "@/components/use-signed-in";
 import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth-routes";
 import { builtOnly, COMPANY_NAV, HEADER_NAV } from "@/lib/site-nav";
 
 const ROW =
-  "flex min-h-12 items-center border-b border-line font-mono text-xs uppercase tracking-[0.26em] text-foreground hover:text-amber";
+  "flex min-h-12 items-center border-b border-line font-mono text-xs uppercase tracking-[0.26em] text-foreground/60 hover:text-foreground";
 
 /**
  * The menu sheet from 00-shell-v2.md, below 1024 px. It opens from the right
@@ -21,6 +22,7 @@ const ROW =
  */
 export function MobileMenu() {
   const t = useTranslations("Shell");
+  const links = useTranslations("Links");
   const signedIn = useSignedIn();
   const [open, setOpen] = useState(false);
   const close = () => setOpen(false);
@@ -32,7 +34,7 @@ export function MobileMenu() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger
         aria-label={t("openMenu")}
-        className="-mr-3 inline-flex size-12 items-center justify-center text-foreground hover:text-amber lg:hidden"
+        className="-mr-3 inline-flex size-12 items-center justify-center text-foreground/60 hover:text-foreground lg:hidden"
       >
         <MenuIcon aria-hidden="true" className="size-6" strokeWidth={1.5} />
       </SheetTrigger>
@@ -44,7 +46,7 @@ export function MobileMenu() {
           <nav aria-label={t("primaryNav")} className="border-t border-line">
             {nav.map((item) => (
               <Link key={item.key} href={item.href} onClick={close} className={ROW}>
-                {t(`nav.${item.key}`)}
+                {links(item.key)}
               </Link>
             ))}
           </nav>
@@ -52,19 +54,19 @@ export function MobileMenu() {
         <div className="flex flex-col gap-4 border-t border-line">
           {signedIn ? (
             <Link href={AFTER_AUTH_PATH} onClick={close} className={ROW}>
-              {t("dashboard")}
+              {links("dashboard")}
             </Link>
           ) : (
             <>
               <Link href={SIGN_IN_PATH} onClick={close} className={ROW}>
-                {t("signIn")}
+                {links("signIn")}
               </Link>
               <Link
                 href={SIGN_UP_PATH}
                 onClick={close}
-                className="flex h-12 w-full items-center justify-center rounded-full bg-primary text-xs font-bold uppercase tracking-wider text-primary-foreground"
+                className={pillClass({ variant: "primary", size: "full" })}
               >
-                {t("joinAsFundi")}
+                {links("joinAsFundi")}
               </Link>
             </>
           )}

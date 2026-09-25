@@ -1,3 +1,4 @@
+import { readFileSync } from "node:fs";
 import type { ReactNode } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
@@ -42,5 +43,22 @@ describe("root layout", () => {
     expect(html).toMatch(/class="[^"]*\bdark\b/);
     expect(html).toContain("font-inter-var");
     expect(html).toContain("font-mono-var");
+  });
+
+  it("gives the skip-link target a scroll margin for the 48 / 72 px sticky header", async () => {
+    const { default: RootLayout } = await import("@/app/layout");
+    const markup = renderToStaticMarkup(RootLayout({ children: null }));
+    const target = markup.match(/<[a-z]+[^>]*id="main-content"[^>]*>/)![0];
+
+    expect(target).toContain("scroll-mt-12");
+    expect(target).toContain("lg:scroll-mt-[72px]");
+  });
+
+  it("uses a theme colour equal to --bg in globals.css (meta tags cannot read CSS variables)", async () => {
+    const { viewport } = await import("@/app/layout");
+    const css = readFileSync(new URL("../app/globals.css", import.meta.url), "utf8");
+    const bg = css.match(/--bg:\s*(#[0-9a-fA-F]{6})/)![1];
+
+    expect(String(viewport.themeColor).toLowerCase()).toBe(bg.toLowerCase());
   });
 });

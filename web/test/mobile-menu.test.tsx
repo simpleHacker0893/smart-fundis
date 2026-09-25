@@ -15,6 +15,7 @@ vi.mock("@clerk/nextjs", () => ({
 }));
 
 const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Shell" });
+const linkText = createTranslator({ locale: defaultLocale, messages: en, namespace: "Links" });
 const messageValues = new Set(leafStrings(en));
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
@@ -76,7 +77,7 @@ describe("mobile menu", () => {
     const dialog = await open(await renderMenu());
     const links = [...dialog.querySelectorAll("a")];
 
-    expect(links.map((a) => a.textContent)).toEqual([t("signIn"), t("joinAsFundi")]);
+    expect(links.map((a) => a.textContent)).toEqual([linkText("signIn"), linkText("joinAsFundi")]);
     for (const a of links) expect(REAL_ROUTES).toContain(a.getAttribute("href"));
   });
 
@@ -86,7 +87,7 @@ describe("mobile menu", () => {
     const links = [...dialog.querySelectorAll("a")];
 
     expect(links.map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
-      [t("dashboard"), "/dashboard"],
+      [linkText("dashboard"), "/dashboard"],
     ]);
   });
 
