@@ -11,7 +11,7 @@ Fetch the live docs before using any API (AGENTS.md rule 2). Prefer an `llms.txt
 | frontend | https://nextjs.org/docs · https://ui.shadcn.com/docs · https://next-intl.dev/docs | https://vercel.com/design/guidelines · https://stitch.withgoogle.com |
 | convex | https://docs.convex.dev/llms.txt | [file storage](https://docs.convex.dev/file-storage/upload-files) · [HTTP actions](https://docs.convex.dev/functions/http-actions) · [crons](https://docs.convex.dev/scheduling/cron-jobs) · [testing](https://docs.convex.dev/testing/convex-test) |
 | auth | https://clerk.com/docs/nextjs/convex | https://docs.convex.dev/auth/clerk · [JWT templates](https://clerk.com/docs/backend-requests/jwt-templates) · [Clerk + AI](https://clerk.com/docs/guides/ai/overview) |
-| ai-pipeline | https://docs.langchain.com/llms.txt | [LangChain NVIDIA provider](https://docs.langchain.com/oss/python/integrations/providers/nvidia) · [LangSmith masking](https://docs.langchain.com/langsmith/mask-inputs-outputs) · the Cosmos links below |
+| ai-pipeline | https://docs.langchain.com/llms.txt | [LangChain NVIDIA provider](https://docs.langchain.com/oss/python/integrations/providers/nvidia) · [LangSmith masking](https://docs.langchain.com/langsmith/mask-inputs-outputs) · [LangSmith skills](https://github.com/langchain-ai/langsmith-skills) · the Cosmos links below |
 | gpu-devops | https://docs.nvidia.com/brev/llms.txt | [Brev connectivity](https://docs.nvidia.com/brev/cli/connectivity) · https://docs.vllm.ai · https://docs.celeryq.dev · https://fastapi.tiangolo.com |
 | qa | https://playwright.dev/docs/intro | https://docs.convex.dev/testing/convex-test · [Clerk testing](https://clerk.com/docs/testing/overview) |
 
