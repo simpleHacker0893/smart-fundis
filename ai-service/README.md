@@ -8,6 +8,8 @@ It is a uv project on Python 3.12 (`.python-version`) with FastAPI, pytest and r
   - `main.py`: the FastAPI app and `/health`
   - `settings.py`: env settings, loaded from the repo-root `.env` (see below)
   - `tracing.py`: LangSmith tracing with ADR-13 masking
+  - `nemotron.py`: the hosted Nemotron structured-output smoke (see below)
+  - `prompts/`: versioned prompt files
 - `eval/`: eval clips list and results (qa owns it)
 - `scripts/`: vLLM serving and smoke scripts (gpu-devops owns it)
 - `tests/`: pytest tests, with fixtures in `tests/fixtures/`
@@ -51,6 +53,22 @@ s.nvidia_api_key.get_secret_value()  # NVIDIA_API_KEY; check `is not None` first
 ```
 
 Tests never touch the real `.env`: they use `tests/fixtures/root.env` copied into a temp dir.
+
+## Nemotron smoke (ADR-4, #9)
+
+`app/nemotron.py` makes one hosted Nemotron call through `ChatNVIDIA` with `with_structured_output(SmokeReply)` (`trade`, `ok`, `note`). The prompt is fixed, holds no user data, and lives in `app/prompts/nemotron_smoke.v1.txt`. The call proves that the key, the model id and structured output all work before V2.
+
+It reads `NVIDIA_API_KEY` and `NEMOTRON_MODEL` through `get_settings()`, so from the **repo-root `.env`** or the Brev env (D-13). The key is passed to `ChatNVIDIA` explicitly and never printed; error text is scrubbed of it. There's no default model id. Pick one from build.nvidia.com that supports structured output, for example with `uv run python -c "from langchain_nvidia_ai_endpoints import ChatNVIDIA; print([m.id for m in ChatNVIDIA.get_available_models() if 'nemotron' in m.id])"` (this listing needs `NVIDIA_API_KEY` in your shell).
+
+```bash
+uv run python -m app.nemotron
+# model: <the model id ChatNVIDIA used>
+# {"trade":"electrical","ok":true,"note":"..."}
+```
+
+It exits 0 on success. A missing key or model, an HTTP error, or a reply that doesn't fit the schema prints `Nemotron smoke failed: ...` to stderr and exits 1. If LangSmith tracing is on, the run goes through `app/tracing.py` and is masked (ADR-13).
+
+The tests (`tests/test_nemotron.py`) make no network call. They fake only `requests.Session.get`/`post` and replay `tests/fixtures/nemotron_smoke_response.json`, so the real `ChatNVIDIA` request and parsing code runs.
 
 ## Tracing (LangSmith)
 

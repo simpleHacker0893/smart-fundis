@@ -1,0 +1,22 @@
+{
+  "id": "chatcmpl-fixture-0001",
+  "object": "chat.completion",
+  "created": 1790000000,
+  "model": "nvidia/nemotron-3-super-120b-a12b",
+  "choices": [
+    {
+      "index": 0,
+      "message": {
+        "role": "assistant",
+        "content": "{\"trade\": \"electrical\", \"ok\": true, \"note\": \"Structured output works.\"}"
+      },
+      "finish_reason": "stop",
+      "logprobs": null
+    }
+  ],
+  "usage": {
+    "prompt_tokens": 96,
+    "completion_tokens": 21,
+    "total_tokens": 117
+  }
+}
