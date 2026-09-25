@@ -31,14 +31,20 @@ vi.mock("@clerk/nextjs/server", () => ({
 // Convex as the client sees it: auth state, the `me` result and `store`.
 const convex = vi.hoisted(() => ({
   isAuthenticated: false,
-  me: undefined as { email: string } | null | undefined,
+  me: undefined as { user: { email: string } | null; roles: object } | undefined,
   queryArgs: [] as unknown[],
   store: vi.fn(async () => "users_id"),
+  useMutation: vi.fn(),
 }));
+
+const ROLES = { base: "none", expert: false, admin: false };
 
 vi.mock("convex/react", () => ({
   useConvexAuth: () => ({ isLoading: !convex.isAuthenticated, isAuthenticated: convex.isAuthenticated }),
-  useMutation: () => convex.store,
+  useMutation: (ref: unknown) => {
+    convex.useMutation(ref);
+    return convex.store;
+  },
   useQuery: (_ref: unknown, args: unknown) => {
     convex.queryArgs.push(args);
     return args === "skip" ? undefined : convex.me;
@@ -56,6 +62,7 @@ beforeEach(() => {
   convex.me = undefined;
   convex.queryArgs = [];
   convex.store.mockClear();
+  convex.useMutation.mockClear();
 });
 
 async function renderDashboard() {
@@ -88,15 +95,15 @@ describe("dashboard page", () => {
     expect(convex.queryArgs).toEqual([{}]);
   });
 
-  it("keeps the server's email when users.me is null (store has not run yet)", async () => {
+  it("keeps the server's email when users.me has no row yet (store has not run)", async () => {
     convex.isAuthenticated = true;
-    convex.me = null;
+    convex.me = { user: null, roles: ROLES };
     expect(await renderDashboard()).toContain(t("signedInAs", { email: CLERK_EMAIL }));
   });
 
   it("shows the email from users.me once it resolves", async () => {
     convex.isAuthenticated = true;
-    convex.me = { email: CONVEX_EMAIL };
+    convex.me = { user: { email: CONVEX_EMAIL }, roles: ROLES };
     const strings = await renderDashboard();
 
     expect(strings).toContain(t("signedInAs", { email: CONVEX_EMAIL }));
@@ -116,6 +123,13 @@ describe("dashboard page", () => {
     for (const s of strings) {
       expect(allowed, `hardcoded string on /dashboard: "${s}"`).toContain(s);
     }
+  });
+
+  it("only displays: users.store is called by StoreUserOnAuth, not the page", async () => {
+    convex.isAuthenticated = true;
+    await renderDashboard();
+    expect(convex.useMutation).not.toHaveBeenCalled();
+    expect(convex.store).not.toHaveBeenCalled();
   });
 
   it("protects itself on the server, not only in the proxy", async () => {

@@ -72,6 +72,30 @@ describe("users.store", () => {
     expect(row).toMatchObject({ phone: "+254700000000", county: "Nairobi", isDemo: true });
   });
 
+  it("stores the email trimmed and lowercased", async () => {
+    const t = setup();
+    await t.withIdentity({ ...WANJIRU, email: "  Wanjiru@Example.COM " }).mutation(api.users.store, {});
+    const rows = await allUsers(t);
+    expect(rows[0].email).toBe("wanjiru@example.com");
+  });
+
+  it("gives the same subject from a different issuer its own row", async () => {
+    const t = setup();
+    const clerkId = await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    const otherIssuer = {
+      ...WANJIRU,
+      issuer: "https://other-issuer.example",
+      tokenIdentifier: "https://other-issuer.example|user_wanjiru",
+    };
+    const otherId = await t.withIdentity(otherIssuer).mutation(api.users.store, {});
+
+    expect(otherId).not.toEqual(clerkId);
+    const rows = await allUsers(t);
+    expect(rows.map((r) => r.clerkId).sort()).toEqual(
+      [otherIssuer.tokenIdentifier, WANJIRU.tokenIdentifier].sort(),
+    );
+  });
+
   it("rejects an unauthenticated caller and writes nothing", async () => {
     const t = setup();
     await expect(t.mutation(api.users.store, {})).rejects.toThrowError(/not authenticated/i);
@@ -99,16 +123,21 @@ describe("users.store", () => {
 });
 
 describe("users.me", () => {
-  it("returns null for a signed-in caller before store has run", async () => {
+  it("returns { user: null, roles } for a signed-in caller before store has run", async () => {
     const t = setup();
-    expect(await t.withIdentity(WANJIRU).query(api.users.me, {})).toBeNull();
+    expect(await t.withIdentity(WANJIRU).query(api.users.me, {})).toEqual({
+      user: null,
+      roles: { base: "none", expert: false, admin: false },
+    });
   });
 
-  it("returns the caller's row after store", async () => {
+  it("returns { user, roles } with the caller's row after store", async () => {
     const t = setup();
     const id = await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     const me = await t.withIdentity(WANJIRU).query(api.users.me, {});
-    expect(me).toMatchObject({ _id: id, email: WANJIRU.email, name: WANJIRU.name });
+    expect(Object.keys(me).sort()).toEqual(["roles", "user"]);
+    expect(me.user).toMatchObject({ _id: id, email: WANJIRU.email, name: WANJIRU.name });
+    expect(me.roles).toEqual({ base: "none", expert: false, admin: false });
   });
 
   it("never returns another user's row", async () => {
@@ -116,12 +145,12 @@ describe("users.me", () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
 
     // Otieno has no row yet, so he gets null rather than someone else's row.
-    expect(await t.withIdentity(OTIENO).query(api.users.me, {})).toBeNull();
+    expect((await t.withIdentity(OTIENO).query(api.users.me, {})).user).toBeNull();
 
     const otienoId = await t.withIdentity(OTIENO).mutation(api.users.store, {});
     const me = await t.withIdentity(OTIENO).query(api.users.me, {});
-    expect(me?._id).toEqual(otienoId);
-    expect(me?.email).toBe(OTIENO.email);
+    expect(me.user?._id).toEqual(otienoId);
+    expect(me.user?.email).toBe(OTIENO.email);
   });
 
   it("does not accept a user id argument", async () => {
@@ -173,20 +202,15 @@ describe("getRoles (ADR-18)", () => {
   it("gives a fresh User Fundi `none`, no Expert role and no Admin role", async () => {
     const t = setup();
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
-    const roles = await t.withIdentity(WANJIRU).run((ctx) => getRoles(ctx));
+    const roles = await t.withIdentity(WANJIRU).run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
     expect(roles).toEqual({ base: "none", expert: false, admin: false });
-  });
-
-  it("rejects an unauthenticated caller", async () => {
-    const t = setup();
-    await expect(t.run((ctx) => getRoles(ctx))).rejects.toThrowError(/not authenticated/i);
   });
 
   it("makes a verified email on ADMIN_EMAILS an Admin, ignoring case and spaces", async () => {
     const t = setup();
     const roles = await t
       .withIdentity({ ...WANJIRU, email: "admin@example.com" })
-      .run((ctx) => getRoles(ctx));
+      .run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
     expect(roles.admin).toBe(true);
   });
 
@@ -194,13 +218,34 @@ describe("getRoles (ADR-18)", () => {
     const t = setup();
     const unverified = await t
       .withIdentity({ ...WANJIRU, email: "admin@example.com", emailVerified: false })
-      .run((ctx) => getRoles(ctx));
+      .run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
     const { emailVerified: _verified, ...noClaim } = WANJIRU;
     const missing = await t
       .withIdentity({ ...noClaim, email: "admin@example.com" })
-      .run((ctx) => getRoles(ctx));
+      .run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
     expect(unverified.admin).toBe(false);
     expect(missing.admin).toBe(false);
+  });
+
+  it("keeps a verified email that is not on ADMIN_EMAILS non-Admin", async () => {
+    const t = setup();
+    const roles = await t.withIdentity(WANJIRU).run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
+    expect(roles.admin).toBe(false);
+  });
+
+  it("matches a mixed-case, spaced ADMIN_EMAILS entry against a token email in another case", async () => {
+    process.env.ADMIN_EMAILS = "ops@example.com,  MiXeD.Admin@Example.COM  ";
+    const t = setup();
+    const roles = await t
+      .withIdentity({ ...WANJIRU, email: "mixed.ADMIN@example.com" })
+      .run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
+    expect(roles.admin).toBe(true);
+  });
+
+  it("shows Admin through users.me for a verified email on ADMIN_EMAILS", async () => {
+    const t = setup();
+    const me = await t.withIdentity({ ...WANJIRU, email: "admin@example.com" }).query(api.users.me, {});
+    expect(me.roles.admin).toBe(true);
   });
 
   it("refuses Admin when ADMIN_EMAILS is unset", async () => {
@@ -208,7 +253,7 @@ describe("getRoles (ADR-18)", () => {
     const t = setup();
     const roles = await t
       .withIdentity({ ...WANJIRU, email: "admin@example.com" })
-      .run((ctx) => getRoles(ctx));
+      .run(async (ctx) => getRoles(ctx, await requireUser(ctx)));
     expect(roles.admin).toBe(false);
   });
 });

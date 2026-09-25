@@ -1,19 +1,20 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { requireUser } from "./lib/auth";
+import { getRoles, requireUser, rolesValidator } from "./lib/auth";
 import schema from "./schema";
 
 /**
  * Creates or updates the caller's `users` row from the verified token. The
- * client calls it once after sign-in. It takes no arguments: who the row
- * belongs to comes only from the token (ADR-18).
+ * client calls it once per session after sign-in. It takes no arguments: who
+ * the row belongs to comes only from the token (ADR-18).
  */
 export const store = mutation({
   args: {},
   returns: v.id("users"),
   handler: async (ctx) => {
     const { identity, user } = await requireUser(ctx);
-    const email = identity.email?.trim();
+    // Display only: never used for authorization (Admin reads the token).
+    const email = identity.email?.trim().toLowerCase();
     if (!email) {
       throw new Error(
         "The sign-in token has no email claim. Add `email` to the Clerk `convex` JWT template.",
@@ -36,14 +37,18 @@ export const store = mutation({
 });
 
 /**
- * The caller's own row, or null before `store` has run. It never takes a user
- * id, so it can only ever return the caller's row.
+ * The caller's own row (null before `store` has run) and their derived roles
+ * (spec §4). It never takes a user id, so it can only ever describe the caller.
  */
 export const me = query({
   args: {},
-  returns: v.union(schema.doc("users"), v.null()),
+  returns: v.object({
+    user: v.union(schema.doc("users"), v.null()),
+    roles: rolesValidator,
+  }),
   handler: async (ctx) => {
-    const { user } = await requireUser(ctx);
-    return user;
+    const caller = await requireUser(ctx);
+    const roles = await getRoles(ctx, caller);
+    return { user: caller.user, roles };
   },
 });

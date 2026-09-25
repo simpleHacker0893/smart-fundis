@@ -5,9 +5,9 @@ import { v } from "convex/values";
 // here (ADR-18).
 export default defineSchema({
   users: defineTable({
-    // The Convex token identifier for the Clerk identity (`issuer|subject`).
-    // Convex guidelines make tokenIdentifier the canonical auth key.
+    // Holds identity.tokenIdentifier (issuer|subject), not the raw Clerk user id (D-16).
     clerkId: v.string(),
+    // Display only, trimmed and lowercased by users.store. Never used for authorization.
     email: v.string(),
     name: v.string(),
     phone: v.optional(v.string()),

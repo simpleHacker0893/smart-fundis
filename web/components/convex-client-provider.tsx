@@ -4,10 +4,12 @@ import type { ReactNode } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { StoreUserOnAuth } from "@/components/store-user-on-auth";
 
 // next.config.ts fills NEXT_PUBLIC_CONVEX_URL from the root CONVEX_URL (D-13).
-// The client is created lazily so importing the layout (tests, metadata) never
-// needs the URL; rendering without it fails loudly.
+// The client is created when this module loads, but only if the URL is set, so
+// importing the layout without it (tests, metadata) doesn't throw. Rendering
+// the provider without the URL fails loudly instead.
 const convexUrl = process.env.NEXT_PUBLIC_CONVEX_URL;
 const convex = convexUrl ? new ConvexReactClient(convexUrl) : null;
 
@@ -19,6 +21,7 @@ export function ConvexClientProvider({ children }: { children: ReactNode }) {
   }
   return (
     <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
+      <StoreUserOnAuth />
       {children}
     </ConvexProviderWithClerk>
   );
