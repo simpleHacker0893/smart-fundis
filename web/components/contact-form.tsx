@@ -23,7 +23,7 @@ export function ContactForm({ to }: { to: string }) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
     const role = t(`roles.${String(data.get("role")) as (typeof ROLES)[number]}`);
-    window.location.href = buildMailto(to, { role, message: String(data.get("message") ?? "") });
+    window.location.href = buildMailto(to, { subject: t("subject", { role }), message: String(data.get("message") ?? "") });
   }
 
   return (

@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { Reticles } from "@/components/landing/reticles";
 
 /**
  * A static evidence frame (DESIGN.md "one signature idea"): a panel with a
@@ -36,13 +37,7 @@ export function EvidenceFrame({
           aria-hidden="true"
           className="pointer-events-none absolute inset-x-0 hidden h-0.5 bg-gradient-to-r from-transparent via-amber to-transparent motion-safe:block motion-safe:animate-scan"
         />
-        {/* Corner reticles. */}
-        <div aria-hidden="true" className="pointer-events-none absolute inset-3">
-          <span className="absolute top-0 left-0 size-3.5 border-t-2 border-l-2 border-foreground/70" />
-          <span className="absolute top-0 right-0 size-3.5 border-t-2 border-r-2 border-foreground/70" />
-          <span className="absolute bottom-0 left-0 size-3.5 border-b-2 border-l-2 border-foreground/70" />
-          <span className="absolute right-0 bottom-0 size-3.5 border-r-2 border-b-2 border-foreground/70" />
-        </div>
+        <Reticles />
         {markers.length > 0 && (
           <ol className="pointer-events-none absolute inset-x-5 bottom-5 flex flex-col items-start gap-1.5">
             {markers.map((marker) => (

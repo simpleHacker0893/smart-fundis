@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
-import { Section, SectionLabel, SectionTitle } from "@/components/landing/section";
+import { PageHero } from "@/components/landing/page-hero";
+import { Section, SectionLabel, SectionTitle, Tag } from "@/components/landing/section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Telemetry");
@@ -9,7 +10,7 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 const STAGES = ["ingest", "guard", "observe", "assess", "rules", "expert"] as const;
-const OUTPUTS = ["pass", "review", "reshoot"] as const;
+const OUTPUTS = ["pass", "review", "fail"] as const;
 /** Privacy rows; `soon` rows describe features that ship in V4 (spec §9). */
 const PRIVACY_ROWS = [
   { key: "who", soon: false },
@@ -17,14 +18,6 @@ const PRIVACY_ROWS = [
   { key: "delete", soon: true },
   { key: "traces", soon: false },
 ] as const;
-
-function SoonTag({ children }: { children: string }) {
-  return (
-    <span className="shrink-0 self-start rounded border border-line px-2 py-0.5 font-mono text-xs tracking-widest text-foreground/60 uppercase">
-      {children}
-    </span>
-  );
-}
 
 /**
  * /telemetry — how the AI works (Responsible AI), #23. From
@@ -34,39 +27,32 @@ function SoonTag({ children }: { children: string }) {
  * appeals are tagged "Coming soon" until V4 ships them (HANDOFF C-6).
  */
 export default async function TelemetryPage() {
-  const t = await getTranslations("Telemetry");
+  const [t, common] = await Promise.all([getTranslations("Telemetry"), getTranslations("Common")]);
 
   return (
     <main className="flex w-full flex-1 flex-col">
-      <Section id="top" className="film-grain py-12 sm:py-16">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <SectionLabel>{t("hero.label")}</SectionLabel>
-            <h1 className="mb-6 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl lg:text-7xl">
-              <span className="block">{t("hero.titleLine1")}</span>
-              <span className="block">{t("hero.titleLine2")}</span>
-            </h1>
-            <p className="max-w-xl text-base leading-relaxed text-foreground/75">{t("hero.body")}</p>
-          </div>
-          <div className="lg:col-span-5">
-            <figure className="rounded border border-line bg-panel p-5 sm:p-6">
-              <p className="mb-3 flex items-center gap-2 font-mono text-xs tracking-widest text-foreground/75 uppercase">
-                <span aria-hidden="true" className="size-2 rotate-45 bg-amber" />
-                {t("hero.principle")}
-              </p>
-              <blockquote className="font-mono text-sm leading-relaxed">{t("hero.quote")}</blockquote>
-              <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-line pt-4">
-                {(["decides", "runs"] as const).map((key) => (
-                  <div key={key}>
-                    <dt className="font-mono text-xs tracking-widest text-foreground/75 uppercase">{t(`hero.${key}Label`)}</dt>
-                    <dd className="mt-1 text-sm font-semibold">{t(`hero.${key}`)}</dd>
-                  </div>
-                ))}
-              </dl>
-            </figure>
-          </div>
-        </div>
-      </Section>
+      <PageHero
+        label={t("hero.label")}
+        title={[t("hero.titleLine1"), t("hero.titleLine2")]}
+        body={t("hero.body")}
+        aside={
+          <figure className="rounded border border-line bg-panel p-5 sm:p-6">
+            <p className="mb-3 flex items-center gap-2 font-mono text-xs tracking-widest text-foreground/75 uppercase">
+              <span aria-hidden="true" className="size-2 rotate-45 bg-amber" />
+              {t("hero.principle")}
+            </p>
+            <blockquote className="font-mono text-sm leading-relaxed">{t("hero.quote")}</blockquote>
+            <dl className="mt-5 grid grid-cols-2 gap-3 border-t border-line pt-4">
+              {(["decides", "runs"] as const).map((key) => (
+                <div key={key}>
+                  <dt className="font-mono text-xs tracking-widest text-foreground/75 uppercase">{t(`hero.${key}Label`)}</dt>
+                  <dd className="mt-1 text-sm font-semibold">{t(`hero.${key}`)}</dd>
+                </div>
+              ))}
+            </dl>
+          </figure>
+        }
+      />
 
       <Section id="pipeline">
         <SectionLabel>{t("pipeline.label")}</SectionLabel>
@@ -114,6 +100,7 @@ export default async function TelemetryPage() {
           })}
         </ul>
         <p className="mt-6 border-l-2 border-foreground/40 bg-panel px-5 py-4 font-mono text-sm">{t("outputs.caption")}</p>
+        <p className="mt-3 text-sm text-foreground/75">{t("outputs.reshoot")}</p>
       </Section>
 
       <Section id="privacy">
@@ -122,7 +109,7 @@ export default async function TelemetryPage() {
         <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
           <EvidenceFrame
             label={t("privacy.frame")}
-            tag={t("privacy.frameTag")}
+            tag={common("example")}
             src="/images/sf-phone-recording-1280.webp"
             alt={t("privacy.imageAlt")}
             aspect="aspect-video"
@@ -134,7 +121,7 @@ export default async function TelemetryPage() {
                   <p className="font-mono text-xs font-bold tracking-widest uppercase">{t(`privacy.rows.${row.key}.label`)}</p>
                   <p className="mt-1 text-sm text-foreground/75">{t(`privacy.rows.${row.key}.value`)}</p>
                 </div>
-                {row.soon && <SoonTag>{t("comingSoon")}</SoonTag>}
+                {row.soon && <Tag>{common("comingSoon")}</Tag>}
               </li>
             ))}
           </ul>
@@ -144,7 +131,7 @@ export default async function TelemetryPage() {
       <Section id="appeals">
         <SectionLabel>{t("appeals.label")}</SectionLabel>
         <div className="mt-4 flex flex-col gap-4 rounded border border-line bg-panel p-6 sm:p-8">
-          <SoonTag>{t("comingSoon")}</SoonTag>
+          <Tag>{common("comingSoon")}</Tag>
           <p className="max-w-3xl text-2xl font-bold tracking-tight sm:text-3xl">{t("appeals.title")}</p>
         </div>
       </Section>

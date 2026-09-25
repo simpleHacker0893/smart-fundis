@@ -23,6 +23,7 @@ vi.mock("next-intl/server", async () => {
 
 const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join"];
 
+const common = createTranslator({ locale: defaultLocale, messages: en, namespace: "Common" });
 const isFromMessages = makeIsFromMessages(en);
 
 type PageModule = {
@@ -31,13 +32,13 @@ type PageModule = {
 };
 
 const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof typeof en }> = {
-  "/evidence": { load: () => import("@/app/evidence/page"), namespace: "Evidence" },
-  "/trades": { load: () => import("@/app/trades/page"), namespace: "Trades" },
-  "/telemetry": { load: () => import("@/app/telemetry/page"), namespace: "Telemetry" },
-  "/about": { load: () => import("@/app/about/page"), namespace: "About" },
-  "/contact": { load: () => import("@/app/contact/page"), namespace: "Contact" },
-  "/privacy": { load: () => import("@/app/privacy/page"), namespace: "Privacy" },
-  "/responsible-ai": { load: () => import("@/app/responsible-ai/page"), namespace: "ResponsibleAi" },
+  "/evidence": { load: () => import("@/app/(site)/evidence/page"), namespace: "Evidence" },
+  "/trades": { load: () => import("@/app/(site)/trades/page"), namespace: "Trades" },
+  "/telemetry": { load: () => import("@/app/(site)/telemetry/page"), namespace: "Telemetry" },
+  "/about": { load: () => import("@/app/(site)/about/page"), namespace: "About" },
+  "/contact": { load: () => import("@/app/(site)/contact/page"), namespace: "Contact" },
+  "/privacy": { load: () => import("@/app/(site)/privacy/page"), namespace: "Privacy" },
+  "/responsible-ai": { load: () => import("@/app/(site)/responsible-ai/page"), namespace: "ResponsibleAi" },
 };
 
 async function render(route: string) {
@@ -55,7 +56,7 @@ async function idsOf(route: string): Promise<Set<string>> {
 }
 
 async function renderHome() {
-  const { default: HomePage } = await import("@/app/page");
+  const { default: HomePage } = await import("@/app/(site)/page");
   return renderToStaticMarkup(
     <NextIntlClientProvider locale={defaultLocale} messages={en}>
       {await HomePage()}
@@ -164,7 +165,10 @@ describe("/trades (#22)", () => {
     }
     expect(strings.filter((s) => s === t("open.rubric"))).toHaveLength(2);
     const anchors = [...open.matchAll(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)];
-    expect(anchors.map((m) => m[1])).toEqual(["/sign-up", "/sign-up"]);
+    expect(anchors.map((m) => m[1].replaceAll("&amp;", "&"))).toEqual([
+      "/join?role=fundi&trade=electrical",
+      "/join?role=fundi&trade=hairdressing",
+    ]);
     for (const [, , inner] of anchors) expect(visibleStrings(inner)).toContain(t("open.verifyNow"));
   });
 
@@ -175,7 +179,7 @@ describe("/trades (#22)", () => {
 
   it("shows ten bench trades as 'Coming soon' readouts, not links or buttons", async () => {
     const bench = section(await render("/trades"), "bench");
-    expect(visibleStrings(bench).filter((s) => s === t("bench.comingSoon"))).toHaveLength(10);
+    expect(visibleStrings(bench).filter((s) => s === common("comingSoon"))).toHaveLength(10);
     const tiles = bench.slice(0, bench.indexOf(t("bench.note")));
     expect(tiles).not.toMatch(/<a\s|<button|disabled|opacity-(50|60)/);
   });
@@ -198,7 +202,7 @@ describe("/telemetry (#23)", () => {
       expect(pipeline).toContain(t(`pipeline.stages.${stage}.title`));
     }
     const outputs = visibleStrings(section(markup, "outputs"));
-    for (const out of ["pass", "review", "reshoot"] as const) expect(outputs).toContain(t(`outputs.${out}.title`));
+    for (const out of ["pass", "review", "fail"] as const) expect(outputs).toContain(t(`outputs.${out}.title`));
     expect(outputs).toContain(t("outputs.caption"));
   });
 
@@ -206,8 +210,8 @@ describe("/telemetry (#23)", () => {
     const markup = await render("/telemetry");
     const privacy = section(markup, "privacy");
     const deleteRow = privacy.slice(privacy.indexOf(t("privacy.rows.delete.label")));
-    expect(visibleStrings(deleteRow.slice(0, 600))).toContain(t("comingSoon"));
-    expect(visibleStrings(section(markup, "appeals"))).toContain(t("comingSoon"));
+    expect(visibleStrings(deleteRow.slice(0, 600))).toContain(common("comingSoon"));
+    expect(visibleStrings(section(markup, "appeals"))).toContain(common("comingSoon"));
   });
 
   it("invents no numbers or infrastructure claims", async () => {
@@ -231,7 +235,7 @@ describe("/about (#24)", () => {
     const what = visibleStrings(section(await render("/about"), "what"));
     expect(what).toContain(t("what.not.title"));
     expect(what).toContain(t("what.notYet.title"));
-    expect(what).toContain(t("comingSoon"));
+    expect(what).toContain(common("comingSoon"));
   });
 
   it("lists the four principles and links on to telemetry, the roadmap and contact", async () => {
@@ -251,18 +255,20 @@ describe("/about (#24)", () => {
 describe("/contact (#24)", () => {
   const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Contact" });
 
-  it("has no live-looking form or placeholder address while no contact email is set", async () => {
-    const { CONTACT_EMAIL } = await import("@/lib/contact");
-    expect(CONTACT_EMAIL).toBeNull();
+  it("renders the mailto form to the one contact address, with no backend", async () => {
     const markup = await render("/contact");
-    expect(markup).not.toMatch(/<form|<textarea|type="submit"|example\.com/);
-    expect(visibleStrings(markup)).toContain(t("direct.pending"));
+    expect(markup).toMatch(/<form/);
+    expect(markup).not.toMatch(/action="http|method="post"|example\.com/i);
+    expect(markup).toContain('href="mailto:info@smartfundis.com"');
   });
 
   it("builds a mailto link with the role and message, to the one contact address", async () => {
     const { buildMailto } = await import("@/lib/contact");
-    const href = buildMailto("team@smartfundis.example", { role: "Fundi", message: "Habari? Line 2 & more" });
-    expect(href.startsWith("mailto:team@smartfundis.example?")).toBe(true);
+    const href = buildMailto("info@smartfundis.com", {
+      subject: t("message.subject", { role: t("message.roles.fundi") }),
+      message: "Habari? Line 2 & more",
+    });
+    expect(href.startsWith("mailto:info@smartfundis.com?")).toBe(true);
     const params = new URLSearchParams(href.split("?")[1]);
     expect(params.get("subject")).toContain("Fundi");
     expect(params.get("body")).toBe("Habari? Line 2 & more");
@@ -301,9 +307,9 @@ describe("/privacy (#25)", () => {
     const controls = section(await render("/privacy"), "controls");
     const cards = [...controls.matchAll(/<li[\s\S]*?<\/li>/g)].map((m) => visibleStrings(m[0]));
     const byLabel = (key: string) => cards.find((c) => c.includes(t(`controls.${key}.label` as never)))!;
-    expect(byLabel("delete")).toContain(t("comingSoon"));
-    expect(byLabel("visibility")).toContain(t("comingSoon"));
-    expect(byLabel("training")).not.toContain(t("comingSoon"));
+    expect(byLabel("delete")).toContain(common("comingSoon"));
+    expect(byLabel("visibility")).toContain(common("comingSoon"));
+    expect(byLabel("training")).not.toContain(common("comingSoon"));
   });
 
   it("drops the export's invented readouts", async () => {
@@ -342,9 +348,9 @@ describe("/responsible-ai (#26)", () => {
     const video = section(markup, "video");
     const rows = [...video.matchAll(/<div[^>]*data-row="([^"]+)"[\s\S]*?<\/dd>\s*<\/div>/g)];
     const row = (key: string) => visibleStrings(rows.find((r) => r[1] === key)![0]);
-    expect(row("delete")).toContain(t("comingSoon"));
-    expect(row("appeal")).toContain(t("comingSoon"));
-    expect(row("training")).not.toContain(t("comingSoon"));
+    expect(row("delete")).toContain(common("comingSoon"));
+    expect(row("appeal")).toContain(common("comingSoon"));
+    expect(row("training")).not.toContain(common("comingSoon"));
   });
 
   it("never prints the Kiswahili consent text, and never says the AI approves or grades", async () => {
@@ -353,10 +359,9 @@ describe("/responsible-ai (#26)", () => {
     expect(text).not.toMatch(/AI (approves|grades|scores|certifies)|system online|\blive\b/i);
   });
 
-  it("links contact to /evidence and shows no mailto while no contact email is set", async () => {
+  it("links contact to the one email and to /evidence", async () => {
     const contact = section(await render("/responsible-ai"), "contact");
-    expect(contact).not.toMatch(/mailto:/);
-    expect([...contact.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])).toEqual(["/evidence"]);
-    expect(visibleStrings(contact)).toContain(t("contact.pending"));
+    expect([...contact.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])).toEqual(["mailto:info@smartfundis.com", "/evidence"]);
+    expect(visibleStrings(contact)).toContain(t("contact.email"));
   });
 });

@@ -28,11 +28,15 @@ vi.mock("next/navigation", () => ({
 }));
 
 const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Join" });
+const common = createTranslator({ locale: defaultLocale, messages: en, namespace: "Common" });
+
 const isFromMessages = makeIsFromMessages(en);
 
-async function visit(role?: string) {
-  const { default: JoinPage } = await import("@/app/join/page");
-  const page = await JoinPage({ searchParams: Promise.resolve(role === undefined ? {} : { role }) });
+async function visit(role?: string, trade?: string) {
+  const { default: JoinPage } = await import("@/app/(site)/join/page");
+  const page = await JoinPage({
+    searchParams: Promise.resolve({ ...(role === undefined ? {} : { role }), ...(trade === undefined ? {} : { trade }) }),
+  });
   return renderToStaticMarkup(
     <NextIntlClientProvider locale={defaultLocale} messages={en}>
       {page}
@@ -53,19 +57,26 @@ describe("/join (#27)", () => {
     },
   );
 
+  it("carries an open trade through to sign-up, and drops an unknown one (#14 review)", async () => {
+    await expect(visit("fundi", "electrical")).rejects.toThrow("NEXT_REDIRECT");
+    await expect(visit("fundi", "plumbing")).rejects.toThrow("NEXT_REDIRECT");
+    await expect(visit("fundi", "<script>")).rejects.toThrow("NEXT_REDIRECT");
+    expect(next.calls).toEqual(["/sign-up?role=fundi&trade=electrical", "/sign-up?role=fundi", "/sign-up?role=fundi"]);
+  });
+
   it("shows 'Coming soon' for Experts instead of a sign-up that doesn't exist", async () => {
     const markup = await visit("expert");
     expect(next.calls).toEqual([]);
     const strings = visibleStrings(markup);
     for (const s of strings) expect(isFromMessages(s), `hardcoded: "${s}"`).toBe(true);
     expect(strings).toContain(t("expert.title"));
-    expect(strings).toContain(t("comingSoon"));
+    expect(strings).toContain(common("comingSoon"));
     expect(markup).not.toMatch(/<form|<button|<input/);
     expect([...markup.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])).toEqual(["/evidence", "/"]);
   });
 
   it("takes its title from en.json", async () => {
-    const { generateMetadata } = await import("@/app/join/page");
+    const { generateMetadata } = await import("@/app/(site)/join/page");
     expect((await generateMetadata()).title).toBe(t("meta.title"));
   });
 });

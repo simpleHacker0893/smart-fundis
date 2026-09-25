@@ -4,9 +4,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
-import { FooterSwitch } from "@/components/footer-switch";
-import { SiteFooter } from "@/components/site-footer";
-import { SlimFooter } from "@/components/slim-footer";
 import { SiteHeader } from "@/components/site-header";
 import { defaultLocale } from "@/i18n/config";
 import { clerkAppearance } from "@/lib/clerk-appearance";
@@ -70,7 +67,6 @@ export default function RootLayout({
               >
                 {children}
               </div>
-              <FooterSwitch full={<SiteFooter />} slim={<SlimFooter />} />
             </NextIntlClientProvider>
           </ConvexClientProvider>
         </ClerkProvider>

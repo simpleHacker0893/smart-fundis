@@ -1,12 +1,11 @@
 import type { Metadata } from "next";
 import Image from "next/image";
-import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
+import { HeroCtas } from "@/components/landing/hero-ctas";
+import { PageHero } from "@/components/landing/page-hero";
 import { ScopeLedgers } from "@/components/landing/scope-ledgers";
 import { ExampleTag, Section, SectionLabel, SectionTitle } from "@/components/landing/section";
-import { pillClass } from "@/components/ui/pill";
-import { PRIMARY_CTAS } from "@/lib/site-nav";
 
 const CHAIN = ["consent", "code", "video", "ai", "expert"] as const;
 const MARKERS = ["1", "2", "3"] as const;
@@ -24,53 +23,33 @@ export async function generateMetadata(): Promise<Metadata> {
  * verified location or "Contact fundi" button; every sample says EXAMPLE.
  */
 export default async function EvidencePage() {
-  const [t, links, landing, glyphs] = await Promise.all([
+  const [t, landing, glyphs, common] = await Promise.all([
     getTranslations("Evidence"),
-    getTranslations("Links"),
     getTranslations("Landing"),
     getTranslations("Glyphs"),
+    getTranslations("Common"),
   ]);
-  const example = landing("inspector.example");
+  const example = common("example");
 
   return (
     <main className="flex w-full flex-1 flex-col">
-      {/* Hero */}
-      <Section id="top" className="film-grain py-12 sm:py-16">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
-            <SectionLabel>{t("hero.label")}</SectionLabel>
-            <h1 className="mb-6 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl lg:text-7xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mb-8 max-w-xl text-base leading-relaxed text-foreground/75">{t("hero.body")}</p>
-            <div className="flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
-              {PRIMARY_CTAS.map((cta) => (
-                <Link
-                  key={cta.key}
-                  href={cta.href}
-                  className={pillClass({
-                    variant: cta.primary ? "primary" : "secondary",
-                    size: "full",
-                    className: cta.primary ? "sm:w-auto" : "bg-panel sm:w-auto",
-                  })}
-                >
-                  {links(cta.key)}
-                </Link>
-              ))}
-            </div>
-          </div>
-          <div className="lg:col-span-7">
-            <EvidenceFrame
-              label={t("hero.frame")}
-              tag={t("hero.frameTag")}
-              src="/images/sf-braiding-hands-1280.webp"
-              alt={t("hero.imageAlt")}
-              markers={MARKERS.map((m) => t(`hero.markers.${m}`))}
-              priority
-            />
-          </div>
-        </div>
-      </Section>
+      <PageHero
+        label={t("hero.label")}
+        title={t("hero.title")}
+        body={t("hero.body")}
+        actions={<HeroCtas />}
+        asideWide
+        aside={
+          <EvidenceFrame
+            label={t("hero.frame")}
+            tag={t("hero.frameTag")}
+            src="/images/sf-braiding-hands-1280.webp"
+            alt={t("hero.imageAlt")}
+            markers={MARKERS.map((m) => t(`hero.markers.${m}`))}
+            priority
+          />
+        }
+      />
 
       {/* 01 — The chain of evidence */}
       <Section id="chain">

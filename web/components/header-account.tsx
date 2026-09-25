@@ -6,7 +6,8 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { PILL_HIT_AREA, pillClass } from "@/components/ui/pill";
 import { useSignedIn } from "@/components/use-signed-in";
-import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth-routes";
+import { AFTER_AUTH_PATH, SIGN_IN_PATH } from "@/lib/auth-routes";
+import { JOIN_FUNDI_PATH } from "@/lib/site-nav";
 
 /**
  * The header's account area, at every width.
@@ -60,10 +61,10 @@ export function HeaderAccount() {
       >
         {links("signIn")}
       </Link>
-      <Link href={SIGN_UP_PATH} aria-label={links("joinAsFundi")} className={`${PILL_HIT_AREA} lg:hidden`}>
+      <Link href={JOIN_FUNDI_PATH} aria-label={links("joinAsFundi")} className={`${PILL_HIT_AREA} lg:hidden`}>
         <span className={pillClass({ variant: "primary", size: "compact", inHitArea: true })}>{t("join")}</span>
       </Link>
-      <Link href={SIGN_UP_PATH} className={pillClass({ variant: "primary", size: "header", className: "max-lg:hidden" })}>
+      <Link href={JOIN_FUNDI_PATH} className={pillClass({ variant: "primary", size: "header", className: "max-lg:hidden" })}>
         {links("joinAsFundi")}
       </Link>
     </>

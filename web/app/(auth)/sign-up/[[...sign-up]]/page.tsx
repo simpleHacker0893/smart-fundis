@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { AuthLayout } from "@/components/auth-layout";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
+import { Tag } from "@/components/landing/section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("SignUp");
@@ -25,7 +26,7 @@ const STEPS = [
  * out until /experts exists.
  */
 export default async function SignUpPage() {
-  const t = await getTranslations("SignUp");
+  const [t, common] = await Promise.all([getTranslations("SignUp"), getTranslations("Common")]);
 
   return (
     <AuthLayout
@@ -51,20 +52,16 @@ export default async function SignUpPage() {
                   <span className="flex gap-3">
                     <span
                       aria-hidden="true"
-                      className={`mt-1.5 size-2 shrink-0 rounded-full ${step.soon ? "bg-foreground/30" : "bg-amber"}`}
+                      className={`mt-1.5 size-2 shrink-0 rounded-full ${step.soon ? "bg-foreground/30" : "bg-foreground"}`}
                     />
                     <span className="flex flex-col">
-                      <span className={`font-mono text-xs tracking-widest uppercase ${step.soon ? "text-foreground/75" : "text-amber"}`}>
+                      <span className={`font-mono text-xs tracking-widest uppercase ${step.soon ? "text-foreground/75" : "text-foreground"}`}>
                         {t(`steps.${step.n}.tag`)}
                       </span>
                       <span className="text-sm">{t(`steps.${step.n}.body`)}</span>
                     </span>
                   </span>
-                  {step.soon && (
-                    <span className="shrink-0 rounded border border-line px-2 py-0.5 font-mono text-xs tracking-widest text-foreground/60 uppercase">
-                      {t("comingSoon")}
-                    </span>
-                  )}
+                  {step.soon && <Tag>{common("comingSoon")}</Tag>}
                 </li>
               ))}
             </ol>

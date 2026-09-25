@@ -16,30 +16,36 @@ vi.mock("@clerk/nextjs", () => ({
     return children;
   },
 }));
-vi.mock("@/components/footer-switch", () => ({
-  FooterSwitch: ({ full }: { full: ReactNode }) => full,
-}));
 vi.mock("@/components/convex-client-provider", () => ({
   ConvexClientProvider: ({ children }: { children: ReactNode }) => children,
 }));
 vi.mock("@/components/site-header", () => ({ SiteHeader: () => <header data-shell="header" /> }));
 vi.mock("@/components/site-footer", () => ({ SiteFooter: () => <footer data-shell="footer" /> }));
+vi.mock("@/components/slim-footer", () => ({ SlimFooter: () => <footer data-shell="slim" /> }));
 vi.mock("next/font/google", () => ({
   Inter: () => ({ variable: "font-inter-var", className: "font-inter" }),
   JetBrains_Mono: () => ({ variable: "font-mono-var", className: "font-mono" }),
 }));
 
 describe("root layout", () => {
-  it("wraps every page in the site header and footer", async () => {
+  it("puts the site header above every page", async () => {
     const { default: RootLayout } = await import("@/app/layout");
     const markup = renderToStaticMarkup(RootLayout({ children: <p data-page="child" /> }));
 
     const header = markup.indexOf('data-shell="header"');
     const child = markup.indexOf('data-page="child"');
-    const footer = markup.indexOf('data-shell="footer"');
     expect(header).toBeGreaterThan(-1);
     expect(child).toBeGreaterThan(header);
-    expect(footer).toBeGreaterThan(child);
+  });
+
+  it("ends site pages with the full footer and auth pages with the slim one (route groups, #27 review)", async () => {
+    const { default: SiteLayout } = await import("@/app/(site)/layout");
+    const { default: AuthLayout } = await import("@/app/(auth)/layout");
+    const site = renderToStaticMarkup(SiteLayout({ children: <p data-page="child" /> }));
+    const auth = renderToStaticMarkup(AuthLayout({ children: <p data-page="child" /> }));
+    expect(site.indexOf('data-shell="footer"')).toBeGreaterThan(site.indexOf('data-page="child"'));
+    expect(auth.indexOf('data-shell="slim"')).toBeGreaterThan(auth.indexOf('data-page="child"'));
+    expect(auth).not.toContain('data-shell="footer"');
   });
 
   it("is dark-only and carries both next/font variables on <html>", async () => {

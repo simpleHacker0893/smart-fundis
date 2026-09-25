@@ -41,7 +41,7 @@ export async function SiteHeader() {
           <SiteLogo className="size-8 shrink-0 lg:size-10" />
           <span className="flex min-w-0 flex-col leading-none">
             <span className="text-[15px] font-semibold tracking-tight whitespace-nowrap lg:text-lg">{t("brand")}</span>
-            <span className="mt-1 hidden font-mono text-[11px] tracking-[0.2em] whitespace-nowrap text-dim uppercase sm:block">
+            <span className="mt-1 hidden font-mono text-xs tracking-[0.2em] whitespace-nowrap text-dim uppercase sm:block">
               {t("tagline")}
             </span>
           </span>

@@ -31,9 +31,8 @@ vi.mock("@clerk/nextjs", () => ({
   },
 }));
 
-const nav = vi.hoisted(() => ({ pathname: "/" }));
-vi.mock("next/navigation", () => ({ usePathname: () => nav.pathname }));
 
+const common = createTranslator({ locale: defaultLocale, messages: en, namespace: "Common" });
 const isFromMessages = makeIsFromMessages(en);
 const REAL_ROUTES = [
   "/",
@@ -52,9 +51,9 @@ const REAL_ROUTES = [
 ];
 
 const PAGES = {
-  "/sign-in": { load: () => import("@/app/sign-in/[[...sign-in]]/page"), namespace: "SignIn", widget: "sign-in" },
-  "/sign-up": { load: () => import("@/app/sign-up/[[...sign-up]]/page"), namespace: "SignUp", widget: "sign-up" },
-  "/signed-out": { load: () => import("@/app/signed-out/page"), namespace: "SignedOut", widget: null },
+  "/sign-in": { load: () => import("@/app/(auth)/sign-in/[[...sign-in]]/page"), namespace: "SignIn", widget: "sign-in" },
+  "/sign-up": { load: () => import("@/app/(auth)/sign-up/[[...sign-up]]/page"), namespace: "SignUp", widget: "sign-up" },
+  "/signed-out": { load: () => import("@/app/(auth)/signed-out/page"), namespace: "SignedOut", widget: null },
 } as const;
 
 async function render(route: keyof typeof PAGES) {
@@ -68,7 +67,6 @@ async function render(route: keyof typeof PAGES) {
 
 beforeEach(() => {
   clerk.props = {};
-  nav.pathname = "/";
 });
 
 describe.each(Object.keys(PAGES) as (keyof typeof PAGES)[])("%s (#28)", (route) => {
@@ -110,14 +108,13 @@ describe.each(Object.keys(PAGES) as (keyof typeof PAGES)[])("%s (#28)", (route) 
 });
 
 describe("/sign-up (#28)", () => {
-  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "SignUp" });
 
   it("tags the onboarding steps that aren't built yet 'Coming soon'", async () => {
     const markup = await render("/sign-up");
     const steps = [...markup.matchAll(/<li[\s\S]*?<\/li>/g)].map((m) => visibleStrings(m[0]));
     expect(steps).toHaveLength(4);
-    expect(steps[0]).not.toContain(t("comingSoon"));
-    for (const step of steps.slice(1)) expect(step).toContain(t("comingSoon"));
+    expect(steps[0]).not.toContain(common("comingSoon"));
+    for (const step of steps.slice(1)) expect(step).toContain(common("comingSoon"));
   });
 });
 
@@ -125,24 +122,6 @@ describe("/signed-out (#28)", () => {
   it("offers Sign in again and Back to home", async () => {
     const hrefs = [...(await render("/signed-out")).matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
     expect(hrefs).toEqual(["/sign-in", "/"]);
-  });
-});
-
-describe("footer switch", () => {
-  async function renderSwitch() {
-    const { FooterSwitch } = await import("@/components/footer-switch");
-    return renderToStaticMarkup(<FooterSwitch full={<footer data-footer="full" />} slim={<footer data-footer="slim" />} />);
-  }
-
-  it("uses the slim legal footer on the auth pages, the full footer elsewhere", async () => {
-    for (const pathname of ["/sign-in", "/sign-in/factor-one", "/sign-up", "/signed-out"]) {
-      nav.pathname = pathname;
-      expect(await renderSwitch(), pathname).toContain('data-footer="slim"');
-    }
-    for (const pathname of ["/", "/evidence", "/signed-outside"]) {
-      nav.pathname = pathname;
-      expect(await renderSwitch(), pathname).toContain('data-footer="full"');
-    }
   });
 });
 

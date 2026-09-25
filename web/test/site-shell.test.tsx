@@ -79,8 +79,8 @@ async function renderFooter() {
 }
 
 const PAGE_LOADERS: Record<string, () => Promise<{ default: () => Promise<ReactNode> }>> = {
-  "/": () => import("@/app/page"),
-  "/evidence": () => import("@/app/evidence/page"),
+  "/": () => import("@/app/(site)/page"),
+  "/evidence": () => import("@/app/(site)/evidence/page"),
 };
 
 async function idsOn(route: string): Promise<Set<string>> {
@@ -99,6 +99,7 @@ async function expectOnlyRealDestinations(markup: string, where: string) {
   const all = hrefs(markup);
   expect(all.length, `${where} has no links`).toBeGreaterThan(0);
   for (const href of all) {
+    if (href.startsWith("mailto:")) continue;
     if (href.startsWith("#")) {
       // Same-page anchors: the skip link.
       expect(["#main-content"], `${where}: unknown anchor ${href}`).toContain(href);
@@ -123,7 +124,8 @@ function expectOnlyMessages(markup: string, where: string) {
 
 /** The opening tag of the first element carrying `attr="value"`. */
 function tagWith(markup: string, attr: string, value: string): string {
-  const match = markup.match(new RegExp(`<[a-z]+[^>]*\\s${attr}="${value}"[^>]*>`));
+  const escaped = value.replaceAll("&", "&amp;").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const match = markup.match(new RegExp(`<[a-z]+[^>]*\\s${attr}="${escaped}"[^>]*>`));
   expect(match, `no element with ${attr}="${value}"`).not.toBeNull();
   return match![0];
 }
@@ -172,11 +174,14 @@ describe("site header", () => {
     expect(strings).toContain(shell("brand"));
     expect(strings).toContain(shell("tagline"));
     expect(tagWith(markup, "aria-label", shell("homeLabel"))).toContain('href="/"');
+    const tagline = markup.match(new RegExp(`<span[^>]*>${shell("tagline")}</span>`))![0];
+    expect(tagline).toMatch(/\btext-xs\b/);
+    expect(tagline).not.toMatch(/text-\[11px\]/);
   });
 
   it("offers Sign in and Join at every width when signed out", async () => {
     const markup = await renderHeader();
-    for (const href of ["/sign-in", "/sign-up"]) {
+    for (const href of ["/sign-in", "/join?role=fundi"]) {
       const tag = tagWith(markup, "href", href);
       expect(tag, `${href} must not be hidden on mobile`).not.toMatch(/class="([^"]*\s)?hidden(\s[^"]*)?"/);
     }
@@ -190,7 +195,7 @@ describe("site header", () => {
     expect(markup).toContain('data-clerk="user-button"');
     expect(tagWith(markup, "data-clerk", "menu-link")).toContain('href="/dashboard"');
     expect(hrefs(markup)).not.toContain("/sign-in");
-    expect(hrefs(markup)).not.toContain("/sign-up");
+    expect(hrefs(markup)).not.toContain("/join?role=fundi");
   });
 });
 
@@ -259,15 +264,18 @@ describe("real routes", () => {
   const appDir = fileURLToPath(new URL("../app", import.meta.url));
 
   it.each(REAL_ROUTES)("%s has a page in web/app", (route) => {
-    const dir = path.join(appDir, ...route.split("/").filter(Boolean));
-    expect(existsSync(dir), `${route} has no folder in app/`).toBe(true);
     const hasPage = (d: string): boolean =>
+      existsSync(d) &&
       readdirSync(d).some((name) => {
         const full = path.join(d, name);
         if (name === "page.tsx") return true;
         return name.startsWith("[[...") && statSync(full).isDirectory() && hasPage(full);
       });
-    expect(hasPage(dir), `${route} has no page.tsx`).toBe(true);
+    // Pages live in route groups ((site), (auth)), which don't appear in the URL.
+    const segments = route.split("/").filter(Boolean);
+    const groups = readdirSync(appDir).filter((name) => /^\(.+\)$/.test(name));
+    const dirs = [appDir, ...groups.map((g) => path.join(appDir, g))].map((base) => path.join(base, ...segments));
+    expect(dirs.some(hasPage), `${route} has no page.tsx in app/ or a route group`).toBe(true);
   });
 
   it("the app's own list of built routes matches this allow-list", async () => {

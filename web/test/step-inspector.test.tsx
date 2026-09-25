@@ -90,4 +90,23 @@ describe("hero step inspector", () => {
       expect(tab.textContent).toContain(status);
     }
   });
+
+  it("keeps amber to punctuation: counter, selected tab and frame status are not amber (#12)", async () => {
+    const tabs = await render();
+    const counter = [...container.querySelectorAll("span")].find((el) =>
+      el.textContent === t("inspector.counter", { step: "03" }),
+    )!;
+    expect(counter.className).not.toMatch(/amber/);
+    expect(tabs[2].className).not.toMatch(/amber/);
+    const status = [...container.querySelectorAll("span")].find((el) =>
+      el.textContent?.includes(t("inspector.frameStatus", { step: "03" })),
+    )!;
+    expect(status.className).not.toMatch(/amber/);
+  });
+
+  it("has no pulsing or pinging dots outside the reticle (#11)", async () => {
+    await render();
+    const moving = [...container.querySelectorAll("[class*='animate-pulse'], [class*='animate-ping']")];
+    for (const el of moving) expect(el.closest("[data-reticle]"), el.outerHTML).not.toBeNull();
+  });
 });

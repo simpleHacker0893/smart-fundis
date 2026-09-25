@@ -4,9 +4,10 @@ import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
-import { Section, SectionLabel } from "@/components/landing/section";
+import { PageHero } from "@/components/landing/page-hero";
+import { Section, SectionLabel, Tag } from "@/components/landing/section";
 import { pillClass } from "@/components/ui/pill";
-import { SIGN_UP_PATH } from "@/lib/auth-routes";
+import { JOIN_FUNDI_PATH } from "@/lib/site-nav";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("About");
@@ -28,40 +29,41 @@ const MORE = [
  * fourth principle says what the rule really is.
  */
 export default async function AboutPage() {
-  const [t, links] = await Promise.all([getTranslations("About"), getTranslations("Links")]);
+  const [t, links, common] = await Promise.all([
+    getTranslations("About"),
+    getTranslations("Links"),
+    getTranslations("Common"),
+  ]);
 
   return (
     <main className="flex w-full flex-1 flex-col">
-      <Section id="top" className="film-grain py-12 sm:py-16">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-5">
-            <SectionLabel>{t("hero.label")}</SectionLabel>
-            <h1 className="mb-6 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl lg:text-7xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mb-8 max-w-xl text-base leading-relaxed text-foreground/75">{t("hero.body")}</p>
-            <div className="flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
-              <Link href={SIGN_UP_PATH} className={pillClass({ variant: "primary", size: "full", className: "sm:w-auto" })}>
-                {links("joinAsFundi")}
-              </Link>
-              <Link href="#what" className={pillClass({ variant: "secondary", size: "full", className: "bg-panel sm:w-auto" })}>
-                {t("hero.secondary")}
-                <ArrowDown aria-hidden="true" className="ml-2 size-4" strokeWidth={1.5} />
-              </Link>
-            </div>
+      <PageHero
+        label={t("hero.label")}
+        title={t("hero.title")}
+        body={t("hero.body")}
+        actions={
+          <div className="flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
+            <Link href={JOIN_FUNDI_PATH} className={pillClass({ variant: "primary", size: "full", className: "sm:w-auto" })}>
+              {links("joinAsFundi")}
+            </Link>
+            <Link href="#what" className={pillClass({ variant: "secondary", size: "full", className: "bg-panel sm:w-auto" })}>
+              {t("hero.secondary")}
+              <ArrowDown aria-hidden="true" className="ml-2 size-4" strokeWidth={1.5} />
+            </Link>
           </div>
-          <div className="lg:col-span-7">
-            <EvidenceFrame
-              label={t("hero.frame")}
-              tag={t("hero.frameTag")}
-              src="/images/sf-plumbing-bench-1280.webp"
-              alt={t("hero.imageAlt")}
-              aspect="aspect-video"
-              priority
-            />
-          </div>
-        </div>
-      </Section>
+        }
+        asideWide
+        aside={
+          <EvidenceFrame
+            label={t("hero.frame")}
+            tag={t("hero.frameTag")}
+            src="/images/sf-plumbing-bench-1280.webp"
+            alt={t("hero.imageAlt")}
+            aspect="aspect-video"
+            priority
+          />
+        }
+      />
 
       <Section id="what">
         <SectionLabel>{t("what.label")}</SectionLabel>
@@ -71,7 +73,7 @@ export default async function AboutPage() {
               <span className="flex items-center justify-between gap-2 font-mono text-xs tracking-widest text-foreground/75 uppercase">
                 {t(`what.${key}.tag`)}
                 {key === "notYet" && (
-                  <span className="rounded border border-line px-2 py-0.5 text-foreground/60">{t("comingSoon")}</span>
+                  <Tag>{common("comingSoon")}</Tag>
                 )}
               </span>
               <span className="text-lg font-bold tracking-tight">{t(`what.${key}.title`)}</span>

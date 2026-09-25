@@ -3,9 +3,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
-import { Section, SectionLabel, SectionTitle } from "@/components/landing/section";
+import { PageHero } from "@/components/landing/page-hero";
+import { Section, SectionLabel, SectionTitle, Tag } from "@/components/landing/section";
 import { pillClass } from "@/components/ui/pill";
 import { CONTACT_EMAIL } from "@/lib/contact";
+import { OPEN_TRADES } from "@/lib/trades";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("ResponsibleAi");
@@ -35,20 +37,7 @@ const VIDEO_ROWS = [
   { key: "appeal", soon: true },
 ] as const;
 const EVAL_STEPS = ["1", "2", "3", "4"] as const;
-const EVAL_TRADES = ["electrical", "hairdressing"] as const;
 const LIMITS = ["wrong", "handwriting", "sound", "links", "fallback", "badge"] as const;
-
-function Tag({ children, tone = "dim" }: { children: string; tone?: "dim" | "amber" }) {
-  return (
-    <span
-      className={`shrink-0 self-start rounded border px-2 py-0.5 font-mono text-xs tracking-widest uppercase ${
-        tone === "amber" ? "border-amber/60 text-amber" : "border-line text-foreground/60"
-      }`}
-    >
-      {children}
-    </span>
-  );
-}
 
 /**
  * /responsible-ai (#26), from 18-responsible-ai-v3-responsive and prompt
@@ -57,34 +46,33 @@ function Tag({ children, tone = "dim" }: { children: string; tone?: "dim" | "amb
  * Kiswahili consent text is not printed, and only the hero has a photo.
  */
 export default async function ResponsibleAiPage() {
-  const [t, links, names, glyphs] = await Promise.all([
+  const [t, links, names, glyphs, common] = await Promise.all([
     getTranslations("ResponsibleAi"),
     getTranslations("Links"),
     getTranslations("Landing.trades.names"),
     getTranslations("Glyphs"),
+    getTranslations("Common"),
   ]);
 
   return (
     <main className="flex w-full flex-1 flex-col">
-      {/* Hero */}
-      <Section id="top" className="film-grain py-12 sm:py-16">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
-          <div className="lg:col-span-5">
-            <SectionLabel>{t("hero.label")}</SectionLabel>
-            <h1 className="mb-6 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl lg:text-7xl">
-              {t("hero.title")}
-            </h1>
-            <p className="mb-8 max-w-xl text-base leading-relaxed text-foreground/75">{t("hero.body")}</p>
-            <div className="flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
-              <Link href="#pipeline" className={pillClass({ variant: "primary", size: "full", className: "sm:w-auto" })}>
-                {links("howVerdictMade")}
-              </Link>
-              <Link href="/privacy" className={pillClass({ variant: "secondary", size: "full", className: "bg-panel sm:w-auto" })}>
-                {links("privacy")}
-              </Link>
-            </div>
+      <PageHero
+        label={t("hero.label")}
+        title={t("hero.title")}
+        body={t("hero.body")}
+        actions={
+          <div className="flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
+            <Link href="#pipeline" className={pillClass({ variant: "primary", size: "full", className: "sm:w-auto" })}>
+              {links("howVerdictMade")}
+            </Link>
+            <Link href="/privacy" className={pillClass({ variant: "secondary", size: "full", className: "bg-panel sm:w-auto" })}>
+              {links("privacy")}
+            </Link>
           </div>
-          <div className="flex flex-col gap-3 lg:col-span-7">
+        }
+        asideWide
+        aside={
+          <div className="flex flex-col gap-3">
             <EvidenceFrame
               label={t("hero.frame")}
               tag={t("hero.frameTag")}
@@ -95,7 +83,7 @@ export default async function ResponsibleAiPage() {
             />
             <div className="rounded border border-line bg-panel">
               <div className="flex justify-end border-b border-line px-4 py-2">
-                <Tag>{t("example")}</Tag>
+                <Tag>{common("example")}</Tag>
               </div>
               <dl className="divide-y divide-line text-sm">
                 <div className="flex items-center justify-between gap-3 px-4 py-3">
@@ -116,8 +104,8 @@ export default async function ResponsibleAiPage() {
               </dl>
             </div>
           </div>
-        </div>
-      </Section>
+        }
+      />
 
       {/* 01 — How a verdict is made */}
       <Section id="pipeline">
@@ -241,7 +229,7 @@ export default async function ResponsibleAiPage() {
               <dt className="w-32 shrink-0 font-mono text-xs font-bold tracking-widest uppercase">{t(`video.rows.${row.key}.label`)}</dt>
               <dd className="flex flex-1 flex-col items-start gap-2 text-sm text-foreground/80 sm:flex-row sm:justify-between sm:gap-3">
                 {t(`video.rows.${row.key}.value`)}
-                {row.soon && <Tag>{t("comingSoon")}</Tag>}
+                {row.soon && <Tag>{common("comingSoon")}</Tag>}
               </dd>
             </div>
           ))}
@@ -283,7 +271,7 @@ export default async function ResponsibleAiPage() {
               </tr>
             </thead>
             <tbody>
-              {EVAL_TRADES.map((trade) => (
+              {OPEN_TRADES.map(({ slug: trade }) => (
                 <tr key={trade} className="border-b border-line last:border-b-0">
                   <th scope="row" className="px-4 py-3 font-mono font-normal">{t("eval.model")}</th>
                   <td className="px-4 py-3">{names(trade)}</td>
@@ -295,7 +283,7 @@ export default async function ResponsibleAiPage() {
             </tbody>
           </table>
           <ul className="divide-y divide-line md:hidden">
-            {EVAL_TRADES.map((trade) => (
+            {OPEN_TRADES.map(({ slug: trade }) => (
               <li key={trade} className="px-4 py-3">
                 <p className="font-mono text-sm">{t("eval.model")}</p>
                 <dl className="mt-2 grid grid-cols-2 gap-2 text-sm">
@@ -338,13 +326,9 @@ export default async function ResponsibleAiPage() {
             <p className="text-sm text-foreground/75">{t("contact.body")}</p>
           </div>
           <div className="flex flex-col items-start gap-3 lg:col-span-5">
-            {CONTACT_EMAIL ? (
-              <a href={`mailto:${CONTACT_EMAIL}`} className={pillClass({ variant: "secondary", size: "full", className: "sm:w-auto" })}>
-                {t("contact.email")}
-              </a>
-            ) : (
-              <p className="text-sm text-foreground/75">{t("contact.pending")}</p>
-            )}
+            <a href={`mailto:${CONTACT_EMAIL}`} className={pillClass({ variant: "secondary", size: "full", className: "sm:w-auto" })}>
+              {t("contact.email")}
+            </a>
             <Link href="/evidence" className="inline-flex min-h-12 items-center text-sm text-foreground/75 underline-offset-4 hover:text-foreground hover:underline">
               {t("contact.evidence")}
             </Link>

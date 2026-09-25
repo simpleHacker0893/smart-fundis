@@ -27,20 +27,7 @@ export const STEPS: readonly InspectionStep[] = [
 /** The Stitch screen opens on the step that needs review. */
 export const INITIAL_STEP: StepId = "3";
 
-export const LIVE_TRADES = ["electrical", "hairdressing"] as const;
-
-export const BENCH_TRADES = [
-  "plumbing",
-  "masonry",
-  "carpentry",
-  "welding",
-  "mechanic",
-  "tailoring",
-  "beauty",
-  "solar",
-  "mamaFua",
-  "movers",
-] as const;
+// Trades live in lib/trades.ts, the one source for every page.
 
 export const SCOPE_CHECKS = ["app", "code", "ai", "safety", "expert"] as const;
 export const SCOPE_NOT_CHECKED = ["id", "licences", "qualifications"] as const;

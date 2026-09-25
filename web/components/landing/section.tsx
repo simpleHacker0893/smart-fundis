@@ -38,11 +38,24 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   return <h2 className="mb-4 text-3xl font-black tracking-tight sm:text-4xl lg:text-5xl">{children}</h2>;
 }
 
-/** The mono "EXAMPLE" tag every sample carries (DESIGN.md L115). */
-export function ExampleTag({ children }: { children: ReactNode }) {
+/**
+ * A small mono readout tag: "Coming soon", "Example", "Safety", a card
+ * label. Dim by default; `amber` only where DESIGN.md allows punctuation.
+ * The one tag component (#23 review).
+ */
+export function Tag({ children, tone = "dim" }: { children: ReactNode; tone?: "dim" | "amber" }) {
   return (
-    <span className="shrink-0 self-start rounded border border-foreground/20 px-3 py-1 font-mono text-xs tracking-widest text-foreground/75 uppercase">
+    <span
+      className={`shrink-0 self-start rounded border px-2 py-0.5 font-mono text-xs tracking-widest uppercase ${
+        tone === "amber" ? "border-amber/60 text-amber" : "border-line text-foreground/60"
+      }`}
+    >
       {children}
     </span>
   );
+}
+
+/** The "EXAMPLE" tag every sample carries (DESIGN.md L115). */
+export function ExampleTag({ children }: { children: ReactNode }) {
+  return <Tag>{children}</Tag>;
 }

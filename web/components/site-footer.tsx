@@ -1,5 +1,6 @@
 import { getTranslations } from "next-intl/server";
 import { FooterLink } from "@/components/footer-link";
+import { CONTACT_EMAIL } from "@/lib/contact";
 import { builtOnly, FOOTER_GROUPS } from "@/lib/site-nav";
 
 type FooterLinkItem = (typeof FOOTER_GROUPS)[number]["links"][number];
@@ -7,7 +8,8 @@ type FooterLinkItem = (typeof FOOTER_GROUPS)[number]["links"][number];
 /**
  * The compact site footer (#27, operator's brief): one 1 px top border,
  * four columns (FOR FUNDIS · FOR CLIENTS · FOR EXPERTS · COMPANY), each a
- * <nav> labelled by its heading, and one bottom legal line. No wordmark and
+ * <nav> labelled by its heading, then the legal line and the one contact
+ * email. No wordmark and
  * no CTA band (the band is landing section 09).
  * - Headings: 12 px mono, uppercase, 0.15em, amber (amber #ef9a57, D-9).
  * - Links: 13 px, light grey, white on hover; the current page is white with
@@ -44,7 +46,16 @@ export async function SiteFooter() {
             );
           })}
         </div>
-        <p className="mt-10 font-mono text-xs text-foreground/70">{t("bottomLine")}</p>
+        <div className="mt-10 flex flex-col gap-2 font-mono text-xs text-foreground/70 sm:flex-row sm:items-center sm:justify-between">
+          <p>{t("bottomLine")}</p>
+          {/* Spec §8: the footer carries the one contact email. */}
+          <a
+            href={`mailto:${CONTACT_EMAIL}`}
+            className="inline-flex min-h-11 items-center transition-colors hover:text-foreground sm:min-h-0"
+          >
+            {t("email", { email: CONTACT_EMAIL })}
+          </a>
+        </div>
       </div>
     </footer>
   );

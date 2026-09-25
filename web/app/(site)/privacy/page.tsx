@@ -2,7 +2,8 @@ import { Eye, Lock, ShieldCheck, Trash2, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
-import { Section, SectionLabel } from "@/components/landing/section";
+import { PageHero } from "@/components/landing/page-hero";
+import { Section, SectionLabel, Tag } from "@/components/landing/section";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("Privacy");
@@ -39,30 +40,30 @@ const CONTROLS: { key: "delete" | "training" | "visibility"; icon: LucideIcon; s
  *   "zero harvest", "on-demand purge" and "SPEC //" readouts.
  */
 export default async function PrivacyPage() {
-  const [t, glyphs] = await Promise.all([getTranslations("Privacy"), getTranslations("Glyphs")]);
+  const [t, glyphs, common] = await Promise.all([
+    getTranslations("Privacy"),
+    getTranslations("Glyphs"),
+    getTranslations("Common"),
+  ]);
 
   return (
     <main className="flex w-full flex-1 flex-col">
-      <Section id="top" className="film-grain py-12 sm:py-16">
-        <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12">
-          <div className="lg:col-span-7">
-            <SectionLabel>{t("hero.label")}</SectionLabel>
-            <h1 className="mb-6 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl">{t("hero.title")}</h1>
-            <p className="max-w-xl text-base leading-relaxed text-foreground/75">{t("hero.body")}</p>
-          </div>
-          <div className="lg:col-span-5">
-            <EvidenceFrame
-              label={t("hero.frame")}
-              tag={t("hero.frameTag")}
-              src="/images/sf-phone-on-bench-1280.webp"
-              alt={t("hero.imageAlt")}
-              aspect="aspect-video"
-              sizes="(min-width: 1024px) 480px, 100vw"
-              priority
-            />
-          </div>
-        </div>
-      </Section>
+      <PageHero
+        label={t("hero.label")}
+        title={t("hero.title")}
+        body={t("hero.body")}
+        aside={
+          <EvidenceFrame
+            label={t("hero.frame")}
+            tag={t("hero.frameTag")}
+            src="/images/sf-phone-on-bench-1280.webp"
+            alt={t("hero.imageAlt")}
+            aspect="aspect-video"
+            sizes="(min-width: 1024px) 480px, 100vw"
+            priority
+          />
+        }
+      />
 
       <Section id="who">
         <SectionLabel>{t("who.label")}</SectionLabel>
@@ -118,12 +119,17 @@ export default async function PrivacyPage() {
           <div className="rounded border border-line bg-panel p-5 sm:p-6">
             <h2 className="mb-4 font-mono text-xs font-bold tracking-widest text-amber uppercase">{t("consent.how")}</h2>
             <ul className="flex flex-col gap-3 text-sm">
-              {(["languages", "gate", "coop"] as const).map((key) => (
+              {(["languages", "gate"] as const).map((key) => (
                 <li key={key} className="flex gap-3">
                   <Lock aria-hidden="true" className="mt-0.5 size-4 shrink-0 text-foreground/60" strokeWidth={1.5} />
                   {t(`consent.${key}`)}
                 </li>
               ))}
+              {/* D-5: the Co-op is not part of consent; interest is a separate dashboard toggle. */}
+              <li className="flex flex-col items-start gap-2 border-t border-line pt-3">
+                <span>{t("consent.coop")}</span>
+                <Tag>{common("comingSoon")}</Tag>
+              </li>
             </ul>
           </div>
         </div>
@@ -143,9 +149,7 @@ export default async function PrivacyPage() {
               </span>
               <span className="text-sm">{t(`controls.${key}.body`)}</span>
               {soon && (
-                <span className="self-start rounded border border-line px-2 py-0.5 font-mono text-xs tracking-widest text-foreground/60 uppercase">
-                  {t("comingSoon")}
-                </span>
+                <Tag>{common("comingSoon")}</Tag>
               )}
             </li>
           ))}

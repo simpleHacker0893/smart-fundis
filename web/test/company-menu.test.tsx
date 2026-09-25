@@ -72,4 +72,26 @@ describe("COMPANY menu (#24)", () => {
     });
     expect(panel.hidden).toBe(true);
   });
+
+  it("closes when focus leaves the menu (#22)", async () => {
+    const { button, panel } = await render();
+    const outside = document.createElement("a");
+    outside.href = "/";
+    document.body.appendChild(outside);
+    await act(async () => button.click());
+    await act(async () => {
+      button.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: outside }));
+    });
+    expect(panel.hidden).toBe(true);
+  });
+
+  it("stays open while focus moves inside it", async () => {
+    const { button, panel } = await render();
+    await act(async () => button.click());
+    const inside = panel.querySelector("a")!;
+    await act(async () => {
+      button.dispatchEvent(new FocusEvent("focusout", { bubbles: true, relatedTarget: inside }));
+    });
+    expect(panel.hidden).toBe(false);
+  });
 });

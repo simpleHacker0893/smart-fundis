@@ -44,5 +44,7 @@ export function makeIsFromMessages(messages: unknown): (s: string) => boolean {
         .join(".+");
       return new RegExp(`^${pattern}$`);
     });
-  return (s) => exact.has(s) || templates.some((re) => re.test(s)) || /^[\d:./–\- ]+$/.test(s);
+  // Numbers, timestamps and email addresses are data, not copy.
+  return (s) =>
+    exact.has(s) || templates.some((re) => re.test(s)) || /^[\d:./–\- ]+$/.test(s) || /^[\w.+-]+@[\w-]+(\.[\w-]+)+$/.test(s);
 }

@@ -1,4 +1,8 @@
 {
+  "Common": {
+    "comingSoon": "Coming soon",
+    "example": "Example"
+  },
   "Metadata": {
     "title": "Smart Fundis",
     "description": "Skills, verified by Smart Fundis."
@@ -24,7 +28,8 @@
       "forExperts": "For experts",
       "company": "Company"
     },
-    "bottomLine": "© 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify."
+    "bottomLine": "© 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify.",
+    "email": "Email: {email}"
   },
   "Links": {
     "signIn": "Sign in",
@@ -56,8 +61,9 @@
       "label": "Smart Fundis / 01 — Proof of skill",
       "titleLine1": "Kazi yako,",
       "titleLine2": "sifa yako.",
-      "body": "Your work, your reputation. Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.",
-      "imageAlt": "Hands terminating copper wires in a socket box with a screwdriver"
+      "body": "Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.",
+      "imageAlt": "Hands terminating copper wires in a socket box with a screwdriver",
+      "english": "Your work, your reputation."
     },
     "inspector": {
       "label": "Inspect step",
@@ -65,7 +71,6 @@
       "stepsLabel": "Steps of the example video",
       "frame": "Evidence frame",
       "frameStatus": "Example · step {step}",
-      "example": "Example",
       "verified": "Verified by Smart Fundis",
       "caption": "Electrical · Install a 13A socket · Step {step}",
       "marker": "{number} {name} · {time}",
@@ -107,8 +112,7 @@
       "body": "Write your code on paper, show it to the camera, then do the job in one continuous shot. A fresh code every time, so the video is really yours, really now.",
       "chip": "One continuous shot",
       "panel": "Liveness code",
-      "code": "315",
-      "readout": "Liveness code · 315 · issued 00:00:03 ago"
+      "code": "315"
     },
     "check": {
       "label": "03 — Check",
@@ -140,21 +144,19 @@
     "badge": {
       "label": "05 — Badge",
       "title": "Your work, your badge.",
-      "body": "Your video stays private. Only your badge is public, on a profile you can share with any client.",
+      "body": "Only your badge and profile are public. Never your video.",
       "layers": {
         "video": "Video",
         "code": "Code",
         "aiCheck": "AI check",
         "expert": "Expert"
-      },
-      "readout": "Separation 0.00 mm · seated · badge issued"
+      }
     },
     "trades": {
       "label": "06 — Trades",
       "titleLine1": "Two trades open.",
       "titleLine2": "Ten on the bench.",
       "verifyNow": "Verify now",
-      "comingSoon": "Coming soon",
       "names": {
         "electrical": "Electrical",
         "hairdressing": "Hairdressing",
@@ -177,7 +179,7 @@
       "check": "What we check",
       "dontCheck": "What we don't check",
       "checks": {
-        "app": "Recorded in the app",
+        "app": "Uploaded in the app, with a fresh code.",
         "code": "Fresh code on camera",
         "ai": "Every step checked by AI",
         "safety": "Safety never auto-passed",
@@ -193,7 +195,6 @@
     "next": {
       "label": "08 — Next",
       "title": "Coming next: earn from your skills",
-      "comingSoon": "Coming soon",
       "imageAlt": "Hands resting beside a row of trade tools on a workbench",
       "cards": {
         "coop": {
@@ -326,7 +327,6 @@
       "verifyNow": "Verify now",
       "electrical": {
         "task": "Install a 13A socket",
-        "imageAlt": "Hands terminating copper wires in a socket box with a screwdriver",
         "markers": {
           "1": "01 Isolate · 00:04",
           "2": "03 Earth · 00:41"
@@ -340,7 +340,6 @@
       },
       "hairdressing": {
         "task": "Cornrows / braiding",
-        "imageAlt": "Hands braiding cornrows, close up",
         "markers": {
           "1": "01 Parting · 00:06",
           "2": "02 Tension · 00:27"
@@ -355,19 +354,20 @@
     },
     "bench": {
       "label": "02 — On the bench",
-      "comingSoon": "Coming soon",
       "note": "New trades open when their rubric and Experts are ready.",
-      "roadmap": "See the roadmap",
-      "imageAlt": {
-        "plumbing": "Hands at a workbench with a pipe wrench and coiled wire",
-        "masonry": "Hands holding an adjustable wrench at a workbench",
-        "carpentry": "Screwdrivers, pliers and hammers laid out on a bench",
-        "welding": "A welding mask, trowel and level on a workbench",
-        "mechanic": "Hands working a part with pliers at a mechanic's bench",
-        "tailoring": "Spools of thread, pliers and a level on a bench",
-        "beauty": "Hands braiding hair, close up",
-        "solar": "Hands wiring a solar distribution panel"
-      }
+      "roadmap": "See the roadmap"
+    },
+    "imageAlt": {
+      "electrical": "Hands terminating copper wires in a socket box with a screwdriver",
+      "hairdressing": "Hands braiding cornrows, close up",
+      "plumbing": "Hands at a workbench with a pipe wrench and coiled wire",
+      "masonry": "Hands holding an adjustable wrench at a workbench",
+      "carpentry": "Screwdrivers, pliers and hammers laid out on a bench",
+      "welding": "A welding mask, trowel and level on a workbench",
+      "mechanic": "Hands working a part with pliers at a mechanic's bench",
+      "tailoring": "Spools of thread, pliers and a level on a bench",
+      "beauty": "Hands braiding hair, close up",
+      "solar": "Hands wiring a solar distribution panel"
     }
   },
   "Telemetry": {
@@ -375,7 +375,6 @@
       "title": "How the AI works · Smart Fundis",
       "description": "AI recommends. Experts decide. Every step between your video and your badge."
     },
-    "comingSoon": "Coming soon",
     "hero": {
       "label": "Smart Fundis / Telemetry",
       "titleLine1": "What the AI sees.",
@@ -386,7 +385,7 @@
       "decidesLabel": "Who decides",
       "decides": "A human Expert",
       "runsLabel": "Where the AI runs",
-      "runs": "Smart Fundis' GPU"
+      "runs": "Video AI: Smart Fundis' GPU. Feedback AI: NVIDIA's hosted API (text only, never your video)."
     },
     "pipeline": {
       "label": "01 — The pipeline",
@@ -400,7 +399,7 @@
         },
         "guard": {
           "title": "Guard",
-          "body": "Checks length (10–90 s) and one continuous shot."
+          "body": "Checks length (10–90 s), resolution and light."
         },
         "observe": {
           "title": "Observe",
@@ -433,18 +432,18 @@
         "title": "Needs review",
         "result": "Sent to an Expert, flagged"
       },
-      "reshoot": {
-        "glyph": "↻",
-        "title": "Reshoot",
-        "result": "You record again with a new code"
+      "fail": {
+        "glyph": "✕",
+        "title": "Fail",
+        "result": "Sent to an Expert, who still reviews it"
       },
-      "caption": "No badge is ever issued by AI alone."
+      "caption": "No badge is ever issued by AI alone.",
+      "reshoot": "A reshoot is never the AI's verdict: the guard asks for one when a video is unusable, or an Expert does."
     },
     "privacy": {
       "label": "03 — Privacy telemetry",
       "title": "Your video stays guarded.",
       "frame": "Telemetry frame: Privacy-01",
-      "frameTag": "Example",
       "imageAlt": "A phone on a stand recording hands at work on a bench",
       "rows": {
         "who": {
@@ -473,15 +472,14 @@
   "About": {
     "meta": {
       "title": "About · Smart Fundis",
-      "description": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof anyone can trust."
+      "description": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof clients can check."
     },
-    "comingSoon": "Coming soon",
     "hero": {
       "label": "Smart Fundis / Company — About",
       "title": "We make skill visible.",
-      "body": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof anyone can trust.",
+      "body": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof clients can check.",
       "secondary": "What we are",
-      "frame": "Frame: SF-JUA-01 · Workshop",
+      "frame": "Evidence frame",
       "frameTag": "Jua kali bench",
       "imageAlt": "Hands at a busy workshop bench with a pipe wrench and coiled wire"
     },
@@ -516,7 +514,7 @@
         },
         "3": {
           "title": "Your video stays yours",
-          "body": "Only your badge is public. Your video is never shared publicly."
+          "body": "Only your badge and profile are public. Never your video."
         },
         "4": {
           "title": "Nothing looks live that isn't",
@@ -525,7 +523,7 @@
       }
     },
     "statement": {
-      "label": "03 — Kazi yako, sifa yako",
+      "label": "03 — Our promise",
       "title": "Your work, your reputation.",
       "body": "A fundi's skill should speak for itself: shown on video, checked step by step, and decided by someone who knows the trade.",
       "imageAlt": "A fundi's hands holding an adjustable wrench at the bench"
@@ -568,28 +566,26 @@
       },
       "message": "Message",
       "send": "Write the email",
-      "note": "Opens your email app. We only use your details to reply."
+      "note": "Opens your email app. We only use your details to reply.",
+      "subject": "Smart Fundis: {role}"
     },
     "direct": {
       "label": "02 — Direct",
       "email": "Email",
-      "pending": "Our contact email will be listed here soon.",
       "frame": "Communications ledger",
-      "frameTag": "Example",
       "imageAlt": "Hands holding a phone over a workshop bench"
     }
   },
   "Privacy": {
     "meta": {
       "title": "Your privacy · Smart Fundis",
-      "description": "Your video stays yours. Only your badge is public. Here is exactly who sees what."
+      "description": "Your video stays yours. Only your badge and profile are public. Never your video."
     },
-    "comingSoon": "Coming soon",
     "hero": {
       "label": "Smart Fundis / Privacy",
       "title": "Your video stays yours.",
-      "body": "Only your badge is public. Here is exactly who sees what.",
-      "frame": "Frame: SF-PRV-01",
+      "body": "Only your badge and profile are public. Never your video.",
+      "frame": "Evidence frame",
       "frameTag": "Bench view",
       "imageAlt": "A phone lying face down on a workshop bench beside hand tools"
     },
@@ -634,7 +630,7 @@
       "how": "How it's asked",
       "languages": "Shown in English and Kiswahili before every upload.",
       "gate": "Upload stays off until you tick the box.",
-      "coop": "The Data Co-op is a separate box, off by default."
+      "coop": "Co-op interest is a separate 'contact me' toggle on your dashboard."
     },
     "controls": {
       "label": "03 — Your controls",
@@ -657,8 +653,6 @@
       "title": "Responsible AI · Smart Fundis",
       "description": "How our AI checks a video, what it is never allowed to decide, and how we test it."
     },
-    "comingSoon": "Coming soon",
-    "example": "Example",
     "hero": {
       "label": "Smart Fundis / Responsible AI",
       "title": "AI recommends. Experts decide.",
@@ -805,7 +799,7 @@
         },
         "storage": {
           "label": "Storage",
-          "value": "Your video is kept privately until you delete it."
+          "value": "Your video is kept privately."
         },
         "delete": {
           "label": "Delete",
@@ -887,9 +881,8 @@
     "contact": {
       "label": "07 — Contact",
       "title": "Questions about a decision or your data?",
-      "body": "Write to us. A person reads every message.",
+      "body": "Write to us. We read every message.",
       "email": "Email us",
-      "pending": "Our contact email will be listed here soon.",
       "evidence": "Read how verification works"
     }
   },
@@ -902,9 +895,9 @@
     "title": "Welcome back.",
     "body": "Sign in to see your assessments and badges.",
     "note": "Experts and Admins sign in here too.",
-    "panelTitleLine1": "Kazi yako,",
-    "panelTitleLine2": "sifa yako.",
-    "panelBody": "Your work, your reputation. Show your skill on video, and a trade Expert decides.",
+    "panelTitleLine1": "Your work,",
+    "panelTitleLine2": "your reputation.",
+    "panelBody": "Show your skill on video, and a trade Expert decides.",
     "imageAlt": "Spools, screwdrivers and pliers laid out on a workshop bench"
   },
   "SignUp": {
@@ -915,7 +908,6 @@
     "label": "Session / Join",
     "title": "Join as a fundi.",
     "body": "Create your account. It takes a minute.",
-    "comingSoon": "Coming soon",
     "stepsTitle": "How joining works",
     "frame": "Evidence frame · 01 Account",
     "frameTag": "Example · Hairdressing",
@@ -931,7 +923,7 @@
       },
       "3": {
         "tag": "03 Consent",
-        "body": "Agree in English or Kiswahili."
+        "body": "Shown in English and Kiswahili."
       },
       "4": {
         "tag": "04 Record",
@@ -958,7 +950,6 @@
       "title": "Become a verifier · Smart Fundis",
       "description": "Expert applications open soon."
     },
-    "comingSoon": "Coming soon",
     "expert": {
       "label": "Session / Join as an Expert",
       "title": "Expert applications open soon.",

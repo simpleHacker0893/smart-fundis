@@ -1,28 +1,18 @@
-import { ArrowDown, ArrowRight, Plug, Scissors, TriangleAlert, Video, Zap, type LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowRight, TriangleAlert, Video, Zap } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
+import { HeroCtas } from "@/components/landing/hero-ctas";
 import { ScopeLedgers } from "@/components/landing/scope-ledgers";
-import { ExampleTag, Section, SectionLabel, SectionTitle } from "@/components/landing/section";
+import { ExampleTag, Section, SectionLabel, SectionTitle, Tag } from "@/components/landing/section";
 import { Ledger, StepInspector, StepProvider } from "@/components/landing/step-inspector";
 import { SiteLogo } from "@/components/site-logo";
-import { pillClass } from "@/components/ui/pill";
-import {
-  BADGE_LAYERS,
-  BENCH_TRADES,
-  LIVE_TRADES,
-  NEXT_CARDS,
-} from "@/lib/landing";
-import { SIGN_UP_PATH } from "@/lib/auth-routes";
-import { PRIMARY_CTAS } from "@/lib/site-nav";
+import { BADGE_LAYERS, NEXT_CARDS } from "@/lib/landing";
+import { JOIN_EXPERT_PATH } from "@/lib/site-nav";
+import { BENCH_TRADES, OPEN_TRADES, verifyHref } from "@/lib/trades";
 
 const HERO_IMAGE = "/images/landing-socket-wiring-1280.webp";
 const COOP_IMAGE = "/images/landing-coop-bench-1280.webp";
-
-const LIVE_TRADE_ICONS: Record<(typeof LIVE_TRADES)[number], LucideIcon> = {
-  electrical: Plug,
-  hairdressing: Scissors,
-};
 
 /**
  * The landing page, rebuilt from the Stitch screen "Smart Fundis — Kazi yako,
@@ -30,13 +20,16 @@ const LIVE_TRADE_ICONS: Record<(typeof LIVE_TRADES)[number], LucideIcon> = {
  * with the copy of prompt 01-landing.md (the prompt wins over the export's
  * text; HANDOFF §1) and the honesty fixes of HANDOFF §5–6: every sample says
  * EXAMPLE, nothing claims to be live, ticks are white, no invented readouts.
+ * The hero line stays in Kiswahili (lang="sw") with English after it; it is
+ * the only Kiswahili on the site besides consent (Architect ruling).
  */
 export default async function HomePage() {
-  const [t, links, glyphs, shell] = await Promise.all([
+  const [t, links, glyphs, shell, common] = await Promise.all([
     getTranslations("Landing"),
     getTranslations("Links"),
     getTranslations("Glyphs"),
     getTranslations("Shell"),
+    getTranslations("Common"),
   ]);
 
   return (
@@ -47,26 +40,15 @@ export default async function HomePage() {
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-12">
             <div className="flex flex-col lg:col-span-5">
               <SectionLabel>{t("hero.label")}</SectionLabel>
-              <h1 className="mb-6 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
-                <span className="block">{t("hero.titleLine1")}</span>
-                <span className="block">{t("hero.titleLine2")}</span>
+              <h1 className="mb-4 text-5xl leading-[1.05] font-black tracking-tight sm:text-6xl lg:text-7xl xl:text-8xl">
+                <span lang="sw">
+                  <span className="block">{t("hero.titleLine1")}</span>
+                  <span className="block">{t("hero.titleLine2")}</span>
+                </span>
               </h1>
+              <p className="mb-3 text-xl font-semibold tracking-tight">{t("hero.english")}</p>
               <p className="mb-8 max-w-xl text-base leading-relaxed text-foreground/75">{t("hero.body")}</p>
-              <div className="flex max-w-md flex-col gap-3 sm:flex-row sm:gap-4">
-                {PRIMARY_CTAS.map((cta) => (
-                  <Link
-                    key={cta.key}
-                    href={cta.href}
-                    className={pillClass({
-                      variant: cta.primary ? "primary" : "secondary",
-                      size: "full",
-                      className: cta.primary ? "sm:w-auto" : "bg-panel sm:w-auto",
-                    })}
-                  >
-                    {links(cta.key)}
-                  </Link>
-                ))}
-              </div>
+              <HeroCtas />
             </div>
             <div className="lg:col-span-7">
               <StepInspector imageSrc={HERO_IMAGE} />
@@ -89,17 +71,11 @@ export default async function HomePage() {
             <div className="lg:col-span-6">
               <div className="rounded border border-line bg-panel p-5 sm:p-6">
                 <div className="flex items-center justify-between border-b border-line pb-3 font-mono text-xs tracking-widest text-foreground/75 uppercase">
-                  <span className="flex items-center gap-2">
-                    <span aria-hidden="true" className="size-2 rounded-full bg-amber motion-safe:animate-pulse" />
-                    {t("record.panel")}
-                  </span>
-                  <ExampleTag>{t("inspector.example")}</ExampleTag>
+                  <span>{t("record.panel")}</span>
+                  <ExampleTag>{common("example")}</ExampleTag>
                 </div>
                 <div className="flex flex-col items-center py-10">
                   <span className="font-mono text-7xl font-bold tracking-[0.2em] sm:text-8xl">{t("record.code")}</span>
-                  <span className="mt-4 text-center font-mono text-xs tracking-widest text-foreground/75 uppercase">
-                    {t("record.readout")}
-                  </span>
                 </div>
               </div>
             </div>
@@ -174,11 +150,10 @@ export default async function HomePage() {
                 <div className="flex size-36 flex-col items-center justify-center gap-2 rounded-full border-2 border-amber bg-background">
                   <SiteLogo className="size-8" />
                   <span className="font-mono text-xs font-bold tracking-widest uppercase">{shell("brand")}</span>
-                  <ExampleTag>{t("inspector.example")}</ExampleTag>
+                  <span className="self-center">
+                    <ExampleTag>{common("example")}</ExampleTag>
+                  </span>
                 </div>
-                <span className="text-center font-mono text-xs tracking-widest text-foreground/75 uppercase">
-                  {t("badge.readout")}
-                </span>
               </div>
             </div>
           </div>
@@ -192,37 +167,29 @@ export default async function HomePage() {
             <span className="block">{t("trades.titleLine2")}</span>
           </h2>
           <ul className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-            {LIVE_TRADES.map((trade) => {
-              const Icon = LIVE_TRADE_ICONS[trade];
-              return (
-                <li key={trade}>
-                  <Link
-                    href={SIGN_UP_PATH}
-                    className="flex h-full min-h-32 flex-col justify-between gap-6 rounded border border-foreground/30 bg-panel p-4 transition-colors hover:border-foreground/60"
-                  >
-                    <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
-                    <span className="flex flex-col gap-1">
-                      <span className="text-base font-bold">{t(`trades.names.${trade}`)}</span>
-                      {/* "Verify now", never "LIVE" (#20): the trade is open, not a live feed. */}
-                      <span className="flex items-center gap-1 font-mono text-xs font-bold tracking-wider text-amber uppercase">
-                        {t("trades.verifyNow")}
-                        <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={2} />
-                      </span>
+            {OPEN_TRADES.map(({ slug, icon: Icon }) => (
+              <li key={slug}>
+                <Link
+                  href={verifyHref(slug)}
+                  className="flex h-full min-h-32 flex-col justify-between gap-6 rounded border border-foreground/30 bg-panel p-4 transition-colors hover:border-foreground/60"
+                >
+                  <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
+                  <span className="flex flex-col gap-1">
+                    <span className="text-base font-bold">{t(`trades.names.${slug}`)}</span>
+                    {/* "Verify now", never "LIVE" (#20): the trade is open, not a live feed. */}
+                    <span className="flex items-center gap-1 font-mono text-xs font-bold tracking-wider text-amber uppercase">
+                      {t("trades.verifyNow")}
+                      <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={2} />
                     </span>
-                  </Link>
-                </li>
-              );
-            })}
-            {BENCH_TRADES.map((trade) => (
+                  </span>
+                </Link>
+              </li>
+            ))}
+            {BENCH_TRADES.map(({ slug }) => (
               // A plain readout: not a link, not a disabled button, full opacity (HANDOFF §5).
-              <li
-                key={trade}
-                className="flex min-h-32 flex-col justify-between gap-6 rounded border border-line bg-panel/50 p-4"
-              >
-                <span className="font-mono text-xs tracking-widest text-foreground/60 uppercase">
-                  {t("trades.comingSoon")}
-                </span>
-                <span className="font-mono text-sm text-foreground/75">{t(`trades.names.${trade}`)}</span>
+              <li key={slug} className="flex min-h-32 flex-col justify-between gap-6 rounded border border-line bg-panel/50 p-4">
+                <span className="font-mono text-xs tracking-widest text-foreground/60 uppercase">{common("comingSoon")}</span>
+                <span className="font-mono text-sm text-foreground/75">{t(`trades.names.${slug}`)}</span>
               </li>
             ))}
           </ul>
@@ -236,6 +203,14 @@ export default async function HomePage() {
             <p className="text-base leading-relaxed text-foreground/75">{t("scope.body")}</p>
           </div>
           <ScopeLedgers />
+          {/* Spec §8: the trust section invites Experts (/join?role=expert says "Coming soon" until V4). */}
+          <Link
+            href={JOIN_EXPERT_PATH}
+            className="mt-6 inline-flex min-h-12 items-center gap-2 rounded-full border border-line px-5 text-sm transition-colors hover:border-foreground/40"
+          >
+            {links("becomeVerifier")}
+            <ArrowRight aria-hidden="true" className="size-4" strokeWidth={1.5} />
+          </Link>
         </Section>
 
         {/* 08 — NEXT */}
@@ -244,19 +219,20 @@ export default async function HomePage() {
           <SectionTitle>{t("next.title")}</SectionTitle>
           <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-12">
             <div className="relative aspect-video overflow-hidden rounded border border-line lg:col-span-6 lg:aspect-auto lg:min-h-72">
+              {/* The Canva/Stitch photo carries v1 colour; desaturate to about 20% (HANDOFF §4). */}
               <Image
                 src={COOP_IMAGE}
                 alt={t("next.imageAlt")}
                 fill
                 sizes="(min-width: 1024px) 600px, 100vw"
-                className="object-cover opacity-90 contrast-125 saturate-50"
+                className="object-cover opacity-90 contrast-125 saturate-20"
               />
             </div>
             <ul className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:col-span-6">
               {NEXT_CARDS.map((card) => (
                 // Coming-soon items are plain readouts at full opacity (HANDOFF §5).
                 <li key={card} className="flex flex-col gap-3 rounded border border-line bg-panel p-5">
-                  <span className="font-mono text-xs tracking-widest text-foreground/60 uppercase">{t("next.comingSoon")}</span>
+                  <Tag>{common("comingSoon")}</Tag>
                   <span className="text-sm font-semibold">{t(`next.cards.${card}.title`)}</span>
                   <span className="text-sm text-foreground/75">{t(`next.cards.${card}.body`)}</span>
                 </li>
@@ -264,26 +240,13 @@ export default async function HomePage() {
             </ul>
           </div>
         </Section>
+
         {/* 09 — Show your work: the CTA band that left the footer (#27). */}
         <Section id="join" className="border-b-0 py-20 lg:py-28">
           <div className="flex flex-col items-center text-center">
             <SectionLabel>{t("seal.label")}</SectionLabel>
             <h2 className="mb-8 text-4xl font-black tracking-tight uppercase sm:text-6xl lg:text-7xl">{t("seal.title")}</h2>
-            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
-              {PRIMARY_CTAS.map((cta) => (
-                <Link
-                  key={cta.key}
-                  href={cta.href}
-                  className={pillClass({
-                    variant: cta.primary ? "primary" : "secondary",
-                    size: "full",
-                    className: cta.primary ? "sm:w-auto" : "bg-panel sm:w-auto",
-                  })}
-                >
-                  {links(cta.key)}
-                </Link>
-              ))}
-            </div>
+            <HeroCtas className="w-full sm:w-auto" />
           </div>
         </Section>
       </StepProvider>

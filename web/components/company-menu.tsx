@@ -9,9 +9,10 @@ import { COMPANY_NAV } from "@/lib/site-nav";
 /**
  * COMPANY ▾: a disclosure that opens About and Contact us (#24), in the
  * desktop nav and in the mobile nav row. It follows the WAI disclosure
- * pattern: a button with aria-expanded and aria-controls. Escape or a click
- * outside closes it and Escape returns focus to the button. The panel is
- * always in the markup (hidden when closed), so its links work without JS.
+ * pattern: a button with aria-expanded and aria-controls. Escape, a click
+ * outside, or focus leaving the menu closes it; Escape returns focus to the
+ * button. Opening the panel needs JS; without JS, the footer's Company
+ * column is the path to About and Contact us.
  */
 export function CompanyMenu({ className, variant }: { className: string; variant: "desktop" | "row" }) {
   const links = useTranslations("Links");
@@ -40,7 +41,15 @@ export function CompanyMenu({ className, variant }: { className: string; variant
   }, [open]);
 
   return (
-    <div ref={root} className={variant === "desktop" ? "relative" : "static"}>
+    <div
+      ref={root}
+      className={variant === "desktop" ? "relative" : "static"}
+      onBlur={(event) => {
+        // Close when focus moves somewhere outside the menu (#22 review).
+        const next = event.relatedTarget;
+        if (open && !(next instanceof Node && root.current?.contains(next))) setOpen(false);
+      }}
+    >
       <button
         ref={button}
         type="button"

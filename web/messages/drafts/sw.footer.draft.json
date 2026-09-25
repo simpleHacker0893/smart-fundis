@@ -7,17 +7,18 @@
       "forExperts": "Kwa wataalamu",
       "company": "Kampuni"
     },
-    "bottomLine": "© 2026 Smart Fundis · Tunathibitisha ujuzi. NITA, KNQA na TVETs hutoa vyeti."
+    "bottomLine": "© 2026 Smart Fundis · Tunathibitisha ujuzi. NITA, KNQA na TVETs hutoa vyeti.",
+    "email": "Barua pepe: {email}"
   },
   "Links": {
     "joinAsFundi": "Jiunge kama fundi",
-    "howVerificationWorks": "Jinsi uthibitisho unavyofanya kazi",
+    "howVerificationWorks": "Jinsi uthibitishaji unavyofanya kazi",
     "privacy": "Faragha yako",
-    "verifiedMeans": "Maana ya 'imethibitishwa'",
+    "verifiedMeans": "Maana ya 'kuthibitishwa'",
     "becomeVerifier": "Kuwa mthibitishaji",
     "about": "Kuhusu sisi",
     "contact": "Wasiliana nasi",
     "responsibleAi": "AI inayowajibika",
-    "roadmap": "Mpango ujao"
+    "roadmap": "Mipango ijayo"
   }
 }

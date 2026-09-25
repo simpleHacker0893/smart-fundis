@@ -49,7 +49,8 @@ export const COMPANY_NAV = [
 /** "Show your work." CTAs: the primary pill, then the secondary. */
 export const PRIMARY_CTAS = [
   { key: "joinAsFundi", href: JOIN_FUNDI_PATH, primary: true },
-  { key: "findFundi", href: "/#trades", primary: false },
+  // Hidden until /fundis exists (#13 review); builtOnly() filters it out.
+  { key: "findFundi", href: "/fundis", primary: false },
 ] as const satisfies readonly (NavLink & { primary: boolean })[];
 
 /** The footer's four columns, in order (#27). Unbuilt pages are filtered out. */

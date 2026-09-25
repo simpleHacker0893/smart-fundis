@@ -26,10 +26,12 @@ vi.mock("next/font/google", () => ({
 }));
 
 const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Landing" });
+const common = createTranslator({ locale: defaultLocale, messages: en, namespace: "Common" });
+
 const isFromMessages = makeIsFromMessages(en);
 
 async function renderHome() {
-  const { default: HomePage } = await import("@/app/page");
+  const { default: HomePage } = await import("@/app/(site)/page");
   return renderToStaticMarkup(
     <NextIntlClientProvider locale={defaultLocale} messages={en}>
       {await HomePage()}
@@ -86,28 +88,31 @@ describe("landing page (Stitch v3)", () => {
   it("marks every sample as EXAMPLE (hero frame, liveness code, ledger, badge)", async () => {
     const markup = await renderHome();
     for (const id of ["evidence", "record", "decide", "badge"]) {
-      expect(visibleStrings(section(markup, id)), `#${id}`).toContain(t("inspector.example"));
+      expect(visibleStrings(section(markup, id)), `#${id}`).toContain(common("example"));
     }
   });
 
   it("offers 'Verify now' on the two open trades, linking to Join; never says LIVE (#20)", async () => {
     const trades = section(await renderHome(), "trades");
     const anchors = [...trades.matchAll(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)];
-    expect(anchors.map((m) => m[1])).toEqual(["/sign-up", "/sign-up"]);
+    expect(anchors.map((m) => m[1].replaceAll("&amp;", "&"))).toEqual([
+      "/join?role=fundi&trade=electrical",
+      "/join?role=fundi&trade=hairdressing",
+    ]);
     for (const [, , inner] of anchors) expect(visibleStrings(inner)).toContain(t("trades.verifyNow"));
     expect(visibleStrings(trades).join(" ")).not.toMatch(/\blive\b/i);
   });
 
   it("shows the ten other trades as muted 'Coming soon' tiles, not buttons or links", async () => {
     const trades = section(await renderHome(), "trades");
-    expect(visibleStrings(trades).filter((s) => s === t("trades.comingSoon"))).toHaveLength(10);
+    expect(visibleStrings(trades).filter((s) => s === common("comingSoon"))).toHaveLength(10);
     expect(trades).not.toMatch(/<button|role="button"|disabled|opacity-(50|60)/);
   });
 
   it("shows coming-next items as readouts with no links (no roadmap page yet)", async () => {
     const next = section(await renderHome(), "roadmap");
     expect(next).not.toMatch(/<a\s/);
-    expect(visibleStrings(next).filter((s) => s === t("next.comingSoon"))).toHaveLength(4);
+    expect(visibleStrings(next).filter((s) => s === common("comingSoon"))).toHaveLength(4);
   });
 
   it("loads only local images, with alt text from en.json", async () => {
@@ -130,11 +135,11 @@ describe("landing page (Stitch v3)", () => {
 });
 
 describe("landing section 09 (#27)", () => {
-  it("carries the 'Show your work.' band that left the footer, with Join and Find a fundi", async () => {
+  it("carries the 'Show your work.' band that left the footer, with Join (Find a fundi waits for /fundis)", async () => {
     const join = section(await renderHome(), "join");
     expect(visibleStrings(join)).toContain(t("seal.title"));
     const hrefs = [...join.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
-    expect(hrefs).toEqual(["/join?role=fundi", "/#trades"]);
+    expect(hrefs).toEqual(["/join?role=fundi"]);
   });
 });
 

@@ -11,6 +11,7 @@ import {
   type KeyboardEvent,
   type ReactNode,
 } from "react";
+import { ExampleTag } from "@/components/landing/section";
 import { INITIAL_STEP, STEPS, type StepId, type Verdict } from "@/lib/landing";
 
 type StepState = { step: StepId; setStep: (step: StepId) => void };
@@ -51,6 +52,7 @@ function VerdictGlyph({ verdict }: { verdict: Verdict }) {
  */
 export function StepInspector({ imageSrc }: { imageSrc: string }) {
   const t = useTranslations("Landing");
+  const common = useTranslations("Common");
   const glyphs = useTranslations("Glyphs");
   const { step, setStep } = useStep();
   const baseId = useId();
@@ -78,10 +80,10 @@ export function StepInspector({ imageSrc }: { imageSrc: string }) {
     <div className="flex flex-col">
       <div className="mb-2 flex items-center justify-between px-1">
         <span className="flex items-center gap-2 font-mono text-xs tracking-widest text-foreground/75 uppercase">
-          <span aria-hidden="true" className="size-2 rounded-full bg-amber motion-safe:animate-ping" />
+          <span aria-hidden="true" className="size-2 rounded-full bg-foreground/40" />
           {t("inspector.label")}
         </span>
-        <span className="font-mono text-xs font-bold text-amber uppercase" aria-live="polite">
+        <span className="font-mono text-xs font-bold text-foreground uppercase" aria-live="polite">
           {t("inspector.counter", { step: current.number })}
         </span>
       </div>
@@ -104,11 +106,11 @@ export function StepInspector({ imageSrc }: { imageSrc: string }) {
               onClick={() => setStep(s.id)}
               onKeyDown={(event) => onKeyDown(event, index)}
               className={`flex min-h-12 flex-col justify-between rounded border px-2 py-2.5 text-left transition-colors ${
-                selected ? "border-2 border-amber bg-panel" : "border-line bg-panel hover:border-foreground/30"
+                selected ? "border-2 border-foreground bg-panel" : "border-line bg-panel hover:border-foreground/30"
               }`}
             >
               <span className="flex w-full items-center justify-between font-mono text-xs">
-                <span className={`font-bold ${selected ? "text-amber" : "text-foreground/75"}`}>{s.number}</span>
+                <span className={`font-bold ${selected ? "text-foreground" : "text-foreground/75"}`}>{s.number}</span>
                 <span className="hidden text-foreground/75 sm:inline">{t(`steps.${s.id}.time`)}</span>
               </span>
               <span className="mt-1 truncate font-mono text-xs font-medium uppercase">{t(`steps.${s.id}.short`)}</span>
@@ -131,8 +133,7 @@ export function StepInspector({ imageSrc }: { imageSrc: string }) {
       >
         <div className="mb-2 flex items-center justify-between border-b border-line px-2 py-1.5 font-mono text-xs text-foreground/75 uppercase">
           <span>{t("inspector.frame")}</span>
-          <span className="flex items-center gap-1.5 font-bold tracking-wider text-amber">
-            <span aria-hidden="true" className="size-2 rounded-full bg-amber motion-safe:animate-pulse" />
+          <span className="font-bold tracking-wider text-foreground/75">
             {t("inspector.frameStatus", { step: current.number })}
           </span>
         </div>
@@ -153,6 +154,7 @@ export function StepInspector({ imageSrc }: { imageSrc: string }) {
           />
           <div
             aria-hidden="true"
+            data-reticle
             className={`pointer-events-none absolute z-10 border-2 motion-safe:transition-all motion-safe:duration-300 motion-safe:ease-out ${
               isReview ? "border-amber" : "border-foreground"
             }`}
@@ -194,9 +196,7 @@ export function StepInspector({ imageSrc }: { imageSrc: string }) {
               {t("inspector.caption", { step: current.number })}
             </span>
           </div>
-          <span className="shrink-0 rounded border border-foreground/20 px-3 py-1 font-mono text-xs tracking-widest text-foreground/75 uppercase">
-            {t("inspector.example")}
-          </span>
+          <ExampleTag>{common("example")}</ExampleTag>
         </div>
       </div>
     </div>
@@ -209,6 +209,7 @@ export function StepInspector({ imageSrc }: { imageSrc: string }) {
  */
 export function Ledger() {
   const t = useTranslations("Landing");
+  const common = useTranslations("Common");
   const glyphs = useTranslations("Glyphs");
   const { step } = useStep();
 
@@ -218,9 +219,7 @@ export function Ledger() {
         <span className="font-mono text-xs tracking-widest text-foreground/75 uppercase">
           {t("inspector.ledgerCaption")}
         </span>
-        <span className="rounded border border-foreground/20 px-3 py-1 font-mono text-xs tracking-widest text-foreground/75 uppercase">
-          {t("inspector.example")}
-        </span>
+        <ExampleTag>{common("example")}</ExampleTag>
       </div>
       <table className="w-full border-collapse text-left text-sm">
         <thead className="font-mono text-xs tracking-widest text-foreground/75 uppercase">
