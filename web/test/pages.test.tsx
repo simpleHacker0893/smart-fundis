@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades"];
 
 const isFromMessages = makeIsFromMessages(en);
 
@@ -32,6 +32,7 @@ type PageModule = {
 
 const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof typeof en }> = {
   "/evidence": { load: () => import("@/app/evidence/page"), namespace: "Evidence" },
+  "/trades": { load: () => import("@/app/trades/page"), namespace: "Trades" },
 };
 
 async function render(route: string) {
@@ -142,5 +143,35 @@ describe("/evidence (#21)", () => {
     expect(profile).not.toMatch(/<a\s|<button/);
     expect(visibleStrings(profile)).toContain(t("profile.showcase"));
     expect(visibleStrings(profile)).toContain(t("profile.private"));
+  });
+});
+
+describe("/trades (#22)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Trades" });
+  const names = createTranslator({ locale: defaultLocale, messages: en, namespace: "Landing.trades.names" });
+
+  it("shows the two open trades with their task, an EXAMPLE rubric preview and 'Verify now' to Join", async () => {
+    const open = section(await render("/trades"), "open");
+    const strings = visibleStrings(open);
+    for (const [i, key] of (["electrical", "hairdressing"] as const).entries()) {
+      expect(strings).toContain(t("open.trade", { n: `0${i + 1}`, trade: names(key) }));
+      expect(strings).toContain(t(`open.${key}.task`));
+    }
+    expect(strings.filter((s) => s === t("open.rubric"))).toHaveLength(2);
+    const anchors = [...open.matchAll(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)];
+    expect(anchors.map((m) => m[1])).toEqual(["/sign-up", "/sign-up"]);
+    for (const [, , inner] of anchors) expect(visibleStrings(inner)).toContain(t("open.verifyNow"));
+  });
+
+  it("never says LIVE, 'system active' or 'tamper-evident'", async () => {
+    const text = visibleStrings(await render("/trades")).join(" ");
+    expect(text).not.toMatch(/\blive\b|system active|tamper|master fundis/i);
+  });
+
+  it("shows ten bench trades as 'Coming soon' readouts, not links or buttons", async () => {
+    const bench = section(await render("/trades"), "bench");
+    expect(visibleStrings(bench).filter((s) => s === t("bench.comingSoon"))).toHaveLength(10);
+    const tiles = bench.slice(0, bench.indexOf(t("bench.note")));
+    expect(tiles).not.toMatch(/<a\s|<button|disabled|opacity-(50|60)/);
   });
 });

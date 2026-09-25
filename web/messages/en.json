@@ -296,5 +296,76 @@
     "scope": {
       "label": "04 — Scope"
     }
+  },
+  "Trades": {
+    "meta": {
+      "title": "Trades · Smart Fundis",
+      "description": "Pick your trade, see exactly what the video must show, then record."
+    },
+    "hero": {
+      "label": "Smart Fundis / Trades",
+      "titleLine1": "Two trades open.",
+      "titleLine2": "Ten on the bench.",
+      "body": "Pick your trade, see exactly what the video must show, then record.",
+      "cta": "See the open trades",
+      "readout": "Trade readout",
+      "openLabel": "Open for verification",
+      "openValue": "Electrical · Hairdressing",
+      "benchLabel": "On the bench",
+      "benchValue": "10 trades",
+      "rule": "A trade opens when its rubric and its Experts are ready."
+    },
+    "open": {
+      "label": "01 — Open",
+      "trade": "Trade {n} · {trade}",
+      "task": "Task",
+      "rubric": "Rubric preview · Example",
+      "safety": "Safety",
+      "verifyNow": "Verify now",
+      "electrical": {
+        "task": "Install a 13A socket",
+        "imageAlt": "Hands terminating copper wires in a socket box with a screwdriver",
+        "markers": {
+          "1": "01 Isolate · 00:04",
+          "2": "03 Earth · 00:41"
+        },
+        "steps": {
+          "1": "Isolate power",
+          "2": "Strip & terminate",
+          "3": "Earth continuity",
+          "4": "Faceplate secure"
+        }
+      },
+      "hairdressing": {
+        "task": "Cornrows / braiding",
+        "imageAlt": "Hands braiding cornrows, close up",
+        "markers": {
+          "1": "01 Parting · 00:06",
+          "2": "02 Tension · 00:27"
+        },
+        "steps": {
+          "1": "Clean tools & hands",
+          "2": "Even parting",
+          "3": "Consistent tension",
+          "4": "Neat finish"
+        }
+      }
+    },
+    "bench": {
+      "label": "02 — On the bench",
+      "comingSoon": "Coming soon",
+      "note": "New trades open when their rubric and Experts are ready.",
+      "roadmap": "See the roadmap",
+      "imageAlt": {
+        "plumbing": "Hands at a workbench with a pipe wrench and coiled wire",
+        "masonry": "Hands holding an adjustable wrench at a workbench",
+        "carpentry": "Screwdrivers, pliers and hammers laid out on a bench",
+        "welding": "A welding mask, trowel and level on a workbench",
+        "mechanic": "Hands working a part with pliers at a mechanic's bench",
+        "tailoring": "Spools of thread, pliers and a level on a bench",
+        "beauty": "Hands braiding hair, close up",
+        "solar": "Hands wiring a solar distribution panel"
+      }
+    }
   }
 }
