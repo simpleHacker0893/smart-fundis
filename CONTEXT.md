@@ -17,7 +17,7 @@ A skilled or semi-skilled tradesperson (jua kali worker) who uses Smart Fundis t
 *Avoid:* worker, artisan, provider.
 
 ### Client
-A person or business looking to hire a Fundi. **In the MVP a Client has no account.** They browse verified Fundis anonymously. They filter by Trade, county and area, and can reveal an opted-in Fundi's phone, without an account. Client accounts, profiles and bookings are post-MVP.
+A person or business looking to hire a Fundi. **In the MVP a Client has no account.** They browse verified Fundis anonymously. They see every Listed Fundi (verified first), filter by Trade, county, area and "Verified only", and can reveal an opted-in Fundi's phone, all without an account. Client accounts, profiles and bookings are post-MVP.
 *Avoid:* customer, hirer.
 
 ### Expert
@@ -80,11 +80,19 @@ The public proof that a Fundi's Assessment for one Task was approved. It reads:
 *Avoid:* certificate, certified, tier.
 
 ### Verified Fundi
-A Fundi with at least one Badge. Only Verified Fundis appear in the public **Find a fundi** list.
+A Fundi with at least one Badge. Verified Fundis come first in **Find a fundi**, but they are not the only Fundis listed (see **Listing**).
 
 ### Listing
-A Verified Fundi's presence in **Find a fundi**. A Fundi is **Listed** when they have at least one Badge, "Show my profile in Find a fundi" (`publicListing`) is on, and an Admin has not hidden the profile. Only Listed Fundis appear on `/fundis` and have a public profile at `/f/[id]`. A Listing matches a Trade filter only for Trades the Fundi holds a Badge in.
+A Fundi's presence in **Find a fundi**. A Fundi is **Listed** when they have a Fundi profile, "Show my profile in Find a fundi" (`publicListing`) is on, and an Admin has not hidden the profile. A Badge is **not** required: verification is shown, not required. Only Listed Fundis appear on `/fundis` and have a public profile at `/f/[id]`. A Listing matches a Trade filter for the Trades the Fundi declared or holds a Badge in. Verified Fundis sort first, and a "Verified only" chip hides the rest.
 *Avoid:* ad, post, advert, directory entry.
+
+### Not yet verified
+The neutral label on a Listed Fundi with no Badge and no Expert verifier mark. In a Trade filter, "Not yet verified in <Trade>" marks a Trade the Fundi declared but holds no Badge in. It states a fact about Smart Fundis, not a judgement of the Fundi: it is shown in dim text, never in amber or a warning style, and never implies a rejection or a pending review.
+*Avoid:* unverified, unapproved, pending, failed.
+
+### Expert verifier mark
+The label "Expert verifier · <Trade>" on the card and profile of a Fundi who is also an active Expert for that Trade. It is derived from the Expert approval, never stored on the profile, and kept visually separate from skill Badges (no ✓). It counts as verified for sorting and the "Verified only" chip in that Trade. It never says "certified".
+*Avoid:* certified assessor, expert badge.
 
 ### Video deletion
 A Fundi can delete the video of their own Assessment once it reaches a final status (`approved`, `reshoot`, `rejected` or `failed`). Before that, deletion is blocked with the note "You can delete once review is finished". Deletion removes the video. The decision record and any Badge remain.
@@ -103,13 +111,13 @@ A Fundi's optional "Tell me when it launches" signal, which is off by default. I
 The Fundi's agreement, shown in English and Kiswahili before any upload, that covers **verification only**: who sees the video, AI plus human review, and deletion. It never covers the Data Co-op.
 
 ### Demo profile
-A made-up Fundi created only by the demo seed, with an invented name, an initials avatar, no photo or video, no Portfolio items and no phone number. Every Badge on a Demo profile, and the profile itself, is visibly tagged **"Demo: not a real verification"**. Demo Assessments never enter an Expert's queue.
+A made-up Fundi created only by the demo seed, with an invented name, an initials avatar, no photo or video, no Portfolio items, no phone number and no Expert verifier mark. Every Badge on a Demo profile, and the profile itself, is visibly tagged **"Demo: not a real verification"**. Demo Assessments never enter an Expert's queue.
 
 ### Showcase link
 A YouTube, TikTok or other portfolio link that a Fundi adds to their profile. It is labelled "Showcase — not verified" and never earns a Badge.
 
 ### Showcase
-Everything on a public profile that shows a Fundi's work **without** verifying it: Showcase links and public Portfolio items. Showcase is always labelled "not verified". Only a Badge is verified work.
+Everything on a public profile that shows a Fundi's work **without** verifying it: Showcase links and public Portfolio items. Showcase is always labelled "not verified". Only a Badge is verified work. LinkedIn, CV and personal-portfolio links are public only when the Fundi turns each one on.
 
 ### Portfolio item
 A photo or video of their own work that a Fundi uploads to show Clients. It is **private until the Fundi publishes it**, which needs the Portfolio publish consent and a confirmation that everyone recognisable agreed. It is labelled "Not verified", never earns a Badge, and is never an Assessment video. The Fundi can unpublish or delete it at any time, and an Admin can hide it.

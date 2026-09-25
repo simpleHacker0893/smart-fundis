@@ -12,7 +12,7 @@ Clients using Find a Fundi want to see real work: photos and videos of what a Fu
 
 ## Decision
 
-A Fundi gets a **Portfolio**: separate photo and video uploads in a new `portfolioItems` table and separate storage objects, **private by default**, each made public one at a time behind its own **Portfolio publish consent** (English and Kiswahili) and a per-item confirmation that everyone recognisable agreed and no children are recognisable. Portfolio items are always labelled "Not verified", never earn a Badge, are never sent to the AI service, the eval or the Data Co-op, and can be unpublished or deleted at any time. An Assessment video can **never** become a Portfolio item.
+A Fundi gets a **Portfolio**: separate photo and video uploads in a new `portfolioItems` table and separate storage objects, **private by default**, each made public one at a time behind its own **Portfolio publish consent** (English and Kiswahili, confirmed by the operator, D-21) and a per-item confirmation that everyone recognisable agreed and no children are recognisable. Portfolio items are always labelled "Not verified", never earn a Badge, are never sent to the AI service, the eval or the Data Co-op, and can be unpublished or deleted at any time. An Assessment video can **never** become a Portfolio item.
 
 ## Options considered
 

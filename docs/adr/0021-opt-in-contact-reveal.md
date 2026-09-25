@@ -44,7 +44,7 @@ The Fundi opts in with **"Show my phone to clients"** (off by default) and, sepa
 
 ## Trade-off analysis
 
-Option C keeps the number out of every passive channel (HTML, lists, caches, search engines) and bounds bulk harvesting with a per-Fundi cap, at the cost of one extra tap. It does not stop a determined attacker rotating visitor keys; the per-Fundi cap (100/day) limits the damage, and Turnstile or an IP-keyed limit remain available (Q-3). The per-Fundi cap could be exhausted deliberately to hide one Fundi's number for a day; we accept that over unlimited reveals.
+Option C keeps the number out of every passive channel (HTML, lists, caches, search engines) and bounds bulk harvesting with a per-Fundi cap, at the cost of one extra tap. It does not stop a determined attacker rotating visitor keys; the per-Fundi cap (100/day) limits the damage, and Turnstile or an IP-keyed limit remain available. **The operator chose no Turnstile in V6 (Q-3)**; this is logged as R-18, with Turnstile as the planned response if `contactReveals` shows bulk harvesting. The per-Fundi cap could be exhausted deliberately to hide one Fundi's number for a day; we accept that over unlimited reveals.
 
 ## Consequences
 
@@ -52,6 +52,7 @@ Option C keeps the number out of every passive channel (HTML, lists, caches, sea
 - Onboarding copy changes from "Never shown publicly" to "Hidden unless you turn on 'Show my phone to clients'".
 - A wrong or someone-else's number is handled by the report reason `wrong_phone` and Admin hide (R-15); OTP is Pilot.
 - Demo profiles never have a phone (a made-up number may belong to a real person).
+- Since D-24, **unverified** Listed Fundis can opt in to contact too. The profile line under the buttons says "Smart Fundis has not verified this fundi's work yet. Agree the price and the work directly."
 - The profile carries the line "Smart Fundis verified the tasks above only. Agree the price and the work directly with the fundi."
 
 ## Action items
