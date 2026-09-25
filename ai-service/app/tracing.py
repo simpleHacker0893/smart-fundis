@@ -19,7 +19,7 @@ import os
 import re
 from collections.abc import Callable, Iterator
 from contextlib import contextmanager
-from functools import lru_cache, wraps
+from functools import cache, wraps
 from pathlib import Path
 from typing import Any, TypeVar
 
@@ -27,9 +27,10 @@ from dotenv import load_dotenv
 from langsmith import Client, traceable
 from langsmith.run_helpers import tracing_context
 
+from app.settings import REPO_ROOT_ENV
+
 DEFAULT_PROJECT = "smart-fundis-agent"
 MASKED = "[masked]"
-REPO_ROOT_ENV = Path(__file__).resolve().parents[2] / ".env"
 
 # String values under these keys are kept. Everything else is masked.
 SAFE_KEYS = frozenset(
@@ -98,7 +99,7 @@ def configure_tracing(env_file: Path = REPO_ROOT_ENV) -> bool:
     return tracing_on and bool(os.environ.get("LANGSMITH_API_KEY"))
 
 
-@lru_cache(maxsize=None)
+@cache
 def masked_client(api_key: str | None = None) -> Client:
     """The only LangSmith client the pipeline may use."""
     return Client(api_key=api_key, anonymizer=mask)
@@ -149,4 +150,7 @@ if __name__ == "__main__":
     if enabled:
         print(f"Sent one masked trace to LangSmith project '{project}': {result}")
     else:
-        print("Tracing is off: set LANGSMITH_TRACING=true and LANGSMITH_API_KEY in the repo-root .env.")
+        print(
+            "Tracing is off: set LANGSMITH_TRACING=true and LANGSMITH_API_KEY "
+            "in the repo-root .env."
+        )
