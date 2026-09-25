@@ -12,6 +12,9 @@
     "jsx": "react-jsx",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    /* TypeScript 6 includes no @types by default. `node` types `process.env`,
+       which Convex functions read deployment env vars from. */
+    "types": ["node"],
 
     /* These compiler options are required by Convex */
     "target": "ESNext",

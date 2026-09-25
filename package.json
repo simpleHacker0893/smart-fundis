@@ -11,13 +11,22 @@
     "dev": "pnpm --filter @smart-fundis/web dev",
     "dev:convex": "convex dev",
     "build": "pnpm -r --if-present build",
-    "typecheck": "pnpm -r --if-present typecheck",
+    "typecheck": "pnpm typecheck:convex && pnpm -r --if-present typecheck",
+    "typecheck:convex": "tsc --noEmit -p convex",
     "lint": "pnpm -r --if-present lint",
-    "test": "pnpm check:env && pnpm -r --if-present test",
+    "test": "pnpm check:env && pnpm test:convex && pnpm -r --if-present test",
+    "test:convex": "vitest run",
     "check:env": "node scripts/check-env-example.mjs"
   },
   "dependencies": {
     "convex": "^1.46.0",
     "typescript": "^6.0.3"
+  },
+  "devDependencies": {
+    "@edge-runtime/vm": "^5.0.0",
+    "@types/node": "^22",
+    "convex-test": "^0.0.59",
+    "vite": "^8.3.0",
+    "vitest": "^5.0.1"
   }
 }
