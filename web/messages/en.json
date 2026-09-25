@@ -153,10 +153,9 @@
     },
     "trades": {
       "label": "06 — Trades",
-      "titleLine1": "Two trades live.",
+      "titleLine1": "Two trades open.",
       "titleLine2": "Ten on the bench.",
-      "live": "Live",
-      "verifyNow": "Verify now →",
+      "verifyNow": "Verify now",
       "comingSoon": "Coming soon",
       "names": {
         "electrical": "Electrical",

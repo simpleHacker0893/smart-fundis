@@ -1,4 +1,4 @@
-import { ArrowDown, Plug, Scissors, TriangleAlert, Video, Zap, type LucideIcon } from "lucide-react";
+import { ArrowDown, ArrowRight, Plug, Scissors, TriangleAlert, Video, Zap, type LucideIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { getTranslations } from "next-intl/server";
@@ -17,8 +17,8 @@ import {
 import { SIGN_UP_PATH } from "@/lib/auth-routes";
 import { PRIMARY_CTAS } from "@/lib/site-nav";
 
-const HERO_IMAGE = "/images/landing-socket-wiring.jpg";
-const COOP_IMAGE = "/images/landing-coop-bench.jpg";
+const HERO_IMAGE = "/images/landing-socket-wiring-1280.webp";
+const COOP_IMAGE = "/images/landing-coop-bench-1280.webp";
 
 const LIVE_TRADE_ICONS: Record<(typeof LIVE_TRADES)[number], LucideIcon> = {
   electrical: Plug,
@@ -201,16 +201,13 @@ export default async function HomePage() {
                     href={SIGN_UP_PATH}
                     className="flex h-full min-h-32 flex-col justify-between gap-6 rounded border border-foreground/30 bg-panel p-4 transition-colors hover:border-foreground/60"
                   >
-                    <span className="flex items-start justify-between">
-                      <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
-                      <span className="rounded border border-amber/60 px-2 py-0.5 font-mono text-xs font-bold tracking-widest text-amber uppercase">
-                        {t("trades.live")}
-                      </span>
-                    </span>
+                    <Icon aria-hidden="true" className="size-6" strokeWidth={1.5} />
                     <span className="flex flex-col gap-1">
                       <span className="text-base font-bold">{t(`trades.names.${trade}`)}</span>
-                      <span className="font-mono text-xs tracking-wider text-foreground/75 uppercase">
+                      {/* "Verify now", never "LIVE" (#20): the trade is open, not a live feed. */}
+                      <span className="flex items-center gap-1 font-mono text-xs font-bold tracking-wider text-amber uppercase">
                         {t("trades.verifyNow")}
+                        <ArrowRight aria-hidden="true" className="size-3.5" strokeWidth={2} />
                       </span>
                     </span>
                   </Link>

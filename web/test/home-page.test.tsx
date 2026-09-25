@@ -1,4 +1,4 @@
-import { existsSync } from "node:fs";
+import { existsSync, readdirSync, statSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { createTranslator, NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -90,13 +90,18 @@ describe("landing page (Stitch v3)", () => {
     }
   });
 
-  it("links the two live trades to sign-up; the ten coming-soon trades are plain readouts", async () => {
+  it("offers 'Verify now' on the two open trades, linking to Join; never says LIVE (#20)", async () => {
     const trades = section(await renderHome(), "trades");
-    const links = [...trades.matchAll(/<a\s[^>]*href="([^"]*)"/g)].map((m) => m[1]);
-    expect(links).toEqual(["/sign-up", "/sign-up"]);
+    const anchors = [...trades.matchAll(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)];
+    expect(anchors.map((m) => m[1])).toEqual(["/sign-up", "/sign-up"]);
+    for (const [, , inner] of anchors) expect(visibleStrings(inner)).toContain(t("trades.verifyNow"));
+    expect(visibleStrings(trades).join(" ")).not.toMatch(/\blive\b/i);
+  });
+
+  it("shows the ten other trades as muted 'Coming soon' tiles, not buttons or links", async () => {
+    const trades = section(await renderHome(), "trades");
     expect(visibleStrings(trades).filter((s) => s === t("trades.comingSoon"))).toHaveLength(10);
-    expect(visibleStrings(trades).filter((s) => s === t("trades.live"))).toHaveLength(2);
-    expect(trades).not.toMatch(/disabled|opacity-(50|60)/);
+    expect(trades).not.toMatch(/<button|role="button"|disabled|opacity-(50|60)/);
   });
 
   it("shows coming-next items as readouts with no links (no roadmap page yet)", async () => {
@@ -111,7 +116,7 @@ describe("landing page (Stitch v3)", () => {
     expect(imgs.length).toBe(2);
     for (const img of imgs) {
       expect(img).not.toMatch(/googleusercontent/);
-      expect(img).toMatch(/src="[^"]*images%2Flanding-|src="\/images\/landing-/);
+      expect(img).toMatch(/src="[^"]*images%2Flanding-[a-z-]+-\d+\.webp|src="\/images\/landing-[a-z-]+-\d+\.webp/);
     }
     expect(markup).toContain(`alt="${t("hero.imageAlt")}"`);
   });
@@ -121,6 +126,18 @@ describe("landing page (Stitch v3)", () => {
     const metadata = await generateMetadata();
     expect(metadata.title).toBe(en.Metadata.title);
     expect(metadata.description).toBe(en.Metadata.description);
+  });
+});
+
+describe("public images (HANDOFF §4)", () => {
+  it("are all WebP and under 100 KB", () => {
+    const dir = fileURLToPath(new URL("../public/images", import.meta.url));
+    const files = readdirSync(dir);
+    expect(files.length).toBeGreaterThan(0);
+    for (const name of files) {
+      expect(name, name).toMatch(/\.webp$/);
+      expect(statSync(`${dir}/${name}`).size, name).toBeLessThan(100_000);
+    }
   });
 });
 
