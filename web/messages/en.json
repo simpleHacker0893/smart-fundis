@@ -6,5 +6,10 @@
   "HomePage": {
     "title": "Smart Fundis",
     "tagline": "Skills, verified by Smart Fundis. Coming together."
+  },
+  "DashboardPage": {
+    "title": "Dashboard",
+    "signedInAs": "Signed in as {email}",
+    "signedIn": "You are signed in."
   }
 }

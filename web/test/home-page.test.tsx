@@ -3,6 +3,7 @@ import { fileURLToPath } from "node:url";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it, vi } from "vitest";
 import en from "@/messages/en.json";
+import { leafStrings, visibleStrings } from "./copy-helpers";
 
 // Server components read copy through next-intl's getTranslations. In tests
 // we back it with the real en.json so the page renders exactly what ships.
@@ -15,35 +16,6 @@ vi.mock("next-intl/server", async () => {
       createTranslator({ locale: defaultLocale, messages, namespace: namespace as never }),
   };
 });
-
-function leafStrings(value: unknown): string[] {
-  if (typeof value === "string") return [value];
-  if (value && typeof value === "object") {
-    return Object.values(value).flatMap(leafStrings);
-  }
-  return [];
-}
-
-function decodeEntities(text: string): string {
-  return text
-    .replace(/&#x27;|&#39;/g, "'")
-    .replace(/&quot;/g, '"')
-    .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">")
-    .replace(/&amp;/g, "&");
-}
-
-/** Text nodes plus user-visible attributes (alt, aria-label, title, placeholder). */
-function visibleStrings(markup: string): string[] {
-  const text = markup
-    .split(/<[^>]*>/)
-    .map((chunk) => decodeEntities(chunk).trim())
-    .filter(Boolean);
-  const attrs = [
-    ...markup.matchAll(/\s(?:alt|aria-label|title|placeholder)="([^"]*)"/g),
-  ].map((match) => decodeEntities(match[1]).trim());
-  return [...text, ...attrs].filter(Boolean);
-}
 
 const messageValues = new Set(leafStrings(en));
 
