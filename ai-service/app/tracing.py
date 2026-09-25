@@ -23,7 +23,7 @@ from functools import cache, wraps
 from pathlib import Path
 from typing import Any, TypeVar
 
-from dotenv import load_dotenv
+from dotenv import dotenv_values
 from langsmith import Client, traceable
 from langsmith.run_helpers import tracing_context
 
@@ -87,11 +87,18 @@ def _exception_type(error: str) -> str:
 
 
 def configure_tracing(env_file: Path = REPO_ROOT_ENV) -> bool:
-    """Load the repo-root .env (D-13), default the project, and report whether tracing is on.
+    """Load the LANGSMITH_* names from the repo-root .env (D-13), default the project,
+    and report whether tracing is on.
 
-    Values already in the environment win, so the Brev box's own env is never overridden.
+    Only LANGSMITH_* names are copied into ``os.environ``: other secrets in the
+    file (NVIDIA_API_KEY, AI_SHARED_SECRET) stay out of the process env and are
+    read through ``get_settings()``. Values already in the environment win, so
+    the Brev box's own env is never overridden.
     """
-    load_dotenv(env_file, override=False)
+    file_values = dotenv_values(env_file) if env_file.is_file() else {}
+    for name, value in file_values.items():
+        if name.startswith("LANGSMITH_") and value is not None and name not in os.environ:
+            os.environ[name] = value
     masked_client.cache_clear()  # a client built earlier has no key
     if not os.environ.get("LANGSMITH_PROJECT"):
         os.environ["LANGSMITH_PROJECT"] = DEFAULT_PROJECT

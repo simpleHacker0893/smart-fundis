@@ -7,10 +7,13 @@ chat-completions body in ``tests/fixtures/nemotron_smoke_response.json``.
 
 from __future__ import annotations
 
+import base64
 import json
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
+from urllib.parse import quote, quote_plus
 
 import pytest
 import requests
@@ -109,14 +112,12 @@ def test_key_is_passed_explicitly_not_read_from_os_environ(api: FakeNvidiaApi) -
     assert call["headers"]["Authorization"] == f"Bearer {FAKE_KEY}"
 
 
-def test_prompt_is_a_versioned_file_with_no_user_data(api: FakeNvidiaApi) -> None:
+def test_sends_the_prompt_file_verbatim(api: FakeNvidiaApi) -> None:
     nemotron.nemotron_smoke(_settings())
 
     (call,) = api.posts
     sent = " ".join(m["content"] for m in call["json"]["messages"])
     assert sent.strip() == nemotron.load_prompt().strip()
-    assert nemotron.PROMPT_FILE.parent.name == "prompts"
-    assert nemotron.PROMPT_FILE.is_file()
 
 
 @pytest.mark.parametrize("key", [None, "", "   "])
@@ -152,8 +153,82 @@ def test_http_error_never_carries_the_key(api: FakeNvidiaApi) -> None:
 
     assert FAKE_KEY not in str(info.value)
     assert FAKE_KEY not in repr(info.value)
-    assert info.value.__cause__ is None
-    assert info.value.__suppress_context__
+
+
+def _chain(exc: BaseException) -> list[BaseException]:
+    """Every exception reachable through __cause__ and __context__."""
+    seen: list[BaseException] = []
+    todo: list[BaseException | None] = [exc]
+    while todo:
+        current = todo.pop()
+        if current is None or any(current is s for s in seen):
+            continue
+        seen.append(current)
+        todo += [current.__cause__, current.__context__]
+    return seen
+
+
+@pytest.mark.parametrize("status", [401, 500])
+def test_exception_chain_holds_no_key_anywhere(api: FakeNvidiaApi, status: int) -> None:
+    api.chat_status = status
+    api.chat_body = {"status": status, "detail": f"bad key {FAKE_KEY}"}
+
+    with pytest.raises(nemotron.NemotronSmokeError) as info:
+        nemotron.nemotron_smoke(_settings())
+
+    chain = _chain(info.value)
+    assert chain == [info.value]  # nothing hangs off the error at all
+    for exc in chain:
+        assert FAKE_KEY not in f"{exc!s} {exc!r} {exc.args!r}"
+
+
+# --- _scrub: every echo form of the key is redacted, before truncation ---
+
+
+def test_scrub_redacts_the_exact_key() -> None:
+    assert FAKE_KEY not in nemotron._scrub(f"bad key {FAKE_KEY} here", FAKE_KEY)
+
+
+@pytest.mark.parametrize(
+    "echo",
+    [
+        "nvapi-FAKE-test-key",  # a truncated prefix
+        "nvapi-FAKE-test-****-0123",  # a masked echo
+        "nvapi-SomeOtherKeyEntirely_42",  # another nvapi token entirely
+    ],
+)
+def test_scrub_redacts_partial_masked_and_other_nvapi_tokens(echo: str) -> None:
+    out = nemotron._scrub(f"server said: {echo}", FAKE_KEY)
+    assert "nvapi-" not in out
+    assert "server said:" in out
+
+
+@pytest.mark.parametrize(
+    "encode",
+    [
+        lambda k: base64.b64encode(k.encode()).decode(),
+        lambda k: base64.b64encode(k.encode()).decode().rstrip("="),
+        lambda k: base64.urlsafe_b64encode(k.encode()).decode(),
+        lambda k: quote(k, safe=""),
+        lambda k: quote_plus(f"Bearer {k}"),
+    ],
+    ids=["b64", "b64-nopad", "b64-urlsafe", "url", "url-plus-bearer"],
+)
+def test_scrub_redacts_encoded_forms(encode: Callable[[str], str]) -> None:
+    key = "nvapi-Ab+/Cd=Ef/Gh+Ij~Kl 0123"  # characters that encoding changes
+    echo = encode(key)
+    out = nemotron._scrub(f"echo {echo} end", key)
+    assert echo not in out
+    assert "echo" in out
+    assert "end" in out
+
+
+def test_scrub_redacts_before_truncating() -> None:
+    # The key straddles the cut: redacting after truncation would leave a prefix.
+    text = "x" * (nemotron._MAX_ERROR_CHARS - 10) + FAKE_KEY
+    out = nemotron._scrub(text, FAKE_KEY)
+    assert FAKE_KEY[:10] not in out
+    assert "nvapi-" not in out
 
 
 def test_result_repr_has_no_key(api: FakeNvidiaApi) -> None:
@@ -206,4 +281,41 @@ def test_main_fails_non_zero_with_clear_message_and_no_key(
     out, err = capsys.readouterr()
     assert code != 0
     assert needle in err
+    assert FAKE_KEY not in out + err
+
+
+class ExplodingClient:
+    def flush(self) -> None:
+        raise RuntimeError(f"flush failed with {FAKE_KEY}")
+
+
+@pytest.mark.parametrize(
+    ("settings", "code", "stdout_needle", "stderr_needle"),
+    [
+        (_settings(), 0, f"model: {MODEL}", "flush"),
+        (_settings(key=None), 1, "", "NVIDIA_API_KEY"),
+    ],
+    ids=["success", "failure"],
+)
+def test_main_keeps_result_and_exit_code_when_flush_raises(
+    api: FakeNvidiaApi,
+    capsys: pytest.CaptureFixture[str],
+    monkeypatch: pytest.MonkeyPatch,
+    settings: Settings,
+    code: int,
+    stdout_needle: str,
+    stderr_needle: str,
+) -> None:
+    monkeypatch.setattr(nemotron, "configure_tracing", lambda: True)
+    monkeypatch.setattr(nemotron, "masked_client", ExplodingClient)
+    monkeypatch.setattr(nemotron, "get_settings", lambda: settings)
+
+    assert nemotron.main() == code
+
+    out, err = capsys.readouterr()
+    assert stdout_needle in out
+    assert stderr_needle in err
+    flush_lines = [line for line in err.splitlines() if "flush" in line.lower()]
+    assert len(flush_lines) == 1  # one scrubbed line, no traceback
+    assert "Traceback" not in err
     assert FAKE_KEY not in out + err

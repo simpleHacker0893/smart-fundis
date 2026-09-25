@@ -58,7 +58,7 @@ Tests never touch the real `.env`: they use `tests/fixtures/root.env` copied int
 
 `app/nemotron.py` makes one hosted Nemotron call through `ChatNVIDIA` with `with_structured_output(SmokeReply)` (`trade`, `ok`, `note`). The prompt is fixed, holds no user data, and lives in `app/prompts/nemotron_smoke.v1.txt`. The call proves that the key, the model id and structured output all work before V2.
 
-It reads `NVIDIA_API_KEY` and `NEMOTRON_MODEL` through `get_settings()`, so from the **repo-root `.env`** or the Brev env (D-13). The key is passed to `ChatNVIDIA` explicitly and never printed; error text is scrubbed of it. There's no default model id. Pick one from build.nvidia.com that supports structured output, for example with `uv run python -c "from langchain_nvidia_ai_endpoints import ChatNVIDIA; print([m.id for m in ChatNVIDIA.get_available_models() if 'nemotron' in m.id])"` (this listing needs `NVIDIA_API_KEY` in your shell).
+It reads `NVIDIA_API_KEY` and `NEMOTRON_MODEL` through `get_settings()`, so from the **repo-root `.env`** or the Brev env (D-13). The key is passed to `ChatNVIDIA` explicitly and never printed. Error text is scrubbed of the key (raw, base64 and URL-encoded) and of any `nvapi-` token, and errors carry no exception chain. Blank or whitespace-only values count as unset. There's no default model id. Pick one from build.nvidia.com that supports structured output, for example with `uv run python -c "from langchain_nvidia_ai_endpoints import ChatNVIDIA; print([m.id for m in ChatNVIDIA.get_available_models() if 'nemotron' in m.id])"` (this listing needs `NVIDIA_API_KEY` in your shell).
 
 ```bash
 uv run python -m app.nemotron
@@ -94,7 +94,7 @@ A new field is masked until someone adds its key to `SAFE_KEYS`. Only allow-list
 ```python
 from app.tracing import configure_tracing, pipeline_context, traced
 
-configure_tracing()  # once at startup: loads the repo-root .env, defaults the project
+configure_tracing()  # once at startup: copies only LANGSMITH_* from the root .env, defaults the project
 
 
 @traced("rules")  # a plain function, traced through the masked client
