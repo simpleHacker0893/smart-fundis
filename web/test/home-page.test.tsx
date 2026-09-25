@@ -17,6 +17,12 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
+// The layout loads its fonts through next/font, which only runs inside Next.
+vi.mock("next/font/google", () => ({
+  Inter: () => ({ variable: "font-inter-var", className: "font-inter" }),
+  JetBrains_Mono: () => ({ variable: "font-mono-var", className: "font-mono" }),
+}));
+
 const messageValues = new Set(leafStrings(en));
 
 describe("home page copy", () => {
@@ -50,8 +56,10 @@ describe("home page copy", () => {
 
 describe("messages", () => {
   it("never says certified (we verify; NITA, KNQA and TVETs certify)", () => {
+    // HANDOFF §5: the only allowed use of the word is this exact sentence.
+    const allowed = "NITA, KNQA and TVETs certify.";
     for (const s of leafStrings(en)) {
-      expect(s).not.toMatch(/certif/i);
+      expect(s.replaceAll(allowed, "")).not.toMatch(/certif/i);
     }
   });
 

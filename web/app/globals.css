@@ -4,7 +4,31 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/*
+ * Smart Fundis v2 "Instrument" theme (D-9, design/stitch/DESIGN.md L67-110,
+ * design/HANDOFF.md §2). This file is the one theme source: the brand tokens
+ * live in :root, and the shadcn tokens below point at them. Dark only, so
+ * there is no light palette and <html> always carries class="dark".
+ *
+ * 95 / 5: graphite and white carry the page; amber is punctuation only
+ * (primary pill fill, focus ring, active marker, one key word). shadcn's
+ * --accent is its hover surface, so it stays neutral, not amber.
+ */
+
 @theme inline {
+  /* Fonts from next/font (app/layout.tsx). Display follows DESIGN.md L80:
+     system first, Inter where the system has none (Android, Windows). */
+  --font-sans: -apple-system, BlinkMacSystemFont, "Helvetica Neue", var(--font-inter), sans-serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  /* Brand tokens as utilities: bg-panel, border-line, text-dim, text-faint, bg-amber. */
+  --color-graphite: var(--bg);
+  --color-panel: var(--panel);
+  --color-line: var(--line);
+  --color-dim: var(--dim);
+  --color-faint: var(--faint);
+  --color-amber: var(--amber);
+
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-sidebar-ring: var(--sidebar-ring);
@@ -46,82 +70,79 @@
 }
 
 :root {
-  --background: oklch(1 0 0);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.205 0 0);
-  --primary-foreground: oklch(0.985 0 0);
-  --secondary: oklch(0.97 0 0);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
-  --accent: oklch(0.97 0 0);
-  --accent-foreground: oklch(0.205 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: oklch(0.922 0 0);
-  --input: oklch(0.922 0 0);
-  --ring: oklch(0.708 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.625rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
+  color-scheme: dark;
+
+  /* Brand tokens (DESIGN.md L72-77). */
+  --bg: #050609; /* graphite: page background */
+  --panel: #0b0d12; /* raised panels and cards */
+  --line: rgba(242, 244, 247, 0.1); /* 1 px hairlines */
+  --text: #f2f4f7; /* headings and body */
+  --dim: rgba(242, 244, 247, 0.55); /* secondary text, AA ~5.6:1 */
+  --faint: rgba(242, 244, 247, 0.34); /* decorative only: never readable text */
+  --amber: #ef9a57; /* the only accent, punctuation only */
+
+  /* shadcn tokens, mapped onto the brand. */
+  --background: var(--bg);
+  --foreground: var(--text);
+  --card: var(--panel);
+  --card-foreground: var(--text);
+  --popover: var(--panel);
+  --popover-foreground: var(--text);
+  --primary: var(--amber); /* primary pill: amber fill, graphite label (~9:1) */
+  --primary-foreground: var(--bg);
+  --secondary: var(--panel);
+  --secondary-foreground: var(--text);
+  --muted: var(--panel);
+  --muted-foreground: var(--dim);
+  --accent: rgba(242, 244, 247, 0.06); /* hover surface, not the brand accent */
+  --accent-foreground: var(--text);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: var(--line);
+  --input: rgba(242, 244, 247, 0.15);
+  --ring: var(--amber); /* focus: 2 px amber, 2 px offset (DESIGN.md L108) */
+  --chart-1: var(--text);
+  --chart-2: rgba(242, 244, 247, 0.7);
+  --chart-3: var(--dim);
+  --chart-4: var(--faint);
+  --chart-5: var(--amber);
+  --radius: 0.25rem; /* panels 4 px; buttons use rounded-full */
+  --sidebar: var(--panel);
+  --sidebar-foreground: var(--text);
+  --sidebar-primary: var(--amber);
+  --sidebar-primary-foreground: var(--bg);
+  --sidebar-accent: rgba(242, 244, 247, 0.06);
+  --sidebar-accent-foreground: var(--text);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--amber);
 }
 
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+/* Mono instrument readout: UPPERCASE, 0.26em tracking, 12 px floor (DESIGN.md L83). */
+@utility readout {
+  @apply font-mono;
+  font-size: 0.75rem;
+  line-height: 1rem;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
 }
 
 @layer base {
   * {
     @apply border-border outline-ring/50;
   }
-  body {
-    @apply bg-background text-foreground;
-  }
   html {
     @apply font-sans;
+  }
+  body {
+    @apply bg-background text-foreground;
+    /* Every number is tabular (DESIGN.md L84). */
+    font-variant-numeric: tabular-nums;
+  }
+  :focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: var(--amber);
+    color: var(--bg);
   }
 }
