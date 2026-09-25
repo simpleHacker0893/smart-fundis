@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy"];
 
 const isFromMessages = makeIsFromMessages(en);
 
@@ -36,6 +36,7 @@ const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof 
   "/telemetry": { load: () => import("@/app/telemetry/page"), namespace: "Telemetry" },
   "/about": { load: () => import("@/app/about/page"), namespace: "About" },
   "/contact": { load: () => import("@/app/contact/page"), namespace: "Contact" },
+  "/privacy": { load: () => import("@/app/privacy/page"), namespace: "Privacy" },
 };
 
 async function render(route: string) {
@@ -264,5 +265,48 @@ describe("/contact (#24)", () => {
     const params = new URLSearchParams(href.split("?")[1]);
     expect(params.get("subject")).toContain("Fundi");
     expect(params.get("body")).toBe("Habari? Line 2 & more");
+  });
+});
+
+describe("/privacy (#25)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Privacy" });
+
+  it("keeps the Stitch layout: hero, who sees what, consent, your controls", async () => {
+    const markup = await render("/privacy");
+    const at = ["top", "who", "consent", "controls"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("shows the access matrix as a table: only the badge and showcase links are public", async () => {
+    const who = section(await render("/privacy"), "who");
+    expect(who).toMatch(/<table/);
+    const rows = [...who.matchAll(/<tr[\s\S]*?<\/tr>/g)].map((m) => visibleStrings(m[0]));
+    const body = rows.slice(1);
+    expect(body).toHaveLength(5);
+    const publicRows = body.filter((cells) => cells.includes(t("who.yes"))).map((cells) => cells[0]);
+    expect(publicRows).toEqual([t("who.rows.badge.item"), t("who.rows.showcase.item")]);
+  });
+
+  it("describes consent in English only: no Kiswahili consent text is printed", async () => {
+    const markup = await render("/privacy");
+    const text = visibleStrings(markup).join(" ");
+    expect(text).not.toMatch(/ninakubali|video yangu|wataalamu|hadharani/i);
+    expect(visibleStrings(section(markup, "consent"))).toContain(t("consent.languages"));
+  });
+
+  it("tags delete and visibility 'Coming soon'; training is policy, untagged", async () => {
+    const controls = section(await render("/privacy"), "controls");
+    const cards = [...controls.matchAll(/<li[\s\S]*?<\/li>/g)].map((m) => visibleStrings(m[0]));
+    const byLabel = (key: string) => cards.find((c) => c.includes(t(`controls.${key}.label` as never)))!;
+    expect(byLabel("delete")).toContain(t("comingSoon"));
+    expect(byLabel("visibility")).toContain(t("comingSoon"));
+    expect(byLabel("training")).not.toContain(t("comingSoon"));
+  });
+
+  it("drops the export's invented readouts", async () => {
+    const text = visibleStrings(await render("/privacy")).join(" ");
+    expect(text).not.toMatch(/cold storage|hardware|fps|standby|sovereignty|zero harvest|purge|spec \/\//i);
   });
 });

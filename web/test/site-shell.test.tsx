@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -214,9 +214,9 @@ describe("site footer (Stitch landing v3)", () => {
     expect(markup).toMatch(/\sid="company"/);
   });
 
-  it("leaves out destinations that don't exist yet (privacy, verifier)", async () => {
+  it("leaves out destinations that don't exist yet (become a verifier)", async () => {
     const strings = visibleStrings(await renderFooter());
-    for (const key of ["privacy", "becomeVerifier"] as const) {
+    for (const key of ["becomeVerifier"] as const) {
       expect(strings).not.toContain(links(key));
     }
     expect(strings).not.toContain(footer("groups.forExperts"));

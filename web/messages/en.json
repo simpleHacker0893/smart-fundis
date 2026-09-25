@@ -576,5 +576,78 @@
       "frameTag": "Example",
       "imageAlt": "Hands holding a phone over a workshop bench"
     }
+  },
+  "Privacy": {
+    "meta": {
+      "title": "Your privacy · Smart Fundis",
+      "description": "Your video stays yours. Only your badge is public. Here is exactly who sees what."
+    },
+    "comingSoon": "Coming soon",
+    "hero": {
+      "label": "Smart Fundis / Privacy",
+      "title": "Your video stays yours.",
+      "body": "Only your badge is public. Here is exactly who sees what.",
+      "frame": "Frame: SF-PRV-01",
+      "frameTag": "Bench view",
+      "imageAlt": "A phone lying face down on a workshop bench beside hand tools"
+    },
+    "who": {
+      "label": "01 — Who sees what",
+      "colItem": "Item",
+      "colWho": "Who sees it",
+      "colPublic": "Public?",
+      "yes": "Yes",
+      "no": "No",
+      "rows": {
+        "video": {
+          "item": "Your video",
+          "who": "You, eligible Experts, Admins, and our AI on Smart Fundis' GPU"
+        },
+        "feedback": {
+          "item": "AI feedback",
+          "who": "You, the Expert reviewing your video, and Admins"
+        },
+        "contact": {
+          "item": "Phone & email",
+          "who": "You and Admins"
+        },
+        "badge": {
+          "item": "Badge",
+          "who": "Everyone, once an Expert approves"
+        },
+        "showcase": {
+          "item": "Showcase links",
+          "who": "Everyone, labelled 'Showcase — not verified'"
+        }
+      }
+    },
+    "consent": {
+      "label": "02 — Consent, before every upload",
+      "what": "What you agree to",
+      "points": {
+        "who": "Who sees the video: you, eligible Experts, Admins, and our AI on Smart Fundis' GPU.",
+        "badge": "Only your badge becomes public.",
+        "training": "Your video is not used for the Data Co-op or for AI training."
+      },
+      "how": "How it's asked",
+      "languages": "Shown in English and Kiswahili before every upload.",
+      "gate": "Upload stays off until you tick the box.",
+      "coop": "The Data Co-op is a separate box, off by default."
+    },
+    "controls": {
+      "label": "03 — Your controls",
+      "delete": {
+        "label": "Delete",
+        "body": "Remove your video once review is finished. Your badge stays."
+      },
+      "training": {
+        "label": "Training",
+        "body": "Your video is not used to train AI or for the Data Co-op."
+      },
+      "visibility": {
+        "label": "Visibility",
+        "body": "Hide or show your public profile."
+      }
+    }
   }
 }
