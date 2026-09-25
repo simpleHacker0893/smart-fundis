@@ -238,7 +238,7 @@ In the Convex dashboard, set these environment variables:
 
 ### 4. Web app
 
-Create `web/.env.local` with these variables. Never commit it.
+Put every local secret in the **repo-root `.env`**, the only env file (D-13). `web/` loads it through `next.config.ts`, and `NEXT_PUBLIC_CONVEX_URL` falls back to the `CONVEX_URL` that `convex dev` writes. Never commit it.
 
 ```bash
 NEXT_PUBLIC_CONVEX_URL=https://<deployment>.convex.cloud
