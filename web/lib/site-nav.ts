@@ -14,10 +14,11 @@ type Messages = typeof messages;
  * one of those pages, add its route to BUILT_ROUTES (and to the allow-list in
  * test/site-shell.test.tsx) and the link appears.
  */
-export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", SIGNED_OUT_PATH] as const;
+export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", SIGNED_OUT_PATH, "/join"] as const;
 
-/** The footer directory's anchor, on every page. */
-export const COMPANY_ANCHOR = "#company";
+/** Join links carry the role; /join redirects fundis to sign-up (#27). */
+export const JOIN_FUNDI_PATH = "/join?role=fundi";
+export const JOIN_EXPERT_PATH = "/join?role=expert";
 
 export function isBuiltRoute(href: string): boolean {
   if (href.startsWith("#")) return true;
@@ -47,37 +48,38 @@ export const COMPANY_NAV = [
 
 /** "Show your work." CTAs: the primary pill, then the secondary. */
 export const PRIMARY_CTAS = [
-  { key: "joinAsFundi", href: SIGN_UP_PATH, primary: true },
+  { key: "joinAsFundi", href: JOIN_FUNDI_PATH, primary: true },
   { key: "findFundi", href: "/#trades", primary: false },
 ] as const satisfies readonly (NavLink & { primary: boolean })[];
 
-/** The footer directory (prompt 01-landing.md, Section 09). */
+/** The footer's four columns, in order (#27). Unbuilt pages are filtered out. */
 export const FOOTER_GROUPS = [
   {
     key: "forFundis",
     links: [
-      { key: "joinAsFundi", href: SIGN_UP_PATH },
-      { key: "howVerificationWorks", href: "/#record" },
+      { key: "joinAsFundi", href: JOIN_FUNDI_PATH },
+      { key: "howVerificationWorks", href: "/evidence" },
       { key: "privacy", href: "/privacy" },
     ],
   },
   {
     key: "forClients",
     links: [
-      { key: "findFundi", href: "/#trades" },
-      { key: "verifiedMeans", href: "/#scope" },
+      { key: "findFundi", href: "/fundis" },
+      { key: "verifiedMeans", href: "/evidence#scope" },
     ],
   },
   {
     key: "forExperts",
-    links: [{ key: "becomeVerifier", href: "/experts" }],
+    links: [{ key: "becomeVerifier", href: JOIN_EXPERT_PATH }],
   },
   {
-    key: "about",
+    key: "company",
     links: [
+      { key: "about", href: "/about" },
+      { key: "contact", href: "/contact" },
       { key: "responsibleAi", href: "/responsible-ai" },
       { key: "roadmap", href: "/#roadmap" },
-      { key: "contact", href: "/contact" },
     ],
   },
 ] as const satisfies readonly { key: keyof Messages["Footer"]["groups"]; links: readonly NavLink[] }[];

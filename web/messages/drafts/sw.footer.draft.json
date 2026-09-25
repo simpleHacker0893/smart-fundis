@@ -1,0 +1,23 @@
+{
+  "_note": "DRAFT, not wired (#27, operator decision 3). Kiswahili for the footer keys in en.json (Footer.*, and the Links.* labels the footer uses), for review by the operator. The UI stays English only until the Architect enables Kiswahili (AGENTS.md rule 5): do not rename this file to messages/sw.json.",
+  "Footer": {
+    "groups": {
+      "forFundis": "Kwa mafundi",
+      "forClients": "Kwa wateja",
+      "forExperts": "Kwa wataalamu",
+      "company": "Kampuni"
+    },
+    "bottomLine": "© 2026 Smart Fundis · Tunathibitisha ujuzi. NITA, KNQA na TVETs hutoa vyeti."
+  },
+  "Links": {
+    "joinAsFundi": "Jiunge kama fundi",
+    "howVerificationWorks": "Jinsi uthibitisho unavyofanya kazi",
+    "privacy": "Faragha yako",
+    "verifiedMeans": "Maana ya 'imethibitishwa'",
+    "becomeVerifier": "Kuwa mthibitishaji",
+    "about": "Kuhusu sisi",
+    "contact": "Wasiliana nasi",
+    "responsibleAi": "AI inayowajibika",
+    "roadmap": "Mpango ujao"
+  }
+}

@@ -264,6 +264,28 @@ export default async function HomePage() {
             </ul>
           </div>
         </Section>
+        {/* 09 — Show your work: the CTA band that left the footer (#27). */}
+        <Section id="join" className="border-b-0 py-20 lg:py-28">
+          <div className="flex flex-col items-center text-center">
+            <SectionLabel>{t("seal.label")}</SectionLabel>
+            <h2 className="mb-8 text-4xl font-black tracking-tight uppercase sm:text-6xl lg:text-7xl">{t("seal.title")}</h2>
+            <div className="flex w-full flex-col gap-4 sm:w-auto sm:flex-row">
+              {PRIMARY_CTAS.map((cta) => (
+                <Link
+                  key={cta.key}
+                  href={cta.href}
+                  className={pillClass({
+                    variant: cta.primary ? "primary" : "secondary",
+                    size: "full",
+                    className: cta.primary ? "sm:w-auto" : "bg-panel sm:w-auto",
+                  })}
+                >
+                  {links(cta.key)}
+                </Link>
+              ))}
+            </div>
+          </div>
+        </Section>
       </StepProvider>
     </main>
   );

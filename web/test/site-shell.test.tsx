@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -49,11 +49,15 @@ vi.mock("@clerk/nextjs", () => {
 const shell = createTranslator({ locale: defaultLocale, messages: en, namespace: "Shell" });
 const footer = createTranslator({ locale: defaultLocale, messages: en, namespace: "Footer" });
 const links = createTranslator({ locale: defaultLocale, messages: en, namespace: "Links" });
+const nav = vi.hoisted(() => ({ pathname: "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => nav.pathname }));
+
 const isFromMessages = makeIsFromMessages(en);
 
 beforeEach(() => {
   clerk.isLoaded = true;
   clerk.isSignedIn = false;
+  nav.pathname = "/";
 });
 
 function withIntl(node: ReactNode) {
@@ -74,9 +78,16 @@ async function renderFooter() {
   return withIntl(await SiteFooter());
 }
 
-async function landingIds(): Promise<Set<string>> {
-  const { default: HomePage } = await import("@/app/page");
-  const markup = withIntl(await HomePage());
+const PAGE_LOADERS: Record<string, () => Promise<{ default: () => Promise<ReactNode> }>> = {
+  "/": () => import("@/app/page"),
+  "/evidence": () => import("@/app/evidence/page"),
+};
+
+async function idsOn(route: string): Promise<Set<string>> {
+  const load = PAGE_LOADERS[route];
+  expect(load, `no id check for anchors on ${route}`).toBeDefined();
+  const { default: Page } = await load();
+  const markup = withIntl(await Page());
   return new Set([...markup.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
 }
 
@@ -84,22 +95,20 @@ function hrefs(markup: string): string[] {
   return [...markup.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
 }
 
-async function expectOnlyRealDestinations(markup: string, where: string, extraIds: string[] = []) {
+async function expectOnlyRealDestinations(markup: string, where: string) {
   const all = hrefs(markup);
   expect(all.length, `${where} has no links`).toBeGreaterThan(0);
-  const ids = await landingIds();
-  for (const id of extraIds) ids.add(id);
   for (const href of all) {
     if (href.startsWith("#")) {
-      // Same-page anchors: the skip link and the footer directory.
-      expect(["#main-content", "#company"], `${where}: unknown anchor ${href}`).toContain(href);
+      // Same-page anchors: the skip link.
+      expect(["#main-content"], `${where}: unknown anchor ${href}`).toContain(href);
       continue;
     }
-    const [route, hash] = href.split("#");
+    const [path, hash] = href.split("#");
+    const route = path.split("?")[0];
     expect(REAL_ROUTES, `${where} links to a page that does not exist: ${href}`).toContain(route);
     if (hash !== undefined) {
-      expect(route, `${where}: anchors must point at the landing page`).toBe("/");
-      expect(ids.has(hash), `${where} links to a missing landing section: ${href}`).toBe(true);
+      expect((await idsOn(route)).has(hash), `${where} links to a missing section: ${href}`).toBe(true);
     }
   }
 }
@@ -185,47 +194,64 @@ describe("site header", () => {
   });
 });
 
-describe("site footer (Stitch landing v3)", () => {
+describe("site footer (#27)", () => {
   it("renders only strings from messages/en.json", async () => {
     expectOnlyMessages(await renderFooter(), "the footer");
   });
 
-  it("links only to real pages and real landing sections", async () => {
-    await expectOnlyRealDestinations(await renderFooter(), "the footer");
-  });
-
-  it("points Responsible AI at /responsible-ai (#26)", async () => {
+  it("links only to real pages and real sections, each at most once", async () => {
     const markup = await renderFooter();
-    expect(tagWith(markup, "href", "/responsible-ai")).toBeTruthy();
-    expect(hrefs(markup)).not.toContain("/#telemetry");
-  });
-
-  it("links to each destination at most once", async () => {
-    const all = hrefs(await renderFooter());
+    await expectOnlyRealDestinations(markup, "the footer");
+    const all = hrefs(markup);
     expect(all).toEqual([...new Set(all)]);
   });
 
-  it("shows the CTA band, the directory, the wordmark and the legal lines", async () => {
+  it("has four columns in order, each a nav labelled by its heading", async () => {
     const markup = await renderFooter();
-    const strings = visibleStrings(markup);
-    expect(strings).toContain(footer("headline"));
-    expect(strings).toContain(links("joinAsFundi"));
-    expect(strings).toContain(links("findFundi"));
-    expect(strings).toContain(shell("brand"));
-    expect(strings).toContain(footer("legal"));
-    expect(strings).toContain(footer("copyright"));
-    for (const key of ["forFundis", "forClients", "about"] as const) {
-      expect(strings).toContain(footer(`groups.${key}`));
-    }
-    expect(markup).toMatch(/\sid="company"/);
+    const navs = [...markup.matchAll(/<nav\s[^>]*aria-label="([^"]+)"[^>]*>([\s\S]*?)<\/nav>/g)];
+    expect(navs.map((m) => m[1])).toEqual(
+      (["forFundis", "forClients", "forExperts", "company"] as const).map((k) => footer(`groups.${k}`)),
+    );
+    const linksOf = (i: number) => hrefs(navs[i][2]);
+    expect(linksOf(0)).toEqual(["/join?role=fundi", "/evidence", "/privacy"]);
+    expect(linksOf(1)).toEqual(["/evidence#scope"]);
+    expect(linksOf(2)).toEqual(["/join?role=expert"]);
+    expect(linksOf(3)).toEqual(["/about", "/contact", "/responsible-ai", "/#roadmap"]);
   });
 
-  it("leaves out destinations that don't exist yet (become a verifier)", async () => {
-    const strings = visibleStrings(await renderFooter());
-    for (const key of ["becomeVerifier"] as const) {
-      expect(strings).not.toContain(links(key));
+  it("leaves out Find a fundi until /fundis exists", async () => {
+    const markup = await renderFooter();
+    expect(visibleStrings(markup)).not.toContain(links("findFundi"));
+    expect(hrefs(markup).some((h) => h.startsWith("/fundis"))).toBe(false);
+  });
+
+  it("drops the wordmark and the CTA band; keeps one bottom line", async () => {
+    const markup = await renderFooter();
+    const strings = visibleStrings(markup);
+    expect(strings).not.toContain(shell("brand"));
+    expect(strings.join(" ")).not.toMatch(/show your work/i);
+    expect(strings).toContain(footer("bottomLine"));
+    expect(footer("bottomLine")).toMatch(/NITA, KNQA and TVETs certify/);
+  });
+
+  it("styles headings as 12 px amber mono, links go to white on hover", async () => {
+    const markup = await renderFooter();
+    for (const [h] of markup.matchAll(/<h2[^>]*>|<h3[^>]*>/g)) {
+      expect(h).toMatch(/text-xs/);
+      expect(h).toMatch(/text-amber/);
+      expect(h).toMatch(/font-mono/);
     }
-    expect(strings).not.toContain(footer("groups.forExperts"));
+    for (const [a] of markup.matchAll(/<a\s[^>]*>/g)) {
+      expect(a).toMatch(/hover:text-foreground/);
+      expect(a).not.toMatch(/hover:text-amber/);
+    }
+  });
+
+  it("marks the current page with aria-current and an amber underline", async () => {
+    nav.pathname = "/privacy";
+    const tag = tagWith(await renderFooter(), "aria-current", "page");
+    expect(tag).toContain('href="/privacy"');
+    expect(tag).toMatch(/decoration-amber|border-amber/);
   });
 });
 
@@ -267,12 +293,10 @@ describe("Instrument theme (D-9)", () => {
     return files;
   };
 
-  it("keeps amber as punctuation: no amber hover states and no amber footer labels", () => {
+  it("keeps amber as punctuation: no amber hover states (footer headings may be amber, #27)", () => {
     for (const file of sourceFiles(["components", "app"], /\.tsx?$/)) {
       expect(readFileSync(file, "utf8"), file).not.toMatch(/hover:[a-z-]*amber/);
     }
-    const footerSource = readFileSync(path.join(webDir, "components", "site-footer.tsx"), "utf8");
-    expect(footerSource).not.toMatch(/text-amber/);
   });
 
   it("draws pass ticks in white, never green (HANDOFF §6)", () => {

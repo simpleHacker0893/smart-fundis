@@ -48,6 +48,7 @@ const REAL_ROUTES = [
   "/privacy",
   "/responsible-ai",
   "/signed-out",
+  "/join",
 ];
 
 const PAGES = {
@@ -170,6 +171,8 @@ describe("Clerk appearance in the Instrument theme (#28)", () => {
     const { clerkAppearance } = await import("@/lib/clerk-appearance");
     const e = clerkAppearance.elements;
     expect(e.formFieldInput).toMatch(/\bh-12\b/);
+    // Clerk caps its input at max-height 2.25rem; without this the input stays 36 px.
+    expect(e.formFieldInput).toMatch(/\bmax-h-none\b/);
     expect(e.formButtonPrimary).toMatch(/\bh-12\b/);
     expect(e.socialButtonsBlockButton).toMatch(/\bh-12\b/);
     const amber = Object.entries(e).filter(([, cls]) => /amber|primary(?!-foreground)/.test(String(cls)));

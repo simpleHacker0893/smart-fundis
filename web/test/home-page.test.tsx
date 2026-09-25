@@ -56,7 +56,7 @@ describe("landing page (Stitch v3)", () => {
 
   it("has the nine sections in order, each with an anchor", async () => {
     const markup = await renderHome();
-    const ids = ["evidence", "record", "telemetry", "decide", "badge", "trades", "scope", "roadmap"];
+    const ids = ["evidence", "record", "telemetry", "decide", "badge", "trades", "scope", "roadmap", "join"];
     const positions = ids.map((id) => markup.indexOf(`id="${id}"`));
     for (const [i, p] of positions.entries()) expect(p, ids[i]).toBeGreaterThan(-1);
     expect([...positions].sort((a, b) => a - b)).toEqual(positions);
@@ -126,6 +126,15 @@ describe("landing page (Stitch v3)", () => {
     const metadata = await generateMetadata();
     expect(metadata.title).toBe(en.Metadata.title);
     expect(metadata.description).toBe(en.Metadata.description);
+  });
+});
+
+describe("landing section 09 (#27)", () => {
+  it("carries the 'Show your work.' band that left the footer, with Join and Find a fundi", async () => {
+    const join = section(await renderHome(), "join");
+    expect(visibleStrings(join)).toContain(t("seal.title"));
+    const hrefs = [...join.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
+    expect(hrefs).toEqual(["/join?role=fundi", "/#trades"]);
   });
 });
 

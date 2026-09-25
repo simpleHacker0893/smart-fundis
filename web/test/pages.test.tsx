@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join"];
 
 const isFromMessages = makeIsFromMessages(en);
 
@@ -93,7 +93,7 @@ describe.each(Object.keys(PAGES))("%s", (route) => {
     for (const href of [...markup.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])) {
       if (href.startsWith("mailto:")) continue;
       const [path, hash] = href.split("#");
-      const target = path === "" ? route : path;
+      const target = path === "" ? route : path.split("?")[0];
       expect(REAL_ROUTES, `${route} links to a missing page: ${href}`).toContain(target);
       if (hash) expect((await idsOf(target)).has(hash), `${route} links to a missing section: ${href}`).toBe(true);
     }

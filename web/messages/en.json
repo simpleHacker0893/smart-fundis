@@ -18,16 +18,13 @@
     "sectionsNav": "Sections"
   },
   "Footer": {
-    "headline": "Show your work.",
-    "linksLabel": "Footer",
     "groups": {
       "forFundis": "For fundis",
       "forClients": "For clients",
-      "forExperts": "For Experts",
-      "about": "About & company"
+      "forExperts": "For experts",
+      "company": "Company"
     },
-    "legal": "We verify skills. NITA, KNQA and TVETs certify.",
-    "copyright": "© 2026 Smart Fundis"
+    "bottomLine": "© 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify."
   },
   "Links": {
     "signIn": "Sign in",
@@ -216,6 +213,10 @@
           "body": "Learn and level up."
         }
       }
+    },
+    "seal": {
+      "label": "09 — Show your work",
+      "title": "Show your work."
     }
   },
   "Evidence": {
@@ -951,5 +952,19 @@
     "frame": "Session closed",
     "frameTag": "Bench view",
     "imageAlt": "Spools, screwdrivers and pliers laid out on a workshop bench"
+  },
+  "Join": {
+    "meta": {
+      "title": "Become a verifier · Smart Fundis",
+      "description": "Expert applications open soon."
+    },
+    "comingSoon": "Coming soon",
+    "expert": {
+      "label": "Session / Join as an Expert",
+      "title": "Expert applications open soon.",
+      "body": "Skilled in your trade? Experts watch fundis' videos and make the final decision on every badge. Applications aren't open yet.",
+      "evidence": "Read how verification works",
+      "home": "Back to home"
+    }
   }
 }
