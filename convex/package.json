@@ -1,0 +1,12 @@
+{
+  "name": "@smart-fundis/convex",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "convex": "^1.46.0"
+  },
+  "devDependencies": {
+    "typescript": "^6.0.3"
+  }
+}
