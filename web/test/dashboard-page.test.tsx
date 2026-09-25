@@ -1,11 +1,12 @@
-import { createTranslator } from "next-intl";
+import { createTranslator, NextIntlClientProvider } from "next-intl";
 import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultLocale } from "@/i18n/config";
 import en from "@/messages/en.json";
 import { leafStrings, visibleStrings } from "./copy-helpers";
 
-const EMAIL = "wanjiru@example.com";
+const CLERK_EMAIL = "wanjiru@example.com";
+const CONVEX_EMAIL = "wanjiru@convex.example";
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -27,30 +28,88 @@ vi.mock("@clerk/nextjs/server", () => ({
   currentUser: clerk.currentUser,
 }));
 
+// Convex as the client sees it: auth state, the `me` result and `store`.
+const convex = vi.hoisted(() => ({
+  isAuthenticated: false,
+  me: undefined as { email: string } | null | undefined,
+  queryArgs: [] as unknown[],
+  store: vi.fn(async () => "users_id"),
+}));
+
+vi.mock("convex/react", () => ({
+  useConvexAuth: () => ({ isLoading: !convex.isAuthenticated, isAuthenticated: convex.isAuthenticated }),
+  useMutation: () => convex.store,
+  useQuery: (_ref: unknown, args: unknown) => {
+    convex.queryArgs.push(args);
+    return args === "skip" ? undefined : convex.me;
+  },
+}));
+
+const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "DashboardPage" });
+
 beforeEach(() => {
   clerk.protect.mockClear();
   clerk.currentUser.mockResolvedValue({
-    primaryEmailAddress: { emailAddress: EMAIL },
+    primaryEmailAddress: { emailAddress: CLERK_EMAIL },
   });
+  convex.isAuthenticated = false;
+  convex.me = undefined;
+  convex.queryArgs = [];
+  convex.store.mockClear();
 });
 
 async function renderDashboard() {
   const { default: DashboardPage } = await import("@/app/dashboard/page");
-  return visibleStrings(renderToStaticMarkup(await DashboardPage()));
+  const page = await DashboardPage();
+  return visibleStrings(
+    renderToStaticMarkup(
+      <NextIntlClientProvider locale={defaultLocale} messages={en}>
+        {page}
+      </NextIntlClientProvider>,
+    ),
+  );
 }
 
 describe("dashboard page", () => {
-  it("shows who is signed in, using the en.json ICU message", async () => {
-    const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "DashboardPage" });
+  it("shows the server's email on first render, before Convex auth is ready", async () => {
     const strings = await renderDashboard();
 
-    expect(strings).toContain(t("signedInAs", { email: EMAIL }));
-    expect(strings.join(" ")).toContain(EMAIL);
+    expect(strings).toContain(t("signedInAs", { email: CLERK_EMAIL }));
+    // users.me needs a signed-in caller, so it is skipped until Convex has the token.
+    expect(convex.queryArgs).toEqual(["skip"]);
+  });
+
+  it("keeps the server's email while users.me is loading", async () => {
+    convex.isAuthenticated = true;
+    convex.me = undefined;
+    const strings = await renderDashboard();
+
+    expect(strings).toContain(t("signedInAs", { email: CLERK_EMAIL }));
+    expect(convex.queryArgs).toEqual([{}]);
+  });
+
+  it("keeps the server's email when users.me is null (store has not run yet)", async () => {
+    convex.isAuthenticated = true;
+    convex.me = null;
+    expect(await renderDashboard()).toContain(t("signedInAs", { email: CLERK_EMAIL }));
+  });
+
+  it("shows the email from users.me once it resolves", async () => {
+    convex.isAuthenticated = true;
+    convex.me = { email: CONVEX_EMAIL };
+    const strings = await renderDashboard();
+
+    expect(strings).toContain(t("signedInAs", { email: CONVEX_EMAIL }));
+    expect(strings.join(" ")).not.toContain(CLERK_EMAIL);
+  });
+
+  it("falls back to plain copy when no email is known yet", async () => {
+    clerk.currentUser.mockResolvedValue(null);
+    expect(await renderDashboard()).toContain(t("signedIn"));
   });
 
   it("renders only strings that come from messages/en.json", async () => {
-    const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "DashboardPage" });
-    const allowed = new Set([...leafStrings(en), t("signedInAs", { email: EMAIL })]);
+    const allowed = new Set([...leafStrings(en), t("signedInAs", { email: CLERK_EMAIL })]);
     const strings = await renderDashboard();
 
     expect(strings.length).toBeGreaterThan(0);
