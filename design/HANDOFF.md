@@ -2,6 +2,19 @@
 
 Read this page before you build any screen. It covers where every design lives, which file wins in a disagreement, and what is still missing. Owner: designer. Last updated 2026-09-25.
 
+## 0. Operator decisions (2026-09-25)
+
+These override anything below that disagrees with them.
+
+| Decision | What it means for frontend |
+| --- | --- |
+| **Keep the Stitch images on the screens** | Use the localised copies in `design/stitch/exports/images/` (§4), never the `lh3.googleusercontent.com` links. This resolves C-2 |
+| **Keep the Stitch roadmap page** | Build `/roadmap` from `12-roadmap.md` and its export as drawn. This resolves C-3 |
+| **Header links follow the latest Stitch template** | EVIDENCE · TRADES · TELEMETRY · COMPANY ▾ (About, Contact us), then Sign in and Join as a fundi. This resolves C-4 |
+| **Mobile header exactly as the Stitch export** | Use the REFERENCE's 48 px header: logo tile, wordmark, "JOIN" pill, menu button. This resolves C-10. The only fix is invisible: extend the hit area to 48 px |
+| **Footer uses the Stitch links** | Use the `00-shell-v2.md` footer link list (§6) |
+| **English only; no Kiswahili for now** | No Kiswahili text on any page, and no language switcher. **Exception:** the verification consent screen ships in English and Kiswahili (C-11, resolved) |
+
 ## 1. Source of truth
 
 When two sources disagree, the higher one wins.
@@ -108,20 +121,29 @@ The full motion build spec is `prompts/01-landing.md` Part A. It uses CDN links 
 | 12 | `/roadmap` | `12-roadmap.md` | `12-roadmap-mobile.html` | mobile-only, responsive pending | V3. See C-3 |
 | 13 | `/fundis` | `13-find-a-fundi.md` | `13-find-a-fundi-mobile.html` | mobile-only, responsive pending | V3. See C-7 |
 
+### Onboarding (prompts ready, not generated yet)
+
+Generate these with the `stitch-onboarding` agent (`.claude/agents/stitch-onboarding.md`). It writes `design/stitch/exports/<NN>-<slug>-responsive.{html,png}` and stops for approval after screen 14.
+
+| # | Route | Prompt | Export (once generated) | Status | Slice |
+| --- | --- | --- | --- | --- | --- |
+| 14 | `/onboarding` (role pick; `?as=`, `&trade=` pre-tick) | `14-onboarding-role.md` | `14-onboarding-role-responsive` | prompt ready | V1 minimal, V3 styled |
+| 15 | `/onboarding` (Fundi profile) | `15-onboarding-fundi-profile.md` | `15-onboarding-fundi-profile-responsive` | prompt ready | V1 minimal, V3 full |
+| 16 | `/onboarding` (Expert application) | `16-onboarding-expert-application.md` | `16-onboarding-expert-application-responsive` | prompt ready | V4 |
+| 17 | `/application-pending` | `17-application-pending.md` | `17-application-pending-responsive` | prompt ready | V4 |
+
 ### Spec screens with no export (each needs a Stitch prompt)
 
 The rule for all of these: **no photos** on dashboards, forms, the upload flow or Expert review.
 
 | Spec §8 screen | Route | Slice | What it must show | Partial reference |
 | --- | --- | --- | --- | --- |
-| Sign-up role pick + Fundi profile (onboarding) | onboarding, route TBD (`?as=`, `&trade=`) | V1 minimal, V3 full | two role checkboxes, trade pre-ticked, full profile (US-2.3), Showcase links | step readout in 08 |
 | Fundi dashboard | `/fundi` | V1 unstyled, V3 styled | Assessment list with status chips, guard reshoot reasons, Co-op card with "Tell me when it launches", "Show my profile in Find a fundi" toggle | — |
-| Upload flow | `/fundi` (Task pick → Rubric → Liveness code → consent → record/pick → progress) | V1 unstyled, V3 restyle | **consent in English and Kiswahili**; upload disabled until ticked | `paper-code-tip` image, 02 "chain of evidence" |
+| Upload flow | `/fundi` (Task pick → Rubric → Liveness code → consent → record/pick → progress) | V1 unstyled, V3 restyle | consent (language: see C-11); upload disabled until ticked | `paper-code-tip` image, 02 "chain of evidence" |
 | Assessment result | `/fundi/...` detail | V1, V4 | `queued → analyzing → awaiting_review`, verdicts ✓ / ◐ / ↻, `failed` with "Record again" (V4), appeal (V4) | landing §04 ledger |
 | Expert queue | `/expert` | V1 | queue list | — |
 | Expert review | `/expert/...` | V1, V2 | video, Observations with timestamps (tap jumps the video), `livenessRead` next to the expected code, approve / reshoot / reject with a note | landing §04 ledger |
 | Public Fundi profile | `/f/[id]` | V1 | spec §7 fields, Badges, Showcase "Showcase — not verified", Demo tag | 02-evidence §03 sample profile panel |
-| Application pending | `/application-pending` | V4 | status screen | 09 signed-out layout |
 | Signed-in placeholder | `/dashboard` | V0 #4 | "Signed in as <email>" only; plain shell | — |
 | Admin screens | — | V4 | **plain shadcn by spec; no design needed** | — |
 
@@ -134,14 +156,38 @@ Source files are in `design/canva/exports/web/`, with masters in `design/canva/e
 | `hero` | `hero-360.webp` (7.5 KB), `hero-720.webp` (20 KB), `hero-1080.webp` (38 KB) | 4:3 | landing hero evidence plate (paper code "482") | `priority` (LCP) with `sizes`/`srcSet` |
 | `paper-code-tip` | `paper-code-tip-360.webp` (13 KB), `paper-code-tip-720.webp` (33 KB) | 4:5 | landing §02 RECORD (code "315"); onboarding / upload tip | lazy |
 | `coop-teaser` | `coop-teaser-360.webp` (13 KB), `coop-teaser-720.webp` (40 KB), `coop-teaser-1280.webp` (65 KB) | 16:9 | landing §08 NEXT (30% opacity under a scan-line mask); `/roadmap` hero frame | lazy |
-| `fundis-empty` | `fundis-empty-160.webp` (2.5 KB), `fundis-empty-320.webp` (5.7 KB) | 1:1 | **do not use yet.** It is a light-theme illustration (green shield on white) that clashes with v2. Until it is redrawn, build the `/fundis` empty state as the export's "NO SIGNAL YET" evidence frame with no photo | — |
+| `fundis-empty` | `fundis-empty-160.webp` (2.5 KB), `fundis-empty-320.webp` (5.7 KB) | 1:1 | **retired.** It is a light-theme illustration that clashes with v2. The `/fundis` empty state uses the Stitch image `sf-empty-bench-lamp` (below) | — |
+
+### Stitch images (kept by operator decision)
+
+These were downloaded at full size from the Stitch exports, reviewed, and saved as WebP. Every file is under 100 KB. They are in `design/stitch/exports/images/sf-<subject>-{720,1280}.webp`; copy them to `web/public/images/` when a slice first uses them. Swap each `lh3.googleusercontent.com` `src` in an export for the file in this table. All of them are grayscale already. Load them lazily with `sizes`/`srcSet`.
+
+| File (`-720` / `-1280`) | Used in (export → spot) | Review note |
+| --- | --- | --- |
+| `sf-braiding-hands` | 02 hero frame; 03 Hairdressing live frame and Beauty tile; 08 sign-up frame | ok. **Also replaces** the photo in `02-evidence-mobile` hero and the `03-trades` Beauty/Hairdressing image, which show a client's face (rejected) |
+| `sf-socket-terminal` | 02 socket close-up; 03 Electrical live frame | ok |
+| `sf-panel-wiring` | 02 sample profile panel; 03 Solar tile; 13 sample fundi card | cropped (top 26%) to remove a partial face |
+| `sf-electrical-bench` | 02-mobile profile panel; 03-mobile Carpentry tile | ok |
+| `sf-welding-bench` | 03 Masonry, Welding and Movers tiles (and the mobile Plumbing tile) | ok |
+| `sf-plumbing-bench` | 03 Plumbing tile; 05 About hero | ok |
+| `sf-tools-row` | 03 Carpentry tile; 09 signed-out frame | ok |
+| `sf-mechanic-apron` | 03 Mechanic tile; 07 sign-in background | cropped (top 10%) to remove a chin |
+| `sf-tailoring-bench` | 03 Tailoring and Mama fua tiles; 12 roadmap hero | ok |
+| `sf-phone-recording` | 04 "Privacy telemetry" frame | cropped (right 16%) to remove a partial face |
+| `sf-hands-wrench` | 05 "Kazi yako, sifa yako" statement | ok |
+| `sf-phone-in-hand` | 06 contact frame | ok; the phone screen text is illegible |
+| `sf-phone-on-bench` | 10 privacy frame | ok |
+| `sf-expert-inspecting` | 11 experts hero | ok |
+| `sf-empty-bench-lamp` | 13 `/fundis` empty state ("NO SIGNAL YET") | ok |
+
+**Rejected, not saved:** the three `01-landing-v2-desktop` photos (a "SMART FUNDIS" logo on a shirt, a partial face, a browser window and a website header baked into the images), and the `02-evidence-mobile` braiding photo (the client's face). The REFERENCE landing's two photos are the Canva `hero` and `coop-teaser` above, so use the Canva files there.
 
 **Rules**
-- Every WebP is under 100 KB. Only the hero loads with priority.
+- Every WebP is under 100 KB. Only the landing hero loads with priority.
 - Show hands, tools and work only, with **no identifiable faces**, no text (except the 3-digit paper code) and no logos.
 - The Canva files still carry v1 green and orange tones. Desaturate them to about 20% colour in CSS or the shader (DESIGN.md L100).
-- Photos go **only inside evidence frames**, and only in these places: hero, How it works, empty states, onboarding and roadmap. **Never** on dashboards, forms, the upload flow or Expert review.
-- **Never ship the exports' `lh3.googleusercontent.com` images.** They are temporary Stitch-hosted photos that nobody has reviewed. Any other evidence frame gets a procedural frame (hairlines, reticle, scan line, no photo) until the designer supplies an asset. See C-2.
+- Photos go **only inside evidence frames**. By operator decision, the Stitch screens keep their photos where Stitch drew them, including 06, 07, 08 and 11. New screens get **no photos** on dashboards, the upload flow or Expert review.
+- **Never ship the exports' `lh3.googleusercontent.com` links.** They are temporary, and some of them showed faces.
 
 ## 5. Honesty and copy rules
 
@@ -155,7 +201,7 @@ Source files are in `design/canva/exports/web/`, with masters in `design/canva/e
 | "AI recommends, Experts decide." No badge is ever issued by AI alone | DESIGN.md L116, ADR-11 |
 | No earnings figures anywhere | spec §7 |
 | All copy goes through `next-intl` `messages/en.json`. No `sw.json`, and the language toggle stays hidden | AGENTS.md rule 5 |
-| **Consent is the only English + Kiswahili screen.** Its text is the versioned V1 consent copy | AGENTS.md, spec §7 |
+| **English only for now** (operator, 2026-09-25). No Kiswahili anywhere, including the Kiswahili card on `/privacy` (drop it). AGENTS.md and spec §7 still require the verification consent in English **and** Kiswahili; see C-11 | operator; AGENTS.md, spec §7 |
 | Use copy from the prompt files, not from the exports (see §6) | this page |
 
 ## 6. Conversion notes
@@ -163,7 +209,14 @@ Source files are in `design/canva/exports/web/`, with masters in `design/canva/e
 - **Stitch HTML is a reference, not code to paste.** Rebuild each page with Next.js App Router, Tailwind and shadcn using the §2 tokens. The exports use Tailwind CDN, ad-hoc names (`amber-brand`, `accent`, `graphite-950`, `surface-container-*`) and stray greys (`#9ca3af`, `#8e95a5`, `#1f242e`). Map every one of them to `--panel`, `--line`, `--dim` or `--faint`.
 - **Mobile-first at 360 px.** No horizontal scroll. The layout changes at 768 px and 1024 px (DESIGN.md L45–61). The bottom tab bar appears below 1024 px only, and never on auth pages.
 - **Tap targets are 48 px** (DESIGN.md L107; stricter than the general 44 px). The exports' header "JOIN" pill (32 px) and menu button (32–40 px) are too small. Keep the pills visually compact, but extend the hit area to 48 px.
-- **Nav and footer:** use the IA in DESIGN.md L25–39 and the footer link list in `00-shell-v2.md`. When V0 lands, links to pages that don't exist yet are either left out or point at a "Coming soon" anchor (#5).
+- **Header (operator decision):** mobile is exactly the Stitch REFERENCE header (48 px: logo tile, "SMART FUNDIS" wordmark, "JOIN" pill, menu). Desktop is the `02-evidence-responsive` header (72 px: EVIDENCE · TRADES · TELEMETRY · COMPANY ▾, then Sign in and Join as a fundi).
+- **Footer (operator decision):** use the Stitch links from `00-shell-v2.md`:
+  - FOR FUNDIS: Join as a fundi · How verification works · Your privacy
+  - FOR CLIENTS: Find a fundi · What 'verified' means
+  - FOR EXPERTS: Become a verifier
+  - COMPANY: About · Contact us · Responsible AI · Roadmap
+
+  When V0 lands, links to pages that don't exist yet are either left out or point at a "Coming soon" anchor (#5).
 - **Fix these when you convert** (they are in the exports and break the rules):
 
 | Found in | Problem | Fix |
@@ -188,23 +241,24 @@ Source files are in `design/canva/exports/web/`, with masters in `design/canva/e
 
 | # | Conflict | Designer's recommendation |
 | --- | --- | --- |
-| C-1 | Ticket **#5** says to build the header and footer "from the `00-header-footer-mobile` Stitch export". That export is **round 1** (light theme, Plus Jakarta Sans, green), which breaks #5's own acceptance criteria | build #5 from `00-shell-v2.md` + REFERENCE (mobile) + `02-evidence-responsive.html` (desktop). Correct the ticket text |
-| C-2 | Spec §8 says "photos only in the hero". DESIGN.md L100 allows documentary photos inside evidence frames on every page, and exports 02–13 contain Stitch-generated photos (including on forms: 06, 07, 08, 11) | ship only the Canva WebPs, in the places listed in §4. Other frames stay procedural. No photos on forms |
-| C-3 | `/roadmap` content: spec §8 lists Co-op, Bookings & M-Pesa, Fundi Pro, Training partners, **Client accounts**, Trades, **Rubric editor**. Prompt 12 has **Kiswahili app** and no Client accounts or Rubric editor | follow the spec list and add "Kiswahili app" only if the Architect agrees. The designer will update prompt 12 |
-| C-4 | Header nav: spec §8 has "How it works, Trades, Find a fundi, More"; `01-landing.md` Part A has "How it works · Trades · What we check · Roadmap"; DESIGN.md IA has EVIDENCE · TRADES · TELEMETRY · COMPANY | the DESIGN.md IA (D-9, and the REFERENCE shows it) |
+| C-1 | Ticket **#5** says to build the header and footer "from the `00-header-footer-mobile` Stitch export". That export is **round 1** (light theme, Plus Jakarta Sans, green), which breaks #5's own acceptance criteria | **Resolved:** the ticket #5 body and `planning/slices/V0.md` were corrected to this: build from `00-shell-v2.md` + REFERENCE (mobile) + `02-evidence-responsive.html` (desktop) |
+| C-2 | Spec §8 says "photos only in the hero"; the Stitch exports put photos in evidence frames on every page | **resolved by the operator:** keep the Stitch images (§4, localised). The spec §8 line needs updating (Architect) |
+| C-3 | `/roadmap` content: spec §8 lists Co-op, Bookings & M-Pesa, Fundi Pro, Training partners, **Client accounts**, Trades, **Rubric editor**. Prompt 12 has **Kiswahili app** and no Client accounts or Rubric editor | **resolved by the operator:** keep the Stitch roadmap as drawn. Still open: CONTEXT.md lists Client accounts as a roadmap item, and "Kiswahili app" sits next to the English-only decision. The Architect should confirm the list |
+| C-4 | Header nav: spec §8, `01-landing.md` Part A and DESIGN.md each give a different nav | **resolved by the operator:** the latest Stitch template (EVIDENCE · TRADES · TELEMETRY · COMPANY) |
 | C-5 | The `/contact` and `/experts` forms have no backend in any slice ("Send message" would look live). The spec's V4 Expert application is a signed-in flow, while prompt 11 describes "register interest" by invitation | `/contact`: a `mailto:` link to the single contact email. `/experts`: a CTA into the V4 application once it exists; until then, a plain readout |
 | C-6 | Copy that promises V4 features which may be cut: "DELETE" (04, 10), "APPEALS" (04, 11), the visibility toggle (10). `/privacy` also shows a Kiswahili consent excerpt, while consent is meant to be the only Kiswahili screen | show delete and appeal copy only if V4 ships them; otherwise remove it or tag it "Coming soon". On `/privacy`, reuse the exact consent strings or drop the Kiswahili card |
 | C-7 | `/fundis` export shows a static "EXAMPLE" card; V5 seeds Demo profiles | the EXAMPLE card is design filler. Build the real list from Convex with the "Demo: not a real verification" tag, plus the empty-state frame |
 | C-8 | Part A `#boot` "CALIBRATING · 000%" overlay (up to 1.2 s) goes against Principle 5 ("text and buttons render first") and the Lighthouse ≥ 90 target | leave it out, or make it non-blocking and skip it under reduced motion |
 | C-9 | Pages 02–06 and 09–10 (`/evidence`, `/trades`, `/telemetry`, `/about`, `/contact`, `/signed-out`, `/privacy`) have no slice in spec §9 | assign them to V3 or cut them. The footer then drops those links |
-| C-10 | Mobile header: DESIGN.md says 48 px, Part A says 64 px, and 02-responsive uses 56 px | 48 px (DESIGN.md L47) |
+| C-10 | Mobile header: DESIGN.md says 48 px, Part A says 64 px, and 02-responsive uses 56 px | **resolved by the operator:** the Stitch REFERENCE mobile header, 48 px |
+| C-11 | The operator says "English only, no Kiswahili for now". AGENTS.md, PRD §8 and spec §7 make the **verification consent in English and Kiswahili** a never-cut item (V1) | **Resolved (operator, 2026-09-25):** the verification consent stays in English **and** Kiswahili (AGENTS rule 5, PRD §8). Every other screen is English only |
+| C-12 | The `02-evidence-responsive` footer has four extra Stitch links ("Supported skills list", "How to inspect a badge", "Reviewer guidelines", "Trade benchmarks") that have no pages | leave them out (nothing looks live that isn't). The `00-shell-v2.md` Stitch links are the footer |
 
 ## 8. Pending design work (owner: designer)
 
 | Item | Blocks | Notes |
 | --- | --- | --- |
 | Responsive retry: 01 landing, 06 contact, 07 sign-in, 08 sign-up, 09 signed-out, 10 privacy, 11 experts, 12 roadmap, 13 fundis | V3 desktop polish | Stitch timed out (LOG.md). Until then, build desktop from the DESIGN.md responsive rules |
-| New prompts + exports: onboarding, Fundi dashboard, upload flow + consent (en/sw), Assessment result (incl. `failed`, appeal), Expert queue, Expert review, `/f/[id]`, `/application-pending` | V3 restyle of V1 screens | no photos on any of them |
-| Redraw `fundis-empty` in v2 (dark, amber) or retire it | `/fundis` empty state | procedural frame in the meantime |
-| Update prompt 12 to match the spec roadmap list (C-3) | V3 `/roadmap` | after the Architect's call |
-| Supply reviewed Canva assets for other evidence frames, if C-2 allows them | V3 | otherwise procedural |
+| Generate onboarding 14–17 with the `stitch-onboarding` agent | V3 onboarding, V4 application | prompts ready; checkpoint after 14 |
+| New prompts + exports: Fundi dashboard, upload flow + consent, Assessment result (incl. `failed`, appeal), Expert queue, Expert review, `/f/[id]` | V3 restyle of V1 screens | no photos on any of them |
+| Localise the images of any new or re-generated Stitch screen | frontend | same method as §4 |
