@@ -9,9 +9,10 @@ import en from "@/messages/en.json";
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
   const messages = (await import("@/messages/en.json")).default;
+  const { defaultLocale } = await import("@/i18n/config");
   return {
     getTranslations: async (namespace?: string) =>
-      createTranslator({ locale: "en", messages, namespace: namespace as never }),
+      createTranslator({ locale: defaultLocale, messages, namespace: namespace as never }),
   };
 });
 

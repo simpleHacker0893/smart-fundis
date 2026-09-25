@@ -1,8 +1,9 @@
 import { getRequestConfig } from "next-intl/server";
+import { defaultLocale } from "./config";
 
-// English only for now (AGENTS.md rule 5): no locale routing, no sw.json.
+// No locale routing: every request uses the default locale.
 export default getRequestConfig(async () => {
-  const locale = "en";
+  const locale = defaultLocale;
   return {
     locale,
     messages: (await import(`../messages/${locale}.json`)).default,

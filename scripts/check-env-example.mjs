@@ -13,12 +13,21 @@ const root = resolve(import.meta.dirname, "..");
 const prdPath = resolve(root, process.argv[2] ?? "docs/PRD.md");
 const envPath = resolve(root, process.argv[3] ?? ".env.example");
 
-// PRD table row label -> required group comment in .env.example
+// PRD table row label -> the prefix its group header comment in .env.example
+// starts with. Only the prefix is checked, so the rest of a header can be reworded.
 const GROUPS = {
-  "web (Vercel)": "# web (Vercel)",
-  Convex: "# Convex (set with npx convex env set)",
-  Brev: "# Brev (ai-service, never in this repo)",
+  "web (Vercel)": "# web",
+  Convex: "# Convex",
+  Brev: "# Brev",
 };
+
+/** @returns {string | null} the PRD label whose header this comment line opens */
+function groupOfHeader(line) {
+  for (const [label, prefix] of Object.entries(GROUPS)) {
+    if (line === prefix || line.startsWith(`${prefix} `)) return label;
+  }
+  return null;
+}
 
 /** @returns {Map<string, string[]>} group label -> var names */
 function namesFromPrd(text) {
@@ -37,17 +46,22 @@ function namesFromPrd(text) {
   return groups;
 }
 
-/** @returns {{ entries: Map<string, {value: string, group: string | null, line: number}>, errors: string[] }} */
+/** @returns {{ entries: Map<string, {value: string, group: string | null, line: number}>, headers: Set<string>, errors: string[] }} */
 function parseEnvExample(text) {
   const entries = new Map();
   const errors = [];
+  const headers = new Set();
   let group = null;
   text.split(/\r?\n/).forEach((raw, i) => {
     const line = raw.trim();
     const n = i + 1;
     if (line === "") return;
     if (line.startsWith("#")) {
-      if (Object.values(GROUPS).includes(line)) group = line;
+      const label = groupOfHeader(line);
+      if (label) {
+        group = label;
+        headers.add(label);
+      }
       return;
     }
     const m = /^([A-Za-z_][A-Za-z0-9_]*)=(.*)$/.exec(line);
@@ -63,7 +77,7 @@ function parseEnvExample(text) {
     entries.set(`${group}::${name}`, { value, group, line: n });
     if (value !== "") errors.push(`line ${n}: ${name} has a value; .env.example must be names only`);
   });
-  return { entries, errors };
+  return { entries, headers, errors };
 }
 
 let prdText;
@@ -87,16 +101,19 @@ for (const label of Object.keys(GROUPS)) {
   if (!expected.has(label)) errors.push(`PRD §7 env table has no "${label}" row`);
 }
 
-const { entries, errors: parseErrors } = parseEnvExample(envText);
+const { entries, headers, errors: parseErrors } = parseEnvExample(envText);
 errors.push(...parseErrors);
 
 let total = 0;
 for (const [label, names] of expected) {
-  const comment = GROUPS[label];
+  total += names.length;
+  if (!headers.has(label)) {
+    errors.push(`no group header starting with "${GROUPS[label]}" (it must come before ${names.join(", ")})`);
+    continue;
+  }
   for (const name of names) {
-    total++;
-    if (!entries.has(`${comment}::${name}`)) {
-      errors.push(`missing ${name} under "${comment}"`);
+    if (!entries.has(`${label}::${name}`)) {
+      errors.push(`missing ${name} under the "${GROUPS[label]}" header`);
     }
   }
 }
