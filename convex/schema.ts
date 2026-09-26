@@ -107,7 +107,10 @@ export default defineSchema({
     // privacy). Present, and true, only for a Task where a client may be on
     // camera (lib/trades.ts `clientOnCamera`).
     clientConsent: v.optional(v.boolean()),
-    // Video: absent once deleted, and for demo rows
+    // Video: absent once deleted, and for demo rows.
+    // A `_storage` ID: lib/storage.ts isStorageReferenced checks it, so a
+    // rejected upload never deletes it. Any new `_storage` field on any table
+    // must add its own check there.
     videoStorageId: v.optional(v.id("_storage")),
     videoDeletedAt: v.optional(v.number()),
     // Liveness
@@ -144,8 +147,9 @@ export default defineSchema({
     // assessments.listMine: a Fundi's own Assessments, newest first. The
     // status index above orders by status before _creationTime, so it cannot.
     .index("by_fundiUserId", ["fundiUserId"])
-    // assessments.create: a stored video already recorded on an Assessment is
-    // never reused, and never deleted by a rejected upload.
+    // lib/storage.ts isStorageReferenced (assessments.create): a stored video
+    // already recorded on an Assessment is never reused, and never deleted by
+    // a rejected upload.
     .index("by_videoStorageId", ["videoStorageId"])
     // seed.trades: is this Rubric version referenced (then it is frozen)?
     .index("by_rubricId", ["rubricId"])

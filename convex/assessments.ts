@@ -10,6 +10,7 @@ import {
   type UploadRejection,
   uploadRejectionValidator,
 } from "./lib/assessmentUpload";
+import { isStorageReferenced } from "./lib/storage";
 import { taskNeedsClientConsent } from "./lib/trades";
 import { assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
 
@@ -185,8 +186,9 @@ async function checkUpload(
  * throwing, on purpose: a throw rolls back every write of the mutation,
  * including `ctx.storage.delete`, so an invalid file would stay stored. On
  * every rejection the uploaded file is deleted, except when it is missing or
- * is already another Assessment's video (`file_in_use`), which is never
- * touched. The pending Liveness code is kept, so the Fundi can retry.
+ * is already recorded by any table (`file_in_use`, lib/storage.ts
+ * isStorageReferenced), which is never touched. The pending Liveness code
+ * is kept, so the Fundi can retry.
  * Only `storageId` has a strict validator; the other checks run in the
  * handler so that a bad value still deletes the file.
  */
@@ -211,11 +213,8 @@ export const create = mutation({
     if (file === null) {
       return { ok: false as const, code: caller.ok ? ("file_missing" as const) : caller.code };
     }
-    const inUse = await ctx.db
-      .query("assessments")
-      .withIndex("by_videoStorageId", (q) => q.eq("videoStorageId", args.storageId))
-      .first();
-    if (inUse !== null) {
+    // Never delete or reuse a file any table records (lib/storage.ts).
+    if (await isStorageReferenced(ctx, args.storageId)) {
       return { ok: false as const, code: caller.ok ? ("file_in_use" as const) : caller.code };
     }
 

@@ -4,6 +4,7 @@ import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import schema from "./schema";
 import { checkVideoFile, pickLivenessCode } from "./lib/assessmentUpload";
+import { isStorageReferenced } from "./lib/storage";
 import { modules } from "./test.setup";
 
 // The upload flow (#38): US-3.2, 3.4, 3.7, 3.9, 3.1/4.1.
@@ -309,6 +310,43 @@ describe("assessments.create", () => {
     expect(await assessments()).toHaveLength(1);
   });
 
+  describe("Fundi B sends Fundi A's storageId", () => {
+    it("already on A's Assessment: not deleted, not reused, file_in_use", async () => {
+      const codeA = await readyFundi(WANJIRU);
+      const storageId = await storeVideo();
+      const a = await t
+        .withIdentity(WANJIRU)
+        .mutation(api.assessments.create, { ...SOCKET, storageId, livenessCode: codeA });
+      expect(a.ok).toBe(true);
+
+      const codeB = await readyFundi(OTIENO);
+      expect(
+        await t.withIdentity(OTIENO).mutation(api.assessments.create, { ...SOCKET, storageId, livenessCode: codeB }),
+      ).toEqual({ ok: false, code: "file_in_use" });
+
+      expect(await fileExists(storageId)).toBe(true);
+      const rows = await assessments();
+      expect(rows).toHaveLength(1);
+      expect(rows[0]?.videoStorageId).toBe(storageId);
+      expect(a.ok && rows[0]?._id === a.assessmentId).toBe(true);
+    });
+
+    it("not yet recorded: B's rejected call deletes it, by design (a file has no owner until an Assessment records it; storageIds are unguessable)", async () => {
+      await readyFundi(WANJIRU);
+      const storageId = await storeVideo(); // A uploaded but has not called create yet.
+
+      await readyFundi(OTIENO);
+      expect(
+        await t
+          .withIdentity(OTIENO)
+          .mutation(api.assessments.create, { ...SOCKET, storageId, livenessCode: "not-the-code" }),
+      ).toEqual({ ok: false, code: "liveness_mismatch" });
+
+      expect(await fileExists(storageId)).toBe(false);
+      expect(await assessments()).toHaveLength(0);
+    });
+  });
+
   it("reports a storageId whose file is already gone", async () => {
     const code = await readyFundi();
     const storageId = await storeVideo();
@@ -500,5 +538,19 @@ describe("lib/assessmentUpload", () => {
     expect(checkVideoFile({ size: 1, contentType: "Video/MP4" })).toBeNull();
     expect(checkVideoFile({ size: 1, contentType: "video/" })).toBe("wrong_type");
     expect(checkVideoFile({ size: 1, contentType: "application/octet-stream" })).toBe("wrong_type");
+  });
+});
+
+describe("lib/storage isStorageReferenced", () => {
+  it("is false for a stored file no table records", async () => {
+    const storageId = await storeVideo();
+    expect(await t.run((ctx) => isStorageReferenced(ctx, storageId))).toBe(false);
+  });
+
+  it("is true once an Assessment records the file as its video", async () => {
+    const code = await readyFundi();
+    const storageId = await storeVideo();
+    await t.withIdentity(WANJIRU).mutation(api.assessments.create, { ...SOCKET, storageId, livenessCode: code });
+    expect(await t.run((ctx) => isStorageReferenced(ctx, storageId))).toBe(true);
   });
 });
