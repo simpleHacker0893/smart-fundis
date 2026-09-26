@@ -2,7 +2,7 @@ import type { TradeCategory } from "@convex/lib/validators";
 
 /**
  * The onboarding Trade picker's pure logic (#37, operator change 2): pick a
- * type of work, or search every Trade by English or Kiswahili name.
+ * type of work, or search every Trade by name (English only for now, D-64).
  * In copy a category is a "type of work", never a "category" (CONTEXT.md).
  */
 

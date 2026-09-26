@@ -241,14 +241,16 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
       expect(container.textContent).not.toContain(catalogue.plumbing.description);
     });
 
-    it("marks each Trade Verify now or Verification coming soon; only Verify now is amber", async () => {
+    it("marks each Trade Verify now or Verification coming soon, never in amber (only a Badge uses amber)", async () => {
       await render();
       const status = (slug: string) => {
         const ids = checkbox(slug)!.getAttribute("aria-describedby")!.split(" ");
         return ids.map((i) => document.getElementById(i)!).find((el) => el.dataset.status)!;
       };
       expect(status("electrical").textContent).toBe(tp("verifyNow"));
-      expect(status("electrical").className).toMatch(/\btext-primary\b/);
+      expect(status("electrical").className).toMatch(/\btext-foreground\b/);
+      expect(status("electrical").className).not.toMatch(/primary|amber/);
+      expect(status("electrical").textContent).not.toContain("✓");
       expect(status("plumbing").textContent).toBe(tp("verifyLater"));
       expect(status("plumbing").className).not.toMatch(/primary|amber/);
       expect(status("plumbing").textContent).not.toContain("✓");
@@ -336,7 +338,9 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
       await submit();
       expect(fieldError("tradeSlugs")).toBe(t("errors.tradeRequired"));
       expect(document.activeElement).toBe(typeSelect());
-      expect(typeSelect().getAttribute("aria-describedby")).toContain("-tradeSlugs-error");
+      // The error is announced once, through the fieldset, not again on the select.
+      expect(typeSelect().getAttribute("aria-invalid")).toBe("true");
+      expect(typeSelect().closest("fieldset")!.getAttribute("aria-describedby")).toContain("-tradeSlugs-error");
     });
   });
 

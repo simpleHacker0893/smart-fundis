@@ -3,7 +3,7 @@
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useId, useState, type ReactNode } from "react";
-import { TRADE_LICENCE } from "@convex/lib/trades";
+import { TRADE_LICENCE } from "@convex/lib/tradeCatalogue";
 import { FIELD, LABEL } from "@/components/ui/field-label";
 import {
   selectedTrades,
@@ -105,7 +105,6 @@ export function TradePicker({ trades, legend, invalid, errorId, error }: Props) 
             setQuery("");
           }}
           aria-invalid={invalid}
-          aria-describedby={errorId}
           className={FIELD}
         >
           {TRADE_TYPES.map((value) => (
@@ -175,8 +174,8 @@ export function TradePicker({ trades, legend, invalid, errorId, error }: Props) 
                       <span
                         id={`${rowId}-status`}
                         data-status={trade.verifyNow ? "verify-now" : "coming-soon"}
-                        className={`font-mono text-[11px] tracking-wider uppercase ${
-                          trade.verifyNow ? "text-primary" : "text-foreground/60"
+                        className={`font-mono text-xs tracking-wider uppercase ${
+                          trade.verifyNow ? "text-foreground" : "text-foreground/60"
                         }`}
                       >
                         {trade.verifyNow ? t("verifyNow") : t("verifyLater")}
