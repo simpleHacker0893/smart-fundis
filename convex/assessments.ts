@@ -10,6 +10,7 @@ import {
   type UploadRejection,
   uploadRejectionValidator,
 } from "./lib/assessmentUpload";
+import { getActiveRubric } from "./lib/rubrics";
 import { isStorageReferenced } from "./lib/storage";
 import { taskNeedsClientConsent } from "./lib/trades";
 import { assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
@@ -99,9 +100,9 @@ async function activeRubricFor(
     .query("trades")
     .withIndex("by_slug", (q) => q.eq("slug", tradeSlug))
     .unique();
-  if (trade?.activeRubricId === undefined) return null;
-  const rubric = await ctx.db.get("rubrics", trade.activeRubricId);
-  if (rubric === null || rubric.status !== "active") return null;
+  if (trade === null) return null;
+  const rubric = await getActiveRubric(ctx, trade);
+  if (rubric === null) return null;
   return rubric.tradeSlug === tradeSlug && rubric.taskSlug === taskSlug ? rubric : null;
 }
 

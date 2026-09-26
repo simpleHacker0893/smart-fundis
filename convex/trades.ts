@@ -1,6 +1,7 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
 import { requireFundi, requireUser } from "./lib/auth";
+import { getActiveRubric } from "./lib/rubrics";
 import { tradeOrder } from "./lib/tradeCatalogue";
 import { taskNeedsClientConsent } from "./lib/trades";
 import { rubricItemValidator, tradeCategoryValidator } from "./lib/validators";
@@ -73,9 +74,8 @@ export const uploadPicker = query({
     const trades = await ctx.db.query("trades").withIndex("by_slug").take(MAX_TRADES);
     const picker = [];
     for (const trade of trades.sort((a, b) => tradeOrder(a.slug) - tradeOrder(b.slug))) {
-      if (trade.activeRubricId === undefined) continue;
-      const rubric = await ctx.db.get("rubrics", trade.activeRubricId);
-      if (rubric === null || rubric.status !== "active") continue;
+      const rubric = await getActiveRubric(ctx, trade);
+      if (rubric === null) continue;
       picker.push({
         slug: trade.slug,
         name: trade.name,
