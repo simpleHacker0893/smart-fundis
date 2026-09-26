@@ -41,3 +41,7 @@
 5. `60` V0.
 
 **Before Sunday:** only 00, 05, 10, 20, 25 and 30 are run (specs are allowed as preparation). 40, 50 and 60 are for build day.
+
+## Next phase: V1 dashboards and the jobs marketplace map
+
+The step-by-step prompts for the next planning phase are in [`v1/`](v1/README.md). They run: domain research, scope reconciliation (conflicts with ADR-6, ADR-7 and D-2), the V1 dashboards loop (grill, spec, Stitch design, tickets, build, close), and a `/wayfinder` map for the jobs marketplace (client accounts, job posting, geo and proximity, pricing).
