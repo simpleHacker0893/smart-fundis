@@ -1,4 +1,4 @@
-import { v } from "convex/values";
+import { type Infer, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
 import { checkFundi, requireFundi, requireStoredUser } from "./lib/auth";
@@ -106,15 +106,21 @@ async function activeRubricFor(
   return rubric.tradeSlug === tradeSlug && rubric.taskSlug === taskSlug ? rubric : null;
 }
 
-type CreateArgs = {
-  storageId: Id<"_storage">;
-  tradeSlug: string;
-  taskSlug: string;
-  consentVersion?: string;
-  clientConsent?: boolean;
-  livenessCode?: string;
-  previousAssessmentId?: Id<"assessments">;
-};
+/**
+ * assessments.create's args. Only `storageId` has a strict validator; the
+ * other checks run in the handler so that a bad value still deletes the file.
+ */
+const createArgs = v.object({
+  storageId: v.id("_storage"),
+  tradeSlug: v.string(),
+  taskSlug: v.string(),
+  consentVersion: v.optional(v.string()),
+  clientConsent: v.optional(v.boolean()),
+  livenessCode: v.optional(v.string()),
+  previousAssessmentId: v.optional(v.id("assessments")),
+});
+
+type CreateArgs = Infer<typeof createArgs>;
 
 /**
  * Every check on an upload after the caller and the file exist, in the order
@@ -194,15 +200,7 @@ async function checkUpload(
  * handler so that a bad value still deletes the file.
  */
 export const create = mutation({
-  args: {
-    storageId: v.id("_storage"),
-    tradeSlug: v.string(),
-    taskSlug: v.string(),
-    consentVersion: v.optional(v.string()),
-    clientConsent: v.optional(v.boolean()),
-    livenessCode: v.optional(v.string()),
-    previousAssessmentId: v.optional(v.id("assessments")),
-  },
+  args: createArgs.fields,
   returns: v.union(
     v.object({ ok: v.literal(true), assessmentId: v.id("assessments") }),
     v.object({ ok: v.literal(false), code: uploadRejectionValidator }),
