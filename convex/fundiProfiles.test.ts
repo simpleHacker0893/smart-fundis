@@ -227,32 +227,6 @@ const KIPTOO = {
   name: "Kiptoo Rono",
 };
 
-describe("fundiProfiles.mine", () => {
-  it("returns the Fundi's name, county and Trades in the order they were picked", async () => {
-    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
-    await t
-      .withIdentity(WANJIRU)
-      .mutation(api.fundiProfiles.create, { ...VALID, tradeSlugs: ["plumbing", "electrical"] });
-
-    expect(await t.withIdentity(WANJIRU).query(api.fundiProfiles.mine, {})).toEqual({
-      name: "Wanjiru Kamau",
-      county: "Nairobi",
-      trades: [
-        { slug: "plumbing", name: "Plumbing", verifyNow: false },
-        { slug: "electrical", name: "Electrical", verifyNow: true },
-      ],
-    });
-  });
-
-  it("refuses a signed-out caller and a User who is not a Fundi", async () => {
-    await expect(t.query(api.fundiProfiles.mine, {})).rejects.toThrowError(/not authenticated/i);
-    await t.withIdentity(KIPTOO).mutation(api.users.store, {});
-    await expect(t.withIdentity(KIPTOO).query(api.fundiProfiles.mine, {})).rejects.toThrowError(
-      /fundi profile is required/i,
-    );
-  });
-});
-
 describe("trades.uploadPicker", () => {
   it("lists only Verify-now Trades, each with its Task, Rubric checklist and client tick rule (US-3.2)", async () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});

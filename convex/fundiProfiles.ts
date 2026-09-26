@@ -1,6 +1,6 @@
 import { ConvexError, v } from "convex/values";
-import { mutation, query } from "./_generated/server";
-import { getFundiProfile, requireFundi, requireStoredUser } from "./lib/auth";
+import { mutation } from "./_generated/server";
+import { getFundiProfile, requireStoredUser } from "./lib/auth";
 import { cleanTradeSlugs, parseFundiProfile, type FundiProfileErrors } from "./lib/fundiProfile";
 
 /**
@@ -62,34 +62,5 @@ export const create = mutation({
       county,
       publicListing: true,
     });
-  },
-});
-
-/**
- * The /fundi page header: the caller's display name, county and declared
- * Trades (in the order picked), each with `verifyNow` (the Trade has an
- * active Rubric). `name` is the English catalogue name; the web shows
- * TradeCatalogue.<slug>.name. Guard: requireFundi.
- */
-export const mine = query({
-  args: {},
-  returns: v.object({
-    name: v.string(),
-    county: v.string(),
-    trades: v.array(v.object({ slug: v.string(), name: v.string(), verifyNow: v.boolean() })),
-  }),
-  handler: async (ctx) => {
-    const { user, profile } = await requireFundi(ctx);
-    // At most FUNDI_PROFILE_LIMITS.tradesMax indexed reads.
-    const trades = await Promise.all(
-      profile.trades.map(async (slug) => {
-        const trade = await ctx.db
-          .query("trades")
-          .withIndex("by_slug", (q) => q.eq("slug", slug))
-          .unique();
-        return { slug, name: trade?.name ?? slug, verifyNow: trade?.activeRubricId !== undefined };
-      }),
-    );
-    return { name: user.name, county: profile.county, trades };
   },
 });
