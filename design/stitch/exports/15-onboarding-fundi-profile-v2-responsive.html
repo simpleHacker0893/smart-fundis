@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Fundi Profile Onboarding (V6-0a)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            graphite: '#050609',
+            panel: '#0B0D12',
+            panelLight: '#11141C',
+            amberAccent: '#ef9a57',
+            lightText: '#f2f4f7',
+            dimText: 'rgba(242, 244, 247, 0.55)',
+            hairline: 'rgba(242, 244, 247, 0.10)',
+            hairlineStrong: 'rgba(242, 244, 247, 0.20)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          letterSpacing: {
+            mono: '0.26em',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Technical grid pattern */
+    .tech-bg {
+      background-color: #050609;
+      background-image: radial-gradient(rgba(242, 244, 247, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+    /* Custom toggle switch */
+    .switch-track {
+      transition: background-color 0.2s ease;
+    }
+    .switch-thumb {
+      transition: transform 0.2s ease;
+    }
+    input:checked + .switch-track {
+      background-color: #ef9a57;
+    }
+    input:checked + .switch-track .switch-thumb {
+      transform: translateX(20px);
+      background-color: #050609;
+    }
+  </style>
+</head>
+<body class="tech-bg text-lightText font-sans antialiased min-h-screen flex flex-col selection:bg-amberAccent selection:text-graphite">
+
+  <!-- ==================== V3 HEADER ==================== -->
+  <header class="sticky top-0 z-50 bg-[#050609]/95 backdrop-blur-md border-b border-hairline w-full">
+    <!-- Desktop Header (>=1024px, 72px) -->
+    <div class="hidden lg:flex items-center justify-between h-[72px] px-8 max-w-7xl mx-auto w-full">
+      <!-- Logo Lockup -->
+      <a href="#" class="flex items-center gap-3 group">
+        <div class="w-8 h-8 border border-hairlineStrong flex items-center justify-center relative bg-panel">
+          <span class="text-amberAccent text-xs font-mono font-bold leading-none">✓</span>
+          <span class="absolute -top-[2px] -left-[2px] w-1.5 h-1.5 border-t border-l border-amberAccent"></span>
+          <span class="absolute -top-[2px] -right-[2px] w-1.5 h-1.5 border-t border-r border-amberAccent"></span>
+          <span class="absolute -bottom-[2px] -left-[2px] w-1.5 h-1.5 border-b border-l border-amberAccent"></span>
+          <span class="absolute -bottom-[2px] -right-[2px] w-1.5 h-1.5 border-b border-r border-amberAccent"></span>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-mono text-xs uppercase tracking-mono font-bold text-lightText group-hover:text-amberAccent transition-colors">SMART FUNDIS</span>
+          <span class="font-mono text-[9px] uppercase tracking-mono text-dimText">VERIFIED SKILLS</span>
+        </div>
+      </a>
+
+      <!-- Mono Nav Links (all dim, none active) -->
+      <nav class="flex items-center gap-8 font-mono text-xs uppercase tracking-mono text-dimText">
+        <a href="#" class="hover:text-lightText transition-colors">EVIDENCE</a>
+        <a href="#" class="hover:text-lightText transition-colors">TRADES</a>
+        <a href="#" class="hover:text-lightText transition-colors">TELEMETRY</a>
+        <div class="relative group cursor-pointer">
+          <span class="flex items-center gap-1 hover:text-lightText transition-colors">
+            COMPANY <span class="text-[10px]">▾</span>
+          </span>
+          <div class="absolute left-0 top-full pt-3 hidden group-hover:block w-40 z-50">
+            <div class="bg-panel border border-hairline py-2 px-3 flex flex-col gap-2">
+              <a href="#" class="text-dimText hover:text-lightText text-xs font-mono tracking-mono">About</a>
+              <a href="#" class="text-dimText hover:text-lightText text-xs font-mono tracking-mono">Contact us</a>
+            </div>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Initials Avatar (48px hit area) -->
+      <div class="flex items-center justify-end">
+        <div class="w-12 h-12 flex items-center justify-center cursor-pointer" title="Signed in: Kamau Mwangi">
+          <div class="w-8 h-8 border border-hairlineStrong bg-panel flex items-center justify-center hover:border-amberAccent transition-colors">
+            <span class="font-mono text-xs font-semibold text-lightText">KM</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile Header (<768px & tablets: Two Rows, Sticky) -->
+    <div class="lg:hidden w-full">
+      <!-- Row 1 (48px) -->
+      <div class="h-12 px-4 flex items-center justify-between border-b border-hairline/60">
+        <a href="#" class="flex items-center gap-2.5">
+          <div class="w-6 h-6 border border-hairlineStrong flex items-center justify-center relative bg-panel">
+            <span class="text-amberAccent text-[10px] font-mono font-bold leading-none">✓</span>
+            <span class="absolute -top-[1px] -left-[1px] w-1 h-1 border-t border-l border-amberAccent"></span>
+            <span class="absolute -top-[1px] -right-[1px] w-1 h-1 border-t border-r border-amberAccent"></span>
+            <span class="absolute -bottom-[1px] -left-[1px] w-1 h-1 border-b border-l border-amberAccent"></span>
+            <span class="absolute -bottom-[1px] -right-[1px] w-1 h-1 border-b border-r border-amberAccent"></span>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-mono text-[11px] uppercase tracking-mono font-bold text-lightText">SMART FUNDIS</span>
+            <span class="font-mono text-[8px] uppercase tracking-mono text-dimText">VERIFIED SKILLS</span>
+          </div>
+        </a>
+        <div class="w-12 h-12 flex items-center justify-center cursor-pointer">
+          <div class="w-7 h-7 border border-hairlineStrong bg-panel flex items-center justify-center">
+            <span class="font-mono text-[10px] font-semibold text-lightText">KM</span>
+          </div>
+        </div>
+      </div>
+      <!-- Row 2 (44px): Mono nav always visible -->
+      <div class="h-11 px-4 flex items-center justify-between overflow-x-auto no-scrollbar font-mono text-[11px] uppercase tracking-mono text-dimText">
+        <a href="#" class="hover:text-lightText whitespace-nowrap">EVIDENCE</a>
+        <span class="text-hairline">·</span>
+        <a href="#" class="hover:text-lightText whitespace-nowrap">TRADES</a>
+        <span class="text-hairline">·</span>
+        <a href="#" class="hover:text-lightText whitespace-nowrap">TELEMETRY</a>
+        <span class="text-hairline">·</span>
+        <a href="#" class="hover:text-lightText whitespace-nowrap">COMPANY</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ==================== MAIN PAGE CONTAINER ==================== -->
+  <main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 lg:py-12">
+
+    <!-- Step Progress Readout -->
+    <div class="mb-6 lg:mb-8 font-mono text-xs uppercase tracking-mono flex flex-wrap items-center gap-2 sm:gap-4 text-dimText border-b border-hairline pb-4">
+      <span class="flex items-center gap-1.5 text-lightText">
+        <span>01 ACCOUNT</span>
+        <span class="text-lightText font-bold">✓</span>
+      </span>
+      <span class="text-hairline">·</span>
+      <span class="flex items-center gap-1.5 text-lightText font-semibold">
+        <span class="w-1.5 h-1.5 rounded-full bg-amberAccent"></span>
+        <span class="text-amberAccent">02 PROFILE</span>
+      </span>
+      <span class="text-hairline">·</span>
+      <span>03 CONSENT</span>
+      <span class="text-hairline">·</span>
+      <span>04 RECORD</span>
+    </div>
+
+    <!-- Header Block -->
+    <div class="mb-8 lg:mb-12">
+      <div class="font-mono text-xs uppercase tracking-mono text-amberAccent mb-2 flex items-center gap-2">
+        <span>SESSION / FUNDI PROFILE</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-lightText">
+        Tell clients who you are.
+      </h1>
+    </div>
+
+    <!-- 12-Column Responsive Layout: Form (7 or 8 cols on desktop) + Evidence Frame (desktop only) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+
+      <!-- FORM COLUMN (Mobile: full width, Desktop: 8 cols) -->
+      <div class="lg:col-span-8 space-y-10">
+
+        <!-- Form Panel -->
+        <form class="space-y-10" onsubmit="event.preventDefault();">
+
+          <!-- ==================== 01 — YOU ==================== -->
+          <section class="bg-panel border border-hairline rounded-[4px] p-5 sm:p-7 space-y-6">
+            <div class="border-b border-hairline pb-3">
+              <h2 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">01 — YOU</h2>
+            </div>
+
+            <div class="space-y-5">
+              <!-- Display Name -->
+              <div>
+                <label for="display-name" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-2 font-medium">
+                  DISPLAY NAME
+                </label>
+                <input
+                  type="text"
+                  id="display-name"
+                  value="Kamau Mwangi"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="e.g. Kamau Mwangi"
+                />
+              </div>
+
+              <!-- Phone Number -->
+              <div>
+                <label for="phone-number" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-2 font-medium">
+                  PHONE NUMBER
+                </label>
+                <input
+                  type="tel"
+                  id="phone-number"
+                  value="+254 712 345 678"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="e.g. 0712 345 678"
+                />
+                <p class="mt-2 font-mono text-xs text-dimText tracking-wide">
+                  Hidden unless you turn on 'Show my phone to clients'.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== 02 — WHERE YOU WORK ==================== -->
+          <section class="bg-panel border border-hairline rounded-[4px] p-5 sm:p-7 space-y-6">
+            <div class="border-b border-hairline pb-3">
+              <h2 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">02 — WHERE YOU WORK</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+              <!-- County -->
+              <div>
+                <label for="county" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-2 font-medium">
+                  COUNTY
+                </label>
+                <div class="relative">
+                  <select
+                    id="county"
+                    class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 pr-10 text-lightText text-sm font-sans appearance-none focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors"
+                  >
+                    <option value="" disabled>Choose a county</option>
+                    <option value="kiambu" selected>Kiambu</option>
+                    <option value="nairobi">Nairobi</option>
+                    <option value="mombasa">Mombasa</option>
+                    <option value="nakuru">Nakuru</option>
+                    <option value="machakos">Machakos</option>
+                    <option value="kisumu">Kisumu</option>
+                    <option value="uasin_gishu">Uasin Gishu</option>
+                    <option value="kajiado">Kajiado</option>
+                    <option value="meru">Meru</option>
+                    <option value="kilifi">Kilifi</option>
+                    <!-- other counties covered -->
+                  </select>
+                  <span class="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-dimText font-mono text-xs">▾</span>
+                </div>
+              </div>
+
+              <!-- Area -->
+              <div>
+                <label for="area" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-2 font-medium">
+                  AREA
+                </label>
+                <input
+                  type="text"
+                  id="area"
+                  value="Ruiru"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="Estate or town, e.g. Ruiru"
+                />
+              </div>
+            </div>
+            <p class="font-mono text-xs text-dimText tracking-wide">
+              Clients search by county and area.
+            </p>
+          </section>
+
+          <!-- ==================== 03 — YOUR TRADES ==================== -->
+          <section class="bg-panel border border-hairline rounded-[4px] p-5 sm:p-7 space-y-6">
+            <div class="border-b border-hairline pb-3">
+              <h2 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">03 — YOUR TRADES</h2>
+            </div>
+
+            <div>
+              <span class="block font-mono text-xs uppercase tracking-mono text-lightText mb-3 font-medium">
+                TRADES (12 AVAILABLE)
+              </span>
+
+              <!-- 12 Toggle Chips: 2 per row on mobile, 4 per row on desktop -->
+              <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3">
+
+                <!-- 1. Electrical (SELECTED, with white outlined VERIFY NOW tag) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-amberAccent bg-graphite rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 bg-amberAccent rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-lightText truncate">Electrical</span>
+                  </div>
+                  <span class="font-mono text-[9px] uppercase tracking-mono px-1.5 py-0.5 border border-hairlineStrong text-lightText rounded-[2px] flex-shrink-0">
+                    VERIFY NOW
+                  </span>
+                </button>
+
+                <!-- 2. Hairdressing (UNSELECTED, with white outlined VERIFY NOW tag) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Hairdressing</span>
+                  </div>
+                  <span class="font-mono text-[9px] uppercase tracking-mono px-1.5 py-0.5 border border-hairline text-dimText group-hover:text-lightText rounded-[2px] flex-shrink-0">
+                    VERIFY NOW
+                  </span>
+                </button>
+
+                <!-- 3. Plumbing (SELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-amberAccent bg-graphite rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 bg-amberAccent rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-lightText truncate">Plumbing</span>
+                  </div>
+                </button>
+
+                <!-- 4. Masonry (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Masonry</span>
+                  </div>
+                </button>
+
+                <!-- 5. Carpentry (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Carpentry</span>
+                  </div>
+                </button>
+
+                <!-- 6. Welding (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Welding</span>
+                  </div>
+                </button>
+
+                <!-- 7. Mechanic (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Mechanic</span>
+                  </div>
+                </button>
+
+                <!-- 8. Tailoring (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Tailoring</span>
+                  </div>
+                </button>
+
+                <!-- 9. Beauty (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Beauty</span>
+                  </div>
+                </button>
+
+                <!-- 10. Solar installation (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Solar installation</span>
+                  </div>
+                </button>
+
+                <!-- 11. Mama fua (laundry) (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Mama fua (laundry)</span>
+                  </div>
+                </button>
+
+                <!-- 12. Movers (UNSELECTED) -->
+                <button
+                  type="button"
+                  class="h-12 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center justify-between gap-1.5 text-left transition-colors cursor-pointer group"
+                >
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-2 h-2 border border-hairline rounded-[1px] flex-shrink-0"></span>
+                    <span class="text-xs sm:text-sm font-medium text-dimText group-hover:text-lightText truncate">Movers</span>
+                  </div>
+                </button>
+
+              </div>
+
+              <!-- Dim Explanatory Readout Line Under Chips -->
+              <p class="mt-3.5 font-mono text-xs text-dimText leading-relaxed">
+                Pick every trade you work in. For now you can earn a badge in Electrical and Hairdressing. In the other trades, clients see 'Not yet verified' until verification opens.
+              </p>
+            </div>
+
+            <!-- Years of Experience & Languages -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-5 pt-3 border-t border-hairline">
+              <!-- Years of Experience -->
+              <div>
+                <label for="experience" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-2 font-medium">
+                  YEARS OF EXPERIENCE
+                </label>
+                <input
+                  type="number"
+                  id="experience"
+                  value="6"
+                  min="0"
+                  max="60"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors"
+                />
+              </div>
+
+              <!-- Languages You Work In -->
+              <div>
+                <span class="block font-mono text-xs uppercase tracking-mono text-lightText mb-2 font-medium">
+                  LANGUAGES YOU WORK IN
+                </span >
+                <div class="flex items-center gap-2 h-12">
+                  <!-- English -->
+                  <label class="h-12 flex-1 px-3 border border-amberAccent bg-graphite rounded-[4px] flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked class="accent-amberAccent w-4 h-4">
+                    <span class="text-xs font-medium text-lightText">English</span>
+                  </label>
+                  <!-- Kiswahili -->
+                  <label class="h-12 flex-1 px-3 border border-amberAccent bg-graphite rounded-[4px] flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" checked class="accent-amberAccent w-4 h-4">
+                    <span class="text-xs font-medium text-lightText">Kiswahili</span>
+                  </label>
+                  <!-- Other -->
+                  <label class="h-12 flex-1 px-3 border border-hairline hover:border-hairlineStrong bg-graphite/60 rounded-[4px] flex items-center gap-2 cursor-pointer">
+                    <input type="checkbox" class="accent-amberAccent w-4 h-4">
+                    <span class="text-xs font-medium text-dimText">Other</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- About Your Work -->
+            <div class="pt-3 border-t border-hairline">
+              <div class="flex items-center justify-between mb-2">
+                <label for="bio" class="block font-mono text-xs uppercase tracking-mono text-lightText font-medium">
+                  ABOUT YOUR WORK
+                </label>
+                <span class="font-mono text-xs text-dimText">Up to 300 characters.</span>
+              </div>
+              <textarea
+                id="bio"
+                rows="3"
+                maxlength="300"
+                class="w-full bg-graphite border border-hairlineStrong rounded-[4px] p-3 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors resize-none placeholder:text-dimText"
+                placeholder="Residential wiring, single-phase installs, conduit work and domestic repair across Kiambu and Nairobi."
+              >Residential wiring, single-phase installs, conduit work and domestic repair across Kiambu and Nairobi.</textarea>
+            </div>
+          </section>
+
+          <!-- ==================== 04 — LINKS (OPTIONAL) ==================== -->
+          <section class="bg-panel border border-hairline rounded-[4px] p-5 sm:p-7 space-y-6">
+            <div class="border-b border-hairline pb-3">
+              <h2 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">04 — LINKS (OPTIONAL)</h2>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- YouTube -->
+              <div>
+                <label for="youtube" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5 font-medium">
+                  YOUTUBE
+                </label>
+                <input
+                  type="url"
+                  id="youtube"
+                  value="https://youtube.com/@kamau_electrical"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="https://youtube.com/..."
+                />
+              </div>
+
+              <!-- TikTok -->
+              <div>
+                <label for="tiktok" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5 font-medium">
+                  TIKTOK
+                </label>
+                <input
+                  type="url"
+                  id="tiktok"
+                  value="https://tiktok.com/@kamaufundi"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="https://tiktok.com/@..."
+                />
+              </div>
+
+              <!-- LinkedIn -->
+              <div>
+                <label for="linkedin" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5 font-medium">
+                  LINKEDIN
+                </label>
+                <input
+                  type="url"
+                  id="linkedin"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="https://linkedin.com/in/..."
+                />
+              </div>
+
+              <!-- CV Link -->
+              <div>
+                <label for="cv-link" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5 font-medium">
+                  CV LINK
+                </label>
+                <input
+                  type="url"
+                  id="cv-link"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="https://drive.google.com/..."
+                />
+              </div>
+
+              <!-- Portfolio Link (Span 2) -->
+              <div class="sm:col-span-2">
+                <label for="portfolio" class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5 font-medium">
+                  PORTFOLIO LINK
+                </label>
+                <input
+                  type="url"
+                  id="portfolio"
+                  class="w-full h-12 bg-graphite border border-hairlineStrong rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none focus:border-amberAccent focus:ring-1 focus:ring-amberAccent transition-colors placeholder:text-dimText"
+                  placeholder="https://mywork.ke/..."
+                />
+              </div>
+            </div>
+
+            <!-- Two Readout Cards Under Links -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2">
+              <!-- Card 1: Showcase -->
+              <div class="border border-hairline bg-graphite p-4 rounded-[4px] space-y-1.5">
+                <span class="font-mono text-xs uppercase tracking-mono text-lightText font-semibold block">
+                  SHOWCASE — NOT VERIFIED
+                </span>
+                <p class="font-mono text-xs text-dimText leading-relaxed">
+                  YouTube and TikTok links appear on your profile as showcase only. Only a video recorded in the app can earn a badge.
+                </p>
+              </div>
+
+              <!-- Card 2: Private until opt-in -->
+              <div class="border border-hairline bg-graphite p-4 rounded-[4px] space-y-1.5">
+                <span class="font-mono text-xs uppercase tracking-mono text-lightText font-semibold block">
+                  PRIVATE UNTIL YOU CHOOSE
+                </span>
+                <p class="font-mono text-xs text-dimText leading-relaxed">
+                  LinkedIn, CV and portfolio links stay private. You can show each one on your profile later.
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <!-- ==================== VISIBILITY ROW ==================== -->
+          <div class="bg-panel border border-hairline rounded-[4px] p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="space-y-1">
+              <span class="text-sm font-semibold text-lightText block">
+                Show my profile in Find a fundi
+              </span>
+              <p class="font-mono text-xs text-dimText leading-relaxed">
+                Clients can find you now. Badges appear once an Expert approves your video.
+              </p>
+            </div>
+            <!-- 48px Switch (On by default) -->
+            <label class="relative inline-flex items-center cursor-pointer flex-shrink-0 min-h-[48px] items-center">
+              <input type="checkbox" checked class="sr-only peer">
+              <div class="w-12 h-6 bg-hairlineStrong peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-graphite after:content-[''] after:absolute after:top-[14px] after:left-[3px] after:bg-lightText after:border-hairline after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amberAccent peer-checked:after:bg-graphite"></div>
+            </label>
+          </div>
+
+          <!-- ==================== PRIVACY READOUT LEDGER ==================== -->
+          <div class="bg-panel border border-hairline rounded-[4px] overflow-hidden">
+            <div class="p-3.5 bg-panelLight border-b border-hairline">
+              <span class="font-mono text-xs uppercase tracking-mono text-lightText font-semibold">
+                PRIVACY READOUT
+              </span>
+            </div>
+            <div class="divide-y divide-hairline font-mono text-xs">
+              <!-- Row 1: PUBLIC -->
+              <div class="p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                <span class="text-lightText uppercase tracking-mono font-bold sm:w-48 flex-shrink-0">PUBLIC</span>
+                <span class="text-dimText leading-relaxed">name, county and area, trades, experience, languages, bio, badges, YouTube and TikTok links</span>
+              </div>
+              <!-- Row 2: PUBLIC IF YOU CHOOSE -->
+              <div class="p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-2 bg-graphite/40">
+                <span class="text-amberAccent uppercase tracking-mono font-bold sm:w-48 flex-shrink-0">PUBLIC IF YOU CHOOSE</span>
+                <span class="text-lightText font-medium leading-relaxed">phone, work photos and videos, LinkedIn, CV and portfolio links</span>
+              </div>
+              <!-- Row 3: PRIVATE -->
+              <div class="p-4 flex flex-col sm:flex-row sm:items-start justify-between gap-2">
+                <span class="text-lightText uppercase tracking-mono font-bold sm:w-48 flex-shrink-0">PRIVATE</span>
+                <span class="text-dimText leading-relaxed">email, verification videos, AI feedback</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ==================== ACTIONS ==================== -->
+          <div class="flex flex-col sm:flex-row items-center gap-4 pt-2">
+            <!-- Save and Continue Pill (Amber fill, min 48px) -->
+            <button
+              type="submit"
+              class="w-full sm:w-auto min-h-[48px] px-8 bg-amberAccent hover:bg-[#e28a45] active:scale-[0.99] text-graphite font-mono text-xs uppercase tracking-mono font-bold rounded-full transition-all flex items-center justify-center gap-2 cursor-pointer shadow-none"
+            >
+              <span>SAVE AND CONTINUE</span>
+              <span>→</span>
+            </button>
+
+            <!-- Back Outlined Pill (min 48px) -->
+            <button
+              type="button"
+              class="w-full sm:w-auto min-h-[48px] px-8 border border-hairlineStrong hover:border-lightText active:scale-[0.99] text-lightText font-mono text-xs uppercase tracking-mono font-semibold rounded-full transition-all flex items-center justify-center cursor-pointer"
+            >
+              <span>BACK</span>
+            </button>
+          </div>
+
+        </form>
+
+      </div>
+
+      <!-- ASIDE / EVIDENCE FRAME (Desktop Only, Item 8) -->
+      <div class="hidden lg:block lg:col-span-4 sticky top-28 space-y-6">
+        <div class="bg-panel border border-hairline rounded-[4px] overflow-hidden">
+          <!-- Meta Row -->
+          <div class="p-3 border-b border-hairline flex items-center justify-between font-mono text-[11px] uppercase tracking-mono text-dimText bg-panelLight">
+            <span class="flex items-center gap-1.5">
+              <span class="text-amberAccent">●</span>
+              <span>EVIDENCE FRAME: EF-0002</span>
+            </span>
+            <span class="text-lightText">PROFILE</span>
+          </div>
+
+          <!-- Grayscale Photo: Hands on workbench holding tape measure (no faces, no text, no logos) -->
+          <div class="relative bg-graphite aspect-[4/3] overflow-hidden border-b border-hairline">
+            <img
+              src="https://lh3.googleusercontent.com/aida/AEtjO1VQbTWZbryQkY9q58dnuZNxt4AKozqtK6RRTfj18-GWuD57ho415YJH_YvJzNn-uwAQtPHJkYv-WwCquKPGv3nIdGok82_yuxy23V-cbaC5O36uPXhLrJqqvS_-Ny4c2kLiUSEkYhub6UmJIBwelSdKzl9Cn3ouvwBI6sPmWG9kqQCz5w3VsinX_25Z9CdfIiUNIQMM0DjdFHyv73G5kmEXn9U8C0jpwDxs_CkwF-JD-g4I9iNvzSln9vY"
+              alt="Grayscale documentary photo of artisan carpenter hands on a timber workbench with tape measure and tools"
+              class="w-full h-full object-cover grayscale contrast-125 opacity-90"
+            />
+            <!-- HUD Precision Overlays -->
+            <div class="absolute inset-0 p-3 pointer-events-none flex flex-col justify-between">
+              <div class="flex justify-between items-start">
+                <span class="font-mono text-[10px] text-amberAccent bg-graphite/80 px-1.5 py-0.5 border border-amberAccent/40">CALIBRATED</span>
+                <span class="font-mono text-[10px] text-lightText bg-graphite/80 px-1.5 py-0.5 border border-hairline">SCALE 1:1</span>
+              </div>
+              <div class="flex justify-between items-end">
+                <span class="font-mono text-[10px] text-dimText bg-graphite/80 px-1.5 py-0.5">TAPE MEASURE // WORKBENCH</span>
+                <span class="w-2 h-2 border-r-2 border-b-2 border-amberAccent"></span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Technical Spec Note below photo -->
+          <div class="p-4 space-y-2 font-mono text-xs">
+            <div class="text-amberAccent font-bold uppercase tracking-mono flex items-center gap-1.5">
+              <span>PHYSICAL TRADES MATRIX</span>
+            </div>
+            <p class="text-dimText leading-relaxed">
+              Every profile begins with declared craft. Rubric testing unlocks verification badges step-by-step.
+            </p>
+          </div>
+        </div>
+
+        <!-- Guidance Card -->
+        <div class="border border-hairline bg-panel/40 p-4 rounded-[4px] space-y-2">
+          <div class="font-mono text-[11px] uppercase tracking-mono text-lightText font-semibold">
+            VERIFICATION STANDARD
+          </div>
+          <p class="font-mono text-xs text-dimText leading-relaxed">
+            All 12 trades are discoverable. Badges are granted upon human expert audit of single-take in-app footage.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== EXTRA STATE FRAMES (Item 7) ==================== -->
+    <div class="mt-20 pt-12 border-t border-hairline space-y-10">
+      <div class="font-mono text-xs uppercase tracking-mono text-amberAccent flex items-center gap-2">
+        <span>● SYSTEM SPECIFICATION // COMPONENT STATE READOUTS</span>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+
+        <!-- State 1: Validation Error State -->
+        <div class="bg-panel border border-hairline rounded-[4px] p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-hairline pb-3">
+            <span class="font-mono text-xs uppercase tracking-mono text-lightText font-bold">STATE: VALIDATION ERROR</span>
+            <span class="font-mono text-xs text-amberAccent">FAILED VALIDATION</span>
+          </div>
+
+          <!-- Display Name Error -->
+          <div>
+            <label class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5">
+              DISPLAY NAME
+            </label>
+            <input
+              type="text"
+              value=""
+              placeholder="e.g. Kamau Mwangi"
+              class="w-full h-12 bg-graphite border border-amberAccent rounded-[4px] px-4 text-lightText text-sm font-sans focus:outline-none"
+            />
+            <p class="mt-1.5 font-mono text-xs text-amberAccent flex items-center gap-1.5">
+              <span>◐</span>
+              <span>Add your name.</span>
+            </p>
+          </div>
+
+          <!-- Trade Pick Error -->
+          <div>
+            <label class="block font-mono text-xs uppercase tracking-mono text-lightText mb-1.5">
+              TRADES
+            </label>
+            <div class="p-3 border border-amberAccent rounded-[4px] bg-graphite/40">
+              <span class="font-mono text-xs text-dimText">No trade selected</span>
+            </div>
+            <p class="mt-1.5 font-mono text-xs text-amberAccent flex items-center gap-1.5">
+              <span>◐</span>
+              <span>Pick at least one trade.</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- State 2: Saving State -->
+        <div class="bg-panel border border-hairline rounded-[4px] p-6 space-y-5">
+          <div class="flex items-center justify-between border-b border-hairline pb-3">
+            <span class="font-mono text-xs uppercase tracking-mono text-lightText font-bold">STATE: SAVING PROGRESS</span>
+            <span class="font-mono text-xs text-amberAccent">IN-FLIGHT</span>
+          </div>
+
+          <p class="font-mono text-xs text-dimText leading-relaxed">
+            Primary pill displays progress indicator with animated hairline scan.
+          </p>
+
+          <div class="pt-4 flex items-center gap-4">
+            <!-- Saving Button with Amber Top Line -->
+            <button
+              disabled
+              class="relative min-h-[48px] px-8 bg-amberAccent text-graphite font-mono text-xs uppercase tracking-mono font-bold rounded-full overflow-hidden flex items-center justify-center gap-2 cursor-wait"
+            >
+              <!-- Progress indicator line on top edge -->
+              <span class="absolute top-0 left-0 h-[2px] w-full bg-lightText/60 animate-pulse"></span>
+              <span>Saving…</span>
+            </button>
+            <span class="font-mono text-xs text-dimText">Committing to telemetry...</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </main>
+
+  <!-- ==================== V3 COMPACT FOOTER ==================== -->
+  <footer class="mt-20 border-t border-hairline bg-[#050609] w-full">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+      
+      <!-- 4 Columns Grid (2x2 on mobile, 4 columns on desktop) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-10">
+
+        <!-- Column 1: FOR FUNDIS -->
+        <div class="space-y-4">
+          <h3 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">FOR FUNDIS</h3>
+          <ul class="space-y-2.5 font-mono text-xs">
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Join as a fundi</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">How verification works</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Your privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 2: FOR CLIENTS -->
+        <div class="space-y-4">
+          <h3 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">FOR CLIENTS</h3>
+          <ul class="space-y-2.5 font-mono text-xs">
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Find a fundi</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">What 'verified' means</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: FOR EXPERTS -->
+        <div class="space-y-4">
+          <h3 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">FOR EXPERTS</h3>
+          <ul class="space-y-2.5 font-mono text-xs">
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Become a verifier</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: COMPANY -->
+        <div class="space-y-4">
+          <h3 class="font-mono text-xs uppercase tracking-mono text-amberAccent font-bold">COMPANY</h3>
+          <ul class="space-y-2.5 font-mono text-xs">
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">About</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Contact us</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Pricing</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Responsible AI</a></li>
+            <li><a href="#" class="text-dimText hover:text-lightText transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Legal & System Bottom Row -->
+      <div class="mt-12 pt-8 border-t border-hairline flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-xs text-dimText">
+        <div>
+          © 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify.
+        </div>
+        <div class="hover:text-lightText transition-colors">
+          Email: info@smartfundis.com
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>

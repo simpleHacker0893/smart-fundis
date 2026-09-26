@@ -1,0 +1,1015 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Smart Fundis — Find a fundi (V6-0a)</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Tailwind CSS CDN with arbitrary styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: '#050609',
+            panel: '#0B0D12',
+            hairline: 'rgba(242, 244, 247, 0.10)',
+            hairlineBright: 'rgba(242, 244, 247, 0.28)',
+            textPrimary: '#f2f4f7',
+            textSecondary: 'rgba(242, 244, 247, 0.55)',
+            textDim: 'rgba(242, 244, 247, 0.38)',
+            amberAccent: '#ef9a57',
+            amberTint: 'rgba(239, 154, 87, 0.15)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          letterSpacing: {
+            tightest: '-0.03em',
+            monoReadout: '0.26em',
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Grain texture overlay */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 99;
+      opacity: 0.028;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+    }
+
+    /* Motion specifications */
+    @media (prefers-reduced-motion: no-preference) {
+      .card-reveal {
+        animation: cardFadeUp 0.4s ease-out forwards;
+      }
+      .scanline-sweep {
+        position: relative;
+        overflow: hidden;
+      }
+      .scanline-sweep::after {
+        content: '';
+        position: absolute;
+        inset: -100% 0 auto 0;
+        height: 60%;
+        background: linear-gradient(180deg, transparent 0%, rgba(239, 154, 87, 0.08) 50%, transparent 100%);
+        animation: scanlineSweep 1.8s ease-in-out infinite alternate;
+        pointer-events: none;
+      }
+    }
+
+    @keyframes cardFadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes scanlineSweep {
+      0% { top: -60%; }
+      100% { top: 120%; }
+    }
+
+    /* Skeleton shimmer */
+    @keyframes skeletonPulse {
+      0%, 100% { opacity: 0.4; }
+      50% { opacity: 0.75; }
+    }
+    .skeleton-shimmer {
+      animation: skeletonPulse 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    /* Interactive state toggles and demo logic */
+    .custom-select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='rgba(242, 244, 247, 0.55)'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+      background-position: right 1rem center;
+      background-repeat: no-repeat;
+      background-size: 1.1rem;
+      appearance: none;
+    }
+  </style>
+</head>
+
+<body class="bg-graphite text-textPrimary font-sans antialiased min-h-screen selection:bg-amberAccent selection:text-graphite flex flex-col justify-between">
+
+  <!-- ==================== HEADER SYSTEM ==================== -->
+  <header class="sticky top-0 z-50 w-full bg-graphite/90 backdrop-blur-md border-b border-hairline">
+    <!-- Desktop Header (≥ 1024px, 72px) -->
+    <div class="hidden lg:flex items-center justify-between h-[72px] max-w-7xl mx-auto px-8 w-full">
+      <!-- Left: Logo Lockup -->
+      <a href="/trades" class="flex items-center gap-3 group focus:outline-none focus:ring-1 focus:ring-amberAccent rounded">
+        <!-- Reticle Logo Icon -->
+        <div class="relative w-8 h-8 flex items-center justify-center border border-hairline group-hover:border-amberAccent/50 transition-colors">
+          <span class="absolute top-0 left-0 w-1.5 h-1.5 border-t border-l border-amberAccent"></span>
+          <span class="absolute top-0 right-0 w-1.5 h-1.5 border-t border-r border-amberAccent"></span>
+          <span class="absolute bottom-0 left-0 w-1.5 h-1.5 border-b border-l border-amberAccent"></span>
+          <span class="absolute bottom-0 right-0 w-1.5 h-1.5 border-b border-r border-amberAccent"></span>
+          <!-- Reticle amber tick -->
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-mono text-xs font-bold tracking-monoReadout text-textPrimary uppercase leading-tight">SMART FUNDIS</span>
+          <span class="font-mono text-[10px] tracking-monoReadout text-textDim uppercase leading-none mt-0.5">VERIFIED SKILLS</span>
+        </div>
+      </a>
+
+      <!-- Center: Mono Nav (EVIDENCE · TRADES · TELEMETRY · COMPANY ▾) -->
+      <nav class="flex items-center gap-8 font-mono text-xs tracking-monoReadout uppercase">
+        <a href="#evidence" class="text-textSecondary hover:text-textPrimary transition-colors py-2">EVIDENCE</a>
+        <!-- Active TRADES item -->
+        <a href="#trades" class="text-textPrimary font-semibold py-2 border-b-2 border-amberAccent">TRADES</a>
+        <a href="#telemetry" class="text-textSecondary hover:text-textPrimary transition-colors py-2">TELEMETRY</a>
+        
+        <!-- Company Dropdown (hoverable) -->
+        <div class="relative group py-2">
+          <button type="button" class="flex items-center gap-1.5 text-textSecondary group-hover:text-textPrimary transition-colors focus:outline-none">
+            <span>COMPANY</span>
+            <span class="text-[10px] text-textDim group-hover:text-textSecondary transition-transform group-hover:translate-y-0.5">▾</span>
+          </button>
+          <div class="absolute top-full left-0 w-36 bg-panel border border-hairline py-2 shadow-2xl opacity-0 translate-y-1 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-150">
+            <a href="#about" class="block px-4 py-2 text-xs text-textSecondary hover:text-textPrimary hover:bg-hairline/50 transition-colors">About</a>
+            <a href="#contact" class="block px-4 py-2 text-xs text-textSecondary hover:text-textPrimary hover:bg-hairline/50 transition-colors">Contact us</a>
+          </div>
+        </div>
+      </nav>
+
+      <!-- Right: Sign In & Amber Pill -->
+      <div class="flex items-center gap-6">
+        <a href="#signin" class="font-mono text-xs tracking-monoReadout uppercase text-textSecondary hover:text-textPrimary transition-colors">Sign in</a>
+        <a href="#join" class="inline-flex items-center justify-center h-12 px-6 bg-amberAccent text-graphite font-mono text-xs font-semibold tracking-monoReadout uppercase rounded-full hover:brightness-105 active:scale-[0.98] transition-all focus:outline-none focus:ring-2 focus:ring-amberAccent focus:ring-offset-2 focus:ring-offset-graphite">
+          Join as a fundi
+        </a>
+      </div>
+    </div>
+
+    <!-- Mobile Header (< 768px & Tablet < 1024px: Two Rows) -->
+    <div class="lg:hidden flex flex-col w-full">
+      <!-- Row 1 (48px) -->
+      <div class="flex items-center justify-between h-12 px-4 border-b border-hairline">
+        <!-- Logo -->
+        <a href="/trades" class="flex items-center gap-2.5">
+          <div class="relative w-6 h-6 flex items-center justify-center border border-hairline">
+            <span class="absolute top-0 left-0 w-1 h-1 border-t border-l border-amberAccent"></span>
+            <span class="absolute top-0 right-0 w-1 h-1 border-t border-r border-amberAccent"></span>
+            <span class="absolute bottom-0 left-0 w-1 h-1 border-b border-l border-amberAccent"></span>
+            <span class="absolute bottom-0 right-0 w-1 h-1 border-b border-r border-amberAccent"></span>
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <div class="flex flex-col">
+            <span class="font-mono text-[11px] font-bold tracking-monoReadout text-textPrimary uppercase leading-tight">SMART FUNDIS</span>
+            <span class="font-mono text-[9px] tracking-monoReadout text-textDim uppercase leading-none">VERIFIED SKILLS</span>
+          </div>
+        </a>
+
+        <!-- Right: Sign in & JOIN Pill -->
+        <div class="flex items-center gap-3">
+          <a href="#signin" class="font-mono text-[11px] tracking-monoReadout uppercase text-textSecondary py-2">Sign in</a>
+          <a href="#join" class="inline-flex items-center justify-center min-h-[48px] px-4 bg-amberAccent text-graphite font-mono text-xs font-bold tracking-monoReadout uppercase rounded-full">
+            JOIN
+          </a>
+        </div>
+      </div>
+
+      <!-- Row 2 (44px): Always visible mono navigation -->
+      <div class="flex items-center justify-around h-11 px-2 font-mono text-xs tracking-monoReadout uppercase bg-graphite/95">
+        <a href="#evidence" class="text-textSecondary py-2 text-center">EVIDENCE</a>
+        <a href="#trades" class="text-textPrimary font-semibold py-2 border-b-2 border-amberAccent text-center">TRADES</a>
+        <a href="#telemetry" class="text-textSecondary py-2 text-center">TELEMETRY</a>
+        <a href="#company" class="text-textSecondary py-2 text-center">COMPANY</a>
+      </div>
+    </div>
+  </header>
+
+
+  <!-- ==================== MAIN CONTENT CONTAINER ==================== -->
+  <main class="w-full max-w-7xl mx-auto px-4 md:px-8 lg:px-12 py-8 md:py-12 flex-grow space-y-16 md:space-y-24">
+
+    <!-- ==================== MAIN WORKING FRAME ==================== -->
+    <section id="main-results" class="space-y-8 md:space-y-10">
+
+      <!-- 1. HERO [FundisPage.hero] -->
+      <div class="space-y-2">
+        <div class="flex items-center gap-2 font-mono text-xs tracking-monoReadout uppercase text-amberAccent">
+          <span>●</span>
+          <span>SMART FUNDIS / FIND A FUNDI</span>
+        </div>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-baseline">
+          <div class="lg:col-span-8 space-y-2">
+            <h1 class="text-4xl md:text-5xl lg:text-[64px] font-semibold tracking-tightest text-textPrimary leading-[1.08]">
+              Find a fundi.
+            </h1>
+            <p class="text-base md:text-lg text-textSecondary font-normal">
+              Every listed fundi is here. Verified fundis come first.
+            </p>
+          </div>
+          <!-- 7 cols on desktop, nothing on the right -->
+        </div>
+      </div>
+
+      <!-- 2. FILTERS [FundisPage.filters] -->
+      <!-- One bordered instrument panel with corner reticle brackets, no status chip -->
+      <div class="relative bg-panel border border-hairline p-4 md:p-6 rounded-[4px]">
+        <!-- Corner Reticle Brackets -->
+        <span class="absolute top-0 left-0 w-2.5 h-2.5 border-t border-l border-amberAccent pointer-events-none"></span>
+        <span class="absolute top-0 right-0 w-2.5 h-2.5 border-t border-r border-amberAccent pointer-events-none"></span>
+        <span class="absolute bottom-0 left-0 w-2.5 h-2.5 border-b border-l border-amberAccent pointer-events-none"></span>
+        <span class="absolute bottom-0 right-0 w-2.5 h-2.5 border-b border-r border-amberAccent pointer-events-none"></span>
+
+        <!-- Filters Form / Readout Grid -->
+        <!-- Desktop: one row across 12 cols (TRADE 3, COUNTY 3, AREA 3, Chip 1-2, Show Fundis 1-2) -->
+        <form class="grid grid-cols-1 md:grid-cols-12 gap-3 md:gap-4 items-center" onsubmit="event.preventDefault();">
+          
+          <!-- TRADE (Col 3 on desktop) -->
+          <div class="md:col-span-6 lg:col-span-3">
+            <label for="trade-select" class="block font-mono text-xs tracking-monoReadout uppercase text-textDim mb-1.5">TRADE</label>
+            <select id="trade-select" class="custom-select w-full h-12 bg-graphite border border-hairline focus:border-amberAccent text-textPrimary text-sm font-sans px-3.5 rounded-[4px] focus:outline-none transition-colors">
+              <option value="Electrical" selected>Electrical</option>
+              <option value="All trades">All trades</option>
+              <option value="Hairdressing">Hairdressing</option>
+              <option value="Plumbing">Plumbing</option>
+              <option value="Masonry">Masonry</option>
+              <option value="Carpentry">Carpentry</option>
+              <option value="Welding">Welding</option>
+              <option value="Mechanic">Mechanic</option>
+              <option value="Tailoring">Tailoring</option>
+              <option value="Beauty">Beauty</option>
+              <option value="Solar installation">Solar installation</option>
+              <option value="Mama fua (laundry)">Mama fua (laundry)</option>
+              <option value="Movers">Movers</option>
+            </select>
+          </div>
+
+          <!-- COUNTY (Col 3 on desktop) -->
+          <div class="md:col-span-6 lg:col-span-3">
+            <label for="county-select" class="block font-mono text-xs tracking-monoReadout uppercase text-textDim mb-1.5">COUNTY</label>
+            <select id="county-select" class="custom-select w-full h-12 bg-graphite border border-hairline focus:border-amberAccent text-textPrimary text-sm font-sans px-3.5 rounded-[4px] focus:outline-none transition-colors">
+              <option value="Kiambu" selected>Kiambu</option>
+              <option value="All Kenya">All Kenya</option>
+              <option value="Nairobi">Nairobi</option>
+              <option value="Mombasa">Mombasa</option>
+              <option value="Kisumu">Kisumu</option>
+              <option value="Nakuru">Nakuru</option>
+              <option value="Machakos">Machakos</option>
+              <option value="Uasin Gishu">Uasin Gishu</option>
+              <option value="Kilifi">Kilifi</option>
+            </select>
+          </div>
+
+          <!-- AREA (Col 3 on desktop) -->
+          <div class="md:col-span-12 lg:col-span-3">
+            <label for="area-input" class="block font-mono text-xs tracking-monoReadout uppercase text-textDim mb-1.5">AREA</label>
+            <div class="relative flex items-center">
+              <input id="area-input" type="text" placeholder="Estate or town, e.g. Ruiru" class="w-full h-12 bg-graphite border border-hairline focus:border-amberAccent text-textPrimary placeholder:text-textDim text-sm font-sans px-3.5 pr-10 rounded-[4px] focus:outline-none transition-colors">
+              <!-- Clear cross (48px hit area) -->
+              <button type="button" aria-label="Clear area" class="absolute right-0 top-0 h-12 w-12 flex items-center justify-center text-textDim hover:text-textPrimary transition-colors focus:outline-none">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18"></line>
+                  <line x1="6" y1="6" x2="18" y2="18"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- TOGGLE & CTA ROW (Col 3 combined on desktop; split on mobile) -->
+          <div class="md:col-span-12 lg:col-span-3 flex items-center gap-3 pt-2 md:pt-0 lg:mt-5">
+            <!-- "Verified only" Chip - Off state: transparent, 1px border, white label, no check -->
+            <button type="button" aria-pressed="false" class="flex-1 lg:flex-initial h-12 px-4 rounded-full border border-hairline hover:border-hairlineBright text-textPrimary text-xs font-mono tracking-monoReadout uppercase flex items-center justify-center gap-2 transition-all">
+              <span>Verified only</span>
+            </button>
+
+            <!-- "Show fundis" Button: the page's one amber-filled pill, graphite text -->
+            <button type="submit" class="flex-1 lg:flex-initial h-12 px-6 rounded-full bg-amberAccent text-graphite font-mono text-xs font-bold tracking-monoReadout uppercase hover:brightness-105 active:scale-[0.98] transition-all flex items-center justify-center gap-1.5 focus:outline-none focus:ring-2 focus:ring-amberAccent">
+              <span>Show fundis</span>
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- 3. "01 — FUNDIS" RESULTS HEADER [FundisPage.results] -->
+      <div class="space-y-3 pt-2">
+        <!-- Row 1: Section label + Order Readout + Example Data -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-hairline pb-3">
+          <div class="flex items-center gap-2">
+            <span class="w-2 h-2 rounded-full bg-amberAccent inline-block"></span>
+            <span class="font-mono text-xs font-bold tracking-monoReadout uppercase text-textPrimary">01 — FUNDIS</span>
+          </div>
+          <div class="flex items-center gap-4">
+            <span class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+              VERIFIED FIRST
+            </span>
+            <span class="font-mono text-[11px] tracking-monoReadout uppercase px-2 py-0.5 border border-hairline text-textDim rounded-[2px]">
+              EXAMPLE DATA
+            </span>
+          </div>
+        </div>
+
+        <!-- Row 2: Active Filter Line -->
+        <div class="font-mono text-xs tracking-monoReadout uppercase text-textSecondary">
+          ELECTRICAL · KIAMBU
+        </div>
+
+        <!-- Row 3: Inline Legend -->
+        <div class="flex flex-wrap items-center gap-y-2 gap-x-6 text-xs text-textSecondary font-sans pt-1">
+          <!-- Item 1: Skill Badge -->
+          <div class="flex items-center gap-1.5">
+            <span class="inline-flex items-center justify-center w-4 h-4 text-textPrimary">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none">
+                <!-- White glyph with amber tick stroke -->
+                <polyline points="20 6 9 17 4 12" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </span>
+            <span class="text-textPrimary font-medium">Verified by Smart Fundis</span>
+          </div>
+
+          <!-- Item 2: Expert Verifier mark icon -->
+          <div class="flex items-center gap-1.5">
+            <span class="inline-flex items-center justify-center w-4 h-4 text-textPrimary">
+              <!-- Eye inside four corner brackets -->
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 8V5a2 2 0 0 1 2-2h3 M21 8V5a2 2 0 0 0-2-2h-3 M3 16v3a2 2 0 0 0 2 2h3 M21 16v3a2 2 0 0 1-2 2h-3"/>
+                <circle cx="12" cy="12" r="3"/>
+                <path d="M7 12c1.5-2.5 3.5-3.5 5-3.5s3.5 1 5 3.5c-1.5 2.5-3.5 3.5-5 3.5s-3.5-1-5-3.5z"/>
+              </svg>
+            </span>
+            <span class="text-textPrimary font-medium">Expert verifier</span>
+          </div>
+
+          <!-- Item 3: Not yet verified -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-textDim font-mono text-xs tracking-monoReadout uppercase">Not yet verified</span>
+          </div>
+
+          <!-- Link: What these mean -->
+          <a href="#legend-modal" class="text-textSecondary hover:text-textPrimary underline underline-offset-4 text-xs transition-colors">
+            What these mean →
+          </a>
+        </div>
+      </div>
+
+      <!-- 4. THE CARD GRID [FundisPage.card] -->
+      <!-- Mobile: 1 col, 768px: 2 cols, Desktop: 3 cols. 16px gap mobile, 24px desktop -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+
+        <!-- CARD 1: Achieng Otieno -->
+        <a href="/fundis/achieng-otieno" class="group block bg-panel border border-hairline hover:border-hairlineBright rounded-[4px] p-4 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 card-reveal">
+          <div class="space-y-4">
+            <!-- 1. Cover 4:3 with reticle corners -->
+            <div class="relative aspect-[4/3] w-full overflow-hidden bg-graphite rounded-[2px] scanline-sweep">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1XWWhm9uMGL0ZEcuOo832Mag6c1FdrRs1dce8IRXvIQXEh8Jd24C9R4ynUIOGXQA-SR5yX_9UV0TnEF3-fiLxnUIUX55Q-4-EwO3bhNiunsargmaHHIV7MUa0VcPp52hhqZEjHRqXan1WGZnCqbWr8WXlwqa0Z977PHkatCHHlOMndCP6K3L6BwsNnXCsCtaVtds8hAotdpClJORAgmn243Bt1nSnBDJZZBfY8ly-HJ6X7uNEbsNjE0HFE" alt="Electrical terminal connection craft" class="w-full h-full object-cover grayscale brightness-95 group-hover:scale-[1.01] transition-transform duration-300">
+              <!-- Corner brackets -->
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+            </div>
+
+            <!-- Content stack -->
+            <div class="space-y-1.5">
+              <!-- 2. Display Name -->
+              <h2 class="text-xl font-semibold text-textPrimary tracking-tight">
+                Achieng Otieno
+              </h2>
+              <!-- 3. Place -->
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                KIAMBU · RUIRU
+              </div>
+            </div>
+
+            <!-- 4. Verification block: Skill Badge line -->
+            <div class="pt-1 space-y-2">
+              <div class="flex items-center gap-2 text-sm text-textPrimary font-medium">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Electrical: Install a 13A socket</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. View profile full-width button (min 48px) -->
+          <div class="mt-6">
+            <div class="w-full h-12 rounded-full border border-hairline group-hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+              View profile →
+            </div>
+          </div>
+        </a>
+
+        <!-- CARD 2: Kamau Mwangi -->
+        <a href="/fundis/kamau-mwangi" class="group block bg-panel border border-hairline hover:border-hairlineBright rounded-[4px] p-4 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 card-reveal" style="animation-delay: 0.06s;">
+          <div class="space-y-4">
+            <!-- 1. Cover 4:3 with reticle corners -->
+            <div class="relative aspect-[4/3] w-full overflow-hidden bg-graphite rounded-[2px] scanline-sweep">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1XzhOb5nDc7fVuedilPKjGr5wsj9_QAvkfjzCE0n13m0A4D5HKBqEoOwuhs4iduca5uS8PiFDZlRbQk0hV0X1C94L4339RYTDGApILDNThmbJH_l6LIlPiAvFKG8U7iu7D3LsV-0mRJoR13O5jq-tr-B3MbU19tV_XrgAD90RpZkK7ZomwWL1Rhjsvh3YieqJ-Bn5rGRggPJrD2f2MIhTYKLXxm4oD-tVb3fJ2CZCHxBcYFqDeX-lXz7Uw" alt="Routing cables into distribution board" class="w-full h-full object-cover grayscale brightness-95 group-hover:scale-[1.01] transition-transform duration-300">
+              <!-- Corner brackets -->
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+            </div>
+
+            <!-- Content stack -->
+            <div class="space-y-1.5">
+              <!-- 2. Display Name -->
+              <h2 class="text-xl font-semibold text-textPrimary tracking-tight">
+                Kamau Mwangi
+              </h2>
+              <!-- 3. Place -->
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                KIAMBU · THIKA
+              </div>
+            </div>
+
+            <!-- 4. Verification block: Skill Badge line -->
+            <div class="pt-1 space-y-2.5">
+              <div class="flex items-center gap-2 text-sm text-textPrimary font-medium">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Electrical: Install a 13A socket</span>
+              </div>
+
+              <!-- 5. Expert verifier mark: outlined white mono tag with eye icon -->
+              <div class="inline-flex items-center gap-2 h-8 px-2.5 border border-hairlineBright rounded-[4px] font-mono text-[11px] tracking-monoReadout uppercase text-textPrimary">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M3 8V5a2 2 0 0 1 2-2h3 M21 8V5a2 2 0 0 0-2-2h-3 M3 16v3a2 2 0 0 0 2 2h3 M21 16v3a2 2 0 0 1-2 2h-3"/>
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M7 12c1.5-2.5 3.5-3.5 5-3.5s3.5 1 5 3.5c-1.5 2.5-3.5 3.5-5 3.5s-3.5-1-5-3.5z"/>
+                </svg>
+                <span>EXPERT VERIFIER · ELECTRICAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. View profile full-width button (min 48px) -->
+          <div class="mt-6">
+            <div class="w-full h-12 rounded-full border border-hairline group-hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+              View profile →
+            </div>
+          </div>
+        </a>
+
+        <!-- CARD 3: Njeri Wanjiku -->
+        <a href="/fundis/njeri-wanjiku" class="group block bg-panel border border-hairline hover:border-hairlineBright rounded-[4px] p-4 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 card-reveal" style="animation-delay: 0.12s;">
+          <div class="space-y-4">
+            <!-- 1. Initials Tile 4:3 with faint grid & 48px mono initials -->
+            <div class="relative aspect-[4/3] w-full bg-graphite rounded-[2px] flex items-center justify-center border border-hairline/40">
+              <!-- Corner brackets -->
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+              <!-- Grid hint -->
+              <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(242,244,247,0.06)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none"></div>
+              <span class="font-mono text-5xl font-bold tracking-tight text-textPrimary">NW</span>
+            </div>
+
+            <!-- Content stack -->
+            <div class="space-y-1.5">
+              <!-- 2. Display Name -->
+              <h2 class="text-xl font-semibold text-textPrimary tracking-tight">
+                Njeri Wanjiku
+              </h2>
+              <!-- 3. Place -->
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                KIAMBU · JUJA
+              </div>
+            </div>
+
+            <!-- 5. Expert verifier mark only (no badge line) -->
+            <div class="pt-1">
+              <div class="inline-flex items-center gap-2 h-8 px-2.5 border border-hairlineBright rounded-[4px] font-mono text-[11px] tracking-monoReadout uppercase text-textPrimary">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M3 8V5a2 2 0 0 1 2-2h3 M21 8V5a2 2 0 0 0-2-2h-3 M3 16v3a2 2 0 0 0 2 2h3 M21 16v3a2 2 0 0 1-2 2h-3"/>
+                  <circle cx="12" cy="12" r="3"/>
+                  <path d="M7 12c1.5-2.5 3.5-3.5 5-3.5s3.5 1 5 3.5c-1.5 2.5-3.5 3.5-5 3.5s-3.5-1-5-3.5z"/>
+                </svg>
+                <span>EXPERT VERIFIER · ELECTRICAL</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. View profile full-width button (min 48px) -->
+          <div class="mt-6">
+            <div class="w-full h-12 rounded-full border border-hairline group-hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+              View profile →
+            </div>
+          </div>
+        </a>
+
+        <!-- CARD 4: Demo Card: Baraka Ochieng -->
+        <a href="/fundis/baraka-ochieng" class="group block bg-panel border border-hairline hover:border-hairlineBright rounded-[4px] p-4 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 card-reveal" style="animation-delay: 0.18s;">
+          <div class="space-y-4">
+            <!-- 1. Initials Tile 4:3 (Demo profiles NEVER have photos) -->
+            <div class="relative aspect-[4/3] w-full bg-graphite rounded-[2px] flex items-center justify-center border border-hairline/40">
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+              <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(242,244,247,0.06)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none"></div>
+              <span class="font-mono text-5xl font-bold tracking-tight text-textPrimary">BO</span>
+            </div>
+
+            <!-- Content stack -->
+            <div class="space-y-1.5">
+              <!-- 6. Demo tag: Outlined dim mono tag above name -->
+              <div>
+                <span class="inline-block font-mono text-[10px] tracking-monoReadout uppercase px-2 py-0.5 border border-hairline text-textDim rounded-[2px]">
+                  DEMO: NOT A REAL VERIFICATION
+                </span>
+              </div>
+
+              <!-- 2. Display Name -->
+              <h2 class="text-xl font-semibold text-textPrimary tracking-tight">
+                Baraka Ochieng
+              </h2>
+              <!-- 3. Place -->
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                KIAMBU · KIKUYU
+              </div>
+            </div>
+
+            <!-- 4. Verification block: Skill Badge line -->
+            <div class="pt-1">
+              <div class="flex items-center gap-2 text-sm text-textPrimary font-medium">
+                <svg class="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Electrical: Install a 13A socket</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. View profile full-width button (min 48px) -->
+          <div class="mt-6">
+            <div class="w-full h-12 rounded-full border border-hairline group-hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+              View profile →
+            </div>
+          </div>
+        </a>
+
+        <!-- CARD 5: Wambui Kariuki -->
+        <a href="/fundis/wambui-kariuki" class="group block bg-panel border border-hairline hover:border-hairlineBright rounded-[4px] p-4 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 card-reveal" style="animation-delay: 0.24s;">
+          <div class="space-y-4">
+            <!-- 1. Cover 4:3 with reticle corners -->
+            <div class="relative aspect-[4/3] w-full overflow-hidden bg-graphite rounded-[2px] scanline-sweep">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1XMnN1YWHjL4HWVLYE9AsGH5OACCPoybJamOfC82Co4gqiese1FqixpeKsKezQn87Ru2ImCIduV-Qz9wBcLaRcx3VW7waeG3hz_j24y7GtVRpcucQupJuBwVqi0Dg_x5kPxSFE8APV6vEGY8LUSW1nYpxau8VI5aPtPUDUpmY-0_Xr5U3Za4t_drSoqTDGpZ037NQPfj2VdtyRQzTQaBJRBy-DndUccQnoMSjz4VJVmdJk73LYNfadgT4k" alt="Voltage tester on workbench with coiled wire" class="w-full h-full object-cover grayscale brightness-95 group-hover:scale-[1.01] transition-transform duration-300">
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+            </div>
+
+            <!-- Content stack -->
+            <div class="space-y-1.5">
+              <!-- 2. Display Name -->
+              <h2 class="text-xl font-semibold text-textPrimary tracking-tight">
+                Wambui Kariuki
+              </h2>
+              <!-- 3. Place -->
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                KIAMBU · RUIRU
+              </div>
+            </div>
+
+            <!-- 4. Verification block: Not yet verified in Electrical (plain dim mono, no icon, no border) -->
+            <div class="pt-1">
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                Not yet verified in Electrical
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. View profile full-width button (min 48px) -->
+          <div class="mt-6">
+            <div class="w-full h-12 rounded-full border border-hairline group-hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+              View profile →
+            </div>
+          </div>
+        </a>
+
+        <!-- CARD 6: Mutua Kioko -->
+        <a href="/fundis/mutua-kioko" class="group block bg-panel border border-hairline hover:border-hairlineBright rounded-[4px] p-4 flex flex-col justify-between transition-all duration-200 hover:-translate-y-0.5 card-reveal" style="animation-delay: 0.30s;">
+          <div class="space-y-4">
+            <!-- 1. Initials Tile 4:3 with faint grid -->
+            <div class="relative aspect-[4/3] w-full bg-graphite rounded-[2px] flex items-center justify-center border border-hairline/40">
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+              <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(242,244,247,0.06)_1px,transparent_1px)] bg-[size:16px_16px] pointer-events-none"></div>
+              <span class="font-mono text-5xl font-bold tracking-tight text-textPrimary">MK</span>
+            </div>
+
+            <!-- Content stack -->
+            <div class="space-y-1.5">
+              <!-- 2. Display Name -->
+              <h2 class="text-xl font-semibold text-textPrimary tracking-tight">
+                Mutua Kioko
+              </h2>
+              <!-- 3. Place -->
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                KIAMBU · LIMURU
+              </div>
+            </div>
+
+            <!-- 4. Verification block: Not yet verified in Electrical (plain dim mono, no icon, no border) -->
+            <div class="pt-1">
+              <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                Not yet verified in Electrical
+              </div>
+            </div>
+          </div>
+
+          <!-- 7. View profile full-width button (min 48px) -->
+          <div class="mt-6">
+            <div class="w-full h-12 rounded-full border border-hairline group-hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+              View profile →
+            </div>
+          </div>
+        </a>
+
+      </div>
+
+      <!-- 5. UNDER THE GRID [FundisPage.more] -->
+      <div class="flex flex-col items-center justify-center pt-8 pb-4 space-y-4">
+        <!-- Show more pill (48px tall, full-width mobile, 240px desktop) -->
+        <button type="button" class="w-full md:w-60 h-12 rounded-full border border-hairline hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors focus:outline-none focus:ring-1 focus:ring-amberAccent">
+          Show more
+        </button>
+        <!-- Disclaim readout line -->
+        <p class="font-mono text-xs tracking-monoReadout uppercase text-textDim text-center max-w-2xl px-4">
+          Smart Fundis verifies only the tasks shown with ✓. Agree the price and the work directly with the fundi.
+        </p>
+      </div>
+
+    </section>
+
+
+    <!-- ==================== STATE FRAMES (A – D) ==================== -->
+    <div class="pt-16 border-t border-hairline space-y-16">
+      
+      <!-- Section metadata label -->
+      <div class="flex items-center justify-between font-mono text-xs tracking-monoReadout uppercase text-textDim">
+        <div class="flex items-center gap-2 text-amberAccent">
+          <span>●</span>
+          <span class="text-textSecondary">SYSTEM READOUT // SPECIFICATION STATE FRAMES (A – D)</span>
+        </div>
+        <span class="hidden sm:inline">STATE PREVIEWS</span>
+      </div>
+
+
+      <!-- ==================== STATE FRAME A: VERIFIED ONLY · AREA ==================== -->
+      <section class="space-y-6 bg-graphite border border-hairline/60 p-4 md:p-8 rounded-[4px]">
+        <!-- Frame caption -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-hairline/40 pb-3 font-mono text-xs tracking-monoReadout uppercase">
+          <span class="text-amberAccent">STATE FRAME A — 'VERIFIED ONLY · AREA'</span>
+          <span class="text-textDim">QUERY: /fundis?trade=Electrical&county=Kiambu&area=Ruiru&verified=1</span>
+        </div>
+
+        <!-- Filter panel representation with AREA="Ruiru" and Verified Only ON -->
+        <div class="bg-panel border border-hairline p-4 rounded-[4px] grid grid-cols-1 md:grid-cols-12 gap-3 items-center">
+          <div class="md:col-span-3">
+            <span class="block font-mono text-[11px] tracking-monoReadout uppercase text-textDim mb-1">TRADE</span>
+            <div class="h-10 px-3 bg-graphite border border-hairline text-textPrimary text-xs font-mono flex items-center rounded">Electrical</div>
+          </div>
+          <div class="md:col-span-3">
+            <span class="block font-mono text-[11px] tracking-monoReadout uppercase text-textDim mb-1">COUNTY</span>
+            <div class="h-10 px-3 bg-graphite border border-hairline text-textPrimary text-xs font-mono flex items-center rounded">Kiambu</div>
+          </div>
+          <div class="md:col-span-3">
+            <span class="block font-mono text-[11px] tracking-monoReadout uppercase text-textDim mb-1">AREA</span>
+            <div class="relative h-10 px-3 bg-graphite border border-hairline text-textPrimary text-xs font-mono flex items-center justify-between rounded">
+              <span>Ruiru</span>
+              <span class="text-textDim font-sans text-sm">×</span>
+            </div>
+          </div>
+          <div class="md:col-span-3 flex items-center gap-2 pt-4 md:pt-4">
+            <!-- Chip ON: #f2f4f7 fill, graphite label, filled square indicator, no checkmark -->
+            <div class="flex-1 h-10 rounded-full bg-textPrimary text-graphite text-xs font-mono tracking-monoReadout uppercase flex items-center justify-center gap-1.5 font-bold">
+              <span class="w-2 h-2 bg-graphite rounded-[1px]"></span>
+              <span>Verified only</span>
+            </div>
+            <!-- Pill -->
+            <div class="flex-1 h-10 rounded-full bg-amberAccent text-graphite text-xs font-mono font-bold tracking-monoReadout uppercase flex items-center justify-center">
+              Show fundis
+            </div>
+          </div>
+        </div>
+
+        <!-- Results header for Frame A -->
+        <div class="space-y-1 font-mono text-xs tracking-monoReadout uppercase">
+          <div class="flex justify-between items-center text-textSecondary">
+            <span>READOUT: <strong class="text-amberAccent">BEST MATCH FOR 'RUIRU'</strong></span>
+            <span class="text-textDim">ELECTRICAL · KIAMBU · RUIRU · VERIFIED ONLY</span>
+          </div>
+        </div>
+
+        <!-- Two cards only: Achieng Otieno and Kamau Mwangi -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <!-- Card 1 -->
+          <div class="bg-panel border border-hairline rounded-[4px] p-4 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="relative aspect-[4/3] w-full overflow-hidden bg-graphite rounded-[2px]">
+                <img src="https://lh3.googleusercontent.com/aida/AEtjO1XWWhm9uMGL0ZEcuOo832Mag6c1FdrRs1dce8IRXvIQXEh8Jd24C9R4ynUIOGXQA-SR5yX_9UV0TnEF3-fiLxnUIUX55Q-4-EwO3bhNiunsargmaHHIV7MUa0VcPp52hhqZEjHRqXan1WGZnCqbWr8WXlwqa0Z977PHkatCHHlOMndCP6K3L6BwsNnXCsCtaVtds8hAotdpClJORAgmn243Bt1nSnBDJZZBfY8ly-HJ6X7uNEbsNjE0HFE" alt="Achieng Otieno verification" class="w-full h-full object-cover grayscale brightness-95">
+                <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+                <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+                <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+                <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-textPrimary">Achieng Otieno</h3>
+                <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">KIAMBU · RUIRU</div>
+              </div>
+              <div class="flex items-center gap-2 text-sm text-textPrimary font-medium">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                  <polyline points="20 6 9 17 4 12" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <span>Electrical: Install a 13A socket</span>
+              </div>
+            </div>
+            <div class="mt-4 pt-2">
+              <div class="w-full h-10 rounded-full border border-hairline text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center">
+                View profile →
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div class="bg-panel border border-hairline rounded-[4px] p-4 flex flex-col justify-between">
+            <div class="space-y-3">
+              <div class="relative aspect-[4/3] w-full overflow-hidden bg-graphite rounded-[2px]">
+                <img src="https://lh3.googleusercontent.com/aida/AEtjO1XzhOb5nDc7fVuedilPKjGr5wsj9_QAvkfjzCE0n13m0A4D5HKBqEoOwuhs4iduca5uS8PiFDZlRbQk0hV0X1C94L4339RYTDGApILDNThmbJH_l6LIlPiAvFKG8U7iu7D3LsV-0mRJoR13O5jq-tr-B3MbU19tV_XrgAD90RpZkK7ZomwWL1Rhjsvh3YieqJ-Bn5rGRggPJrD2f2MIhTYKLXxm4oD-tVb3fJ2CZCHxBcYFqDeX-lXz7Uw" alt="Kamau Mwangi verification" class="w-full h-full object-cover grayscale brightness-95">
+                <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-hairlineBright"></span>
+                <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-hairlineBright"></span>
+                <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-hairlineBright"></span>
+                <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-hairlineBright"></span>
+              </div>
+              <div>
+                <h3 class="text-lg font-semibold text-textPrimary">Kamau Mwangi</h3>
+                <div class="font-mono text-xs tracking-monoReadout uppercase text-textDim">KIAMBU · THIKA</div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center gap-2 text-sm text-textPrimary font-medium">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none">
+                    <polyline points="20 6 9 17 4 12" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <span>Electrical: Install a 13A socket</span>
+                </div>
+                <div class="inline-flex items-center gap-1.5 h-7 px-2 border border-hairlineBright rounded-[4px] font-mono text-[10px] tracking-monoReadout uppercase text-textPrimary">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <path d="M3 8V5a2 2 0 0 1 2-2h3 M21 8V5a2 2 0 0 0-2-2h-3 M3 16v3a2 2 0 0 0 2 2h3 M21 16v3a2 2 0 0 1-2 2h-3"/>
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M7 12c1.5-2.5 3.5-3.5 5-3.5s3.5 1 5 3.5c-1.5 2.5-3.5 3.5-5 3.5s-3.5-1-5-3.5z"/>
+                  </svg>
+                  <span>EXPERT VERIFIER · ELECTRICAL</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-4 pt-2">
+              <div class="w-full h-10 rounded-full border border-hairline text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center">
+                View profile →
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== STATE FRAME B: EMPTY [FundisPage.empty] ==================== -->
+      <section class="space-y-6 bg-graphite border border-hairline/60 p-4 md:p-8 rounded-[4px]">
+        <!-- Frame caption -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-hairline/40 pb-3 font-mono text-xs tracking-monoReadout uppercase">
+          <span class="text-amberAccent">STATE FRAME B — 'EMPTY'</span>
+          <span class="text-textDim">QUERY: WELDING · KISUMU · NYALENDA · VERIFIED ONLY</span>
+        </div>
+
+        <!-- Evidence Frame Container (no warning triangle, no radar status line) -->
+        <div class="relative bg-panel border border-hairline rounded-[4px] p-4 md:p-8 space-y-6 max-w-4xl mx-auto">
+          <!-- Meta row: "EVIDENCE FRAME: EF-0404" left, dim mono "NO SIGNAL YET" right -->
+          <div class="flex items-center justify-between font-mono text-xs tracking-monoReadout uppercase border-b border-hairline pb-3">
+            <span class="text-textSecondary">EVIDENCE FRAME: EF-0404</span>
+            <span class="text-textDim">NO SIGNAL YET</span>
+          </div>
+
+          <!-- Desktop layout: 16:9 photo left or top; here structured cleanly -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <!-- 16:9 photo of empty workbench under hanging lamp, tools resting, no people -->
+            <div class="lg:col-span-7 relative aspect-[16/9] w-full overflow-hidden bg-graphite rounded-[2px] border border-hairline/50">
+              <img src="https://lh3.googleusercontent.com/aida/AEtjO1XwQifMvLBawg5GwDfI0DV4GDi-u6e_Z7q15bThMkajr-9h4efNIypO27UzspXVheXDxieTEeonJlWrVc1H6ELMQlC6d-_wBdfzrOp6Z5DeysOhUVXWIjw5CSn1QaNc1T0CEagzKB2c-wVN9HuW0DahpvXXTfgw3O3Q1Ve3y6dGqsBf1hfI-ACEFMqgPUORBlMoij3gOqDyNUoaa7VBHBhItuH07UObenLRI19H44rt5YT-FXyZYbnqXJo" alt="Empty craft workbench under overhead single bulb lamp" class="w-full h-full object-cover grayscale brightness-90">
+              <!-- Corner brackets -->
+              <span class="absolute top-2 left-2 w-2 h-2 border-t border-l border-amberAccent"></span>
+              <span class="absolute top-2 right-2 w-2 h-2 border-t border-r border-amberAccent"></span>
+              <span class="absolute bottom-2 left-2 w-2 h-2 border-b border-l border-amberAccent"></span>
+              <span class="absolute bottom-2 right-2 w-2 h-2 border-b border-r border-amberAccent"></span>
+            </div>
+
+            <!-- Text & Actions stack (5 cols desktop) -->
+            <div class="lg:col-span-5 space-y-5">
+              <div class="space-y-2">
+                <h3 class="text-2xl md:text-3xl font-semibold tracking-tight text-textPrimary">
+                  No fundis match yet.
+                </h3>
+                <p class="font-mono text-xs tracking-monoReadout uppercase text-textDim">
+                  Try a wider search.
+                </p>
+              </div>
+
+              <!-- Three secondary outlined pills (48px, stacked mobile, row/column desktop) -->
+              <div class="flex flex-col gap-2.5 pt-2">
+                <button type="button" class="w-full h-12 rounded-full border border-hairline hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+                  Clear area
+                </button>
+                <button type="button" class="w-full h-12 rounded-full border border-hairline hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+                  All Kenya
+                </button>
+                <button type="button" class="w-full h-12 rounded-full border border-hairline hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center transition-colors">
+                  Include not yet verified
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== STATE FRAME C: LOADING ==================== -->
+      <section class="space-y-6 bg-graphite border border-hairline/60 p-4 md:p-8 rounded-[4px]">
+        <!-- Frame caption -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-hairline/40 pb-3 font-mono text-xs tracking-monoReadout uppercase">
+          <span class="text-amberAccent">STATE FRAME C — 'LOADING'</span>
+          <span class="text-textDim">TELEMETRY STREAM CONNECTING</span>
+        </div>
+
+        <!-- 6 skeleton cards: panel blocks for cover, two hairline bars for text, slow grey shimmer (no amber) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <!-- Skeleton Card 1 -->
+          <div class="bg-panel border border-hairline rounded-[4px] p-4 space-y-4 skeleton-shimmer">
+            <div class="aspect-[4/3] w-full bg-hairline/60 rounded-[2px]"></div>
+            <div class="space-y-2 pt-1">
+              <div class="h-4 bg-hairline/70 rounded w-3/4"></div>
+              <div class="h-3 bg-hairline/40 rounded w-1/2"></div>
+            </div>
+            <div class="h-4 bg-hairline/50 rounded w-5/6 pt-2"></div>
+            <div class="h-12 bg-hairline/30 rounded-full w-full mt-4"></div>
+          </div>
+          <!-- Skeleton Card 2 -->
+          <div class="bg-panel border border-hairline rounded-[4px] p-4 space-y-4 skeleton-shimmer">
+            <div class="aspect-[4/3] w-full bg-hairline/60 rounded-[2px]"></div>
+            <div class="space-y-2 pt-1">
+              <div class="h-4 bg-hairline/70 rounded w-2/3"></div>
+              <div class="h-3 bg-hairline/40 rounded w-1/2"></div>
+            </div>
+            <div class="h-4 bg-hairline/50 rounded w-4/5 pt-2"></div>
+            <div class="h-12 bg-hairline/30 rounded-full w-full mt-4"></div>
+          </div>
+          <!-- Skeleton Card 3 -->
+          <div class="bg-panel border border-hairline rounded-[4px] p-4 space-y-4 skeleton-shimmer">
+            <div class="aspect-[4/3] w-full bg-hairline/60 rounded-[2px]"></div>
+            <div class="space-y-2 pt-1">
+              <div class="h-4 bg-hairline/70 rounded w-3/4"></div>
+              <div class="h-3 bg-hairline/40 rounded w-2/5"></div>
+            </div>
+            <div class="h-4 bg-hairline/50 rounded w-2/3 pt-2"></div>
+            <div class="h-12 bg-hairline/30 rounded-full w-full mt-4"></div>
+          </div>
+        </div>
+
+        <!-- Loading button representation -->
+        <div class="flex justify-center pt-2">
+          <div class="w-full md:w-60 h-12 rounded-full border border-hairline text-textDim font-mono text-xs tracking-monoReadout uppercase flex items-center justify-center">
+            Loading…
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== STATE FRAME D: ERROR ==================== -->
+      <section class="space-y-6 bg-graphite border border-hairline/60 p-4 md:p-8 rounded-[4px]">
+        <!-- Frame caption -->
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-hairline/40 pb-3 font-mono text-xs tracking-monoReadout uppercase">
+          <span class="text-amberAccent">STATE FRAME D — 'ERROR'</span>
+          <span class="text-textDim">CONNECTION FAULT</span>
+        </div>
+
+        <!-- Bordered readout panel (no red colour used) -->
+        <div class="max-w-xl mx-auto bg-panel border border-hairline rounded-[4px] p-8 text-center space-y-5">
+          <span class="inline-block font-mono text-xs tracking-monoReadout uppercase px-2.5 py-1 border border-hairline text-textDim rounded-[2px]">
+            COULDN'T LOAD
+          </span>
+          <p class="text-textSecondary text-sm md:text-base font-normal max-w-md mx-auto">
+            We couldn't load fundis. Check your connection and try again.
+          </p>
+          <div class="pt-2 flex justify-center">
+            <button type="button" class="h-12 px-8 rounded-full border border-hairline hover:border-hairlineBright text-textPrimary font-mono text-xs tracking-monoReadout uppercase transition-colors">
+              Try again
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+
+  <!-- ==================== COMPACT INSTRUMENT FOOTER ==================== -->
+  <footer class="w-full border-t border-hairline bg-graphite pt-12 pb-8 mt-20">
+    <div class="max-w-7xl mx-auto px-4 md:px-8 lg:px-12 space-y-12">
+      
+      <!-- 4 Link Columns (2x2 on mobile, 4 columns on desktop) -->
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
+        
+        <!-- Column 1: FOR FUNDIS -->
+        <div class="space-y-3">
+          <div class="font-mono text-xs font-bold tracking-monoReadout uppercase text-amberAccent">
+            FOR FUNDIS
+          </div>
+          <ul class="space-y-1 text-sm text-textSecondary">
+            <li><a href="#join" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Join as a fundi</a></li>
+            <li><a href="#works" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">How verification works</a></li>
+            <li><a href="#privacy" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Your privacy</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 2: FOR CLIENTS -->
+        <div class="space-y-3">
+          <div class="font-mono text-xs font-bold tracking-monoReadout uppercase text-amberAccent">
+            FOR CLIENTS
+          </div>
+          <ul class="space-y-1 text-sm text-textSecondary">
+            <!-- Current Page: white with amber underline -->
+            <li>
+              <a href="/fundis" class="block min-h-[44px] flex items-center text-textPrimary font-medium border-b border-amberAccent inline-block pb-0.5">
+                Find a fundi
+              </a>
+            </li>
+            <li><a href="#verified-means" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">What 'verified' means</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 3: FOR EXPERTS -->
+        <div class="space-y-3">
+          <div class="font-mono text-xs font-bold tracking-monoReadout uppercase text-amberAccent">
+            FOR EXPERTS
+          </div>
+          <ul class="space-y-1 text-sm text-textSecondary">
+            <li><a href="#expert-apply" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Become a verifier</a></li>
+          </ul>
+        </div>
+
+        <!-- Column 4: COMPANY -->
+        <div class="space-y-3">
+          <div class="font-mono text-xs font-bold tracking-monoReadout uppercase text-amberAccent">
+            COMPANY
+          </div>
+          <ul class="space-y-1 text-sm text-textSecondary">
+            <li><a href="#about" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">About</a></li>
+            <li><a href="#contact" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Contact us</a></li>
+            <li><a href="#pricing" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Pricing</a></li>
+            <li><a href="#ai" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Responsible AI</a></li>
+            <li><a href="#roadmap" class="block min-h-[44px] flex items-center hover:text-textPrimary transition-colors">Roadmap</a></li>
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- Bottom Line: Statutory Accreditation & Support Email -->
+      <div class="pt-6 border-t border-hairline/60 flex flex-col sm:flex-row sm:items-center justify-between gap-3 font-mono text-xs tracking-monoReadout uppercase text-textDim">
+        <div>
+          © 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify.
+        </div>
+        <div>
+          Email: <a href="mailto:info@smartfundis.com" class="text-textSecondary hover:text-textPrimary transition-colors">info@smartfundis.com</a>
+        </div>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>
