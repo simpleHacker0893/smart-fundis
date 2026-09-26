@@ -58,7 +58,7 @@ export function RecordStep({
   const [inputsKey, setInputsKey] = useState(0);
   const [upload, setUpload] = useState<Upload>({ kind: "idle" });
 
-  const consentGiven = consent && (!task.clientOnCamera || clientConsent);
+  const consentGiven = consent && (!task.needsClientConsent || clientConsent);
   const busy = upload.kind === "uploading" || upload.kind === "saving";
   const canUpload = consentGiven && file !== null && liveness.code !== null && !busy;
 
@@ -84,7 +84,7 @@ export function RecordStep({
         taskSlug: task.slug,
         consentVersion: CONSENT_VERSION,
         livenessCode,
-        ...(task.clientOnCamera ? { clientConsent: true } : {}),
+        ...(task.needsClientConsent ? { clientConsent: true } : {}),
       });
       if (result.ok) {
         onDone();
@@ -213,7 +213,7 @@ export function RecordStep({
           />
           <span>{t("consent.agree")}</span>
         </label>
-        {task.clientOnCamera ? (
+        {task.needsClientConsent ? (
           <>
             <label className={TICK}>
               <input

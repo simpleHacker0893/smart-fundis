@@ -22,7 +22,7 @@ const PICKER = [
         slug: "13a-socket",
         name: "Install a 13A socket",
         rubricVersion: 1,
-        clientOnCamera: false,
+        needsClientConsent: false,
         items: [
           { id: "isolate", text: "server isolate", safety: true },
           { id: "faceplate", text: "server faceplate", safety: false },
@@ -39,7 +39,7 @@ const PICKER = [
         slug: "cornrows",
         name: "Cornrows",
         rubricVersion: 1,
-        clientOnCamera: true,
+        needsClientConsent: true,
         items: [{ id: "prep", text: "server prep", safety: false }],
       },
     ],
