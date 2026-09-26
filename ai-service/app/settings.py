@@ -18,10 +18,11 @@ from __future__ import annotations
 import os
 from functools import lru_cache
 from pathlib import Path
-from typing import Literal
+from typing import Any, Literal
 
 from dotenv import dotenv_values
-from pydantic import BaseModel, ConfigDict, SecretStr
+from pydantic import BaseModel, ConfigDict, SecretStr, field_validator
+from pydantic_core import PydanticUseDefault
 
 # PRD section 4.3 serves these two. The Nemotron model id has no default:
 # #9 picks it from build.nvidia.com and sets NEMOTRON_MODEL.
@@ -56,6 +57,22 @@ class Settings(BaseModel):
     redis_url: str | None = None
     queue_mode: Literal["inline", "celery"] = "inline"
 
+    @field_validator("*", mode="before")
+    @classmethod
+    def _blank_is_unset(cls, value: Any) -> Any:
+        """Trim values; a blank or whitespace-only value means "use the default"."""
+        if isinstance(value, SecretStr):
+            trimmed = value.get_secret_value().strip()
+            if not trimmed:
+                raise PydanticUseDefault
+            return SecretStr(trimmed)
+        if isinstance(value, str):
+            trimmed = value.strip()
+            if not trimmed:
+                raise PydanticUseDefault
+            return trimmed
+        return value
+
 
 _FIELDS = tuple(Settings.model_fields)
 
@@ -64,15 +81,17 @@ def load_settings(env_file: Path = REPO_ROOT_ENV) -> Settings:
     """Build settings from ``env_file`` overlaid by the process environment.
 
     Unlike ``load_dotenv``, this does not write the file into ``os.environ``.
-    Empty values count as unset.
+    Blank or whitespace-only values count as unset, so a blank env var falls
+    through to the file, and a blank file value falls through to the default.
     """
     file_values = dotenv_values(env_file) if env_file.is_file() else {}
     values: dict[str, str] = {}
     for field in _FIELDS:
         name = field.upper()
-        value = os.environ.get(name) or file_values.get(name)
-        if value:
-            values[field] = value
+        for candidate in (os.environ.get(name), file_values.get(name)):
+            if candidate and candidate.strip():
+                values[field] = candidate.strip()
+                break
     return Settings(**values)
 
 
