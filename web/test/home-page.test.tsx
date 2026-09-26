@@ -165,9 +165,14 @@ describe("messages", () => {
   });
 
   it("never claims encryption, statistics or live status that isn't real", () => {
+    // The one allowed percentage is the planned booking commission (PRD §10),
+    // shown on /pricing tagged "Planned · may change" (#30). It is a price, not a statistic.
+    const plannedCommission = en.Pricing.planned.items.bookings.price;
     for (const s of leafStrings(en)) {
+      if (s === plannedCommission) continue;
       expect(s).not.toMatch(/encrypt|cryptograph|zero latency|100%|\d+(\.\d+)?%|live inspect|jury/i);
     }
+    expect(plannedCommission).toBe("2.5% + 2.5% commission on each booking");
   });
 
   it("ships English only: no sw.json yet", () => {
