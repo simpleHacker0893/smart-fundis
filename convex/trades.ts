@@ -1,14 +1,14 @@
 import { v } from "convex/values";
 import { query } from "./_generated/server";
 import { requireUser } from "./lib/auth";
-import { tradeOrder } from "./lib/trades";
+import { tradeOrder } from "./lib/tradeCatalogue";
 import { tradeCategoryValidator } from "./lib/validators";
 
 /** Far above the 62 catalogue Trades; keeps the read bounded. */
 const MAX_TRADES = 200;
 
 /**
- * The Trades for the onboarding picker, in catalogue order (TRADE_CATALOGUE).
+ * The Trades for the onboarding picker, in catalogue order (lib/tradeCatalogue.ts).
  * A Trade that is not in the catalogue comes after them, by slug.
  * `category` lets the web group the picker by category. `verifyNow` is true
  * when the Trade has an active Rubric (spec §5 derived values).

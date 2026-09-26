@@ -3,7 +3,9 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import schema from "./schema";
-import { TRADE_CATALOGUE, TRADE_LICENCE, TRADE_SLUGS } from "./lib/trades";
+import * as tradeCatalogue from "./lib/tradeCatalogue";
+import { TRADE_LICENCE, TRADE_SLUGS } from "./lib/tradeCatalogue";
+import { TRADE_CATALOGUE, TRADE_TASKS } from "./lib/trades";
 import { modules } from "./test.setup";
 
 const ANYANGO = {
@@ -336,5 +338,38 @@ describe("seed.expert (dev only, spec #36 decision 5)", () => {
       t.mutation(internal.seed.expert, { email: "nobody@example.com" }),
     ).rejects.toThrowError(/users\.store|no user/i);
     expect(await experts(t)).toHaveLength(0);
+  });
+});
+
+// The web bundles lib/tradeCatalogue.ts (TRADE_LICENCE) and lib/fundiProfile.ts
+// (the form rules), so neither may carry a Task or any Rubric item text (#37).
+describe("the Rubric-free catalogue (lib/tradeCatalogue)", () => {
+  const sources = import.meta.glob<string>(["./lib/tradeCatalogue.ts", "./lib/fundiProfile.ts"], {
+    query: "?raw",
+    import: "default",
+    eager: true,
+  });
+  const rubricTexts = Object.values(TRADE_TASKS).flatMap((task) => [
+    task.slug,
+    task.name,
+    ...task.items.flatMap((item) => [item.id, item.text]),
+  ]);
+
+  it("exports no Task and no Rubric item text", () => {
+    const exported = JSON.stringify(tradeCatalogue);
+    expect(exported).not.toMatch(/"(task|items|text)":/);
+    for (const text of rubricTexts) expect(exported, text).not.toContain(JSON.stringify(text));
+    for (const row of tradeCatalogue.TRADE_ROWS) expect(Object.keys(row).sort()).toEqual(
+      ["category", "name", "slug", ...(row.licence === undefined ? [] : ["licence"])].sort(),
+    );
+  });
+
+  it("is what lib/fundiProfile.ts imports, never lib/trades.ts", () => {
+    expect(Object.keys(sources)).toHaveLength(2);
+    for (const [path, source] of Object.entries(sources)) {
+      expect(source, path).not.toMatch(/from\s+["']\.\/trades["']/);
+      for (const text of rubricTexts.filter((t) => t.length > 20)) expect(source, path).not.toContain(text);
+    }
+    expect(sources["./lib/fundiProfile.ts"]).toMatch(/from\s+["']\.\/tradeCatalogue["']/);
   });
 });

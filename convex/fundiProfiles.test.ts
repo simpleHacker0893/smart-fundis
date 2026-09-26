@@ -4,7 +4,8 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
 import schema from "./schema";
 import { canonicalCounty, KENYAN_COUNTIES } from "./lib/counties";
-import { TRADE_CATALOGUE, TRADE_SLUGS } from "./lib/trades";
+import { TRADE_SLUGS } from "./lib/tradeCatalogue";
+import { TRADE_CATALOGUE } from "./lib/trades";
 import { modules } from "./test.setup";
 
 // The minimal onboarding form (#37, spec #36 decision 2; US-2.3 minimal, US-2.7).
@@ -126,6 +127,8 @@ describe("fundiProfiles.create", () => {
     ["only blank Trades", { tradeSlugs: ["  "] }, { tradeSlugs: "required" }],
     ["an unknown Trade", { tradeSlugs: ["electrical", "boat-building"] }, { tradeSlugs: "unknown" }],
     ["more distinct Trades than the catalogue has", { tradeSlugs: Array.from({ length: TRADE_SLUGS.length + 1 }, (_, i) => `t${i}`) }, { tradeSlugs: "unknown" }],
+    ["more than rawMax (200) raw Trade entries", { tradeSlugs: Array.from({ length: 201 }, () => "electrical") }, { tradeSlugs: "unknown" }],
+    ["a Trade slug longer than rawMax (200) characters", { tradeSlugs: ["electrical", "e".repeat(201)] }, { tradeSlugs: "unknown" }],
     ["a county that is not one of the 47", { county: "Atlantis" }, { county: "unknown" }],
     ["a phone that is not a Kenyan mobile", { phone: "12345" }, { phone: "invalid" }],
     ["a blank name", { name: "   " }, { name: "required" }],
