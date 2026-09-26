@@ -141,7 +141,8 @@ export default defineSchema({
     // A Fundi's own Assessments, optionally narrowed by status (eq on
     // fundiUserId alone still works as a prefix).
     .index("by_fundiUserId_and_status", ["fundiUserId", "status"])
-    // assessments.listMine: a Fundi's own Assessments, newest first.
+    // assessments.listMine: a Fundi's own Assessments, newest first. The
+    // status index above orders by status before _creationTime, so it cannot.
     .index("by_fundiUserId", ["fundiUserId"])
     // assessments.create: a stored video already recorded on an Assessment is
     // never reused, and never deleted by a rejected upload.

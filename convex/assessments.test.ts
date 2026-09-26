@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import schema from "./schema";
+import { checkVideoFile, pickLivenessCode } from "./lib/assessmentUpload";
 import { modules } from "./test.setup";
 
 // The upload flow (#38): US-3.2, 3.4, 3.7, 3.9, 3.1/4.1.
@@ -381,5 +382,123 @@ describe("assessments.create", () => {
       const row = await t.run((ctx) => ctx.db.get("assessments", result.assessmentId));
       expect(row?.previousAssessmentId).toBe(previous._id);
     }
+  });
+});
+
+/** Uploads one valid video for the identity (already a Fundi) and returns the Assessment id. */
+async function upload(identity: typeof WANJIRU, task: typeof SOCKET | typeof CORNROWS = SOCKET) {
+  const as = t.withIdentity(identity);
+  const livenessCode = await as.mutation(api.assessments.newLivenessCode, {});
+  const result = await as.mutation(api.assessments.create, {
+    ...task,
+    storageId: await storeVideo(),
+    livenessCode,
+    ...(task === CORNROWS ? { clientConsent: true } : {}),
+  });
+  if (!result.ok) throw new Error(`upload failed: ${result.code}`);
+  return result.assessmentId;
+}
+
+describe("assessments.listMine", () => {
+  it("lists only the caller's Assessments, newest first, with names and no video", async () => {
+    await makeFundi(WANJIRU, ["electrical", "hairdressing"]);
+    await makeFundi(OTIENO);
+    const first = await upload(WANJIRU);
+    await upload(OTIENO);
+    const second = await upload(WANJIRU, CORNROWS);
+
+    const mine = await t.withIdentity(WANJIRU).query(api.assessments.listMine, {});
+    expect(mine.map((a) => a._id)).toEqual([second, first]);
+    expect(mine[0]).toMatchObject({
+      status: "queued",
+      tradeSlug: "hairdressing",
+      tradeName: "Hairdressing",
+      taskSlug: "cornrows",
+      taskName: "Cornrows",
+    });
+    expect(mine[1]).toMatchObject({ tradeName: "Electrical", taskName: "Install a 13A socket" });
+    // List queries never carry the video (spec §7).
+    for (const row of mine) {
+      expect(row).not.toHaveProperty("videoUrl");
+      expect(row).not.toHaveProperty("videoStorageId");
+    }
+  });
+
+  it("reflects a status change, so the status chip updates without a refresh (US-3.1, US-4.1)", async () => {
+    await makeFundi(WANJIRU);
+    const id = await upload(WANJIRU);
+    const as = t.withIdentity(WANJIRU);
+    expect((await as.query(api.assessments.listMine, {}))[0].status).toBe("queued");
+
+    await t.run((ctx) => ctx.db.patch("assessments", id, { status: "analyzing", attempts: 1 }));
+    expect((await as.query(api.assessments.listMine, {}))[0].status).toBe("analyzing");
+
+    const reshootReason = { code: "too_dark" as const, en: "The video is too dark.", sw: "" };
+    await t.run((ctx) => ctx.db.patch("assessments", id, { status: "reshoot", reshootReason }));
+    expect((await as.query(api.assessments.listMine, {}))[0]).toMatchObject({
+      status: "reshoot",
+      reshootReason,
+    });
+  });
+
+  it("refuses a signed-out caller and a User who is not a Fundi", async () => {
+    await expect(t.query(api.assessments.listMine, {})).rejects.toThrowError(/not authenticated/i);
+    await t.withIdentity(OTIENO).mutation(api.users.store, {});
+    await expect(t.withIdentity(OTIENO).query(api.assessments.listMine, {})).rejects.toThrowError(
+      /fundi profile is required/i,
+    );
+  });
+});
+
+describe("assessments.get", () => {
+  it("returns the owner's Assessment with its video URL", async () => {
+    await makeFundi(WANJIRU);
+    const id = await upload(WANJIRU);
+    const detail = await t.withIdentity(WANJIRU).query(api.assessments.get, { assessmentId: id });
+    expect(detail).toMatchObject({
+      _id: id,
+      status: "queued",
+      tradeName: "Electrical",
+      taskName: "Install a 13A socket",
+      consentVersion: "consent-v1",
+    });
+    expect(detail?.livenessCode).toMatch(/^[0-9]{3}$/);
+    expect(detail?.videoUrl).toMatch(/^https:\/\//);
+  });
+
+  it("returns a null video URL once the video is deleted", async () => {
+    await makeFundi(WANJIRU);
+    const id = await upload(WANJIRU);
+    await t.run(async (ctx) => {
+      const row = await ctx.db.get("assessments", id);
+      if (row?.videoStorageId) await ctx.storage.delete(row.videoStorageId);
+      await ctx.db.patch("assessments", id, { videoStorageId: undefined, videoDeletedAt: Date.now() });
+    });
+    const detail = await t.withIdentity(WANJIRU).query(api.assessments.get, { assessmentId: id });
+    expect(detail?.videoUrl).toBeNull();
+  });
+
+  it("shows another Fundi nothing, and refuses a signed-out caller", async () => {
+    await makeFundi(WANJIRU);
+    await makeFundi(OTIENO);
+    const id = await upload(WANJIRU);
+    expect(await t.withIdentity(OTIENO).query(api.assessments.get, { assessmentId: id })).toBeNull();
+    await expect(t.query(api.assessments.get, { assessmentId: id })).rejects.toThrowError(
+      /not authenticated/i,
+    );
+  });
+});
+
+describe("lib/assessmentUpload", () => {
+  it("steps past excluded Liveness codes and pads to 3 digits", () => {
+    expect(pickLivenessCode([], () => 0.007)).toBe("007");
+    expect(pickLivenessCode(["007", "008"], () => 0.007)).toBe("009");
+    expect(pickLivenessCode(["999"], () => 0.9999)).toBe("000");
+  });
+
+  it("accepts video/* only, whatever the case", () => {
+    expect(checkVideoFile({ size: 1, contentType: "Video/MP4" })).toBeNull();
+    expect(checkVideoFile({ size: 1, contentType: "video/" })).toBe("wrong_type");
+    expect(checkVideoFile({ size: 1, contentType: "application/octet-stream" })).toBe("wrong_type");
   });
 });

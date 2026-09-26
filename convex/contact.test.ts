@@ -261,7 +261,7 @@ describe("no read path for contact messages", () => {
 
   // An allow-list, so a new public reader is a deliberate change here. None of
   // these reads contactMessages (the source check below proves that).
-  it("the only public queries or actions are users.me and trades.list", async () => {
+  it("the only public queries or actions are the allow-listed readers", async () => {
     const readers: string[] = [];
     for (const [path, load] of Object.entries(modules)) {
       // Skip generated code, tests and config (auth.config.ts needs deployment env).
@@ -271,7 +271,15 @@ describe("no read path for contact messages", () => {
         if (fn?.isPublic && (fn.isQuery || fn.isAction)) readers.push(`${path}:${name}`);
       }
     }
-    expect(readers.sort()).toEqual(["./trades.ts:list", "./users.ts:me"]);
+    expect(readers.sort()).toEqual([
+      "./assessments.ts:currentLivenessCode",
+      "./assessments.ts:get",
+      "./assessments.ts:listMine",
+      "./fundiProfiles.ts:mine",
+      "./trades.ts:list",
+      "./trades.ts:uploadPicker",
+      "./users.ts:me",
+    ]);
   });
 
   it("no other Convex module touches contactMessages", () => {

@@ -217,3 +217,82 @@ describe("KENYAN_COUNTIES", () => {
     expect(canonicalCounty("")).toBeNull();
   });
 });
+
+const KIPTOO = {
+  tokenIdentifier: "https://clerk.example|user_kiptoo",
+  subject: "user_kiptoo",
+  issuer: "https://clerk.example",
+  email: "kiptoo@example.com",
+  emailVerified: true,
+  name: "Kiptoo Rono",
+};
+
+describe("fundiProfiles.mine", () => {
+  it("returns the Fundi's name, county and Trades in the order they were picked", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    await t
+      .withIdentity(WANJIRU)
+      .mutation(api.fundiProfiles.create, { ...VALID, tradeSlugs: ["plumbing", "electrical"] });
+
+    expect(await t.withIdentity(WANJIRU).query(api.fundiProfiles.mine, {})).toEqual({
+      name: "Wanjiru Kamau",
+      county: "Nairobi",
+      trades: [
+        { slug: "plumbing", name: "Plumbing", verifyNow: false },
+        { slug: "electrical", name: "Electrical", verifyNow: true },
+      ],
+    });
+  });
+
+  it("refuses a signed-out caller and a User who is not a Fundi", async () => {
+    await expect(t.query(api.fundiProfiles.mine, {})).rejects.toThrowError(/not authenticated/i);
+    await t.withIdentity(KIPTOO).mutation(api.users.store, {});
+    await expect(t.withIdentity(KIPTOO).query(api.fundiProfiles.mine, {})).rejects.toThrowError(
+      /fundi profile is required/i,
+    );
+  });
+});
+
+describe("trades.uploadPicker", () => {
+  it("lists only Verify-now Trades, each with its Task, Rubric checklist and client tick rule (US-3.2)", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    await t
+      .withIdentity(WANJIRU)
+      .mutation(api.fundiProfiles.create, { ...VALID, tradeSlugs: ["hairdressing", "plumbing"] });
+
+    const picker = await t.withIdentity(WANJIRU).query(api.trades.uploadPicker, {});
+    expect(picker.map((trade) => trade.slug)).toEqual(["electrical", "hairdressing"]);
+
+    const [electrical, hairdressing] = picker;
+    expect(electrical).toMatchObject({ name: "Electrical", onProfile: false });
+    expect(hairdressing).toMatchObject({ name: "Hairdressing", onProfile: true });
+
+    const socket = TRADE_CATALOGUE.find((trade) => trade.slug === "electrical")?.task;
+    expect(electrical.tasks).toEqual([
+      {
+        slug: "13a-socket",
+        name: "Install a 13A socket",
+        rubricVersion: 1,
+        clientOnCamera: false,
+        items: socket?.items,
+      },
+    ]);
+    expect(hairdressing.tasks).toMatchObject([{ slug: "cornrows", clientOnCamera: true }]);
+    expect(hairdressing.tasks[0].items.map((item) => item.id)).toEqual([
+      "prep",
+      "tool_hygiene",
+      "parting",
+      "tension",
+      "even_braids",
+      "neat_ends",
+    ]);
+  });
+
+  it("refuses a signed-out caller and a User who is not a Fundi", async () => {
+    await expect(t.query(api.trades.uploadPicker, {})).rejects.toThrowError(/not authenticated/i);
+    await t.withIdentity(KIPTOO).mutation(api.users.store, {});
+    await expect(t.withIdentity(KIPTOO).query(api.trades.uploadPicker, {})).rejects.toThrowError(
+      /fundi profile is required/i,
+    );
+  });
+});

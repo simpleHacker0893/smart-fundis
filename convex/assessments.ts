@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { mutation, query, type MutationCtx, type QueryCtx } from "./_generated/server";
-import { checkFundi, requireFundi } from "./lib/auth";
+import { checkFundi, requireFundi, requireStoredUser } from "./lib/auth";
 import {
   CONSENT_VERSION,
   checkVideoFile,
@@ -11,6 +11,7 @@ import {
   uploadRejectionValidator,
 } from "./lib/assessmentUpload";
 import { taskNeedsClientConsent } from "./lib/trades";
+import { assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
 
 // The Fundi's upload flow (#38). Architecture spec §5 (status table: (new) ->
 // queued) and §7 (consent, video access).
@@ -245,5 +246,130 @@ export const create = mutation({
     });
     await ctx.db.delete("livenessCodes", checked.pending._id);
     return { ok: true as const, assessmentId };
+  },
+});
+
+/** Far above what one Fundi records in the MVP; keeps listMine bounded. */
+const LIST_MINE_LIMIT = 100;
+
+/** The Trade and Task names of an Assessment (English; the web translates by slug). */
+type Names = { tradeSlug: string; tradeName: string; taskSlug: string; taskName: string };
+
+/** Looks up names once per Trade and Rubric, however many Assessments share them. */
+function nameLookup(ctx: QueryCtx) {
+  const trades = new Map<string, Promise<string>>();
+  const rubrics = new Map<Id<"rubrics">, Promise<{ taskSlug: string; taskName: string }>>();
+  return async (row: Doc<"assessments">): Promise<Names> => {
+    let tradeName = trades.get(row.tradeSlug);
+    if (tradeName === undefined) {
+      tradeName = ctx.db
+        .query("trades")
+        .withIndex("by_slug", (q) => q.eq("slug", row.tradeSlug))
+        .unique()
+        .then((trade) => trade?.name ?? row.tradeSlug);
+      trades.set(row.tradeSlug, tradeName);
+    }
+    let task = rubrics.get(row.rubricId);
+    if (task === undefined) {
+      task = ctx.db
+        .get("rubrics", row.rubricId)
+        .then((rubric) => ({ taskSlug: rubric?.taskSlug ?? "", taskName: rubric?.taskName ?? "" }));
+      rubrics.set(row.rubricId, task);
+    }
+    return { tradeSlug: row.tradeSlug, tradeName: await tradeName, ...(await task) };
+  };
+}
+
+const namesFields = {
+  tradeSlug: v.string(),
+  tradeName: v.string(),
+  taskSlug: v.string(),
+  taskName: v.string(),
+};
+
+const listItemValidator = v.object({
+  _id: v.id("assessments"),
+  _creationTime: v.number(),
+  status: assessmentStatusValidator,
+  ...namesFields,
+  reshootReason: v.optional(reshootReasonValidator),
+  previousAssessmentId: v.optional(v.id("assessments")),
+});
+
+/**
+ * The caller's Assessments, newest first (at most 100), for the live status
+ * chip (US-3.1, US-4.1): a Convex query, so the chip updates without a
+ * refresh. Never returns the video (spec §7). Guard: requireFundi.
+ */
+export const listMine = query({
+  args: {},
+  returns: v.array(listItemValidator),
+  handler: async (ctx) => {
+    const { user } = await requireFundi(ctx);
+    const rows = await ctx.db
+      .query("assessments")
+      .withIndex("by_fundiUserId", (q) => q.eq("fundiUserId", user._id))
+      .order("desc")
+      .take(LIST_MINE_LIMIT);
+    const names = nameLookup(ctx);
+    return await Promise.all(
+      rows.map(async (row) => ({
+        _id: row._id,
+        _creationTime: row._creationTime,
+        status: row.status,
+        ...(await names(row)),
+        ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
+        ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
+      })),
+    );
+  },
+});
+
+/**
+ * One Assessment for its owning Fundi, with the video URL (spec §7: only the
+ * single-Assessment detail query and /ai/claim return getUrl). `videoUrl` is
+ * null once the video is deleted. Returns null when the Assessment does not
+ * exist or is not the caller's, so its existence does not leak. The Expert
+ * and Admin cases come with #41 (canDecide).
+ * Guard: requireStoredUser, then ownership (only a Fundi owns Assessments).
+ */
+export const get = query({
+  args: { assessmentId: v.id("assessments") },
+  returns: v.union(
+    v.object({
+      _id: v.id("assessments"),
+      _creationTime: v.number(),
+      status: assessmentStatusValidator,
+      ...namesFields,
+      livenessCode: v.string(),
+      consentVersion: v.string(),
+      consentAt: v.number(),
+      clientConsent: v.optional(v.boolean()),
+      reshootReason: v.optional(reshootReasonValidator),
+      previousAssessmentId: v.optional(v.id("assessments")),
+      videoUrl: v.union(v.string(), v.null()),
+      videoDeletedAt: v.optional(v.number()),
+    }),
+    v.null(),
+  ),
+  handler: async (ctx, args) => {
+    const { user } = await requireStoredUser(ctx);
+    const row = await ctx.db.get("assessments", args.assessmentId);
+    if (row === null || row.fundiUserId !== user._id) return null;
+    const videoUrl = row.videoStorageId === undefined ? null : await ctx.storage.getUrl(row.videoStorageId);
+    return {
+      _id: row._id,
+      _creationTime: row._creationTime,
+      status: row.status,
+      ...(await nameLookup(ctx)(row)),
+      livenessCode: row.livenessCode,
+      consentVersion: row.consentVersion,
+      consentAt: row.consentAt,
+      ...(row.clientConsent !== undefined ? { clientConsent: row.clientConsent } : {}),
+      ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
+      ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
+      videoUrl,
+      ...(row.videoDeletedAt !== undefined ? { videoDeletedAt: row.videoDeletedAt } : {}),
+    };
   },
 });
