@@ -85,6 +85,39 @@ def test_configure_defaults_the_project_without_overriding(
     assert tracing.os.environ["LANGSMITH_PROJECT"] == "other"
 
 
+def test_configure_loads_only_langsmith_names_from_the_file(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    for name in ("NVIDIA_API_KEY", "AI_SHARED_SECRET", "LANGSMITH_PROJECT", "LANGSMITH_TRACING"):
+        monkeypatch.delenv(name, raising=False)
+    env = tmp_path / ".env"
+    env.write_text(
+        "NVIDIA_API_KEY=nvapi-from-file-must-stay-out\n"
+        "AI_SHARED_SECRET=shared-from-file\n"
+        "LANGSMITH_PROJECT=from-file-project\n"
+        "LANGSMITH_TRACING=false\n"
+    )
+
+    tracing.configure_tracing(env)
+
+    assert "NVIDIA_API_KEY" not in tracing.os.environ
+    assert "AI_SHARED_SECRET" not in tracing.os.environ
+    assert tracing.os.environ["LANGSMITH_PROJECT"] == "from-file-project"
+    assert tracing.os.environ["LANGSMITH_TRACING"] == "false"
+
+
+def test_configure_never_overrides_langsmith_values_already_set(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("LANGSMITH_PROJECT", "from-brev-env")
+    env = tmp_path / ".env"
+    env.write_text("LANGSMITH_PROJECT=from-file\n")
+
+    tracing.configure_tracing(env)
+
+    assert tracing.os.environ["LANGSMITH_PROJECT"] == "from-brev-env"
+
+
 def test_decorating_does_not_build_the_client_before_env_is_loaded() -> None:
     # The client reads LANGSMITH_API_KEY when it is built, so building it at
     # import time (before configure_tracing) would send traces with no key.

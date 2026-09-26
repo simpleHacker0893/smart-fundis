@@ -1,0 +1,842 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Fundis — Trades (Responsive Web App)</title>
+<!-- Tailwind CSS v3 with forms and container queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              DEFAULT: '#050609',
+              panel: '#0B0D12',
+              card: '#0f1118'
+            },
+            white: {
+              DEFAULT: '#f2f4f7',
+              dim: 'rgba(242, 244, 247, 0.55)',
+              faint: 'rgba(242, 244, 247, 0.10)'
+            },
+            amber: {
+              DEFAULT: '#ef9a57',
+              muted: 'rgba(239, 154, 87, 0.15)'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          },
+          borderRadius: {
+            DEFAULT: '4px',
+            'sm': '4px',
+            'md': '4px',
+            'lg': '4px',
+            'xl': '4px',
+            '2xl': '4px',
+            'pill': '9999px'
+          },
+          letterSpacing: {
+            tighter: '-0.03em',
+            techno: '0.26em'
+          }
+        }
+      }
+    };
+  </script>
+<!-- Base and Micro-interactions Styles -->
+<style data-purpose="custom-layout-and-scanline">
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* Subtle Technical Grid Background */
+    .bg-grid-pattern {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+    }
+
+    /* Scanline Sweeper Effect on Imagery */
+    .scanline-box {
+      position: relative;
+      overflow: hidden;
+    }
+    .scanline-box::after {
+      content: "";
+      position: absolute;
+      top: -100%;
+      left: 0;
+      right: 0;
+      height: 100%;
+      background: linear-gradient(
+        to bottom,
+        transparent 0%,
+        rgba(239, 154, 87, 0.08) 50%,
+        transparent 100%
+      );
+      pointer-events: none;
+      animation: scanSweep 6s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+
+    @keyframes scanSweep {
+      0% { transform: translateY(0); }
+      40% { transform: translateY(200%); }
+      100% { transform: translateY(200%); }
+    }
+
+    /* Reticle Corner Brackets Generator */
+    .reticle-corner {
+      position: relative;
+    }
+    .reticle-corner::before,
+    .reticle-corner::after {
+      content: "";
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      pointer-events: none;
+      border-color: rgba(242, 244, 247, 0.3);
+      z-index: 10;
+    }
+    .reticle-corner::before {
+      top: 6px;
+      left: 6px;
+      border-top: 1.5px solid rgba(242, 244, 247, 0.35);
+      border-left: 1.5px solid rgba(242, 244, 247, 0.35);
+    }
+    .reticle-corner::after {
+      bottom: 6px;
+      right: 6px;
+      border-bottom: 1.5px solid rgba(242, 244, 247, 0.35);
+      border-right: 1.5px solid rgba(242, 244, 247, 0.35);
+    }
+
+    /* Subtle hair-line border standard */
+    .hairline-border {
+      border: 1px solid rgba(242, 244, 247, 0.10);
+    }
+    .hairline-border-b {
+      border-bottom: 1px solid rgba(242, 244, 247, 0.10);
+    }
+    .hairline-border-t {
+      border-top: 1px solid rgba(242, 244, 247, 0.10);
+    }
+  </style>
+</head>
+<body class="bg-graphite text-white antialiased selection:bg-amber selection:text-graphite bg-grid-pattern min-h-screen flex flex-col justify-between">
+<!-- BEGIN: MainHeader -->
+<header class="sticky top-0 z-50 bg-graphite/90 backdrop-blur-md hairline-border-b" data-purpose="site-header">
+<!-- Desktop Single Row Header (>= 1024px) -->
+<div class="hidden lg:flex items-center justify-between max-w-7xl mx-auto px-6 h-[72px]" data-purpose="desktop-nav-row">
+<!-- Desktop Brand Lockup -->
+<a aria-label="Smart Fundis Home" class="flex items-center gap-3.5 group" href="#">
+<div class="relative w-8 h-8 rounded-sm hairline-border flex items-center justify-center bg-graphite-panel">
+<!-- Four corner tick markers simulated -->
+<span class="absolute -top-[1px] -left-[1px] w-1.5 h-1.5 border-t border-l border-white/60"></span>
+<span class="absolute -top-[1px] -right-[1px] w-1.5 h-1.5 border-t border-r border-white/60"></span>
+<span class="absolute -bottom-[1px] -left-[1px] w-1.5 h-1.5 border-b border-l border-white/60"></span>
+<span class="absolute -bottom-[1px] -right-[1px] w-1.5 h-1.5 border-b border-r border-white/60"></span>
+<svg class="w-3.5 h-3.5 text-amber stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<div class="leading-none">
+<div class="font-bold tracking-tight text-white text-[15px] font-sans">SMART FUNDIS</div>
+<div class="font-mono text-[10px] tracking-techno text-white-dim uppercase mt-0.5">VERIFIED SKILLS</div>
+</div>
+</a>
+<!-- Desktop Navigation Links -->
+<nav class="flex items-center space-x-9 font-mono text-[12px] tracking-techno text-white-dim uppercase">
+<a class="hover:text-white transition-colors duration-150 py-2" href="#evidence">EVIDENCE</a>
+<a class="text-white relative py-2 border-b-2 border-amber font-semibold" href="#trades">TRADES</a>
+<a class="hover:text-white transition-colors duration-150 py-2" href="#telemetry">TELEMETRY</a>
+<!-- Company Dropdown Container -->
+<div class="relative group py-2" data-purpose="desktop-dropdown">
+<button aria-expanded="false" aria-haspopup="true" class="inline-flex items-center gap-1.5 hover:text-white transition-colors uppercase focus:outline-none">
+<span>COMPANY</span>
+<svg class="w-3 h-3 text-white-dim group-hover:text-white transition-transform duration-150 group-hover:rotate-180" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</button>
+<div class="absolute left-0 mt-3 w-44 bg-graphite-panel hairline-border rounded-sm py-2 shadow-2xl opacity-0 translate-y-1 invisible group-hover:opacity-100 group-hover:translate-y-0 group-hover:visible transition-all duration-150 pointer-events-none group-hover:pointer-events-auto">
+<a class="block px-4 py-2.5 text-[11px] text-white-dim hover:text-white hover:bg-white-faint transition-colors tracking-widest" href="#about">ABOUT</a>
+<a class="block px-4 py-2.5 text-[11px] text-white-dim hover:text-white hover:bg-white-faint transition-colors tracking-widest" href="#contact">CONTACT US</a>
+</div>
+</div>
+</nav>
+<!-- Desktop Right CTA Links -->
+<div class="flex items-center gap-6">
+<a class="text-white-dim hover:text-white font-mono text-[12px] tracking-techno uppercase transition-colors" href="#signin">Sign in</a>
+<a class="h-12 px-6 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center" href="#join">
+          Join as a fundi
+        </a>
+</div>
+</div>
+<!-- Mobile Header Two-Row System (< 1024px) -->
+<div class="lg:hidden flex flex-col w-full" data-purpose="mobile-nav-rows">
+<!-- Mobile Row 1 (48px) -->
+<div class="flex items-center justify-between px-4 h-12 hairline-border-b bg-graphite">
+<a aria-label="Smart Fundis Home" class="flex items-center gap-2.5" href="#">
+<div class="relative w-6 h-6 rounded-sm hairline-border flex items-center justify-center bg-graphite-panel">
+<svg class="w-2.5 h-2.5 text-amber stroke-[2.5]" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<polyline points="20 6 9 17 4 12"></polyline>
+</svg>
+</div>
+<div class="leading-none">
+<span class="font-bold tracking-tight text-white text-[13px] block">SMART FUNDIS</span>
+<span class="font-mono text-[9px] tracking-techno text-white-dim block uppercase">VERIFIED SKILLS</span>
+</div>
+</a>
+<div class="flex items-center gap-4">
+<a class="text-white-dim hover:text-white font-mono text-[11px] tracking-wider uppercase" href="#signin">Sign in</a>
+<a class="h-8 px-4 rounded-pill bg-amber text-graphite font-sans font-semibold text-[11px] tracking-tight flex items-center justify-center min-h-[36px]" href="#join">
+            JOIN
+          </a>
+</div>
+</div>
+<!-- Mobile Row 2 (44px) - Always visible strict horizontal bar -->
+<div class="h-11 px-4 flex items-center justify-between overflow-x-auto no-scrollbar font-mono text-[11px] tracking-techno uppercase bg-graphite-panel/60">
+<a class="text-white-dim py-2.5 whitespace-nowrap" href="#evidence">EVIDENCE</a>
+<a class="text-white py-2.5 border-b-2 border-amber font-semibold whitespace-nowrap" href="#trades">TRADES</a>
+<a class="text-white-dim py-2.5 whitespace-nowrap" href="#telemetry">TELEMETRY</a>
+<a class="text-white-dim py-2.5 whitespace-nowrap" href="#company">COMPANY</a>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="flex-grow w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-16 space-y-20 lg:space-y-28">
+<!-- BEGIN: HeroSection -->
+<section aria-labelledby="hero-title" class="w-full" data-purpose="hero-section">
+<!-- Instrument Tracker Sub-label -->
+<div class="flex items-center gap-2 mb-4 sm:mb-6">
+<span class="w-1.5 h-1.5 rounded-full bg-amber inline-block"></span>
+<span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-techno text-white-dim">
+          SMART FUNDIS / TRADES
+        </span>
+</div>
+<!-- Two-column Desktop Layout (5 cols text / 7 cols instrument bar) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-end">
+<!-- Left: Huge Typography headline -->
+<div class="lg:col-span-5 space-y-4">
+<h1 class="text-4xl sm:text-6xl lg:text-[76px] xl:text-[84px] font-semibold text-white tracking-tighter leading-[1.02]" id="hero-title">
+            Find a skilled<br/>fundi.
+          </h1>
+<p class="text-white-dim text-base sm:text-lg max-w-md font-sans">
+            Pick a trade and a county. Verified fundis come first.
+          </p>
+</div>
+<!-- Right: Search Bar Panel with Reticle Brackets -->
+<div class="lg:col-span-7" data-purpose="search-interface">
+<div class="relative bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 reticle-corner shadow-none">
+<!-- Search Inputs Grid -->
+<form action="#results" class="grid grid-cols-1 sm:grid-cols-12 gap-3" method="GET" onsubmit="event.preventDefault();">
+<!-- Trade Select -->
+<div class="sm:col-span-4 flex flex-col justify-center">
+<label class="sr-only" for="trade-select">Select Trade</label>
+<select class="h-12 w-full rounded-sm bg-graphite hairline-border text-white text-sm focus:border-amber focus:ring-1 focus:ring-amber px-3.5 appearance-none cursor-pointer" id="trade-select" name="trade">
+<option selected="" value="">All trades</option>
+<option value="electrical">Electrical</option>
+<option value="hairdressing">Hairdressing</option>
+<option value="plumbing">Plumbing</option>
+<option value="masonry">Masonry</option>
+<option value="carpentry">Carpentry</option>
+<option value="welding">Welding</option>
+<option value="mechanic">Mechanic</option>
+<option value="tailoring">Tailoring</option>
+<option value="beauty">Beauty</option>
+<option value="solar">Solar installation</option>
+<option value="mama-fua">Mama fua (laundry)</option>
+<option value="movers">Movers</option>
+</select>
+</div>
+<!-- County Select -->
+<div class="sm:col-span-4 flex flex-col justify-center">
+<label class="sr-only" for="county-select">Select County</label>
+<select class="h-12 w-full rounded-sm bg-graphite hairline-border text-white text-sm focus:border-amber focus:ring-1 focus:ring-amber px-3.5 appearance-none cursor-pointer" id="county-select" name="county">
+<option selected="" value="">All Kenya</option>
+<option value="nairobi">Nairobi</option>
+<option value="kiambu">Kiambu</option>
+<option value="mombasa">Mombasa</option>
+<option value="kisumu">Kisumu</option>
+<option value="nakuru">Nakuru</option>
+<option value="machakos">Machakos</option>
+<option value="uasin-gishu">Uasin Gishu</option>
+<option value="kajiado">Kajiado</option>
+<option value="kilifi">Kilifi</option>
+<option value="nyeri">Nyeri</option>
+</select>
+</div>
+<!-- Amber Search Pill Button -->
+<div class="sm:col-span-4">
+<button class="w-full h-12 rounded-pill bg-amber text-graphite font-sans font-semibold text-sm tracking-tight hover:brightness-105 transition-all flex items-center justify-center gap-2 focus:ring-2 focus:ring-offset-2 focus:ring-amber focus:ring-offset-graphite" type="submit">
+<span>Find fundis</span>
+<span aria-hidden="true">→</span>
+</button>
+</div>
+</form>
+</div>
+<!-- Sub-search Information Readout -->
+<div class="flex flex-wrap items-center justify-between text-xs font-mono tracking-wider text-white-dim mt-3 px-1 gap-2">
+<span>No account needed.</span>
+<a class="text-white hover:underline flex items-center gap-1 transition-colors" href="#labels-legend">
+<span>What the labels mean</span>
+<span aria-hidden="true">↓</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- END: HeroSection -->
+<!-- BEGIN: TradeDirectorySection -->
+<section aria-labelledby="trades-title" class="w-full space-y-8" data-purpose="trades-grid-section" id="trades">
+<!-- Section Header -->
+<div class="space-y-2 border-b hairline-border pb-5">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber inline-block"></span>
+<span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-techno text-white-dim">
+            01 — FIND BY TRADE
+          </span>
+</div>
+<h2 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight" id="trades-title">
+          Every trade. Start here.
+        </h2>
+<p class="text-white-dim text-sm sm:text-base">
+          Tap a trade to see fundis who work in it.
+        </p>
+</div>
+<!-- 12 Equal Trade Tiles Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" data-purpose="trades-tiles-container">
+<!-- Tile 01: Electrical (Verify Now Active) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<!-- Meta Bar -->
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 01</span>
+<span class="text-white font-medium">VERIFY NOW</span>
+</div>
+<!-- Documentary Image Frame with Reticles & Scanline -->
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Skilled electrician terminating wires into wall socket terminal" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDCiu88RCn2EaBCj7V6qAIl74dIjA3BZ5lFl2GczyKqWckJSAQ8vF4QyfHlYmiBrFYXN6W3Ls2ZMsoQ_ep-AMLZHwYB7KyA5k6M8CpoL51eq_4ovbsALoMI2WNfjh5otBvBMLf4al1EpqyKbIr00ONL3ZBglA3vsoXhZhxWHoO1T7TLfoACWogoLIMBQMlcF90XXSCzjT1mjhrnCFw8rRmmyAR8MCvzQKpjwd1Z7CLQZUoO0MovM3US3mMZjgB3xlAFpmbG5_aeuVg"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:04
+              </div>
+</div>
+<!-- Title -->
+<h3 class="text-xl font-semibold text-white mt-4">Electrical</h3>
+</div>
+<!-- Action Buttons Area -->
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-electrical">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="text-center">
+<span class="block font-mono text-[10px] text-white-dim tracking-techno uppercase mb-1">FOR FUNDIS</span>
+<a class="w-full h-12 rounded-pill hairline-border bg-transparent text-white font-sans font-medium text-[13px] tracking-tight hover:bg-white/5 transition-colors flex items-center justify-center gap-1.5" href="#verify-electrical">
+<span>Verify now</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Tile 02: Hairdressing (Verify Now Active) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<!-- Meta Bar -->
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 02</span>
+<span class="text-white font-medium">VERIFY NOW</span>
+</div>
+<!-- Documentary Image Frame with Reticles & Scanline -->
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Hands braiding neat cornrows in salon" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCPeaX05L-qjOakjIzcM0cO2R227iFSF9OeF-kTT-mZoXneJ2y0xZ9Ti-_K4I8cZ55ZZSgjfsq_d1AKaiXlSUcoTSdaOEbVPynJcK5a-AsdBtV3qt9j_qKZgRV2m45s0RUTbXIRjxSpisk2V_jzU8jx4gNSE_mYzfzkaOLXs2-xz9IAafCiszKlcWz_jF4HU9LW7XJXUJgmP4zMj8VKqwDJwgs-bKiB8n561XK63-uYyKGT1W7601FN2JVunOLIDNoRbW2R_AArh00"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:09
+              </div>
+</div>
+<!-- Title -->
+<h3 class="text-xl font-semibold text-white mt-4">Hairdressing</h3>
+</div>
+<!-- Action Buttons Area -->
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-hairdressing">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="text-center">
+<span class="block font-mono text-[10px] text-white-dim tracking-techno uppercase mb-1">FOR FUNDIS</span>
+<a class="w-full h-12 rounded-pill hairline-border bg-transparent text-white font-sans font-medium text-[13px] tracking-tight hover:bg-white/5 transition-colors flex items-center justify-center gap-1.5" href="#verify-hairdressing">
+<span>Verify now</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</article>
+<!-- Tile 03: Plumbing (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 03</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Hands tightening a brass pipe fitting with wrench" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCJMP0LOVeA1w5soHBm3-4xK--5THMtRv4jmA3YkHivleustv0ThW_bQHtabfLWAZuM7SQB6Xs3YZzdax2O52OFthzC_lV3xDlRepTzRnfRTKHkT5mgRooZixy_blrCrR_ef3WJEbZ7jy4tWzaOz_8vyeGkNV3AtnAWve3bWzZdY58eF4WQgTlnqBrzVvCYvSGqnw6pUCC92lBo4cM3bumIIAzakN75KdJeE2IeBIShe0x-hXMiK7oQw-sqr0UIWgKHxn-n30JSxH4"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:15
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Plumbing</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-plumbing">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 04: Masonry (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 04</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Hands using a steel trowel to lay mortar on concrete blocks" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBu8vwQJT8VZ5zmuBvpve0IpBhTa-wOJnWbLFwfJy2xgfOuSzO8w2BFkKs24KcV0aC4n8eJ0ESivCEazKOvOblEkFsb8TgfCYEckGK83GzKIjmwpfGfrijKaiWnAZnnNp3u8kX0xzGx0kycRuQXd63OcMnzIuyBtgXK3ETAtGsJSm12Cq5RSLh7n7As_W_7AvCqH_Z74HTr1WSspxK-IhxHeisiSI6K8hPNVbxEaCMIbwHd8apWTxAYBFbsAcaKsNhGZ0HsQdsxgJM"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:21
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Masonry</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-masonry">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 05: Carpentry (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 05</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Carpenter hands with chisel against hardwood" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAja3j4REgu1KjOyoz47vOfFbNzYFeLRt5MRzYBw4zL49VUyh7e49zobeEoCzQ96DmwgNSDe2zOd_XH6ntVRCSI4jO8K3lP39kGgPD5ywRBNLr_YabVpwZtOjikKyu1mVoHjIJwfNzywFsprGE_es52Q7GBjfhYQaJL4ZcEgYO_fzI-QdqTNCnxX1RBD9TanXiN-Cem6hmOR7_9CXhN2QphGc4sjfeeDFMssgqP27b27vZyDj9DHelwxvwhc31VznBrU6JaNWX-s20"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:30
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Carpentry</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-carpentry">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 06: Welding (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 06</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Welder hands with active welding torch at steel beam joint" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAiT7L37CdUUFJnbn5TmoG_Yh_5wpx6tdAM5HJR8XPfzOwTWK-RUQjacNfw96BT_Rw_Rdn_1puTEbw00kUHs03Ozcn3HZWbVQBWNtShXywOiBOkROJEqzuxr8VNQ-RQOpSiQFpEuPs_f6GB8W7Chcm5kgfkKTZNf6U0jrsscMp35MQCJFCqLYA4A7p0xqGyz8sVgz1XLVY6RV2qU8TdJ1mUd4LmSdKo7d9s4cXMTt3gJZ-2bBsQMrde4M08BMP4Sfpv4HSXMEhn-lc"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:44
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Welding</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-welding">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 07: Mechanic (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 07</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Mechanic hands with spanner wrench inside vehicle engine bay" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0pamHOiD35u5mYGINd65SSJUlOr6hjY2D2HVRqZldYPs63h23xkpVIIcfYzfJ2gp7ZgWGAmAnB4WDalqB-2aiL4HNZ8B3vgwUm0z0meM2hjn5tfVk6qbTwZcGEz-A3wDdsb_BH4g2juHABmMD5tN-mL6OJIWHgyLWl_3XAmOxvA15iliZAii3XIGfQb4AptlaiztUzLvTKS5GJC_DYLk33INMOVBJDNQ3Z_Q4Ic7Bgmz1FEuOEs3CZHmQHPw6vZZcsl3ZXJpofWs"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 00:52
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Mechanic</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-mechanic">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 08: Tailoring (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 08</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Tailor hands feeding patterned cloth into sewing machine" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCv6dH5k2z4zEQL4mlHHpVEnMAi3fEvIwWYh_9tc_qlkhEIQoGR5_UEvDeAXGcrjnZcQNS1NjUqrNKX-0GHYISfDf7rAidH1Mokrmb8-aLQY4EhaC-WXeVTBUXQ7qJIAadUj2N69P1tK9xx1NYJ58JAdCu2WPSe-674xmZGtSaOpne-oFT4kuYNmzsZ-XGqSMeZR5aGiTfFJQ4ZfhONi30nQvmFTtp6z5Jtr6Ps3ewFGSIMswYSuWH5xmKCxxwTUoFHrCa_ud2n4pQ"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 01:03
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Tailoring</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-tailoring">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 09: Beauty (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 09</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Aesthetician hands shaping nails over folded towel" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuArONHFbQS8_w8_mgLCZkIH_hyvw6bw12hQVGWXfohLFlaCSE60gXKFpGJO8WTyNVCpgsPxVuTEhPu4E2jsGABSOw85WwMVUNyXK442ZYKqxt5BidALF8pG_2Si8fNDGxZj5XNmBMKhHZ3I15_ltP2x0S2JlY_y-MC6y9LNn-6XI7tB1-gSLrCFid_LE_wcS_d27TDWI2nInc57G9x8wiBdvitK-4lz54BW7zAjEIsT1mzllRZLOuVGErTFaQWKcT98oTorvn1ilGc"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 01:18
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Beauty</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-beauty">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 10: Solar installation (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 10</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Solar technician hands connecting DC terminals on rooftop" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCyiJRWI6qkgko4pCeIBfNmLiFbY70HtpF5zaUVtmjEdyl34lULb1H9hQIaEPfU__xreeRZkLac5RSZIG5WpP1be0EI65MkuVOluz9nHwNtRJ1XIyrqtWU4PpuYoEGg1x8H8JbC2MAdVOj1TNMZvEk-snKwe1zL5fA65A2MByjo7C0gG52PEJsqliJVnGKQubrKEL6w5t3vGeXzmaz_DeYRUn4Px3saBHqQ4ga3FUceh3_KEG_6jtGv2Jx8TGOJ4Ew8Gm_ItG8PenI"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 01:25
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Solar installation</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-solar">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 11: Mama fua / Laundry (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 11</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Woman hands wringing fresh clothes over wash basin" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBAYTZub-tiL5zfUtPFvfHFQ2cjStKwMD-7xhNckkeFl9mU5bjCLIfDOhtd6ntLYsZ312ePsMkUOpAozN6mPNDvWIWAgZVQ45XW9eP33uBPIXAZWNVooDRBEQv_x8hZ_qPmONfovR7ykmsGmT518ec7MqHl17NTTOmzrXEB-jc1c0NoJxkmO4D3HMFVp7N1VGhOqIXjwtMOhbPmkjHu0ZvWrKTSv8Ak2I3a4lYETx6TYO7aViZJZ7fcBNdecEfEeFZA_WMWUYhGDTw"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 01:34
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Mama fua (laundry)</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-mamafua">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+<!-- Tile 12: Movers (Coming Soon) -->
+<article class="bg-graphite-panel hairline-border rounded-sm p-4 sm:p-5 flex flex-col justify-between space-y-4 hover:border-white/20 transition-all duration-200">
+<div>
+<div class="flex items-center justify-between font-mono text-[12px] tracking-techno mb-3">
+<span class="text-white-dim">TRADE 12</span>
+<span class="text-white-dim">COMING SOON</span>
+</div>
+<div class="relative w-full aspect-[16/9] scanline-box reticle-corner rounded-sm bg-black overflow-hidden hairline-border">
+<img alt="Gloved hands tightening ratchet strap on loaded furniture" class="w-full h-full object-cover grayscale contrast-125" loading="lazy" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCL-CadvGhgi_25E3XjwJryIYU0JVp_tpNjz5OOloekg-MMEJoERzAoncO_5_SiTyi9ntlMEu2-bneaehLTCd8kFM8zX7y3TaIxrUNG_YEGv4rqVklrFyF1MWk8XDpBi5HHdP3qQwjK366RZ93ec59SWYMlYxqNg_sjaGXk-63DE0f6u0cAK7Gud2cNTQpGG8XGKrg1gwhEQOHjkGDhBX996ts5sLw-s3q5HrgcKW9ah_9_FG9WzIxL_Q7dVUdIdoNoQDReZfQvET4"/>
+<div class="absolute bottom-2 left-2.5 z-20 font-mono text-[10px] text-white/80 bg-graphite/70 px-1.5 py-0.5 rounded-sm">
+                ◆ 01:48
+              </div>
+</div>
+<h3 class="text-xl font-semibold text-white mt-4">Movers</h3>
+</div>
+<div class="pt-2 space-y-3">
+<a class="w-full h-12 rounded-pill bg-white text-graphite font-sans font-semibold text-[13px] tracking-tight hover:bg-white/90 transition-colors flex items-center justify-center gap-1.5" href="#fundis-movers">
+<span>Find a fundi</span>
+<span>→</span>
+</a>
+<div class="h-12 flex items-center justify-center">
+<span class="font-mono text-[11px] tracking-techno text-white-dim uppercase">VERIFICATION COMING SOON</span>
+</div>
+</div>
+</article>
+</div>
+</section>
+<!-- END: TradeDirectorySection -->
+<!-- BEGIN: LegendSection -->
+<section aria-labelledby="legend-title" class="w-full space-y-8 scroll-mt-24" data-purpose="verification-labels-explanation" id="labels-legend">
+<!-- Section Header -->
+<div class="space-y-2 border-b hairline-border pb-5">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber inline-block"></span>
+<span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-techno text-white-dim">
+            02 — WHAT THE LABELS MEAN
+          </span>
+</div>
+<h2 class="text-2xl sm:text-3xl font-semibold text-white tracking-tight" id="legend-title">
+          Three labels. Nothing blurred.
+        </h2>
+<p class="text-white-dim text-sm sm:text-base">
+          You'll see these on every fundi card and profile.
+        </p>
+</div>
+<!-- 3-Column Ledger Grid (Stacked on mobile, 3 equal columns on desktop) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6" data-purpose="ledger-items">
+<!-- Legend Item 1: Skill Badge -->
+<div class="bg-graphite-panel hairline-border rounded-sm p-6 flex flex-col justify-between space-y-5">
+<div>
+<!-- Badge Representation: White checkmark with amber tick accent stroke -->
+<div class="inline-flex items-center gap-2.5 px-3 py-1.5 rounded-sm bg-graphite hairline-border mb-4">
+<svg class="w-4 h-4 text-white" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" viewbox="0 0 24 24">
+<!-- Amber accent tick stroke -->
+<path d="M4 12l5 5" stroke="#f2f4f7"></path>
+<path d="M9 17l11-11" stroke="#ef9a57"></path>
+</svg>
+<span class="text-sm font-semibold text-white">Verified by Smart Fundis</span>
+</div>
+<p class="text-sm text-white-dim leading-relaxed">
+              An Expert in the trade watched this fundi's video of one task, recorded in the app, and approved it.
+            </p>
+</div>
+<div class="pt-4 border-t hairline-border font-mono text-[11px] text-white-dim tracking-wider">
+            PRIMARY VERIFICATION
+          </div>
+</div>
+<!-- Legend Item 2: Expert Verifier Mark -->
+<div class="bg-graphite-panel hairline-border rounded-sm p-6 flex flex-col justify-between space-y-5">
+<div>
+<!-- Outlined Tag: 1px #f2f4f7 border, white text, no fill, NO amber, NO checkmark -->
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded-sm hairline-border border-white/60 bg-transparent mb-4">
+<!-- Corner reticle with eye inside -->
+<svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewbox="0 0 24 24">
+<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+<circle cx="12" cy="12" r="3"></circle>
+</svg>
+<span class="font-mono text-[12px] uppercase tracking-wider text-white font-medium">EXPERT VERIFIER · ELECTRICAL</span>
+</div>
+<p class="text-sm text-white-dim leading-relaxed">
+              Smart Fundis approved this fundi to review other fundis' videos in this trade.
+            </p>
+</div>
+<div class="pt-4 border-t hairline-border font-mono text-[11px] text-white-dim tracking-wider">
+            PEER AUDITOR
+          </div>
+</div>
+<!-- Legend Item 3: Not Yet Verified -->
+<div class="bg-graphite-panel hairline-border rounded-sm p-6 flex flex-col justify-between space-y-5">
+<div>
+<!-- Plain mono text, no icon, no border, no amber -->
+<div class="py-1.5 mb-4">
+<span class="font-mono text-[13px] tracking-wider text-white-dim uppercase font-normal">Not yet verified</span>
+</div>
+<p class="text-sm text-white-dim leading-relaxed">
+              This fundi hasn't earned a badge on Smart Fundis yet. It says nothing bad about their work.
+            </p>
+</div>
+<div class="pt-4 border-t hairline-border font-mono text-[11px] text-white-dim tracking-wider">
+            DEFAULT STATUS
+          </div>
+</div>
+</div>
+<!-- Under Ledger Technical Disclaimer Note -->
+<div class="bg-graphite/40 hairline-border rounded-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono tracking-wider text-white-dim">
+<span>Photos, videos, links and prices on a profile come from the fundi. Only ✓ is verified.</span>
+<a class="text-white hover:underline whitespace-nowrap transition-colors" href="#what-verified-means">
+          What 'verified' means →
+        </a>
+</div>
+</section>
+<!-- END: LegendSection -->
+<!-- BEGIN: FundiCalloutSection -->
+<section aria-labelledby="fundi-cta-title" class="w-full space-y-6" data-purpose="fundi-recruitment-callout">
+<!-- Section Header -->
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-amber inline-block"></span>
+<span class="font-mono text-[11px] sm:text-[12px] uppercase tracking-techno text-white-dim">
+          03 — ARE YOU A FUNDI?
+        </span>
+</div>
+<!-- Bordered Readout Panel (7/5 columns on desktop) -->
+<div class="bg-graphite-panel hairline-border rounded-sm p-6 sm:p-10 reticle-corner">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<!-- 7 cols: Content -->
+<div class="lg:col-span-7 space-y-4">
+<h2 class="text-2xl sm:text-4xl font-semibold text-white tracking-tight" id="fundi-cta-title">
+              Get found. Then get verified.
+            </h2>
+<p class="text-white-dim text-sm sm:text-base leading-relaxed max-w-xl">
+              Join free and clients can find you in any trade. In Electrical and Hairdressing you can also record one short video to earn a badge. More trades open when their rubric and Experts are ready.
+            </p>
+</div>
+<!-- 5 cols: Actions -->
+<div class="lg:col-span-5 flex flex-col sm:flex-row lg:flex-col items-start lg:items-end justify-center gap-4">
+<a class="w-full sm:w-auto lg:w-full min-w-[200px] h-12 rounded-pill hairline-border bg-transparent text-white font-sans font-medium text-sm tracking-tight hover:bg-white/10 transition-colors flex items-center justify-center" href="#join">
+              Join as a fundi
+            </a>
+<a class="text-white-dim hover:text-white font-mono text-xs tracking-wider transition-colors inline-flex items-center gap-1 self-center lg:self-end py-2" href="#roadmap">
+<span>See the roadmap</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</div>
+</section>
+<!-- END: FundiCalloutSection -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: SiteFooter -->
+<footer class="w-full hairline-border-t bg-graphite-panel mt-20" data-purpose="site-footer">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
+<!-- 4 Link Columns: 2x2 grid on mobile, 4 columns on desktop -->
+<div class="grid grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12 pb-12 hairline-border-b">
+<!-- Column 1: For Fundis -->
+<div class="space-y-4">
+<div class="font-mono text-[12px] uppercase tracking-techno text-amber font-semibold">
+            FOR FUNDIS
+          </div>
+<ul class="space-y-2.5 text-sm text-white-dim font-sans">
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#join">Join as a fundi</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#how-it-works">How verification works</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#privacy">Your privacy</a></li>
+</ul>
+</div>
+<!-- Column 2: For Clients -->
+<div class="space-y-4">
+<div class="font-mono text-[12px] uppercase tracking-techno text-amber font-semibold">
+            FOR CLIENTS
+          </div>
+<ul class="space-y-2.5 text-sm text-white-dim font-sans">
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#trades">Find a fundi</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#what-verified-means">What 'verified' means</a></li>
+</ul>
+</div>
+<!-- Column 3: For Experts -->
+<div class="space-y-4">
+<div class="font-mono text-[12px] uppercase tracking-techno text-amber font-semibold">
+            FOR EXPERTS
+          </div>
+<ul class="space-y-2.5 text-sm text-white-dim font-sans">
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#become-verifier">Become a verifier</a></li>
+</ul>
+</div>
+<!-- Column 4: Company -->
+<div class="space-y-4">
+<div class="font-mono text-[12px] uppercase tracking-techno text-amber font-semibold">
+            COMPANY
+          </div>
+<ul class="space-y-2.5 text-sm text-white-dim font-sans">
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#about">About</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#contact">Contact us</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#pricing">Pricing</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#responsible-ai">Responsible AI</a></li>
+<li><a class="hover:text-white transition-colors block py-1 min-h-[44px] flex items-center" href="#roadmap">Roadmap</a></li>
+</ul>
+</div>
+</div>
+<!-- Footer Bottom Baseline (Legal & Contact) -->
+<div class="pt-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 font-mono text-xs text-white-dim tracking-wider">
+<p class="max-w-2xl">
+          © 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify.
+        </p>
+<p class="text-white-dim hover:text-white transition-colors">
+          Email: <a class="underline" href="mailto:info@smartfundis.com">info@smartfundis.com</a>
+</p>
+</div>
+</div>
+</footer>
+<!-- END: SiteFooter -->
+<!-- Accessible Quick Interactions Script -->
+<script data-purpose="event-handlers">
+    document.addEventListener('DOMContentLoaded', () => {
+      // Smooth scroll anchors handling
+      const anchors = document.querySelectorAll('a[href^="#"]');
+      anchors.forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+          const targetId = this.getAttribute('href');
+          if (targetId && targetId !== '#') {
+            const targetEl = document.querySelector(targetId);
+            if (targetEl) {
+              e.preventDefault();
+              targetEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+          }
+        });
+      });
+    });
+  </script>
+</body></html>
