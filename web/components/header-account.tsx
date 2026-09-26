@@ -1,15 +1,21 @@
 "use client";
 
+import { UserButton } from "@clerk/nextjs";
+import { LayoutDashboard } from "lucide-react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { PILL_HIT_AREA, pillClass } from "@/components/ui/pill";
 import { useSignedIn } from "@/components/use-signed-in";
-import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth-routes";
+import { AFTER_AUTH_PATH, SIGN_IN_PATH } from "@/lib/auth-routes";
+import { JOIN_FUNDI_PATH } from "@/lib/site-nav";
 
 /**
- * Header account actions: Sign in + Join when signed out, Dashboard when
- * signed in. The pills stay visually compact (32 px mobile, 40 px desktop,
- * as in the Stitch exports) inside a 48 px hit area (HANDOFF §6).
+ * The header's account area, at every width.
+ * - Signed out: "Sign in" and the Join pill ("Join" on mobile, "Join as a
+ *   fundi" from 1024 px), each with a 48 px hit area.
+ * - Signed in: a Dashboard link from 1024 px, and Clerk's account menu. Clerk
+ *   gives it "Manage account" (profile, email, password, connected accounts,
+ *   security) and "Sign out"; we add Dashboard to it.
  */
 export function HeaderAccount() {
   const t = useTranslations("Shell");
@@ -18,18 +24,32 @@ export function HeaderAccount() {
 
   if (signedIn) {
     return (
-      <Link href={AFTER_AUTH_PATH} className={PILL_HIT_AREA}>
-        <span
-          className={pillClass({
-            variant: "secondary",
-            size: "compact",
-            inHitArea: true,
-            className: "font-mono lg:h-10 lg:px-5 lg:tracking-widest",
-          })}
+      <>
+        <Link
+          href={AFTER_AUTH_PATH}
+          className="hidden h-12 items-center rounded-full px-4 font-mono text-xs tracking-wider text-foreground/80 uppercase transition-colors hover:bg-accent hover:text-foreground lg:inline-flex"
         >
           {links("dashboard")}
+        </Link>
+        <span className="flex size-12 items-center justify-center">
+          <UserButton
+            appearance={{
+              elements: {
+                userButtonTrigger: "size-10 rounded-full focus-visible:outline-2 focus-visible:outline-offset-2",
+                avatarBox: "size-9",
+              },
+            }}
+          >
+            <UserButton.MenuItems>
+              <UserButton.Link
+                label={links("dashboard")}
+                labelIcon={<LayoutDashboard aria-hidden="true" className="size-4" strokeWidth={1.5} />}
+                href={AFTER_AUTH_PATH}
+              />
+            </UserButton.MenuItems>
+          </UserButton>
         </span>
-      </Link>
+      </>
     );
   }
 
@@ -37,21 +57,15 @@ export function HeaderAccount() {
     <>
       <Link
         href={SIGN_IN_PATH}
-        className="hidden h-12 items-center font-mono text-xs uppercase tracking-wider text-foreground/70 hover:text-foreground lg:inline-flex"
+        className="inline-flex h-12 items-center rounded-full px-2 font-mono text-xs font-semibold tracking-wider text-foreground uppercase transition-colors hover:text-foreground/80 sm:px-4"
       >
         {links("signIn")}
       </Link>
-      {/* Mobile: the REFERENCE's compact "JOIN" pill. Its name includes the visible word. */}
-      <Link href={SIGN_UP_PATH} aria-label={links("joinAsFundi")} className={`${PILL_HIT_AREA} lg:hidden`}>
-        <span className={pillClass({ variant: "primary", size: "compact", inHitArea: true })}>
-          {t("join")}
-        </span>
+      <Link href={JOIN_FUNDI_PATH} aria-label={links("joinAsFundi")} className={`${PILL_HIT_AREA} lg:hidden`}>
+        <span className={pillClass({ variant: "primary", size: "compact", inHitArea: true })}>{t("join")}</span>
       </Link>
-      {/* Desktop (02-evidence-responsive): "Join as a fundi". */}
-      <Link href={SIGN_UP_PATH} className={`${PILL_HIT_AREA} hidden lg:inline-flex`}>
-        <span className={pillClass({ variant: "primary", size: "header", inHitArea: true })}>
-          {links("joinAsFundi")}
-        </span>
+      <Link href={JOIN_FUNDI_PATH} className={pillClass({ variant: "primary", size: "header", className: "max-lg:hidden" })}>
+        {links("joinAsFundi")}
       </Link>
     </>
   );

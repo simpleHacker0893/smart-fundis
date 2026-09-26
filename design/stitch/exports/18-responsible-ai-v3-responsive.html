@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Fundis — Responsible AI</title>
+<!-- Fonts -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=Public+Sans:wght@500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          colors: {
+            "on-secondary-container": "#e0e3e6",
+            "on-error": "#690005",
+            "inverse-surface": "#e3e2e7",
+            "on-tertiary-fixed-variant": "#e2e2e9",
+            "error": "#ffb4ab",
+            "surface": "#121317",
+            "on-secondary": "#191c1e",
+            "background": "#050609",
+            "tertiary-container": "#8f9097",
+            "secondary-container": "#44474a",
+            "surface-container-low": "#1a1b1f",
+            "outline-variant": "#474747",
+            "surface-container": "#0b0d12",
+            "surface-dim": "#050609",
+            "surface-container-lowest": "#050609",
+            "primary-container": "#ffcaa4",
+            "on-tertiary": "#1a1b21",
+            "tertiary-fixed-dim": "#45474d",
+            "secondary-fixed-dim": "#a9abae",
+            "on-primary-fixed-variant": "#ffdcc5",
+            "on-background": "#e3e2e7",
+            "outline": "#919191",
+            "on-secondary-fixed-variant": "#383c3e",
+            "surface-container-highest": "#343539",
+            "inverse-primary": "#904d0e",
+            "tertiary-fixed": "#5d5e64",
+            "on-error-container": "#ffdad6",
+            "tertiary": "#e2e2e9",
+            "primary": "#ffffff",
+            "on-surface": "#f2f4f7",
+            "on-primary-container": "#000000",
+            "on-secondary-fixed": "#191c1e",
+            "on-primary-fixed": "#ffffff",
+            "surface-container-high": "#161922",
+            "surface-tint": "#ef9a57",
+            "primary-fixed-dim": "#703800",
+            "surface-variant": "#1c1f26",
+            "error-container": "#93000a",
+            "secondary-fixed": "#c4c7ca",
+            "secondary": "#c4c7ca",
+            "inverse-on-surface": "#2f3034",
+            "on-surface-variant": "#c6c6c6",
+            "on-tertiary-fixed": "#ffffff",
+            "on-tertiary-container": "#000000",
+            "primary-fixed": "#904d0e",
+            "surface-bright": "#38393d",
+            "on-primary": "#301400"
+          },
+          borderRadius: {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "9999px"
+          },
+          fontFamily: {
+            "headline": ["Inter", "sans-serif"],
+            "display": ["Inter", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["JetBrains Mono", "Public Sans", "monospace"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    .font-mono-readout {
+      font-family: 'JetBrains Mono', monospace;
+      letter-spacing: 0.26em;
+    }
+    .hairline-border {
+      border: 1px solid rgba(242, 244, 247, 0.10);
+    }
+    .hairline-border-b {
+      border-bottom: 1px solid rgba(242, 244, 247, 0.10);
+    }
+    .hairline-border-t {
+      border-top: 1px solid rgba(242, 244, 247, 0.10);
+    }
+    .hairline-border-r {
+      border-right: 1px solid rgba(242, 244, 247, 0.10);
+    }
+    .scanline {
+      background: linear-gradient(to bottom, transparent 50%, rgba(239, 154, 87, 0.08) 51%, rgba(239, 154, 87, 0.28) 52%, transparent 54%);
+      background-size: 100% 8px;
+    }
+    .tabular-nums {
+      font-variant-numeric: tabular-nums;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-surface antialiased selection:bg-surface-tint selection:text-black min-h-screen flex flex-col font-body">
+<!-- TOP NAVIGATION BAR (72px desktop) -->
+<header class="fixed top-0 left-0 right-0 z-50 w-full h-[72px] bg-background/90 backdrop-blur-md hairline-border-b flex items-center">
+<div class="flex justify-between items-center w-full px-6 max-w-7xl mx-auto">
+<!-- Brand lockup -->
+<a class="flex items-center gap-3 group" href="/">
+<div class="w-8 h-8 hairline-border bg-surface-container flex items-center justify-center relative">
+<div class="absolute -top-1 -left-1 text-[8px] text-white/40 leading-none">┌</div>
+<div class="absolute -bottom-1 -right-1 text-[8px] text-white/40 leading-none">┘</div>
+<span class="text-surface-tint font-bold text-xs select-none">✓</span>
+</div>
+<div class="flex flex-col">
+<span class="font-mono-readout uppercase text-xs font-bold text-on-surface tracking-[0.26em]">SMART FUNDIS</span>
+<span class="font-mono-readout text-[9px] uppercase tracking-[0.26em] text-white/55">VERIFIED SKILLS</span>
+</div>
+</a>
+<!-- Center navigation links -->
+<nav class="hidden md:flex items-center gap-8 font-mono-readout text-xs uppercase tracking-[0.26em]">
+<a class="text-white/55 hover:text-on-surface transition-colors" href="#pipeline">EVIDENCE</a>
+<a class="text-white/55 hover:text-on-surface transition-colors" href="#never">TRADES</a>
+<a class="text-surface-tint flex items-center gap-1.5 pb-0.5 border-b border-surface-tint" href="#caps">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint inline-block"></span>
+          TELEMETRY
+        </a>
+<div class="relative group cursor-pointer flex items-center gap-1 text-white/55 hover:text-on-surface transition-colors">
+<span>COMPANY</span>
+<span class="text-[10px] leading-none">▾</span>
+</div>
+</nav>
+<!-- Trailing actions -->
+<div class="flex items-center gap-5">
+<a class="hidden sm:inline-block font-mono-readout uppercase text-xs tracking-[0.26em] text-white/60 hover:text-on-surface transition-colors" href="/login">
+          Sign in
+        </a>
+<a class="h-10 px-5 rounded-full bg-surface-tint hover:bg-[#ffa767] text-[#050609] font-mono-readout text-xs font-semibold uppercase tracking-[0.26em] flex items-center justify-center transition-transform active:scale-[0.98]" href="/join">
+          Join as a fundi
+        </a>
+</div>
+</div>
+</header>
+<!-- MAIN CANVAS -->
+<main class="flex-1 w-full pt-[72px]">
+<!-- HERO SECTION: ResponsibleAi.hero -->
+<section class="max-w-7xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-start">
+<!-- Left: Context & Title (5 cols) -->
+<div class="lg:col-span-5 flex flex-col justify-start">
+<div class="inline-flex items-center gap-2 mb-6">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">SMART FUNDIS / RESPONSIBLE AI</span>
+</div>
+<h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-on-surface leading-[1.05] mb-6 font-display">
+            AI recommends.<br/>Experts decide.
+          </h1>
+<p class="text-base sm:text-lg text-white/60 font-normal leading-relaxed mb-8 max-w-xl">
+            How our AI checks a video, what it is never allowed to decide, and how we test it.
+          </p>
+<div class="flex flex-wrap items-center gap-4">
+<a class="h-12 px-6 rounded-full bg-surface-tint text-[#050609] font-mono-readout text-xs font-semibold uppercase tracking-[0.26em] flex items-center justify-center transition-all hover:bg-[#ffa767] active:scale-[0.98]" href="#pipeline">
+              How a verdict is made
+            </a>
+<a class="h-12 px-6 rounded-full bg-transparent hairline-border text-on-surface hover:text-white hover:border-white/30 font-mono-readout text-xs font-semibold uppercase tracking-[0.26em] flex items-center justify-center transition-all active:scale-[0.98]" href="/privacy">
+              Your privacy
+            </a>
+</div>
+</div>
+<!-- Right: Evidence Frame (7 cols) -->
+<div class="lg:col-span-7 flex flex-col">
+<div class="bg-surface-container hairline-border rounded p-4 relative">
+<!-- Meta Row -->
+<div class="flex justify-between items-center pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/55 tracking-[0.26em]">
+<div class="flex items-center gap-2">
+<span class="w-1 h-3 bg-surface-tint inline-block"></span>
+<span>EVIDENCE FRAME: EF-3104</span>
+</div>
+<span>EXAMPLE · ELECTRICAL</span>
+</div>
+<!-- Video Still / Reticle Frame (4:3 aspect) -->
+<div class="relative w-full aspect-[4/3] bg-black overflow-hidden hairline-border rounded-sm">
+<!-- Corner Reticles -->
+<div class="absolute top-2 left-2 text-white/40 font-mono text-xs select-none pointer-events-none z-20">┌</div>
+<div class="absolute top-2 right-2 text-white/40 font-mono text-xs select-none pointer-events-none z-20">┐</div>
+<div class="absolute bottom-2 left-2 text-white/40 font-mono text-xs select-none pointer-events-none z-20">└</div>
+<div class="absolute bottom-2 right-2 text-white/40 font-mono text-xs select-none pointer-events-none z-20">┘</div>
+<!-- Scanline FX overlay -->
+<div class="absolute inset-0 scanline pointer-events-none z-10 opacity-70"></div>
+<!-- Subtle top scan line accent -->
+<div class="absolute top-1/4 left-0 right-0 h-[1px] bg-surface-tint/60 shadow-[0_0_8px_#ef9a57] z-10 pointer-events-none"></div>
+<!-- Main Hero Image https://lh3.googleusercontent.com/aida/AEtjO1XWD0aXekoX7ltQXFxqrfXjJKRubF-em70quKnk7HHnqlrjtJX7td4os_yRNoKc8l9UfQmTijkS3RCEFCETzUrtRMObejrrEEPGktEZDj2LE6jUyJVcv8x55rzOByppIxkyKWoHgvHIZoPhkINaJ8dbIx2_NUEpv1qfhpoJLvKbqR6lDohN25wcHzyP88-MgG_w49Alytku06Xr0wxcfghOssZHi-L5G0vi-sudVMvOHcs0ok4GAnUFURw -->
+<img alt="Electrician hands holding blank paper inspection frame" class="w-full h-full object-cover filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1XWD0aXekoX7ltQXFxqrfXjJKRubF-em70quKnk7HHnqlrjtJX7td4os_yRNoKc8l9UfQmTijkS3RCEFCETzUrtRMObejrrEEPGktEZDj2LE6jUyJVcv8x55rzOByppIxkyKWoHgvHIZoPhkINaJ8dbIx2_NUEpv1qfhpoJLvKbqR6lDohN25wcHzyP88-MgG_w49Alytku06Xr0wxcfghOssZHi-L5G0vi-sudVMvOHcs0ok4GAnUFURw"/>
+<!-- Timestamp & Diamond Step Markers -->
+<div class="absolute bottom-3 left-3 right-3 z-20 flex flex-col gap-1.5">
+<div class="bg-surface-container/90 backdrop-blur hairline-border px-3 py-2 rounded-sm flex flex-wrap gap-x-4 gap-y-1 font-mono-readout text-xs">
+<div class="flex items-center gap-1.5 text-white/70">
+<span class="text-[10px]">◇</span>
+<span>01 CODE ON CAMERA · <span class="tabular-nums">00:02</span></span>
+</div>
+<div class="flex items-center gap-1.5 text-surface-tint font-semibold">
+<span class="text-[10px]">◆</span>
+<span>02 ISOLATE SUPPLY · SAFETY · <span class="tabular-nums">00:09</span></span>
+</div>
+<div class="flex items-center gap-1.5 text-white/70">
+<span class="text-[10px]">◇</span>
+<span>03 TERMINATE · <span class="tabular-nums">00:41</span></span>
+</div>
+</div>
+</div>
+</div>
+<!-- Readout Ledger Directly Underneath -->
+<div class="mt-4 pt-3 hairline-border-t">
+<div class="flex items-center justify-between mb-2">
+<span class="font-mono-readout text-[11px] uppercase tracking-[0.26em] text-white/40">EXAMPLE INSPECTION LOG</span>
+<span class="font-mono-readout text-[11px] uppercase tracking-[0.26em] text-surface-tint">STATUS: AUDITING</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-2">
+<div class="p-2.5 bg-black/40 hairline-border rounded">
+<div class="font-mono-readout text-[10px] text-white/50 tracking-[0.26em]">SAFETY STEP</div>
+<div class="font-mono-readout text-xs text-white font-medium mt-0.5">Unclear</div>
+</div>
+<div class="p-2.5 bg-black/40 hairline-border rounded">
+<div class="font-mono-readout text-[10px] text-white/50 tracking-[0.26em]">AI VERDICT</div>
+<div class="font-mono-readout text-xs mt-0.5">
+<span class="text-surface-tint">◐ Needs review</span> <span class="text-white/50">— recommendation</span>
+</div>
+</div>
+<div class="p-2.5 bg-black/40 hairline-border rounded">
+<div class="font-mono-readout text-[10px] text-white/50 tracking-[0.26em]">DECISION</div>
+<div class="font-mono-readout text-xs text-white font-medium mt-0.5">Waiting for an Expert</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 01 — HOW A VERDICT IS MADE: ResponsibleAi.pipeline -->
+<section class="w-full hairline-border-t bg-surface-container/40 py-20" id="pipeline">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col mb-12">
+<div class="inline-flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">01 — HOW A VERDICT IS MADE</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-display">
+            From video to Badge. One human decision.
+          </h2>
+</div>
+<!-- 6-step signal-flow pipeline -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4 relative">
+<!-- Step 1 -->
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between h-full relative">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/50">
+<span>STAGE 01</span>
+<span>GUARD</span>
+</div>
+<h3 class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] mb-2 uppercase">Is the video usable?</h3>
+<p class="text-xs text-white/60 leading-relaxed">
+                10–90 seconds, at least 360p, bright enough. If not, you get a clear reason and record again.
+              </p>
+</div>
+<div class="mt-6 pt-3 hairline-border-t font-mono-readout text-[10px] text-white/40 flex items-center justify-between">
+<span>PRE-CHECK</span>
+<span class="text-white/70">→</span>
+</div>
+</div>
+<!-- Step 2 -->
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between h-full relative">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/50">
+<span>STAGE 02</span>
+<span class="text-white">OBSERVE</span>
+</div>
+<div class="font-mono-readout text-[10px] text-surface-tint tracking-[0.15em] uppercase mb-1">NVIDIA COSMOS REASON 2</div>
+<h3 class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] mb-2 uppercase">Watches every step.</h3>
+<p class="text-xs text-white/60 leading-relaxed">
+                Runs on Smart Fundis' GPU. For each Rubric step it answers yes, no or unclear, with a line of evidence and the moment it happens. It also reads your paper code without being told what it should be.
+              </p>
+</div>
+<div class="mt-6 pt-3 hairline-border-t font-mono-readout text-[10px] text-white/40 flex items-center justify-between">
+<span>BLIND PASS</span>
+<span class="text-white/70">→</span>
+</div>
+</div>
+<!-- Step 3 -->
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between h-full relative">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/50">
+<span>STAGE 03</span>
+<span class="text-white">ASSESS</span>
+</div>
+<div class="font-mono-readout text-[10px] text-surface-tint tracking-[0.15em] uppercase mb-1">NVIDIA NEMOTRON</div>
+<h3 class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] mb-2 uppercase">Drafts a Verdict.</h3>
+<p class="text-xs text-white/60 leading-relaxed">
+                Reads the observations as text, never your video, and drafts pass, needs review or fail, with plain-language feedback for you.
+              </p>
+</div>
+<div class="mt-6 pt-3 hairline-border-t font-mono-readout text-[10px] text-white/40 flex items-center justify-between">
+<span>TEXT SYNTH</span>
+<span class="text-white/70">→</span>
+</div>
+</div>
+<!-- Step 4 -->
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between h-full relative">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/50">
+<span>STAGE 04</span>
+<span class="text-white">RULES</span>
+</div>
+<div class="font-mono-readout text-[10px] text-white/50 tracking-[0.15em] uppercase mb-1">PLAIN CODE</div>
+<h3 class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] mb-2 uppercase">Caps any doubt.</h3>
+<p class="text-xs text-white/60 leading-relaxed">
+                Checks the paper code and every safety step. It can lower a Verdict. It can never raise one.
+              </p>
+</div>
+<div class="mt-6 pt-3 hairline-border-t font-mono-readout text-[10px] text-white/40 flex items-center justify-between">
+<span>HARD SAFETY</span>
+<span class="text-white/70">→</span>
+</div>
+</div>
+<!-- Step 5 -->
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between h-full relative">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/50">
+<span>STAGE 05</span>
+<span class="text-white">EXPERT</span>
+</div>
+<div class="font-mono-readout text-[10px] text-surface-tint tracking-[0.15em] uppercase mb-1">HUMAN IN THE LOOP</div>
+<h3 class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] mb-2 uppercase">A person decides.</h3>
+<p class="text-xs text-white/60 leading-relaxed">
+                A skilled Expert in your trade watches the video with the AI's notes and approves, asks for a reshoot, or rejects.
+              </p>
+</div>
+<div class="mt-6 pt-3 hairline-border-t font-mono-readout text-[10px] text-white/40 flex items-center justify-between">
+<span>FINAL ARBITER</span>
+<span class="text-white/70">→</span>
+</div>
+</div>
+<!-- Step 6 -->
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between h-full relative">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b font-mono-readout text-xs text-white/50">
+<span>STAGE 06</span>
+<span class="text-surface-tint">BADGE</span>
+</div>
+<div class="flex items-center gap-1 text-surface-tint mb-1">
+<span class="text-xs">✓</span>
+<span class="font-mono-readout text-[9px] uppercase tracking-[0.15em]">SMART FUNDIS SEAL</span>
+</div>
+<h3 class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] mb-2 uppercase">Only after approval.</h3>
+<div class="p-2 bg-black/60 hairline-border rounded mt-2 text-[11px] text-white/80 font-mono-readout leading-tight">
+                Verified by Smart Fundis — &lt;Trade&gt;: &lt;Task&gt; · &lt;date&gt;.
+              </div>
+</div>
+<div class="mt-6 pt-3 hairline-border-t font-mono-readout text-[10px] text-white/40 flex items-center justify-between">
+<span>PUBLISHED</span>
+<span class="text-surface-tint">✓</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-4 hairline-border-t flex items-center justify-between">
+<p class="text-xs font-mono-readout text-white/55 tracking-[0.15em] uppercase">
+            Every AI result — pass, needs review or fail — goes to an Expert. No Badge is ever issued by AI alone.
+          </p>
+<span class="hidden sm:inline-block font-mono-readout text-xs text-white/30">REF: PROTOCOL-01</span>
+</div>
+</div>
+</section>
+<!-- SECTION 02 — WHAT THE AI NEVER DECIDES: ResponsibleAi.never -->
+<section class="w-full hairline-border-t py-20" id="never">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col mb-12">
+<div class="inline-flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">02 — WHAT THE AI NEVER DECIDES</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-display">
+            A recommendation, not a decision.
+          </h2>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+<!-- Column: THE AI DOES (6 cols) -->
+<div class="lg:col-span-6 bg-surface-container hairline-border p-6 rounded flex flex-col">
+<div class="flex items-center justify-between pb-4 mb-4 hairline-border-b">
+<span class="font-mono-readout text-xs font-bold text-white tracking-[0.26em] uppercase">THE AI DOES</span>
+<span class="font-mono-readout text-xs text-white/50 tracking-[0.2em]">[AUTOMATED]</span>
+</div>
+<ul class="flex flex-col gap-4 flex-1">
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">✓</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Marks each Rubric step yes, no or unclear, with a timestamp
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">✓</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Reads the paper code on camera
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">✓</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Drafts feedback for you
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">✓</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Recommends pass, needs review or fail
+                </span>
+</li>
+</ul>
+</div>
+<!-- Column: THE AI NEVER (6 cols) -->
+<div class="lg:col-span-6 bg-surface-container hairline-border p-6 rounded flex flex-col">
+<div class="flex items-center justify-between pb-4 mb-4 hairline-border-b">
+<span class="font-mono-readout text-xs font-bold text-white tracking-[0.26em] uppercase">THE AI NEVER</span>
+<span class="font-mono-readout text-xs text-surface-tint tracking-[0.2em]">[HARD BOUNDARY]</span>
+</div>
+<ul class="flex flex-col gap-4 flex-1">
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">—</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Issues a Badge
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">—</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Approves or rejects you
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">—</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Passes a safety step it is unsure about
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">—</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Decides an appeal
+                </span>
+</li>
+<li class="flex items-start gap-3">
+<span class="text-white font-mono text-sm leading-none mt-0.5 select-none">—</span>
+<span class="text-sm text-white/80 font-normal leading-relaxed">
+                  Receives your name, phone or email (it gets the video, the Task and the Rubric only)
+                </span>
+</li>
+</ul>
+</div>
+</div>
+<!-- Readout Card beneath -->
+<div class="mt-6 p-4 bg-surface-container hairline-border rounded flex items-center gap-4">
+<div class="px-2 py-0.5 bg-black hairline-border rounded font-mono-readout text-[11px] text-surface-tint tracking-[0.2em]">RULE</div>
+<p class="font-mono-readout text-xs text-white/70 tracking-[0.1em] uppercase">
+            An Expert never reviews their own video. Only an Expert approval creates a Badge.
+          </p>
+</div>
+</div>
+</section>
+<!-- SECTION 03 — SAFETY CAPS: ResponsibleAi.caps -->
+<section class="w-full hairline-border-t bg-surface-container/30 py-20" id="caps">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col mb-12">
+<div class="inline-flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">03 — SAFETY CAPS</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-display mb-2">
+            Doubt goes to a human.
+          </h2>
+<p class="text-sm text-white/60 font-mono-readout tracking-[0.15em] uppercase">
+            After the AI runs, plain code applies these rules. They are fixed, not learned.
+          </p>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Left: IF -> THEN -> WHY Ledger (8 cols) -->
+<div class="lg:col-span-8 bg-surface-container hairline-border rounded overflow-hidden">
+<div class="px-4 py-3 bg-black/50 hairline-border-b grid grid-cols-12 font-mono-readout text-xs text-white/40 tracking-[0.26em]">
+<div class="col-span-5">IF CONDITION</div>
+<div class="col-span-4">THEN RESULT</div>
+<div class="col-span-3">WHY</div>
+</div>
+<!-- Row 1 -->
+<div class="px-4 py-3.5 hairline-border-b grid grid-cols-12 text-xs items-center gap-2">
+<div class="col-span-5 text-white/90">A safety step is marked no</div>
+<div class="col-span-4 font-mono-readout text-surface-tint font-medium">◐ Capped at Needs review</div>
+<div class="col-span-3 text-white/60">Getting it wrong can hurt someone.</div>
+</div>
+<!-- Row 2 -->
+<div class="px-4 py-3.5 hairline-border-b grid grid-cols-12 text-xs items-center gap-2">
+<div class="col-span-5 text-white/90">A safety step is marked unclear</div>
+<div class="col-span-4 font-mono-readout text-surface-tint font-medium">◐ Capped at Needs review</div>
+<div class="col-span-3 text-white/60">Unsure is not safe.</div>
+</div>
+<!-- Row 3 -->
+<div class="px-4 py-3.5 hairline-border-b grid grid-cols-12 text-xs items-center gap-2">
+<div class="col-span-5 text-white/90">A Rubric step has no observation</div>
+<div class="col-span-4 font-mono-readout text-white">Treated as unclear</div>
+<div class="col-span-3 text-white/60">Missing is not a pass.</div>
+</div>
+<!-- Row 4 -->
+<div class="px-4 py-3.5 hairline-border-b grid grid-cols-12 text-xs items-center gap-2">
+<div class="col-span-5 text-white/90">The paper code is unreadable or doesn't match</div>
+<div class="col-span-4 font-mono-readout text-surface-tint font-medium">◐ Capped at Needs review</div>
+<div class="col-span-3 text-white/60">We can't prove the video was made for this check.</div>
+</div>
+<!-- Row 5 -->
+<div class="px-4 py-3.5 grid grid-cols-12 text-xs items-center gap-2">
+<div class="col-span-5 text-white/90">The AI recommends fail</div>
+<div class="col-span-4 font-mono-readout text-white">Stays fail. An Expert still reviews it.</div>
+<div class="col-span-3 text-white/60">Rules never raise a result.</div>
+</div>
+</div>
+<!-- Right: Paper Code Panel (4 cols) -->
+<div class="lg:col-span-4 bg-surface-container hairline-border p-6 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between pb-3 mb-3 hairline-border-b">
+<span class="font-mono-readout text-xs text-surface-tint tracking-[0.2em] uppercase font-bold">WHY PAPER</span>
+<span class="font-mono-readout text-[10px] text-white/40">CODE VERIFICATION</span>
+</div>
+<p class="text-xs text-white/80 leading-relaxed mb-4">
+                Our video AI sees but cannot hear. So you write a fresh 3-digit code on paper, show it to the camera, then do the work in one continuous shot.
+              </p>
+<p class="text-xs text-white/60 leading-relaxed mb-6">
+                The AI reads the digits blind. Plain code compares them with your code.
+              </p>
+</div>
+<!-- Line Diagram -->
+<div class="bg-black/60 hairline-border p-4 rounded flex flex-col gap-3">
+<div class="flex items-center justify-between text-xs font-mono-readout text-white/60">
+<span>PHYSICAL SHEET</span>
+<span>SYSTEM LOGIC</span>
+</div>
+<div class="flex items-center justify-between gap-2 py-2">
+<!-- Paper with boxes -->
+<div class="border border-dashed border-white/40 px-2 py-1 flex gap-1 items-center">
+<div class="w-4 h-5 hairline-border flex items-center justify-center text-[10px] text-white/50">[ ]</div>
+<div class="w-4 h-5 hairline-border flex items-center justify-center text-[10px] text-white/50">[ ]</div>
+<div class="w-4 h-5 hairline-border flex items-center justify-center text-[10px] text-white/50">[ ]</div>
+</div>
+<span class="text-white/40">→</span>
+<!-- Eye / blind -->
+<div class="flex flex-col items-center">
+<span class="text-xs">👁</span>
+<span class="font-mono-readout text-[8px] uppercase tracking-widest text-white/70">READ BLIND</span>
+</div>
+<span class="text-white/40">→</span>
+<!-- Equals in code -->
+<div class="flex flex-col items-center">
+<span class="text-xs font-mono font-bold text-surface-tint">=</span>
+<span class="font-mono-readout text-[8px] uppercase tracking-widest text-surface-tint">COMPARED IN CODE</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 04 — CONSENT AND YOUR VIDEO: ResponsibleAi.video -->
+<section class="w-full hairline-border-t py-20">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col mb-12">
+<div class="inline-flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">04 — CONSENT AND YOUR VIDEO</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-display">
+            Your video stays yours.
+          </h2>
+</div>
+<!-- 2-column rows (6 + 6) readout list -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-1">CONSENT</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Before every upload, in English and Kiswahili. Upload stays off until you agree. We record which version you agreed to, and when.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-1">WHO SEES IT</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              You, Experts approved for your trade, Admins, and our AI.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-1">PUBLIC</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Only your Badge. Never your video or the AI's feedback.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-1">TRAINING</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Your video is not used to train AI, and never added to the Data Co-op.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-1">GPU COPY</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              The copy on our GPU server is deleted once it has been checked.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-1">STORAGE</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Your video is kept privately until you delete it.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase">DELETE</span>
+<span class="font-mono-readout text-[10px] text-white/50 tracking-[0.2em] uppercase">COMING SOON</span>
+</div>
+<p class="text-xs text-white/70 leading-relaxed">
+                Remove your video once review is finished. Your Badge stays.
+              </p>
+</div>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded flex flex-col justify-between">
+<div>
+<div class="flex items-center justify-between mb-1">
+<span class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase">APPEAL</span>
+<span class="font-mono-readout text-[10px] text-white/50 tracking-[0.2em] uppercase">COMING SOON</span>
+</div>
+<p class="text-xs text-white/70 leading-relaxed">
+                Rejected? Appeal once, with a reason. A different Expert decides.
+              </p>
+</div>
+</div>
+</div>
+<!-- 2 Readout Cards Side-by-side beneath -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="bg-surface-container hairline-border p-4 rounded">
+<div class="font-mono-readout text-xs text-white tracking-[0.2em] uppercase font-semibold mb-1">TRACES</div>
+<p class="text-xs text-white/60 leading-relaxed">
+              Our AI logs are masked. They keep ids, the trade, the verdict and the status. They drop video links, prompts and feedback text.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-4 rounded">
+<div class="font-mono-readout text-xs text-white tracking-[0.2em] uppercase font-semibold mb-1">SHOWCASE</div>
+<p class="text-xs text-white/60 leading-relaxed">
+              YouTube and TikTok links are showcase only. We never download them, and they never earn a Badge.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 05 — HOW WE TEST: ResponsibleAi.eval -->
+<section class="w-full hairline-border-t bg-surface-container/30 py-20">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col mb-12">
+<div class="inline-flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">05 — HOW WE TEST</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-display">
+            Measured before we claim.
+          </h2>
+</div>
+<!-- 4-step method strip -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-10">
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs text-white/50 tracking-[0.2em] uppercase mb-2">01 CLIPS</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Our own recordings of cornrows and socket installs, staged safety faults, and clips with a wrong or missing code, plus licensed stock clips. Never YouTube or TikTok.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs text-white/50 tracking-[0.2em] uppercase mb-2">02 BLIND LABELS</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              People label every clip before the AI sees it.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs text-white/50 tracking-[0.2em] uppercase mb-2">03 MEASURE</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              How often the AI agrees with the labels, and how many staged safety faults it catches.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-5 rounded">
+<div class="font-mono-readout text-xs text-white/50 tracking-[0.2em] uppercase mb-2">04 SPLIT</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Results per trade and per model, split by gender and by lighting.
+            </p>
+</div>
+</div>
+<!-- Full-width EXAMPLE results ledger -->
+<div class="bg-surface-container hairline-border rounded overflow-hidden">
+<div class="px-6 py-4 bg-black/50 hairline-border-b flex justify-between items-center font-mono-readout text-xs tracking-[0.26em]">
+<span class="text-white font-bold">EVAL RESULTS</span>
+<span class="text-white/50">EXAMPLE · NOT MEASURED YET</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left font-mono-readout text-xs">
+<thead>
+<tr class="hairline-border-b text-white/40 tracking-[0.2em]">
+<th class="py-3 px-6 font-medium">MODEL</th>
+<th class="py-3 px-6 font-medium">TRADE</th>
+<th class="py-3 px-6 font-medium">AGREEMENT</th>
+<th class="py-3 px-6 font-medium">SAFETY-FAULT RECALL</th>
+<th class="py-3 px-6 font-medium">SPLIT BY</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-white/10">
+<tr>
+<td class="py-4 px-6 text-white font-medium">Cosmos Reason 2 8B</td>
+<td class="py-4 px-6 text-white/80">Electrical</td>
+<td class="py-4 px-6 text-white font-bold select-none">—</td>
+<td class="py-4 px-6 text-white font-bold select-none">—</td>
+<td class="py-4 px-6 text-white/60">Gender, lighting</td>
+</tr>
+<tr>
+<td class="py-4 px-6 text-white font-medium">Cosmos Reason 2 8B</td>
+<td class="py-4 px-6 text-white/80">Hairdressing</td>
+<td class="py-4 px-6 text-white font-bold select-none">—</td>
+<td class="py-4 px-6 text-white font-bold select-none">—</td>
+<td class="py-4 px-6 text-white/60">Gender, lighting</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+<div class="mt-4 flex items-center justify-between font-mono-readout text-xs">
+<p class="text-white tracking-[0.1em]">
+            No accuracy numbers yet. We make no accuracy claim until the test has run.
+          </p>
+<span class="text-white/30 hidden sm:inline-block">EVALUATION SPEC v4.2</span>
+</div>
+</div>
+</section>
+<!-- SECTION 06 — LIMITS AND KNOWN RISKS: ResponsibleAi.limits -->
+<section class="w-full hairline-border-t py-20">
+<div class="max-w-7xl mx-auto px-6">
+<div class="flex flex-col mb-12">
+<div class="inline-flex items-center gap-2 mb-3">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">06 — LIMITS AND KNOWN RISKS</span>
+</div>
+<h2 class="text-3xl md:text-4xl font-extrabold tracking-tight text-on-surface font-display">
+            What we can't promise.
+          </h2>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-surface-container hairline-border p-6 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-2">AI CAN BE WRONG</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              That is why every result goes to an Expert.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-6 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-2">HANDWRITTEN CODES</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              We haven't yet measured how well the AI reads handwritten digits.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-6 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-2">NO SOUND</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              The video AI only sees. Saying your code aloud is fine, but it isn't checked.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-6 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-2">VIDEO LINKS</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              If a private video link leaks, it works until the video is deleted. A fix is planned.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-6 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-2">FALLBACK MODEL</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              If our main model is down, a smaller one (Cosmos Reason 2 2B) runs, and the record notes it.
+            </p>
+</div>
+<div class="bg-surface-container hairline-border p-6 rounded">
+<div class="font-mono-readout text-xs font-semibold text-white tracking-[0.2em] uppercase mb-2">WHAT A BADGE ISN'T</div>
+<p class="text-xs text-white/70 leading-relaxed">
+              Not a qualification, licence or background check. NITA, KNQA and TVETs certify. We verify one skill, on video.
+            </p>
+</div>
+</div>
+</div>
+</section>
+<!-- SECTION 07 — CONTACT: ResponsibleAi.contact -->
+<section class="max-w-7xl mx-auto px-6 pb-24">
+<div class="bg-surface-container hairline-border rounded p-8 md:p-12">
+<div class="inline-flex items-center gap-2 mb-6">
+<span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>
+<span class="font-mono-readout text-xs text-white/60 tracking-[0.26em] uppercase">07 — CONTACT</span>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<!-- Left (7 cols) -->
+<div class="lg:col-span-7">
+<h2 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white mb-3 font-display">
+              Questions about a decision or your data?
+            </h2>
+<p class="text-sm text-white/60 font-normal leading-relaxed">
+              Write to us. A person reads every message.
+            </p>
+</div>
+<!-- Right (5 cols) -->
+<div class="lg:col-span-5 flex flex-col sm:flex-row items-start sm:items-center lg:justify-end gap-5">
+<a class="h-12 px-8 rounded-full bg-transparent hairline-border text-on-surface hover:text-white hover:border-white/40 font-mono-readout text-xs font-semibold uppercase tracking-[0.26em] flex items-center justify-center transition-all active:scale-[0.98]" href="mailto:team@example.com">
+              Email us
+            </a>
+<a class="font-mono-readout text-xs text-white/55 hover:text-on-surface tracking-[0.26em] uppercase transition-colors" href="/evidence">
+              Read how verification works
+            </a>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- SHARED FOOTER -->
+<footer class="w-full hairline-border-t bg-surface-container-lowest">
+<div class="w-full px-6 pt-16 pb-12 max-w-7xl mx-auto flex flex-col gap-14">
+<!-- Top CTA Row in Footer -->
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 pb-12 hairline-border-b">
+<h3 class="font-display font-extrabold text-3xl sm:text-4xl text-on-surface tracking-tight">
+          Show your work.
+        </h3>
+<a class="h-12 px-7 rounded-full bg-surface-tint hover:bg-[#ffa767] text-[#050609] font-mono-readout text-xs font-semibold uppercase tracking-[0.26em] flex items-center justify-center transition-all active:scale-[0.98]" href="/join">
+          Join as a fundi
+        </a>
+</div>
+<!-- 4-column Directory -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 font-mono-readout text-xs tracking-[0.2em] uppercase">
+<div>
+<div class="text-white/40 font-bold mb-4">FOR FUNDIS</div>
+<ul class="flex flex-col gap-2.5 text-white/60">
+<li><a class="hover:text-on-surface transition-colors" href="/verify">Earn a Badge</a></li>
+<li><a class="hover:text-on-surface transition-colors" href="/rubrics">Rubric Index</a></li>
+<li><a class="hover:text-on-surface transition-colors" href="/standards">Skills Guide</a></li>
+</ul>
+</div>
+<div>
+<div class="text-white/40 font-bold mb-4">FOR CLIENTS</div>
+<ul class="flex flex-col gap-2.5 text-white/60">
+<li><a class="hover:text-on-surface transition-colors" href="/search">Find a Fundi</a></li>
+<li><a class="hover:text-on-surface transition-colors" href="/verify-badge">Verify a Badge</a></li>
+<li><a class="hover:text-on-surface transition-colors" href="/trade-coverage">Trades [04]</a></li>
+</ul>
+</div>
+<div>
+<div class="text-white/40 font-bold mb-4">TRUST</div>
+<ul class="flex flex-col gap-2.5">
+<li><a class="text-surface-tint font-semibold flex items-center gap-1.5" href="/responsible-ai"><span class="w-1.5 h-1.5 rounded-full bg-surface-tint"></span>Responsible AI</a></li>
+<li><a class="text-white/60 hover:text-on-surface transition-colors" href="/privacy">Privacy Charter</a></li>
+<li><a class="text-white/60 hover:text-on-surface transition-colors" href="/evidence-spec">Evidence Spec v4.2</a></li>
+</ul>
+</div>
+<div>
+<div class="text-white/40 font-bold mb-4">COMPANY</div>
+<ul class="flex flex-col gap-2.5 text-white/60">
+<li><a class="hover:text-on-surface transition-colors" href="/about">About Us</a></li>
+<li><a class="hover:text-on-surface transition-colors" href="/contact">Contact</a></li>
+<li><a class="hover:text-on-surface transition-colors" href="/system-status">System Status</a></li>
+</ul>
+</div>
+</div>
+<!-- Giant faint outlined brand wordmark -->
+<div class="w-full overflow-hidden select-none py-4 text-center">
+<span class="font-display font-black text-6xl sm:text-8xl md:text-9xl tracking-tighter text-outline-variant/15 select-none uppercase block w-full">
+          SMART FUNDIS
+        </span>
+</div>
+<!-- Statutory notice & Copyright row -->
+<div class="pt-6 hairline-border-t flex flex-col md:flex-row justify-between items-start md:items-center gap-4 text-xs font-mono-readout text-white/50 tracking-[0.18em]">
+<div class="flex items-center gap-2">
+<span>We verify skills. NITA, KNQA and TVETs certify.</span>
+<span class="hidden md:inline-block">·</span>
+<span>© 2026 Smart Fundis. All rights reserved.</span>
+</div>
+<div class="text-white/40 text-[11px]">
+          SYS.REF 2025 // KENYA — KAZI YAKO, SIFA YAKO.
+        </div>
+</div>
+</div>
+</footer>
+</body></html>

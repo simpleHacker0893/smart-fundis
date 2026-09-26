@@ -1,0 +1,411 @@
+import { NextIntlClientProvider, createTranslator } from "next-intl";
+import type { ReactNode } from "react";
+import { renderToStaticMarkup } from "react-dom/server";
+import { describe, expect, it, vi } from "vitest";
+import { defaultLocale } from "@/i18n/config";
+import en from "@/messages/en.json";
+import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
+
+// The content pages of spec #19 (#21-#25). Each one gets the same checks:
+// copy only from en.json, links only to real routes or real sections, images
+// only local WebP, every sample tagged EXAMPLE, and nothing that says
+// "certified". Page-specific checks follow.
+
+vi.mock("next-intl/server", async () => {
+  const { createTranslator } = await import("next-intl");
+  const messages = (await import("@/messages/en.json")).default;
+  const { defaultLocale } = await import("@/i18n/config");
+  return {
+    getTranslations: async (namespace?: string) =>
+      createTranslator({ locale: defaultLocale, messages, namespace: namespace as never }),
+  };
+});
+
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join", "/pricing"];
+
+const common = createTranslator({ locale: defaultLocale, messages: en, namespace: "Common" });
+const isFromMessages = makeIsFromMessages(en);
+
+type PageModule = {
+  default: () => Promise<ReactNode>;
+  generateMetadata: () => Promise<{ title?: unknown; description?: unknown }>;
+};
+
+const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof typeof en }> = {
+  "/evidence": { load: () => import("@/app/(site)/evidence/page"), namespace: "Evidence" },
+  "/trades": { load: () => import("@/app/(site)/trades/page"), namespace: "Trades" },
+  "/telemetry": { load: () => import("@/app/(site)/telemetry/page"), namespace: "Telemetry" },
+  "/about": { load: () => import("@/app/(site)/about/page"), namespace: "About" },
+  "/contact": { load: () => import("@/app/(site)/contact/page"), namespace: "Contact" },
+  "/privacy": { load: () => import("@/app/(site)/privacy/page"), namespace: "Privacy" },
+  "/responsible-ai": { load: () => import("@/app/(site)/responsible-ai/page"), namespace: "ResponsibleAi" },
+  "/pricing": { load: () => import("@/app/(site)/pricing/page"), namespace: "Pricing" },
+};
+
+async function render(route: string) {
+  const page = await PAGES[route].load();
+  return renderToStaticMarkup(
+    <NextIntlClientProvider locale={defaultLocale} messages={en}>
+      {await page.default()}
+    </NextIntlClientProvider>,
+  );
+}
+
+async function idsOf(route: string): Promise<Set<string>> {
+  const markup = route === "/" ? await renderHome() : await render(route);
+  return new Set([...markup.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+}
+
+async function renderHome() {
+  const { default: HomePage } = await import("@/app/(site)/page");
+  return renderToStaticMarkup(
+    <NextIntlClientProvider locale={defaultLocale} messages={en}>
+      {await HomePage()}
+    </NextIntlClientProvider>,
+  );
+}
+
+function section(markup: string, id: string): string {
+  const start = markup.indexOf(`id="${id}"`);
+  expect(start, `no section #${id}`).toBeGreaterThan(-1);
+  return markup.slice(start, markup.indexOf("</section>", start));
+}
+
+describe.each(Object.keys(PAGES))("%s", (route) => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: PAGES[route].namespace });
+
+  it("renders only strings from messages/en.json", async () => {
+    const strings = visibleStrings(await render(route));
+    expect(strings.length).toBeGreaterThan(5);
+    for (const s of strings) expect(isFromMessages(s), `hardcoded string on ${route}: "${s}"`).toBe(true);
+  });
+
+  it("has exactly one h1", async () => {
+    expect((await render(route)).match(/<h1[\s>]/g)).toHaveLength(1);
+  });
+
+  it("takes its title and description from en.json", async () => {
+    const meta = await (await PAGES[route].load()).generateMetadata();
+    expect(meta.title).toBe(t("meta.title" as never));
+    expect(meta.description).toBe(t("meta.description" as never));
+  });
+
+  it("links only to real routes and to sections that exist", async () => {
+    const markup = await render(route);
+    for (const href of [...markup.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])) {
+      if (href.startsWith("mailto:")) continue;
+      const [path, hash] = href.split("#");
+      const target = path === "" ? route : path.split("?")[0];
+      expect(REAL_ROUTES, `${route} links to a missing page: ${href}`).toContain(target);
+      if (hash) expect((await idsOf(target)).has(hash), `${route} links to a missing section: ${href}`).toBe(true);
+    }
+  });
+
+  it("loads only local WebP images, each with alt text", async () => {
+    const imgs = [...(await render(route)).matchAll(/<img\s[^>]*>/g)].map((m) => m[0]);
+    for (const img of imgs) {
+      expect(img).not.toMatch(/googleusercontent/);
+      expect(img).toMatch(/\.webp/);
+      expect(img).toMatch(/\salt="[^"]+"/);
+    }
+  });
+
+  it("never says certified, except 'NITA, KNQA and TVETs certify'", async () => {
+    const text = visibleStrings(await render(route)).join(" ");
+    expect(text.replaceAll("NITA, KNQA and TVETs certify", "")).not.toMatch(/certif/i);
+  });
+});
+
+describe("/evidence (#21)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Evidence" });
+
+  it("has the prompt's sections in order: hero, chain, badge, profile, scope", async () => {
+    const markup = await render("/evidence");
+    const ids = ["top", "chain", "badge", "profile", "scope"];
+    const at = ids.map((id) => markup.indexOf(`id="${id}"`));
+    for (const [i, p] of at.entries()) expect(p, ids[i]).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("lists the five links of the chain of evidence", async () => {
+    const chain = visibleStrings(section(await render("/evidence"), "chain"));
+    for (const step of ["consent", "code", "video", "ai", "expert"] as const) {
+      expect(chain).toContain(t(`chain.steps.${step}.title`));
+    }
+  });
+
+  it("tags the sample frame, badge and profile EXAMPLE", async () => {
+    const markup = await render("/evidence");
+    for (const id of ["top", "badge", "profile"]) {
+      expect(visibleStrings(section(markup, id)).join(" "), `#${id}`).toMatch(/Example/);
+    }
+  });
+
+  it("shows no statistics, live chips or contact button on the sample profile", async () => {
+    const markup = await render("/evidence");
+    const text = visibleStrings(markup).join(" ");
+    expect(text).not.toMatch(/\d+%|active|contact fundi|verified location/i);
+    const profile = section(markup, "profile");
+    expect(profile).not.toMatch(/<a\s|<button/);
+    expect(visibleStrings(profile)).toContain(t("profile.showcase"));
+    expect(visibleStrings(profile)).toContain(t("profile.private"));
+  });
+});
+
+describe("/trades (#22)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Trades" });
+  const names = createTranslator({ locale: defaultLocale, messages: en, namespace: "Landing.trades.names" });
+
+  it("shows the two open trades with their task, an EXAMPLE rubric preview and 'Verify now' to Join", async () => {
+    const open = section(await render("/trades"), "open");
+    const strings = visibleStrings(open);
+    for (const [i, key] of (["electrical", "hairdressing"] as const).entries()) {
+      expect(strings).toContain(t("open.trade", { n: `0${i + 1}`, trade: names(key) }));
+      expect(strings).toContain(t(`open.${key}.task`));
+    }
+    expect(strings.filter((s) => s === t("open.rubric"))).toHaveLength(2);
+    const anchors = [...open.matchAll(/<a\s[^>]*href="([^"]*)"[^>]*>([\s\S]*?)<\/a>/g)];
+    expect(anchors.map((m) => m[1].replaceAll("&amp;", "&"))).toEqual([
+      "/join?role=fundi&trade=electrical",
+      "/join?role=fundi&trade=hairdressing",
+    ]);
+    for (const [, , inner] of anchors) expect(visibleStrings(inner)).toContain(t("open.verifyNow"));
+  });
+
+  it("never says LIVE, 'system active' or 'tamper-evident'", async () => {
+    const text = visibleStrings(await render("/trades")).join(" ");
+    expect(text).not.toMatch(/\blive\b|system active|tamper|master fundis/i);
+  });
+
+  it("shows ten bench trades as 'Coming soon' readouts, not links or buttons", async () => {
+    const bench = section(await render("/trades"), "bench");
+    expect(visibleStrings(bench).filter((s) => s === common("comingSoon"))).toHaveLength(10);
+    const tiles = bench.slice(0, bench.indexOf(t("bench.note")));
+    expect(tiles).not.toMatch(/<a\s|<button|disabled|opacity-(50|60)/);
+  });
+});
+
+describe("/telemetry (#23)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Telemetry" });
+
+  it("has the prompt's sections in order: hero, pipeline, outputs, privacy, appeals", async () => {
+    const markup = await render("/telemetry");
+    const at = ["top", "pipeline", "outputs", "privacy", "appeals"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+  });
+
+  it("shows the six pipeline stages and the three AI outputs", async () => {
+    const markup = await render("/telemetry");
+    const pipeline = visibleStrings(section(markup, "pipeline"));
+    for (const stage of ["ingest", "guard", "observe", "assess", "rules", "expert"] as const) {
+      expect(pipeline).toContain(t(`pipeline.stages.${stage}.title`));
+    }
+    const outputs = visibleStrings(section(markup, "outputs"));
+    for (const out of ["pass", "review", "fail"] as const) expect(outputs).toContain(t(`outputs.${out}.title`));
+    expect(outputs).toContain(t("outputs.caption"));
+  });
+
+  it("marks deletion and appeals 'Coming soon' until V4 ships them (HANDOFF C-6)", async () => {
+    const markup = await render("/telemetry");
+    const privacy = section(markup, "privacy");
+    const deleteRow = privacy.slice(privacy.indexOf(t("privacy.rows.delete.label")));
+    expect(visibleStrings(deleteRow.slice(0, 600))).toContain(common("comingSoon"));
+    expect(visibleStrings(section(markup, "appeals"))).toContain(common("comingSoon"));
+  });
+
+  it("invents no numbers or infrastructure claims", async () => {
+    const text = visibleStrings(await render("/telemetry")).join(" ");
+    expect(text).not.toMatch(/\d+%|enclave|cryptograph|tamper|hardware tethered|isolated gpu|irreversible|senior panel/i);
+  });
+});
+
+describe("/about (#24)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "About" });
+
+  it("has the prompt's sections: hero, what we are, principles, statement, links", async () => {
+    const markup = await render("/about");
+    const at = ["top", "what", "principles", "statement", "more"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("says what we are not, and tags bookings and payments 'Coming soon'", async () => {
+    const what = visibleStrings(section(await render("/about"), "what"));
+    expect(what).toContain(t("what.not.title"));
+    expect(what).toContain(t("what.notYet.title"));
+    expect(what).toContain(common("comingSoon"));
+  });
+
+  it("lists the four principles and links on to telemetry, the roadmap and contact", async () => {
+    const markup = await render("/about");
+    const principles = visibleStrings(section(markup, "principles"));
+    for (const n of ["1", "2", "3", "4"] as const) expect(principles).toContain(t(`principles.items.${n}.title`));
+    const more = [...section(markup, "more").matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
+    expect(more).toEqual(["/telemetry", "/#roadmap", "/contact"]);
+  });
+
+  it("drops the export's invented readouts", async () => {
+    const text = visibleStrings(await render("/about")).join(" ");
+    expect(text).not.toMatch(/fps|continuous telemetry|fresh telemetry|trade verified|verification seal|raw bench/i);
+  });
+});
+
+describe("/contact (#24)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Contact" });
+
+  it("renders the mailto form to the one contact address, with no backend", async () => {
+    const markup = await render("/contact");
+    expect(markup).toMatch(/<form/);
+    expect(markup).not.toMatch(/action="http|method="post"|example\.com/i);
+    expect(markup).toContain('href="mailto:info@smartfundis.com"');
+  });
+
+  it("builds a mailto link with the role and message, to the one contact address", async () => {
+    const { buildMailto } = await import("@/lib/contact");
+    const href = buildMailto("info@smartfundis.com", {
+      subject: t("message.subject", { role: t("message.roles.fundi") }),
+      message: "Habari? Line 2 & more",
+    });
+    expect(href.startsWith("mailto:info@smartfundis.com?")).toBe(true);
+    const params = new URLSearchParams(href.split("?")[1]);
+    expect(params.get("subject")).toContain("Fundi");
+    expect(params.get("body")).toBe("Habari? Line 2 & more");
+  });
+});
+
+describe("/privacy (#25)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Privacy" });
+
+  it("keeps the Stitch layout: hero, who sees what, consent, your controls", async () => {
+    const markup = await render("/privacy");
+    const at = ["top", "who", "consent", "controls"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("shows the access matrix as a table: only the badge and showcase links are public", async () => {
+    const who = section(await render("/privacy"), "who");
+    expect(who).toMatch(/<table/);
+    const rows = [...who.matchAll(/<tr[\s\S]*?<\/tr>/g)].map((m) => visibleStrings(m[0]));
+    const body = rows.slice(1);
+    expect(body).toHaveLength(5);
+    const publicRows = body.filter((cells) => cells.includes(t("who.yes"))).map((cells) => cells[0]);
+    expect(publicRows).toEqual([t("who.rows.badge.item"), t("who.rows.showcase.item")]);
+  });
+
+  it("describes consent in English only: no Kiswahili consent text is printed", async () => {
+    const markup = await render("/privacy");
+    const text = visibleStrings(markup).join(" ");
+    expect(text).not.toMatch(/ninakubali|video yangu|wataalamu|hadharani/i);
+    expect(visibleStrings(section(markup, "consent"))).toContain(t("consent.languages"));
+  });
+
+  it("tags delete and visibility 'Coming soon'; training is policy, untagged", async () => {
+    const controls = section(await render("/privacy"), "controls");
+    const cards = [...controls.matchAll(/<li[\s\S]*?<\/li>/g)].map((m) => visibleStrings(m[0]));
+    const byLabel = (key: string) => cards.find((c) => c.includes(t(`controls.${key}.label` as never)))!;
+    expect(byLabel("delete")).toContain(common("comingSoon"));
+    expect(byLabel("visibility")).toContain(common("comingSoon"));
+    expect(byLabel("training")).not.toContain(common("comingSoon"));
+  });
+
+  it("drops the export's invented readouts", async () => {
+    const text = visibleStrings(await render("/privacy")).join(" ");
+    expect(text).not.toMatch(/cold storage|hardware|fps|standby|sovereignty|zero harvest|purge|spec \/\//i);
+  });
+});
+
+describe("/responsible-ai (#26)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "ResponsibleAi" });
+
+  it("has the prompt's eight sections in order", async () => {
+    const markup = await render("/responsible-ai");
+    const ids = ["top", "pipeline", "never", "caps", "video", "eval", "limits", "contact"];
+    const at = ids.map((id) => markup.indexOf(`id="${id}"`));
+    for (const [i, p] of at.entries()) expect(p, ids[i]).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("keeps every eval result a dash: no numbers, percentages or bars", async () => {
+    const evalSection = section(await render("/responsible-ai"), "eval");
+    const metrics = [...evalSection.matchAll(/data-metric="[^"]*"[^>]*>([\s\S]*?)<\/(td|dd)>/g)].map((m) =>
+      visibleStrings(m[1]).join(""),
+    );
+    expect(metrics.length).toBeGreaterThanOrEqual(4);
+    for (const cell of metrics) expect(cell).toBe(t("eval.dash"));
+    expect(visibleStrings(evalSection).join(" ")).not.toMatch(/%|progress|meter/i);
+    expect(evalSection).not.toMatch(/<progress|<meter|role="progressbar"/);
+    expect(visibleStrings(evalSection)).toContain(t("eval.noNumbers"));
+  });
+
+  it("shows DELETE and APPEAL as 'Coming soon' readouts, never buttons", async () => {
+    const markup = await render("/responsible-ai");
+    expect(markup).not.toMatch(/<button/);
+    const video = section(markup, "video");
+    const rows = [...video.matchAll(/<div[^>]*data-row="([^"]+)"[\s\S]*?<\/dd>\s*<\/div>/g)];
+    const row = (key: string) => visibleStrings(rows.find((r) => r[1] === key)![0]);
+    expect(row("delete")).toContain(common("comingSoon"));
+    expect(row("appeal")).toContain(common("comingSoon"));
+    expect(row("training")).not.toContain(common("comingSoon"));
+  });
+
+  it("never prints the Kiswahili consent text, and never says the AI approves or grades", async () => {
+    const text = visibleStrings(await render("/responsible-ai")).join(" ");
+    expect(text).not.toMatch(/ninakubali|video yangu|wataalamu|hadharani/i);
+    expect(text).not.toMatch(/AI (approves|grades|scores|certifies)|system online|\blive\b/i);
+  });
+
+  it("links contact to the one email and to /evidence", async () => {
+    const contact = section(await render("/responsible-ai"), "contact");
+    expect([...contact.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])).toEqual(["mailto:info@smartfundis.com", "/evidence"]);
+    expect(visibleStrings(contact)).toContain(t("contact.email"));
+  });
+});
+
+describe("/pricing (#30)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Pricing" });
+
+  it("has a hero, what's free today, and what's planned", async () => {
+    const markup = await render("/pricing");
+    const at = ["top", "free", "planned"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("lists verifying, the profile and Badges, and finding fundis as free today, with no payments", async () => {
+    const free = visibleStrings(section(await render("/pricing"), "free"));
+    for (const item of ["verify", "profile", "find", "payments"] as const) {
+      expect(free).toContain(t(`free.items.${item}.title`));
+    }
+  });
+
+  it("tags every planned price 'Planned · may change', as readouts with no buy button", async () => {
+    const planned = section(await render("/pricing"), "planned");
+    const cards = [...planned.matchAll(/<li[\s\S]*?<\/li>/g)].map((m) => m[0]);
+    expect(cards).toHaveLength(2);
+    for (const card of cards) {
+      expect(visibleStrings(card)).toContain(t("planned.tag"));
+      expect(card).not.toMatch(/<a\s|<button/);
+    }
+    expect(visibleStrings(planned)).toContain(t("planned.items.pro.price"));
+    expect(visibleStrings(planned)).toContain(t("planned.items.bookings.price"));
+    expect(t("planned.items.pro.price")).toMatch(/KSh 300/);
+    expect(t("planned.items.bookings.price")).toMatch(/2\.5% \+ 2\.5%/);
+  });
+
+  it("invents no tiers, discounts, countdowns or purchase buttons", async () => {
+    const markup = await render("/pricing");
+    expect(markup).not.toMatch(/<button|<form/);
+    const text = visibleStrings(markup).join(" ");
+    expect(text).not.toMatch(/most popular|best value|discount|save \d|limited time|buy|subscribe now|per year|enterprise|premium/i);
+    // The only prices on the page: KSh 0 today, and the two planned ones.
+    const prices = text.match(/KSh\s?\d[\d,]*|\d+(\.\d+)?%/g) ?? [];
+    expect(new Set(prices)).toEqual(new Set(["KSh 0", "KSh 300", "2.5%"]));
+  });
+});

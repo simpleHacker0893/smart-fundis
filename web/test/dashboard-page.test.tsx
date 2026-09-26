@@ -66,7 +66,7 @@ beforeEach(() => {
 });
 
 async function renderDashboard() {
-  const { default: DashboardPage } = await import("@/app/dashboard/page");
+  const { default: DashboardPage } = await import("@/app/(site)/dashboard/page");
   const page = await DashboardPage();
   return visibleStrings(
     renderToStaticMarkup(

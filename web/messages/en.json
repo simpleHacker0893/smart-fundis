@@ -1,11 +1,11 @@
 {
+  "Common": {
+    "comingSoon": "Coming soon",
+    "example": "Example"
+  },
   "Metadata": {
     "title": "Smart Fundis",
     "description": "Skills, verified by Smart Fundis."
-  },
-  "HomePage": {
-    "title": "Smart Fundis",
-    "tagline": "Skills, verified by Smart Fundis. Coming together."
   },
   "DashboardPage": {
     "title": "Dashboard",
@@ -14,41 +14,1006 @@
   },
   "Shell": {
     "brand": "Smart Fundis",
-    "verifiedSkills": "Verified skills",
     "skipToContent": "Skip to content",
     "primaryNav": "Main",
     "join": "Join",
-    "openMenu": "Open menu",
-    "closeMenu": "Close menu",
-    "menuTitle": "Menu"
+    "tagline": "Verified skills",
+    "homeLabel": "Smart Fundis, verified skills: home",
+    "sectionsNav": "Sections"
   },
   "Footer": {
-    "headline": "Show your work.",
-    "linksLabel": "Footer",
     "groups": {
       "forFundis": "For fundis",
       "forClients": "For clients",
       "forExperts": "For experts",
       "company": "Company"
     },
-    "legal": "We verify skills. NITA, KNQA and TVETs certify.",
-    "copyright": "© 2026 Smart Fundis"
+    "bottomLine": "© 2026 Smart Fundis · We verify skills. NITA, KNQA and TVETs certify.",
+    "email": "Email: {email}"
   },
   "Links": {
     "signIn": "Sign in",
     "dashboard": "Dashboard",
     "joinAsFundi": "Join as a fundi",
     "findFundi": "Find a fundi",
+    "findFundis": "Find fundis",
     "evidence": "Evidence",
     "trades": "Trades",
     "telemetry": "Telemetry",
     "about": "About",
     "contact": "Contact us",
+    "pricing": "Pricing",
     "howVerificationWorks": "How verification works",
     "privacy": "Your privacy",
     "verifiedMeans": "What 'verified' means",
     "becomeVerifier": "Become a verifier",
     "responsibleAi": "Responsible AI",
-    "roadmap": "Roadmap"
+    "roadmap": "Roadmap",
+    "company": "Company",
+    "howVerdictMade": "How a verdict is made"
+  },
+  "Glyphs": {
+    "pass": "✓",
+    "review": "◐",
+    "no": "✕",
+    "step": "◆"
+  },
+  "Landing": {
+    "hero": {
+      "label": "Smart Fundis / 01 — Proof of skill",
+      "titleLine1": "Kazi yako,",
+      "titleLine2": "sifa yako.",
+      "body": "Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.",
+      "imageAlt": "Hands terminating copper wires in a socket box with a screwdriver",
+      "english": "Your work, your reputation."
+    },
+    "inspector": {
+      "label": "Inspect step",
+      "counter": "Step {step} / 04",
+      "stepsLabel": "Steps of the example video",
+      "frame": "Evidence frame",
+      "frameStatus": "Example · step {step}",
+      "verified": "Verified by Smart Fundis",
+      "caption": "Electrical · Install a 13A socket · Step {step}",
+      "marker": "{number} {name} · {time}",
+      "ledgerCaption": "Electrical · Install a 13A socket · Steps 01–04"
+    },
+    "steps": {
+      "1": {
+        "short": "Isolate",
+        "name": "Isolate power",
+        "time": "00:04",
+        "readout": "Breaker off · tested dead"
+      },
+      "2": {
+        "short": "Strip",
+        "name": "Strip & terminate",
+        "time": "00:19",
+        "readout": "Conductors to L/N/E"
+      },
+      "3": {
+        "short": "Earth",
+        "name": "Earth continuity",
+        "time": "00:41",
+        "readout": "Needs review · safety step"
+      },
+      "4": {
+        "short": "Secure",
+        "name": "Faceplate secure",
+        "time": "00:58",
+        "readout": "Screws seated, flush"
+      }
+    },
+    "status": {
+      "observed": "Observed",
+      "review": "Needs review"
+    },
+    "record": {
+      "label": "02 — Record",
+      "title": "Record your work.",
+      "body": "Write your code on paper, show it to the camera, then do the job in one continuous shot. A fresh code every time, so the video is really yours, really now.",
+      "chip": "One continuous shot",
+      "panel": "Liveness code",
+      "code": "315"
+    },
+    "check": {
+      "label": "03 — Check",
+      "title": "AI checks each step.",
+      "body": "NVIDIA AI watches every step of the task and marks exactly where it happens in your video.",
+      "safety": "Safety steps are never passed automatically.",
+      "loupe": "Step 02 · Strip & terminate · observed",
+      "loupeTime": "00:19"
+    },
+    "decide": {
+      "label": "04 — Decide",
+      "title": "An Expert decides.",
+      "caption": "A safety step marked unclear caps the AI at 'needs review'. AI recommends. Experts decide.",
+      "colStep": "Step",
+      "colObservation": "AI observation",
+      "colTime": "Time",
+      "colStatus": "Status",
+      "observations": {
+        "1": "Breaker off, tested dead",
+        "2": "Conductors to L/N/E",
+        "3": "Tester reading unclear",
+        "4": "Screws seated, flush"
+      },
+      "expert": "Expert decision",
+      "expertNote": "Approved by an Electrical Expert",
+      "noTime": "—",
+      "badgeIssued": "Badge issued"
+    },
+    "badge": {
+      "label": "05 — Badge",
+      "title": "Your work, your badge.",
+      "body": "Only your badge and profile are public. Never your video.",
+      "layers": {
+        "video": "Video",
+        "code": "Code",
+        "aiCheck": "AI check",
+        "expert": "Expert"
+      }
+    },
+    "trades": {
+      "label": "06 — Trades",
+      "titleLine1": "Two trades open.",
+      "titleLine2": "Ten on the bench.",
+      "verifyNow": "Verify now",
+      "names": {
+        "electrical": "Electrical",
+        "hairdressing": "Hairdressing",
+        "plumbing": "Plumbing",
+        "masonry": "Masonry",
+        "carpentry": "Carpentry",
+        "welding": "Welding",
+        "mechanic": "Mechanic",
+        "tailoring": "Tailoring",
+        "beauty": "Beauty",
+        "solar": "Solar installation",
+        "mamaFua": "Mama fua (laundry)",
+        "movers": "Movers"
+      }
+    },
+    "scope": {
+      "label": "07 — Scope",
+      "title": "One word, exactly defined.",
+      "body": "What 'Verified by Smart Fundis' means, and what it doesn't.",
+      "check": "What we check",
+      "dontCheck": "What we don't check",
+      "checks": {
+        "app": "Uploaded in the app, with a fresh code.",
+        "code": "Fresh code on camera",
+        "ai": "Every step checked by AI",
+        "safety": "Safety never auto-passed",
+        "expert": "An Expert in your trade decides"
+      },
+      "notChecked": {
+        "id": "ID or background",
+        "licences": "Licences or insurance",
+        "qualifications": "Formal qualifications"
+      },
+      "certify": "NITA, KNQA and TVETs certify qualifications. We verify a skill, on video."
+    },
+    "next": {
+      "label": "08 — Next",
+      "title": "Coming next: earn from your skills",
+      "imageAlt": "Hands resting beside a row of trade tools on a workbench",
+      "cards": {
+        "coop": {
+          "title": "Smart Fundis Data Co-op: earn from your skills, by choice",
+          "body": "Earn from your skills, by choice."
+        },
+        "bookings": {
+          "title": "Bookings & M-Pesa payments",
+          "body": "Get hired and paid through your profile."
+        },
+        "pro": {
+          "title": "Fundi Pro",
+          "body": "Tools for busy fundis."
+        },
+        "training": {
+          "title": "Training partners",
+          "body": "Learn and level up."
+        }
+      }
+    },
+    "seal": {
+      "label": "09 — Show your work",
+      "title": "Show your work."
+    }
+  },
+  "Evidence": {
+    "meta": {
+      "title": "How verification works · Smart Fundis",
+      "description": "Every badge traces back to one video, one fresh code, every step checked, and one Expert's decision."
+    },
+    "hero": {
+      "label": "Smart Fundis / Evidence",
+      "title": "Proof you can inspect.",
+      "body": "Every badge traces back to one video, one fresh code, every step checked, and one Expert's decision.",
+      "frame": "Evidence frame",
+      "frameTag": "Example · Hairdressing",
+      "imageAlt": "Hands braiding cornrows, close up",
+      "markers": {
+        "1": "01 Parting · 00:06",
+        "2": "02 Braid tension · 00:27",
+        "3": "03 Finish · 01:12"
+      }
+    },
+    "chain": {
+      "label": "01 — The chain of evidence",
+      "title": "Five steps. No shortcuts.",
+      "step": "Step {n}",
+      "steps": {
+        "consent": {
+          "title": "Consent",
+          "body": "Before every upload, in English and Kiswahili."
+        },
+        "code": {
+          "title": "Code",
+          "body": "A fresh code, written on paper and shown to the camera."
+        },
+        "video": {
+          "title": "Video",
+          "body": "One continuous in-app shot, 10 to 90 seconds."
+        },
+        "ai": {
+          "title": "AI check",
+          "body": "NVIDIA AI marks every step. Safety steps are never passed automatically."
+        },
+        "expert": {
+          "title": "Expert",
+          "body": "A skilled Expert in your trade makes the final call."
+        }
+      }
+    },
+    "badge": {
+      "label": "02 — What a badge says",
+      "title": "A badge is a narrow claim: one task, done well, on video.",
+      "verified": "Verified by Smart Fundis",
+      "task": "Electrical: Install a 13A socket · 25 Sep 2026",
+      "body": "One continuous video, checked step by step, approved by an Electrical Expert.",
+      "reviewerLabel": "Decided by",
+      "reviewer": "An Electrical Expert",
+      "videoLabel": "Video",
+      "video": "Private to the fundi",
+      "imageAlt": "Copper conductors terminated in a socket, close up"
+    },
+    "profile": {
+      "label": "03 — A public profile",
+      "title": "Clients see verified skills and trade facts. Nothing more.",
+      "name": "Example Fundi",
+      "county": "Kiambu County",
+      "facts": "Trade facts",
+      "tradesLabel": "Trades",
+      "trades": "Electrical",
+      "experienceLabel": "Experience",
+      "experience": "6 years",
+      "languagesLabel": "Languages",
+      "languages": "English, Kiswahili",
+      "badges": "Verified badges",
+      "badgeTask": "Install a 13A socket",
+      "badgeDate": "Verified 25 Sep 2026 · reviewed by a trade Expert",
+      "showcase": "Showcase — not verified",
+      "private": "Phone, email, videos and AI feedback are never public.",
+      "imageAlt": "Hands wiring a distribution panel with pliers"
+    },
+    "scope": {
+      "label": "04 — Scope"
+    }
+  },
+  "Trades": {
+    "meta": {
+      "title": "Trades · Smart Fundis",
+      "description": "Pick your trade, see exactly what the video must show, then record."
+    },
+    "hero": {
+      "label": "Smart Fundis / Trades",
+      "titleLine1": "Two trades open.",
+      "titleLine2": "Ten on the bench.",
+      "body": "Pick your trade, see exactly what the video must show, then record.",
+      "cta": "See the open trades",
+      "readout": "Trade readout",
+      "openLabel": "Open for verification",
+      "openValue": "Electrical · Hairdressing",
+      "benchLabel": "On the bench",
+      "benchValue": "10 trades",
+      "rule": "A trade opens when its rubric and its Experts are ready."
+    },
+    "open": {
+      "label": "01 — Open",
+      "trade": "Trade {n} · {trade}",
+      "task": "Task",
+      "rubric": "Rubric preview · Example",
+      "safety": "Safety",
+      "verifyNow": "Verify now",
+      "electrical": {
+        "task": "Install a 13A socket",
+        "markers": {
+          "1": "01 Isolate · 00:04",
+          "2": "03 Earth · 00:41"
+        },
+        "steps": {
+          "1": "Isolate power",
+          "2": "Strip & terminate",
+          "3": "Earth continuity",
+          "4": "Faceplate secure"
+        }
+      },
+      "hairdressing": {
+        "task": "Cornrows / braiding",
+        "markers": {
+          "1": "01 Parting · 00:06",
+          "2": "02 Tension · 00:27"
+        },
+        "steps": {
+          "1": "Clean tools & hands",
+          "2": "Even parting",
+          "3": "Consistent tension",
+          "4": "Neat finish"
+        }
+      }
+    },
+    "bench": {
+      "label": "02 — On the bench",
+      "note": "New trades open when their rubric and Experts are ready.",
+      "roadmap": "See the roadmap"
+    },
+    "imageAlt": {
+      "electrical": "Hands terminating copper wires in a socket box with a screwdriver",
+      "hairdressing": "Hands braiding cornrows, close up",
+      "plumbing": "Hands at a workbench with a pipe wrench and coiled wire",
+      "masonry": "Hands holding an adjustable wrench at a workbench",
+      "carpentry": "Screwdrivers, pliers and hammers laid out on a bench",
+      "welding": "A welding mask, trowel and level on a workbench",
+      "mechanic": "Hands working a part with pliers at a mechanic's bench",
+      "tailoring": "Spools of thread, pliers and a level on a bench",
+      "beauty": "Hands braiding hair, close up",
+      "solar": "Hands wiring a solar distribution panel"
+    }
+  },
+  "Telemetry": {
+    "meta": {
+      "title": "How the AI works · Smart Fundis",
+      "description": "AI recommends. Experts decide. Every step between your video and your badge."
+    },
+    "hero": {
+      "label": "Smart Fundis / Telemetry",
+      "titleLine1": "What the AI sees.",
+      "titleLine2": "What it never decides.",
+      "body": "AI recommends. Experts decide. Here is every step between your video and your badge.",
+      "principle": "Core principle",
+      "quote": "The AI checks your video against the rubric and recommends. A human Expert in your trade makes every decision.",
+      "decidesLabel": "Who decides",
+      "decides": "A human Expert",
+      "runsLabel": "Where the AI runs",
+      "runs": "Video AI: Smart Fundis' GPU. Feedback AI: NVIDIA's hosted API (text only, never your video)."
+    },
+    "pipeline": {
+      "label": "01 — The pipeline",
+      "title": "Six stages. Strict boundaries.",
+      "stage": "Stage {n}",
+      "gate": "Gate",
+      "stages": {
+        "ingest": {
+          "title": "Ingest",
+          "body": "Your in-app video arrives."
+        },
+        "guard": {
+          "title": "Guard",
+          "body": "Checks length (10–90 s), resolution and light."
+        },
+        "observe": {
+          "title": "Observe",
+          "body": "NVIDIA Cosmos Reason reads each rubric step and your paper code."
+        },
+        "assess": {
+          "title": "Assess",
+          "body": "NVIDIA Nemotron writes plain-language feedback."
+        },
+        "rules": {
+          "title": "Rules",
+          "body": "A safety step marked no or unclear, or a code that doesn't match, caps the result at Needs review."
+        },
+        "expert": {
+          "title": "Expert",
+          "body": "A human Expert approves, rejects or asks for a reshoot."
+        }
+      }
+    },
+    "outputs": {
+      "label": "02 — What the AI can recommend",
+      "title": "Three outputs. Never a final decision.",
+      "pass": {
+        "glyph": "✓",
+        "title": "Pass",
+        "result": "Sent to an Expert"
+      },
+      "review": {
+        "glyph": "◐",
+        "title": "Needs review",
+        "result": "Sent to an Expert, flagged"
+      },
+      "fail": {
+        "glyph": "✕",
+        "title": "Fail",
+        "result": "Sent to an Expert, who still reviews it"
+      },
+      "caption": "No badge is ever issued by AI alone.",
+      "reshoot": "A reshoot is never the AI's verdict: the guard asks for one when a video is unusable, or an Expert does."
+    },
+    "privacy": {
+      "label": "03 — Privacy telemetry",
+      "title": "Your video stays guarded.",
+      "frame": "Telemetry frame: Privacy-01",
+      "imageAlt": "A phone on a stand recording hands at work on a bench",
+      "rows": {
+        "who": {
+          "label": "Who sees your video",
+          "value": "You, eligible Experts, Admins, and our AI on Smart Fundis' GPU"
+        },
+        "training": {
+          "label": "Training",
+          "value": "Your video is not used to train AI"
+        },
+        "delete": {
+          "label": "Delete",
+          "value": "Remove your video once review is finished"
+        },
+        "traces": {
+          "label": "Traces",
+          "value": "Masked: no video links, prompts or feedback text"
+        }
+      }
+    },
+    "appeals": {
+      "label": "04 — Appeals",
+      "title": "Rejected? You can appeal once, with a reason. A different Expert decides."
+    }
+  },
+  "About": {
+    "meta": {
+      "title": "About · Smart Fundis",
+      "description": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof clients can check."
+    },
+    "hero": {
+      "label": "Smart Fundis / Company — About",
+      "title": "We make skill visible.",
+      "body": "Fundis learn on the job. Clients can't see skill. Smart Fundis turns one short phone video into proof clients can check.",
+      "secondary": "What we are",
+      "frame": "Evidence frame",
+      "frameTag": "Jua kali bench",
+      "imageAlt": "Hands at a busy workshop bench with a pipe wrench and coiled wire"
+    },
+    "what": {
+      "label": "01 — What we are",
+      "are": {
+        "tag": "We are",
+        "title": "A way to verify a real skill, on video.",
+        "body": "One continuous phone video. Every step checked."
+      },
+      "not": {
+        "tag": "We are not",
+        "title": "An awarding body. NITA, KNQA and TVETs certify.",
+        "body": "We don't issue licences or qualifications. We verify one skill, on video."
+      },
+      "notYet": {
+        "tag": "Not yet",
+        "title": "A booking or payments platform.",
+        "body": "Bookings and M-Pesa payments are on our roadmap."
+      }
+    },
+    "principles": {
+      "label": "02 — Principles",
+      "items": {
+        "1": {
+          "title": "Proof over promises",
+          "body": "We show what verification looks like."
+        },
+        "2": {
+          "title": "AI recommends, Experts decide",
+          "body": "The AI checks every step. A human Expert in your trade makes the final call."
+        },
+        "3": {
+          "title": "Your video stays yours",
+          "body": "Only your badge and profile are public. Never your video."
+        },
+        "4": {
+          "title": "Nothing looks live that isn't",
+          "body": "Anything we haven't built yet is marked Coming soon."
+        }
+      }
+    },
+    "statement": {
+      "label": "03 — Our promise",
+      "title": "Your work, your reputation.",
+      "body": "A fundi's skill should speak for itself: shown on video, checked step by step, and decided by someone who knows the trade.",
+      "imageAlt": "A fundi's hands holding an adjustable wrench at the bench"
+    },
+    "more": {
+      "label": "Keep reading",
+      "telemetry": {
+        "title": "Responsible AI → Telemetry",
+        "body": "How the AI checks each step, and why it never decides."
+      },
+      "roadmap": {
+        "title": "Roadmap →",
+        "body": "Ten trades on the bench, the Data Co-op, bookings and M-Pesa payments."
+      },
+      "contact": {
+        "title": "Contact us →",
+        "body": "Questions about verification, your badge or becoming a verifier."
+      }
+    }
+  },
+  "Contact": {
+    "meta": {
+      "title": "Contact · Smart Fundis",
+      "description": "Questions about verification, your badge, or becoming a verifier? Write to us. We reply by email."
+    },
+    "hero": {
+      "label": "Smart Fundis / Company — Contact",
+      "title": "Talk to us.",
+      "body": "Questions about verification, your badge, or becoming a verifier? Write to us. We reply by email."
+    },
+    "message": {
+      "label": "01 — Message",
+      "role": "I am a…",
+      "roles": {
+        "fundi": "Fundi",
+        "client": "Client",
+        "expert": "Expert",
+        "partner": "Partner",
+        "press": "Press"
+      },
+      "message": "Message",
+      "send": "Write the email",
+      "note": "Opens your email app. We only use your details to reply.",
+      "subject": "Smart Fundis: {role}"
+    },
+    "direct": {
+      "label": "02 — Direct",
+      "email": "Email",
+      "frame": "Communications ledger",
+      "imageAlt": "Hands holding a phone over a workshop bench"
+    }
+  },
+  "Privacy": {
+    "meta": {
+      "title": "Your privacy · Smart Fundis",
+      "description": "Your video stays yours. Only your badge and profile are public. Never your video."
+    },
+    "hero": {
+      "label": "Smart Fundis / Privacy",
+      "title": "Your video stays yours.",
+      "body": "Only your badge and profile are public. Never your video.",
+      "frame": "Evidence frame",
+      "frameTag": "Bench view",
+      "imageAlt": "A phone lying face down on a workshop bench beside hand tools"
+    },
+    "who": {
+      "label": "01 — Who sees what",
+      "colItem": "Item",
+      "colWho": "Who sees it",
+      "colPublic": "Public?",
+      "yes": "Yes",
+      "no": "No",
+      "rows": {
+        "video": {
+          "item": "Your video",
+          "who": "You, eligible Experts, Admins, and our AI on Smart Fundis' GPU"
+        },
+        "feedback": {
+          "item": "AI feedback",
+          "who": "You, the Expert reviewing your video, and Admins"
+        },
+        "contact": {
+          "item": "Phone & email",
+          "who": "You and Admins"
+        },
+        "badge": {
+          "item": "Badge",
+          "who": "Everyone, once an Expert approves"
+        },
+        "showcase": {
+          "item": "Showcase links",
+          "who": "Everyone, labelled 'Showcase — not verified'"
+        }
+      }
+    },
+    "consent": {
+      "label": "02 — Consent, before every upload",
+      "what": "What you agree to",
+      "points": {
+        "who": "Who sees the video: you, eligible Experts, Admins, and our AI on Smart Fundis' GPU.",
+        "badge": "Only your badge becomes public.",
+        "training": "Your video is not used for the Data Co-op or for AI training."
+      },
+      "how": "How it's asked",
+      "languages": "Shown in English and Kiswahili before every upload.",
+      "gate": "Upload stays off until you tick the box.",
+      "coop": "Co-op interest is a separate 'contact me' toggle on your dashboard."
+    },
+    "controls": {
+      "label": "03 — Your controls",
+      "delete": {
+        "label": "Delete",
+        "body": "Remove your video once review is finished. Your badge stays."
+      },
+      "training": {
+        "label": "Training",
+        "body": "Your video is not used to train AI or for the Data Co-op."
+      },
+      "visibility": {
+        "label": "Visibility",
+        "body": "Hide or show your public profile."
+      }
+    }
+  },
+  "ResponsibleAi": {
+    "meta": {
+      "title": "Responsible AI · Smart Fundis",
+      "description": "How our AI checks a video, what it is never allowed to decide, and how we test it."
+    },
+    "hero": {
+      "label": "Smart Fundis / Responsible AI",
+      "title": "AI recommends. Experts decide.",
+      "body": "How our AI checks a video, what it is never allowed to decide, and how we test it.",
+      "frame": "Evidence frame: EF-3104",
+      "frameTag": "Example · Electrical",
+      "imageAlt": "Hands at an open junction box, one holding up a blank paper code to the camera",
+      "markers": {
+        "1": "01 Code on camera · 00:02",
+        "2": "02 Isolate supply · Safety · 00:09",
+        "3": "03 Terminate · 00:41"
+      },
+      "ledger": {
+        "safetyLabel": "Safety step",
+        "safety": "Unclear",
+        "verdictLabel": "AI verdict",
+        "verdict": "Needs review — a recommendation",
+        "decisionLabel": "Decision",
+        "decision": "Waiting for an Expert"
+      }
+    },
+    "pipeline": {
+      "label": "01 — How a verdict is made",
+      "title": "From video to Badge. One human decision.",
+      "caption": "Every AI result — pass, needs review or fail — goes to an Expert. No Badge is ever issued by AI alone.",
+      "stages": {
+        "guard": {
+          "tag": "Guard",
+          "title": "Is the video usable?",
+          "body": "10–90 seconds, at least 360p, bright enough. If not, you get a clear reason and record again."
+        },
+        "observe": {
+          "tag": "Observe · NVIDIA Cosmos Reason 2",
+          "title": "Watches every step.",
+          "body": "Runs on Smart Fundis' GPU. For each Rubric step it answers yes, no or unclear, with a line of evidence and the moment it happens. It also reads your paper code without being told what it should be."
+        },
+        "assess": {
+          "tag": "Assess · NVIDIA Nemotron",
+          "title": "Drafts a Verdict.",
+          "body": "Reads the observations as text, never your video, and drafts pass, needs review or fail, with plain-language feedback for you."
+        },
+        "rules": {
+          "tag": "Rules · Plain code",
+          "title": "Caps any doubt.",
+          "body": "Checks the paper code and every safety step. It can lower a Verdict. It can never raise one."
+        },
+        "expert": {
+          "tag": "Expert",
+          "title": "A person decides.",
+          "body": "A skilled Expert in your trade watches the video with the AI's notes and approves, asks for a reshoot, or rejects."
+        },
+        "badge": {
+          "tag": "Badge",
+          "title": "Only after approval.",
+          "body": "Verified by Smart Fundis — Trade: Task · date."
+        }
+      }
+    },
+    "never": {
+      "label": "02 — What the AI never decides",
+      "title": "A recommendation, not a decision.",
+      "does": "The AI does",
+      "doesNot": "The AI never",
+      "dash": "—",
+      "doesItems": {
+        "1": "Marks each Rubric step yes, no or unclear, with a timestamp",
+        "2": "Reads the paper code on camera",
+        "3": "Drafts feedback for you",
+        "4": "Recommends pass, needs review or fail"
+      },
+      "neverItems": {
+        "1": "Issues a Badge",
+        "2": "Approves or rejects you",
+        "3": "Passes a safety step it is unsure about",
+        "4": "Decides an appeal",
+        "5": "Receives your name, phone or email (it gets the video, the Task and the Rubric only)"
+      },
+      "ruleTag": "Rule",
+      "rule": "An Expert never reviews their own video. Only an Expert approval creates a Badge."
+    },
+    "caps": {
+      "label": "03 — Safety caps",
+      "title": "Doubt goes to a human.",
+      "intro": "After the AI runs, plain code applies these rules. They are fixed, not learned.",
+      "colIf": "If",
+      "colThen": "Then",
+      "colWhy": "Why",
+      "rows": {
+        "1": {
+          "if": "A safety step is marked no",
+          "then": "Capped at Needs review",
+          "why": "Getting it wrong can hurt someone."
+        },
+        "2": {
+          "if": "A safety step is marked unclear",
+          "then": "Capped at Needs review",
+          "why": "Unsure is not safe."
+        },
+        "3": {
+          "if": "A Rubric step has no observation",
+          "then": "Treated as unclear",
+          "why": "Missing is not a pass."
+        },
+        "4": {
+          "if": "The paper code is unreadable or doesn't match",
+          "then": "Capped at Needs review",
+          "why": "We can't prove the video was made for this check."
+        },
+        "5": {
+          "if": "The AI recommends fail",
+          "then": "Stays fail. An Expert still reviews it.",
+          "why": "Rules never raise a result."
+        }
+      },
+      "paperTag": "Why paper",
+      "paper1": "Our video AI sees but cannot hear. So you write a fresh 3-digit code on paper, show it to the camera, then do the work in one continuous shot.",
+      "paper2": "The AI reads the digits blind. Plain code compares them with your code.",
+      "readBlind": "Read blind",
+      "compared": "Compared in code"
+    },
+    "video": {
+      "label": "04 — Consent and your video",
+      "title": "Your video stays yours.",
+      "rows": {
+        "consent": {
+          "label": "Consent",
+          "value": "Before every upload, in English and Kiswahili. Upload stays off until you agree. We record which version you agreed to, and when."
+        },
+        "who": {
+          "label": "Who sees it",
+          "value": "You, Experts approved for your trade, Admins, and our AI."
+        },
+        "public": {
+          "label": "Public",
+          "value": "Only your Badge. Never your video or the AI's feedback."
+        },
+        "training": {
+          "label": "Training",
+          "value": "Your video is not used to train AI, and never added to the Data Co-op."
+        },
+        "gpu": {
+          "label": "GPU copy",
+          "value": "The copy on our GPU server is deleted once it has been checked."
+        },
+        "storage": {
+          "label": "Storage",
+          "value": "Your video is kept privately."
+        },
+        "delete": {
+          "label": "Delete",
+          "value": "Remove your video once review is finished. Your Badge stays."
+        },
+        "appeal": {
+          "label": "Appeal",
+          "value": "Rejected? Appeal once, with a reason. A different Expert decides."
+        }
+      },
+      "tracesTag": "Traces",
+      "traces": "Our AI logs are masked. They keep ids, the trade, the verdict and the status. They drop video links, prompts and feedback text.",
+      "showcaseTag": "Showcase",
+      "showcase": "YouTube and TikTok links are showcase only. We never download them, and they never earn a Badge."
+    },
+    "eval": {
+      "label": "05 — How we test",
+      "title": "Measured before we claim.",
+      "steps": {
+        "1": {
+          "tag": "01 Clips",
+          "body": "Our own recordings of cornrows and socket installs, staged safety faults, and clips with a wrong or missing code, plus licensed stock clips. Never YouTube or TikTok."
+        },
+        "2": {
+          "tag": "02 Blind labels",
+          "body": "People label every clip before the AI sees it."
+        },
+        "3": {
+          "tag": "03 Measure",
+          "body": "How often the AI agrees with the labels, and how many staged safety faults it catches."
+        },
+        "4": {
+          "tag": "04 Split",
+          "body": "Results per trade and per model, split by gender and by lighting."
+        }
+      },
+      "results": "Eval results",
+      "resultsTag": "Example · Not measured yet",
+      "colModel": "Model",
+      "colTrade": "Trade",
+      "colAgreement": "Agreement",
+      "colRecall": "Safety-fault recall",
+      "colSplit": "Split by",
+      "model": "Cosmos Reason 2 8B",
+      "split": "Gender, lighting",
+      "dash": "—",
+      "noNumbers": "No accuracy numbers yet. We make no accuracy claim until the test has run."
+    },
+    "limits": {
+      "label": "06 — Limits and known risks",
+      "title": "What we can't promise.",
+      "items": {
+        "wrong": {
+          "tag": "AI can be wrong",
+          "body": "That is why every result goes to an Expert."
+        },
+        "handwriting": {
+          "tag": "Handwritten codes",
+          "body": "We haven't yet measured how well the AI reads handwritten digits."
+        },
+        "sound": {
+          "tag": "No sound",
+          "body": "The video AI only sees. Saying your code aloud is fine, but it isn't checked."
+        },
+        "links": {
+          "tag": "Video links",
+          "body": "If a private video link leaks, it works until the video is deleted. A fix is planned."
+        },
+        "fallback": {
+          "tag": "Fallback model",
+          "body": "If our main model is down, a smaller one (Cosmos Reason 2 2B) runs, and the record notes it."
+        },
+        "badge": {
+          "tag": "What a badge isn't",
+          "body": "Not a qualification, licence or background check. NITA, KNQA and TVETs certify. We verify one skill, on video."
+        }
+      }
+    },
+    "contact": {
+      "label": "07 — Contact",
+      "title": "Questions about a decision or your data?",
+      "body": "Write to us. We read every message.",
+      "email": "Email us",
+      "evidence": "Read how verification works"
+    }
+  },
+  "SignIn": {
+    "meta": {
+      "title": "Sign in · Smart Fundis",
+      "description": "Sign in to see your assessments and badges."
+    },
+    "label": "Session / Sign in",
+    "title": "Welcome back.",
+    "body": "Sign in to see your assessments and badges.",
+    "note": "Experts and Admins sign in here too.",
+    "panelTitleLine1": "Your work,",
+    "panelTitleLine2": "your reputation.",
+    "panelBody": "Show your skill on video, and a trade Expert decides.",
+    "imageAlt": "Spools, screwdrivers and pliers laid out on a workshop bench"
+  },
+  "SignUp": {
+    "meta": {
+      "title": "Join as a fundi · Smart Fundis",
+      "description": "Create your account to verify a skill on video."
+    },
+    "label": "Session / Join",
+    "title": "Join as a fundi.",
+    "body": "Create your account. It takes a minute.",
+    "stepsTitle": "How joining works",
+    "frame": "Evidence frame · 01 Account",
+    "frameTag": "Example · Hairdressing",
+    "imageAlt": "Hands braiding cornrows, close up",
+    "steps": {
+      "1": {
+        "tag": "01 Account",
+        "body": "Create your account."
+      },
+      "2": {
+        "tag": "02 Profile",
+        "body": "Phone, county and trade."
+      },
+      "3": {
+        "tag": "03 Consent",
+        "body": "Shown in English and Kiswahili."
+      },
+      "4": {
+        "tag": "04 Record",
+        "body": "Record one short video."
+      }
+    }
+  },
+  "SignedOut": {
+    "meta": {
+      "title": "Signed out · Smart Fundis",
+      "description": "You're signed out. Your badge stays public. Your videos stay private."
+    },
+    "label": "Session ended",
+    "title": "You're signed out.",
+    "body": "Your badge stays public. Your videos stay private.",
+    "signIn": "Sign in again",
+    "home": "Back to home",
+    "frame": "Session closed",
+    "frameTag": "Bench view",
+    "imageAlt": "Spools, screwdrivers and pliers laid out on a workshop bench"
+  },
+  "Join": {
+    "meta": {
+      "title": "Become a verifier · Smart Fundis",
+      "description": "Expert applications open soon."
+    },
+    "expert": {
+      "label": "Session / Join as an Expert",
+      "title": "Expert applications open soon.",
+      "body": "Skilled in your trade? Experts watch fundis' videos and make the final decision on every badge. Applications aren't open yet.",
+      "evidence": "Read how verification works",
+      "home": "Back to home"
+    }
+  },
+  "Pricing": {
+    "meta": {
+      "title": "Pricing · Smart Fundis",
+      "description": "Verifying a skill is free. There are no payments in Smart Fundis today."
+    },
+    "hero": {
+      "label": "Smart Fundis / Company — Pricing",
+      "title": "Free today.",
+      "body": "Verifying a skill costs nothing, and so does finding a fundi. There are no payments in Smart Fundis yet.",
+      "readout": "Today",
+      "priceLabel": "To verify a skill",
+      "price": "KSh 0",
+      "note": "No card, no M-Pesa, no subscription."
+    },
+    "free": {
+      "label": "01 — Free today",
+      "tag": "Free",
+      "items": {
+        "verify": {
+          "title": "Verify a skill",
+          "body": "Record one short video, get it checked by AI and decided by an Expert in your trade."
+        },
+        "profile": {
+          "title": "Your profile and Badges",
+          "body": "A public profile with every Badge an Expert approves, to share with any client."
+        },
+        "find": {
+          "title": "Find fundis",
+          "body": "Clients browse verified fundis by trade, free, with no account needed."
+        },
+        "payments": {
+          "title": "No payments in the app",
+          "body": "Nothing in Smart Fundis asks you to pay today."
+        }
+      }
+    },
+    "planned": {
+      "label": "02 — Planned",
+      "title": "What may cost money later.",
+      "tag": "Planned · may change",
+      "body": "These are plans, not offers. Nothing here is for sale yet, and the prices may change before anything launches.",
+      "items": {
+        "pro": {
+          "title": "Fundi Pro",
+          "price": "From KSh 300 a month",
+          "body": "Tools for busy fundis. Verifying a skill stays free."
+        },
+        "bookings": {
+          "title": "Bookings & M-Pesa payments",
+          "price": "2.5% + 2.5% commission on each booking",
+          "body": "Get hired and paid through your profile, with M-Pesa."
+        }
+      },
+      "roadmap": "See the roadmap"
+    }
   }
 }

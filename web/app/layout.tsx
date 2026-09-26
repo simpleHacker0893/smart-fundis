@@ -4,11 +4,10 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
-import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { defaultLocale } from "@/i18n/config";
 import { clerkAppearance } from "@/lib/clerk-appearance";
-import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH } from "@/lib/auth-routes";
+import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH, SIGNED_OUT_PATH } from "@/lib/auth-routes";
 import "./globals.css";
 
 // Display and body (DESIGN.md L80): the system stack first, Inter where the
@@ -54,20 +53,20 @@ export default function RootLayout({
           signUpUrl={SIGN_UP_PATH}
           signInFallbackRedirectUrl={AFTER_AUTH_PATH}
           signUpFallbackRedirectUrl={AFTER_AUTH_PATH}
+          afterSignOutUrl={SIGNED_OUT_PATH}
           appearance={clerkAppearance}
         >
           <ConvexClientProvider>
             <NextIntlClientProvider>
               <SiteHeader />
-              {/* The skip link's target; the scroll margin clears the sticky 48 / 72 px header. */}
+              {/* The skip link's target; the scroll margin clears the sticky header (92 px mobile, 72 px desktop). */}
               <div
                 id="main-content"
                 tabIndex={-1}
-                className="flex flex-1 scroll-mt-12 flex-col outline-none lg:scroll-mt-[72px]"
+                className="flex flex-1 scroll-mt-24 flex-col outline-none lg:scroll-mt-[72px]"
               >
                 {children}
               </div>
-              <SiteFooter />
             </NextIntlClientProvider>
           </ConvexClientProvider>
         </ClerkProvider>

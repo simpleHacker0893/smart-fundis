@@ -7,12 +7,12 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { defaultLocale } from "@/i18n/config";
 import en from "@/messages/en.json";
-import { leafStrings, visibleStrings } from "./copy-helpers";
+import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 
-// The shell may only link to pages that exist today ("nothing looks live that
-// isn't"). This list is the test's own, not imported from the app, so the app
-// cannot widen it by accident. Add a route here only when its page ships.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard"];
+// The shell may only link to pages that exist today, or to sections of the
+// landing page ("/#id") that exist ("nothing looks live that isn't"). This
+// list is the test's own, not imported from the app.
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join", "/pricing"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -25,19 +25,39 @@ vi.mock("next-intl/server", async () => {
 });
 
 const clerk = vi.hoisted(() => ({ isLoaded: true, isSignedIn: false }));
-
-vi.mock("@clerk/nextjs", () => ({
-  useAuth: () => ({ isLoaded: clerk.isLoaded, isSignedIn: clerk.isSignedIn }),
-}));
+// Clerk's UserButton is a client widget; in tests it renders a marker plus
+// its custom menu links, so we can see what the menu offers.
+vi.mock("@clerk/nextjs", () => {
+  const UserButton = Object.assign(
+    ({ children }: { children?: ReactNode }) => <span data-clerk="user-button">{children}</span>,
+    {
+      MenuItems: ({ children }: { children?: ReactNode }) => <>{children}</>,
+      Link: ({ label, href }: { label: string; href: string }) => (
+        <a data-clerk="menu-link" href={href}>
+          {label}
+        </a>
+      ),
+      Action: () => null,
+    },
+  );
+  return {
+    useAuth: () => ({ isLoaded: clerk.isLoaded, isSignedIn: clerk.isSignedIn }),
+    UserButton,
+  };
+});
 
 const shell = createTranslator({ locale: defaultLocale, messages: en, namespace: "Shell" });
 const footer = createTranslator({ locale: defaultLocale, messages: en, namespace: "Footer" });
 const links = createTranslator({ locale: defaultLocale, messages: en, namespace: "Links" });
-const messageValues = new Set(leafStrings(en));
+const nav = vi.hoisted(() => ({ pathname: "/" }));
+vi.mock("next/navigation", () => ({ usePathname: () => nav.pathname }));
+
+const isFromMessages = makeIsFromMessages(en);
 
 beforeEach(() => {
   clerk.isLoaded = true;
   clerk.isSignedIn = false;
+  nav.pathname = "/";
 });
 
 function withIntl(node: ReactNode) {
@@ -58,17 +78,39 @@ async function renderFooter() {
   return withIntl(await SiteFooter());
 }
 
+const PAGE_LOADERS: Record<string, () => Promise<{ default: () => Promise<ReactNode> }>> = {
+  "/": () => import("@/app/(site)/page"),
+  "/evidence": () => import("@/app/(site)/evidence/page"),
+};
+
+async function idsOn(route: string): Promise<Set<string>> {
+  const load = PAGE_LOADERS[route];
+  expect(load, `no id check for anchors on ${route}`).toBeDefined();
+  const { default: Page } = await load();
+  const markup = withIntl(await Page());
+  return new Set([...markup.matchAll(/\sid="([^"]+)"/g)].map((m) => m[1]));
+}
+
 function hrefs(markup: string): string[] {
   return [...markup.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1]);
 }
 
-function expectOnlyRealRoutes(markup: string, where: string) {
-  const links = hrefs(markup);
-  expect(links.length, `${where} has no links`).toBeGreaterThan(0);
-  for (const href of links) {
-    // Same-page anchors (the skip link) are fine; everything else must be a real page.
-    if (href.startsWith("#")) continue;
-    expect(REAL_ROUTES, `${where} links to a page that does not exist: ${href}`).toContain(href);
+async function expectOnlyRealDestinations(markup: string, where: string) {
+  const all = hrefs(markup);
+  expect(all.length, `${where} has no links`).toBeGreaterThan(0);
+  for (const href of all) {
+    if (href.startsWith("mailto:")) continue;
+    if (href.startsWith("#")) {
+      // Same-page anchors: the skip link.
+      expect(["#main-content"], `${where}: unknown anchor ${href}`).toContain(href);
+      continue;
+    }
+    const [path, hash] = href.split("#");
+    const route = path.split("?")[0];
+    expect(REAL_ROUTES, `${where} links to a page that does not exist: ${href}`).toContain(route);
+    if (hash !== undefined) {
+      expect((await idsOn(route)).has(hash), `${where} links to a missing section: ${href}`).toBe(true);
+    }
   }
 }
 
@@ -76,13 +118,13 @@ function expectOnlyMessages(markup: string, where: string) {
   const strings = visibleStrings(markup);
   expect(strings.length).toBeGreaterThan(0);
   for (const s of strings) {
-    expect(messageValues, `hardcoded string in ${where}: "${s}"`).toContain(s);
+    expect(isFromMessages(s), `hardcoded string in ${where}: "${s}"`).toBe(true);
   }
 }
 
 /** The opening tag of the first element carrying `attr="value"`. */
 function tagWith(markup: string, attr: string, value: string): string {
-  const escaped = value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const escaped = value.replaceAll("&", "&amp;").replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const match = markup.match(new RegExp(`<[a-z]+[^>]*\\s${attr}="${escaped}"[^>]*>`));
   expect(match, `no element with ${attr}="${value}"`).not.toBeNull();
   return match![0];
@@ -95,114 +137,128 @@ describe("site header", () => {
     expectOnlyMessages(await renderHeader(), "the signed-in header");
   });
 
-  it("links only to pages that exist", async () => {
-    expectOnlyRealRoutes(await renderHeader(), "the header");
+  it("links only to real pages and real landing sections", async () => {
+    await expectOnlyRealDestinations(await renderHeader(), "the header");
     clerk.isSignedIn = true;
-    expectOnlyRealRoutes(await renderHeader(), "the signed-in header");
+    await expectOnlyRealDestinations(await renderHeader(), "the signed-in header");
   });
 
-  it("shows the wordmark linking home, the JOIN pill and Sign in when signed out", async () => {
+  it("shows the nav EVIDENCE · TRADES · TELEMETRY · COMPANY at every width", async () => {
     const markup = await renderHeader();
-    const strings = visibleStrings(markup);
-
-    expect(strings).toContain(shell("brand"));
-    expect(strings).toContain(shell("join"));
-    expect(strings).toContain(links("signIn"));
-    expect(strings).toContain(links("joinAsFundi"));
-    expect(hrefs(markup)).toContain("/");
-    expect(hrefs(markup)).toContain("/sign-in");
-    expect(hrefs(markup)).toContain("/sign-up");
-    expect(hrefs(markup)).not.toContain("/dashboard");
+    const navs = [...markup.matchAll(/<nav\s[^>]*>[\s\S]*?<\/nav>/g)].map((m) => m[0]);
+    expect(navs).toHaveLength(2);
+    for (const navMarkup of navs) {
+      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/telemetry", "/about", "/contact", "/pricing"]);
+      expect(visibleStrings(navMarkup)).toContain(links("company"));
+    }
+    // One nav row for mobile, one inline nav for desktop: every width sees one.
+    const classes = navs.map((n) => n.match(/class="([^"]*)"/)![1]);
+    expect(classes.some((c) => /\blg:hidden\b/.test(c) && !/(^|\s)hidden(\s|$)/.test(c))).toBe(true);
+    expect(classes.some((c) => /(^|\s)hidden(\s|$)/.test(c) && /\blg:flex\b/.test(c))).toBe(true);
   });
 
-  it("gives the compact JOIN pill an accessible name that contains its visible text", async () => {
-    const tag = tagWith(await renderHeader(), "aria-label", links("joinAsFundi"));
-    expect(tag).toContain('href="/sign-up"');
-    expect(links("joinAsFundi").toLowerCase()).toContain(shell("join").toLowerCase());
-  });
-
-  it("swaps Sign in and Join for a Dashboard link when signed in", async () => {
-    clerk.isSignedIn = true;
+  it("makes COMPANY a disclosure that opens About and Contact us", async () => {
     const markup = await renderHeader();
-
-    expect(visibleStrings(markup)).toContain(links("dashboard"));
-    expect(hrefs(markup)).toContain("/dashboard");
-    expect(hrefs(markup)).not.toContain("/sign-in");
-    expect(hrefs(markup)).not.toContain("/sign-up");
-  });
-
-  it("has a labelled menu button that reports it is closed", async () => {
-    const tag = tagWith(await renderHeader(), "aria-label", shell("openMenu"));
-    expect(tag).toMatch(/^<button/);
-    expect(tag).toContain('aria-expanded="false"');
-    expect(tag).toContain('aria-haspopup="dialog"');
-  });
-
-  it("leaves out nav items whose pages are not built yet (Evidence, Trades, Telemetry, Company)", async () => {
-    const strings = visibleStrings(await renderHeader());
-    for (const key of ["evidence", "trades", "telemetry", "about", "contact"] as const) {
-      expect(strings).not.toContain(links(key));
+    const buttons = [...markup.matchAll(/<button[^>]*aria-controls="([^"]+)"[^>]*>/g)];
+    expect(buttons).toHaveLength(2);
+    for (const [tag, panelId] of buttons) {
+      expect(tag).toContain('aria-expanded="false"');
+      const panel = markup.slice(markup.indexOf(`id="${panelId}"`));
+      expect(hrefs(panel.slice(0, panel.indexOf("</div>") + 200)).slice(0, 2)).toEqual(["/about", "/contact"]);
     }
   });
 
-  it("adds the VERIFIED SKILLS tag to the wordmark from 1024 px only (mobile stays as the REFERENCE)", async () => {
+  it("shows the lockup, the name and the VERIFIED SKILLS tag, linking home", async () => {
     const markup = await renderHeader();
-    expect(visibleStrings(markup)).toContain(shell("verifiedSkills"));
-    // The tag text is plain letters and spaces, so it needs no regex escaping.
-    const tag = markup.match(new RegExp(`<span[^>]*>${shell("verifiedSkills")}</span>`))![0];
-    expect(tag).toMatch(/class="[^"]*\bhidden\b[^"]*\blg:(inline|block|inline-flex)\b/);
+    const strings = visibleStrings(markup);
+    expect(strings).toContain(shell("brand"));
+    expect(strings).toContain(shell("tagline"));
+    expect(tagWith(markup, "aria-label", shell("homeLabel"))).toContain('href="/"');
+    const tagline = markup.match(new RegExp(`<span[^>]*>${shell("tagline")}</span>`))![0];
+    expect(tagline).toMatch(/\btext-xs\b/);
+    expect(tagline).not.toMatch(/text-\[11px\]/);
+  });
+
+  it("offers Sign in and Join at every width when signed out", async () => {
+    const markup = await renderHeader();
+    for (const href of ["/sign-in", "/join?role=fundi"]) {
+      const tag = tagWith(markup, "href", href);
+      expect(tag, `${href} must not be hidden on mobile`).not.toMatch(/class="([^"]*\s)?hidden(\s[^"]*)?"/);
+    }
+    expect(visibleStrings(markup)).toContain(links("signIn"));
+    expect(markup).not.toContain('data-clerk="user-button"');
+  });
+
+  it("shows Clerk's account menu when signed in, with the dashboard in it", async () => {
+    clerk.isSignedIn = true;
+    const markup = await renderHeader();
+    expect(markup).toContain('data-clerk="user-button"');
+    expect(tagWith(markup, "data-clerk", "menu-link")).toContain('href="/dashboard"');
+    expect(hrefs(markup)).not.toContain("/sign-in");
+    expect(hrefs(markup)).not.toContain("/join?role=fundi");
   });
 });
 
-describe("site footer", () => {
+describe("site footer (#27)", () => {
   it("renders only strings from messages/en.json", async () => {
     expectOnlyMessages(await renderFooter(), "the footer");
   });
 
-  it("links only to pages that exist", async () => {
-    expectOnlyRealRoutes(await renderFooter(), "the footer");
-  });
-
-  it("shows the headline, the Join CTA, the wordmark and the legal lines", async () => {
+  it("links only to real pages and real sections, each at most once", async () => {
     const markup = await renderFooter();
-    const strings = visibleStrings(markup);
-
-    expect(strings).toContain(footer("headline"));
-    expect(strings).toContain(links("joinAsFundi"));
-    expect(strings).toContain(shell("brand"));
-    expect(strings).toContain(footer("legal"));
-    expect(strings).toContain(footer("copyright"));
-    expect(hrefs(markup)).toContain("/sign-up");
-  });
-
-  it("leaves out links to pages that are not built yet", async () => {
-    const strings = visibleStrings(await renderFooter());
-    for (const key of [
-      "howVerificationWorks",
-      "privacy",
-      "findFundi",
-      "verifiedMeans",
-      "becomeVerifier",
-      "about",
-      "contact",
-      "responsibleAi",
-      "roadmap",
-    ] as const) {
-      expect(strings).not.toContain(links(key));
-    }
-  });
-
-  it("links to each page at most once (a group link that repeats a CTA is dropped)", async () => {
-    const all = hrefs(await renderFooter());
-    expect(all.length).toBeGreaterThan(0);
+    await expectOnlyRealDestinations(markup, "the footer");
+    const all = hrefs(markup);
     expect(all).toEqual([...new Set(all)]);
   });
 
-  it("drops a link group left with no links (V0: For fundis only held the Join CTA)", async () => {
-    const strings = visibleStrings(await renderFooter());
-    for (const key of ["forFundis", "forClients", "forExperts", "company"] as const) {
-      expect(strings).not.toContain(footer(`groups.${key}`));
+  it("has four columns in order, each a nav labelled by its heading", async () => {
+    const markup = await renderFooter();
+    const navs = [...markup.matchAll(/<nav\s[^>]*aria-label="([^"]+)"[^>]*>([\s\S]*?)<\/nav>/g)];
+    expect(navs.map((m) => m[1])).toEqual(
+      (["forFundis", "forClients", "forExperts", "company"] as const).map((k) => footer(`groups.${k}`)),
+    );
+    const linksOf = (i: number) => hrefs(navs[i][2]);
+    expect(linksOf(0)).toEqual(["/join?role=fundi", "/evidence", "/privacy"]);
+    expect(linksOf(1)).toEqual(["/trades", "/evidence#scope"]);
+    expect(linksOf(2)).toEqual(["/join?role=expert"]);
+    expect(linksOf(3)).toEqual(["/about", "/contact", "/pricing", "/responsible-ai", "/#roadmap"]);
+  });
+
+  it("offers 'Find fundis' to clients, pointing at the real /trades page (operator)", async () => {
+    const markup = await renderFooter();
+    expect(tagWith(markup, "href", "/trades")).toBeTruthy();
+    const link = markup.match(/<a[^>]*href="\/trades"[^>]*>([\s\S]*?)<\/a>/)!;
+    expect(visibleStrings(link[1])).toEqual([links("findFundis")]);
+    expect(hrefs(markup).some((h) => h.startsWith("/fundis"))).toBe(false);
+  });
+
+  it("drops the wordmark and the CTA band; keeps one bottom line", async () => {
+    const markup = await renderFooter();
+    const strings = visibleStrings(markup);
+    expect(strings).not.toContain(shell("brand"));
+    expect(strings.join(" ")).not.toMatch(/show your work/i);
+    expect(strings).toContain(footer("bottomLine"));
+    expect(footer("bottomLine")).toMatch(/NITA, KNQA and TVETs certify/);
+  });
+
+  it("styles headings as 12 px amber mono, links go to white on hover", async () => {
+    const markup = await renderFooter();
+    for (const [h] of markup.matchAll(/<h2[^>]*>|<h3[^>]*>/g)) {
+      expect(h).toMatch(/text-xs/);
+      expect(h).toMatch(/text-amber/);
+      expect(h).toMatch(/font-mono/);
     }
+    for (const [a] of markup.matchAll(/<a\s[^>]*>/g)) {
+      expect(a).toMatch(/hover:text-foreground/);
+      expect(a).not.toMatch(/hover:text-amber/);
+    }
+  });
+
+  it("marks the current page with aria-current and an amber underline", async () => {
+    nav.pathname = "/privacy";
+    const tag = tagWith(await renderFooter(), "aria-current", "page");
+    expect(tag).toContain('href="/privacy"');
+    expect(tag).toMatch(/decoration-amber|border-amber/);
   });
 });
 
@@ -210,16 +266,18 @@ describe("real routes", () => {
   const appDir = fileURLToPath(new URL("../app", import.meta.url));
 
   it.each(REAL_ROUTES)("%s has a page in web/app", (route) => {
-    const dir = path.join(appDir, ...route.split("/").filter(Boolean));
-    expect(existsSync(dir), `${route} has no folder in app/`).toBe(true);
     const hasPage = (d: string): boolean =>
+      existsSync(d) &&
       readdirSync(d).some((name) => {
         const full = path.join(d, name);
         if (name === "page.tsx") return true;
-        // Optional catch-alls such as [[...sign-in]] serve the bare route.
         return name.startsWith("[[...") && statSync(full).isDirectory() && hasPage(full);
       });
-    expect(hasPage(dir), `${route} has no page.tsx`).toBe(true);
+    // Pages live in route groups ((site), (auth)), which don't appear in the URL.
+    const segments = route.split("/").filter(Boolean);
+    const groups = readdirSync(appDir).filter((name) => /^\(.+\)$/.test(name));
+    const dirs = [appDir, ...groups.map((g) => path.join(appDir, g))].map((base) => path.join(base, ...segments));
+    expect(dirs.some(hasPage), `${route} has no page.tsx in app/ or a route group`).toBe(true);
   });
 
   it("the app's own list of built routes matches this allow-list", async () => {
@@ -229,26 +287,33 @@ describe("real routes", () => {
 });
 
 describe("Instrument theme (D-9)", () => {
-  it("keeps amber as punctuation: no amber hover states, no amber footer labels", () => {
-    const dir = fileURLToPath(new URL("../components", import.meta.url));
-    const sources: [string, string][] = [];
+  const webDir = fileURLToPath(new URL("..", import.meta.url));
+  const css = readFileSync(path.join(webDir, "app", "globals.css"), "utf8");
+
+  const sourceFiles = (dirs: string[], pattern: RegExp) => {
+    const files: string[] = [];
     const walk = (d: string) => {
       for (const name of readdirSync(d)) {
         const full = path.join(d, name);
         if (statSync(full).isDirectory()) walk(full);
-        else if (/\.tsx?$/.test(name)) sources.push([full, readFileSync(full, "utf8")]);
+        else if (pattern.test(name)) files.push(full);
       }
     };
-    walk(dir);
-    for (const [file, text] of sources) {
-      expect(text, file).not.toMatch(/hover:[a-z-]*amber/);
+    for (const d of dirs) walk(path.join(webDir, d));
+    return files;
+  };
+
+  it("keeps amber as punctuation: no amber hover states (footer headings may be amber, #27)", () => {
+    for (const file of sourceFiles(["components", "app"], /\.tsx?$/)) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/hover:[a-z-]*amber/);
     }
-    const footerSource = sources.find(([f]) => f.endsWith("site-footer.tsx"))![1];
-    expect(footerSource).not.toMatch(/text-amber/);
   });
 
-  const webDir = fileURLToPath(new URL("..", import.meta.url));
-  const css = readFileSync(path.join(webDir, "app", "globals.css"), "utf8");
+  it("draws pass ticks in white, never green (HANDOFF §6)", () => {
+    for (const file of sourceFiles(["components", "app"], /\.(tsx?|css)$/)) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/#10b981|emerald|green-/i);
+    }
+  });
 
   it("defines graphite, text and amber in globals.css", () => {
     expect(css.toLowerCase()).toContain("#050609");
@@ -261,21 +326,17 @@ describe("Instrument theme (D-9)", () => {
     expect(css).toMatch(/--font-mono:[^;]*var\(--font-jetbrains-mono\)/);
   });
 
-  it("uses no retired v1 colour or font anywhere in web/app, web/components or web/lib", () => {
-    const files: string[] = [];
-    const walk = (d: string) => {
-      for (const name of readdirSync(d)) {
-        const full = path.join(d, name);
-        if (statSync(full).isDirectory()) walk(full);
-        else if (/\.(tsx?|css|json)$/.test(name)) files.push(full);
-      }
-    };
-    for (const d of ["app", "components", "lib", "messages"]) walk(path.join(webDir, d));
-
+  it("uses no retired v1 colour or font anywhere in web/app, components, lib or messages", () => {
+    const files = sourceFiles(["app", "components", "lib", "messages"], /\.(tsx?|css|json)$/);
     expect(files.length).toBeGreaterThan(0);
     for (const file of files) {
-      const text = readFileSync(file, "utf8");
-      expect(text, file).not.toMatch(/#0B5D3B|#F28C28|Plus[ _]Jakarta/i);
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/#0B5D3B|#F28C28|Plus[ _]Jakarta/i);
+    }
+  });
+
+  it("never ships a temporary Stitch image link", () => {
+    for (const file of sourceFiles(["app", "components", "lib"], /\.(tsx?|css)$/)) {
+      expect(readFileSync(file, "utf8"), file).not.toMatch(/googleusercontent/);
     }
   });
 });

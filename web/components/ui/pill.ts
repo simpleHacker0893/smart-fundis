@@ -6,19 +6,23 @@ import { cn } from "cn";
  * --line outline whose border brightens on hover. The one place pill
  * classes live, for links styled as buttons in the shell.
  */
-const BASE = "inline-flex items-center justify-center rounded-full font-bold uppercase whitespace-nowrap";
+// Both pills lift 2 px on hover (DESIGN.md L90), only when motion is allowed.
+const BASE =
+  "inline-flex items-center justify-center rounded-full font-bold uppercase whitespace-nowrap transition motion-safe:hover:-translate-y-0.5";
 
 const VARIANTS = {
-  primary: "bg-primary text-primary-foreground",
+  // The Stitch screen's soft amber glow: light, not a drop shadow (DESIGN.md L85).
+  primary:
+    "bg-primary text-primary-foreground shadow-[0_0_15px_color-mix(in_srgb,var(--amber)_20%,transparent)] hover:brightness-110",
   secondary: "border border-line text-foreground hover:border-foreground/40",
 } as const;
 
 const SIZES = {
   /** The REFERENCE's compact 32 px header pill; wrap it in PILL_HIT_AREA. */
-  compact: "h-8 px-3 text-xs tracking-wider",
-  /** The 02-evidence desktop header pill, 40 px; wrap it in PILL_HIT_AREA. */
-  header: "h-10 px-5 font-mono text-xs tracking-widest",
-  /** A 48 px pill, full width until md (DESIGN.md L90). */
+  compact: "h-8 px-4 text-xs tracking-wider",
+  /** The desktop header pill, 40 px; wrap it in PILL_HIT_AREA. */
+  header: "h-10 px-5 text-xs tracking-wider",
+  /** A 48 px pill, full width on mobile (DESIGN.md L90); callers widen it with sm:w-auto. */
   full: "h-12 w-full px-8 text-xs tracking-wider",
 } as const;
 

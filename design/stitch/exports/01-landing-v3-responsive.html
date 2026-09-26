@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
+<title>Smart Fundis — Kazi yako, sifa yako</title>
+<!-- Material Symbols -->
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Fonts: Inter & Public Sans -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;family=Public+Sans:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind CSS -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          "colors": {
+            "secondary-container": "#44474a",
+            "on-surface": "#e3e2e7",
+            "outline-variant": "#474747",
+            "surface-container-high": "#292a2e",
+            "surface-tint": "#ffb782",
+            "primary": "#ffffff",
+            "inverse-on-surface": "#2f3034",
+            "on-primary-container": "#000000",
+            "tertiary-fixed-dim": "#45474d",
+            "tertiary-container": "#8f9097",
+            "surface-container-lowest": "#050609",
+            "surface-variant": "#343539",
+            "on-surface-variant": "#c6c6c6",
+            "on-tertiary-fixed": "#ffffff",
+            "surface-container-highest": "#343539",
+            "secondary-fixed": "#c4c7ca",
+            "on-primary-fixed-variant": "#ffdcc5",
+            "on-error": "#690005",
+            "secondary-fixed-dim": "#a9abae",
+            "on-tertiary-container": "#000000",
+            "on-secondary-container": "#e0e3e6",
+            "on-tertiary-fixed-variant": "#e2e2e9",
+            "secondary": "#c4c7ca",
+            "primary-fixed-dim": "#703800",
+            "error-container": "#93000a",
+            "surface": "#0d0f14",
+            "primary-container": "#ef9a57",
+            "background": "#050609",
+            "inverse-surface": "#e3e2e7",
+            "on-primary": "#050609",
+            "surface-dim": "#050609",
+            "on-tertiary": "#1a1b21",
+            "on-secondary": "#191c1e",
+            "inverse-primary": "#904d0e",
+            "tertiary": "#e2e2e9",
+            "on-secondary-fixed-variant": "#383c3e",
+            "on-background": "#f2f4f7",
+            "on-primary-fixed": "#ffffff",
+            "surface-container-low": "#0b0d12",
+            "outline": "#1f242e",
+            "tertiary-fixed": "#5d5e64",
+            "surface-container": "#13171f",
+            "on-error-container": "#ffdad6",
+            "on-secondary-fixed": "#191c1e",
+            "primary-fixed": "#904d0e",
+            "error": "#ffb4ab",
+            "surface-bright": "#38393d",
+            "amber-brand": "#ef9a57"
+          },
+          "borderRadius": {
+            "DEFAULT": "0.125rem",
+            "lg": "0.25rem",
+            "xl": "0.5rem",
+            "full": "9999px"
+          },
+          "fontFamily": {
+            "headline": ["Inter", "sans-serif"],
+            "display": ["Inter", "sans-serif"],
+            "body": ["Inter", "sans-serif"],
+            "label": ["Public Sans", "sans-serif"],
+            "mono": ["JetBrains Mono", "monospace"]
+          }
+        },
+      },
+    }
+  </script>
+<style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-feature-settings: "tnum" 1;
+    }
+    .material-symbols-outlined {
+      font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+      display: inline-block;
+      vertical-align: middle;
+      line-height: 1;
+    }
+    @keyframes scanline {
+      0% { top: 0%; opacity: 0; }
+      15% { opacity: 1; }
+      85% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+    .animate-scan {
+      animation: scanline 3.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    }
+    .film-grain {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.03) 1px, transparent 0);
+      background-size: 4px 4px;
+    }
+    /* Hide scrollbar for step tabs */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-background text-on-background font-body antialiased min-h-screen selection:bg-amber-brand selection:text-black">
+<!-- Container for strict 360px mobile view -->
+<div class="w-full min-h-screen flex flex-col relative bg-[#050609] text-on-background selection:bg-amber-brand selection:text-black">
+<!-- STICKY RESPONSIVE HEADER (72px on lg, docked) -->
+<header class="sticky top-0 z-50 w-full bg-[#050609]/90 backdrop-blur-md border-b border-white/10">
+<div class="max-w-7xl mx-auto h-16 lg:h-[72px] px-4 sm:px-6 lg:px-8 flex items-center justify-between">
+<!-- Left: Logo & Wordmark -->
+<a class="flex items-center gap-3 group" href="#">
+<div class="w-8 h-8 rounded border border-amber-brand/60 flex items-center justify-center bg-[#0b0d12] text-amber-brand group-hover:border-amber-brand transition-colors">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-mono font-bold tracking-[0.25em] text-sm lg:text-base text-white uppercase">SMART FUNDIS</span>
+</a>
+<!-- Center Navigation (Desktop >= 1024px) -->
+<nav class="hidden lg:flex items-center gap-8 font-mono text-xs tracking-wider uppercase text-[#c6c6c6]">
+<a class="hover:text-amber-brand transition-colors" href="#evidence">EVIDENCE</a>
+<a class="hover:text-amber-brand transition-colors" href="#trades">TRADES</a>
+<a class="hover:text-amber-brand transition-colors" href="#telemetry">TELEMETRY</a>
+<!-- Company dropdown -->
+<div class="relative group py-2">
+<button class="flex items-center gap-1 hover:text-amber-brand transition-colors uppercase font-mono">
+<span>COMPANY</span>
+<span class="text-[10px]">▾</span>
+</button>
+<div class="absolute left-0 mt-2 w-44 bg-[#0b0d12] border border-[#2d3340] rounded shadow-2xl py-2 opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto transition-all duration-150 flex flex-col z-50">
+<a class="px-4 py-2 hover:bg-[#13171f] text-xs text-[#c6c6c6] hover:text-white transition-colors" href="#about">About</a>
+<a class="px-4 py-2 hover:bg-[#13171f] text-xs text-[#c6c6c6] hover:text-white transition-colors" href="#contact">Contact us</a>
+<a class="px-4 py-2 hover:bg-[#13171f] text-xs text-[#c6c6c6] hover:text-white transition-colors" href="#roadmap">Roadmap</a>
+</div>
+</div>
+</nav>
+<!-- Right CTAs -->
+<div class="flex items-center gap-3 sm:gap-4">
+<a class="hidden lg:inline-block font-mono text-xs uppercase tracking-wider text-[#c6c6c6] hover:text-white transition-colors" href="#signin">Sign in</a>
+<!-- Desktop CTA -->
+<a class="hidden lg:inline-flex items-center justify-center bg-amber-brand text-[#050609] font-bold text-xs px-5 py-2.5 rounded-full uppercase tracking-wider hover:bg-[#ffb782] active:scale-95 transition-all shadow-[0_0_15px_rgba(239,154,87,0.2)]" href="#join">
+          Join as a fundi
+        </a>
+<!-- Mobile CTA pill -->
+<a class="lg:hidden inline-flex items-center justify-center bg-amber-brand text-[#050609] font-bold text-xs px-4 py-1.5 rounded-full uppercase tracking-wider active:scale-95 transition-transform" href="#join">
+          JOIN
+        </a>
+</div>
+</div>
+</header>
+<!-- MAIN APP CONTAINER -->
+<main class="flex-1 flex flex-col w-full pb-24 lg:pb-32">
+<!-- 01 — PROOF OF SKILL (HERO) -->
+<section class="relative w-full border-b border-white/10 film-grain py-12 sm:py-16 lg:py-24" id="evidence">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-12 items-center">
+<!-- Left Hero Column (5 cols on lg) -->
+<div class="lg:col-span-5 flex flex-col">
+<div class="flex items-center gap-2 mb-4">
+<span class="w-2 h-2 rounded-full bg-amber-brand animate-pulse"></span>
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">SMART FUNDIS / 01 — PROOF OF SKILL</span>
+</div>
+<h1 class="font-headline text-4xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tight text-white leading-[1.05] mb-6">
+              Kazi yako,<br/>sifa yako.
+            </h1>
+<p class="text-sm sm:text-base text-[#c6c6c6] leading-relaxed mb-8 max-w-xl font-normal">
+              Your work, your reputation. Prove your skill with one short phone video. AI checks every step. A human Expert decides. You earn a badge clients can trust.
+            </p>
+<!-- CTA Action Pills -->
+<div class="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-md">
+<a class="h-12 min-h-[48px] px-8 rounded-full bg-amber-brand text-[#050609] font-bold text-xs tracking-wider uppercase flex items-center justify-center active:scale-95 transition-all shadow-[0_0_15px_rgba(239,154,87,0.2)] hover:bg-[#ffb782]" href="#join">
+                Join as a fundi
+              </a>
+<a class="h-12 min-h-[48px] px-8 rounded-full border border-[#374151] bg-[#0b0d12] text-white font-semibold text-xs tracking-wider uppercase flex items-center justify-center hover:border-amber-brand transition-colors active:scale-95" href="#trades">
+                Find a fundi
+              </a>
+</div>
+</div>
+<!-- Right Column: Interactive Step Inspector (7 cols on lg) -->
+<div class="lg:col-span-7 flex flex-col">
+<!-- Selector Bar Header -->
+<div class="flex items-center justify-between mb-2 px-1">
+<span class="text-xs font-mono uppercase tracking-widest text-[#c6c6c6] flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-amber-brand animate-ping"></span>
+                INSPECT STEP
+              </span>
+<span class="text-xs font-mono text-amber-brand font-bold" id="stepCounter">STEP 03 / 04</span>
+</div>
+<!-- 4 Step Tabs -->
+<div class="grid grid-cols-4 gap-2 mb-3" id="stepTabsBar">
+<button class="step-tab py-2.5 px-2 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group cursor-pointer hover:border-[#474747]" data-step="1">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-xs font-bold text-[#c6c6c6] group-[.active]:text-amber-brand">01</span>
+<span class="font-mono text-[11px] text-[#c6c6c6]">00:04</span>
+</div>
+<div class="font-mono text-xs truncate text-white font-medium mt-1">ISOLATE</div>
+<div class="mt-1.5 flex items-center gap-1">
+<span class="text-xs text-white">✓</span>
+<span class="font-mono text-[11px] uppercase tracking-tight text-[#c6c6c6]">OBSVD</span>
+</div>
+</button>
+<button class="step-tab py-2.5 px-2 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group cursor-pointer hover:border-[#474747]" data-step="2">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-xs font-bold text-[#c6c6c6] group-[.active]:text-amber-brand">02</span>
+<span class="font-mono text-[11px] text-[#c6c6c6]">00:19</span>
+</div>
+<div class="font-mono text-xs truncate text-white font-medium mt-1">STRIP</div>
+<div class="mt-1.5 flex items-center gap-1">
+<span class="text-xs text-white">✓</span>
+<span class="font-mono text-[11px] uppercase tracking-tight text-[#c6c6c6]">OBSVD</span>
+</div>
+</button>
+<button class="step-tab active py-2.5 px-2 bg-[#13171f] border-2 border-amber-brand shadow-[0_0_12px_rgba(239,154,87,0.3)] rounded text-left flex flex-col justify-between transition-all duration-150 group cursor-pointer" data-step="3">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-xs font-bold text-amber-brand">03</span>
+<span class="font-mono text-[11px] text-amber-brand font-semibold">00:41</span>
+</div>
+<div class="font-mono text-xs truncate text-white font-bold mt-1">EARTH</div>
+<div class="mt-1.5 flex items-center gap-1">
+<span class="text-xs text-amber-brand">◐</span>
+<span class="font-mono text-[11px] uppercase tracking-tight text-amber-brand font-bold">REVIEW</span>
+</div>
+</button>
+<button class="step-tab py-2.5 px-2 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group cursor-pointer hover:border-[#474747]" data-step="4">
+<div class="flex justify-between items-center w-full">
+<span class="font-mono text-xs font-bold text-[#c6c6c6] group-[.active]:text-amber-brand">04</span>
+<span class="font-mono text-[11px] text-[#c6c6c6]">00:58</span>
+</div>
+<div class="font-mono text-xs truncate text-white font-medium mt-1">SECURE</div>
+<div class="mt-1.5 flex items-center gap-1">
+<span class="text-xs text-white">✓</span>
+<span class="font-mono text-[11px] uppercase tracking-tight text-[#c6c6c6]">OBSVD</span>
+</div>
+</button>
+</div>
+<!-- 16:9 / 4:3 Evidence Plate Frame -->
+<div class="w-full rounded border border-[#2d3340] bg-[#0b0d12] p-2 sm:p-3 relative overflow-hidden flex flex-col shadow-2xl">
+<!-- Plate Meta Header -->
+<div class="flex justify-between items-center px-2 py-1.5 text-xs font-mono text-[#c6c6c6] border-b border-[#1f242e] mb-2">
+<span>EVIDENCE FRAME: EF-4829</span>
+<span class="text-amber-brand tracking-wider flex items-center gap-1.5 font-bold">
+<span class="w-2 h-2 rounded-full bg-amber-brand animate-pulse"></span>
+<span id="frameTelemetryStatus">LIVE INSPECT · STEP 03</span>
+</span>
+</div>
+<!-- Video Simulation Viewport -->
+<div class="relative w-full aspect-[16/9] bg-[#050609] overflow-hidden rounded" id="evidenceViewport">
+<img alt="Skilled electrician terminating copper wires" class="w-full h-full object-cover filter grayscale contrast-125 opacity-90" src="https://lh3.googleusercontent.com/aida/AEtjO1XWWhm9uMGL0ZEcuOo832Mag6c1FdrRs1dce8IRXvIQXEh8Jd24C9R4ynUIOGXQA-SR5yX_9UV0TnEF3-fiLxnUIUX55Q-4-EwO3bhNiunsargmaHHIV7MUa0VcPp52hhqZEjHRqXan1WGZnCqbWr8WXlwqa0Z977PHkatCHHlOMndCP6K3L6BwsNnXCsCtaVtds8hAotdpClJORAgmn243Bt1nSnBDJZZBfY8ly-HJ6X7uNEbsNjE0HFE"/>
+<!-- Scan Line Effect -->
+<div class="absolute inset-x-0 h-[2px] bg-gradient-to-r from-transparent via-[#ef9a57] to-transparent shadow-[0_0_8px_#ef9a57] pointer-events-none animate-scan"></div>
+<!-- Dynamic Reticle HUD -->
+<div class="absolute pointer-events-none border-2 border-amber-brand transition-all duration-300 ease-out z-10 shadow-[0_0_12px_rgba(239,154,87,0.4)]" id="hudReticle" style="top: 31%; left: 63%; width: 22%; height: 32%;">
+<!-- Corner L Brackets -->
+<div class="absolute -top-1 -left-1 w-2 h-2 border-t-2 border-l-2 border-amber-brand"></div>
+<div class="absolute -top-1 -right-1 w-2 h-2 border-t-2 border-r-2 border-amber-brand"></div>
+<div class="absolute -bottom-1 -left-1 w-2 h-2 border-b-2 border-l-2 border-amber-brand"></div>
+<div class="absolute -bottom-1 -right-1 w-2 h-2 border-b-2 border-r-2 border-amber-brand"></div>
+<!-- Pulse Core -->
+<div class="absolute inset-0 flex items-center justify-center">
+<div class="w-2.5 h-2.5 rounded-full bg-amber-brand/70 animate-ping"></div>
+</div>
+<!-- Reticle Tag -->
+<div class="absolute -top-4 left-0 bg-[#050609] text-[11px] font-mono px-1.5 border border-amber-brand text-amber-brand uppercase tracking-tight whitespace-nowrap" id="reticleTag">
+                    EARTH TERM // POS: X63 Y31
+                  </div>
+</div>
+<!-- Step Markers Overlay -->
+<div class="absolute top-3 left-3 bg-[#050609]/90 backdrop-blur border border-[#2d3340] px-2.5 py-1 rounded flex items-center gap-2 z-10 transition-all" id="stepMarkerTop">
+<span class="text-amber-brand text-xs">◆</span>
+<span class="font-mono text-xs text-white tracking-wider uppercase" id="stepMarkerTopText">03 EARTH CONTINUITY · 00:41</span>
+</div>
+<div class="absolute bottom-3 right-3 bg-[#050609]/90 backdrop-blur border border-amber-brand/70 px-2.5 py-1 rounded flex items-center gap-2 shadow-lg z-10 transition-all" id="stepMarkerBottom">
+<span class="text-xs text-amber-brand" id="stepMarkerBottomIcon">◐</span>
+<span class="font-mono text-xs text-amber-brand tracking-wider uppercase font-semibold" id="stepMarkerBottomText">NEEDS REVIEW · SAFETY CRITICAL</span>
+</div>
+<!-- Center Optical Target -->
+<div class="absolute inset-0 pointer-events-none flex items-center justify-center">
+<div class="w-12 h-12 border border-white/10 rounded-full flex items-center justify-center">
+<div class="w-1.5 h-1.5 bg-amber-brand/70 rounded-full"></div>
+</div>
+</div>
+</div>
+<!-- Verified Badge Card beneath Plate -->
+<div class="mt-3 p-3 bg-[#13171f] rounded border border-[#1f242e] flex items-center justify-between">
+<div class="flex flex-col">
+<div class="flex items-center gap-2">
+<span class="text-white text-xs font-bold">✓</span>
+<span class="text-xs sm:text-sm font-semibold tracking-wide text-white">Verified by Smart Fundis</span>
+</div>
+<span class="text-[11px] font-mono text-[#c6c6c6] uppercase tracking-wider mt-0.5" id="badgeStepCaption">Electrical · Install a 13A socket · Step 03 Inspection</span>
+</div>
+<div class="border border-white/20 px-3 py-1 rounded text-xs font-mono text-[#c6c6c6] tracking-widest uppercase bg-black/40">
+                  EXAMPLE
+                </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 02 — RECORD (Alternating 2 columns) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+<!-- Copy (6 cols) -->
+<div class="lg:col-span-6 flex flex-col">
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">02 — RECORD</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">Record your work.</h2>
+<p class="text-sm sm:text-base text-[#c6c6c6] leading-relaxed font-normal max-w-lg mb-6">
+              Write your code on paper, show it to the camera, then do the job in one continuous shot. A fresh code every time, so the video is really yours, really now.
+            </p>
+<div class="flex items-center gap-4 text-xs font-mono text-[#c6c6c6]">
+<span class="flex items-center gap-1.5 text-white"><span class="material-symbols-outlined text-sm">videocam</span> ONE CONTINUOUS SHOT</span>
+<span class="flex items-center gap-1.5 text-white"><span class="material-symbols-outlined text-sm">timer</span> ZERO LATENCY</span>
+</div>
+</div>
+<!-- Visual Card (6 cols) -->
+<div class="lg:col-span-6">
+<div class="w-full bg-[#0b0d12] border border-[#2d3340] rounded p-6 sm:p-8 relative shadow-2xl">
+<div class="flex justify-between items-center mb-6">
+<div class="flex items-center gap-2">
+<span class="w-2.5 h-2.5 rounded-full bg-amber-brand animate-ping"></span>
+<span class="font-mono text-xs tracking-[0.2em] text-amber-brand uppercase font-semibold">LIVENESS ACTIVE</span>
+</div>
+<span class="font-mono text-xs text-[#c6c6c6]">TETHER VERIFIED</span>
+</div>
+<!-- Paper Tether Simulation -->
+<div class="bg-[#1a1b1f] border border-dashed border-[#474747] p-8 text-center rounded relative shadow-inner">
+<div class="text-xs font-mono text-[#c6c6c6] tracking-widest uppercase mb-2">LIVENESS CODE</div>
+<div class="font-mono text-5xl sm:text-6xl font-black tracking-widest text-white my-2">
+                  315
+                </div>
+<div class="text-xs font-mono text-amber-brand tracking-widest uppercase mt-2">
+                  LIVENESS CODE · 315 · ISSUED 00:00:03 AGO
+                </div>
+</div>
+<div class="mt-6 flex items-center justify-between text-xs font-mono text-[#c6c6c6] pt-4 border-t border-[#1f242e]">
+<span>CONTINUOUS TELEMETRY</span>
+<span class="text-white font-semibold">NO POST-EDITS ACCEPTED</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 03 — CHECK (Alternating: Visual Left, Copy Right) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24" id="telemetry">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+<!-- Visual on Left (6 cols on lg, ordered on desktop) -->
+<div class="lg:col-span-6 order-2 lg:order-1">
+<div class="relative w-full aspect-[16/10] bg-[#0b0d12] border border-[#2d3340] rounded p-4 overflow-hidden flex items-center justify-center shadow-2xl">
+<div class="absolute inset-0 opacity-20 bg-[radial-gradient(#ef9a57_1px,transparent_1px)] [background-size:8px_8px]"></div>
+<!-- Circular Loupe Visual -->
+<div class="relative w-36 h-36 sm:w-44 sm:h-44 rounded-full border border-amber-brand/70 bg-[#13171f] flex items-center justify-center shadow-[0_0_20px_rgba(239,154,87,0.2)]">
+<div class="absolute w-full h-[1px] bg-amber-brand/30"></div>
+<div class="absolute h-full w-[1px] bg-amber-brand/30"></div>
+<div class="w-20 h-20 rounded-full border border-dashed border-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-amber-brand text-3xl" style="font-variation-settings: 'FILL' 1;">electric_bolt</span>
+</div>
+<div class="absolute -top-3.5 bg-[#050609] px-2 text-xs font-mono text-amber-brand border border-[#2d3340]">MAG: 4.8X</div>
+</div>
+<!-- Floating telemetry footer -->
+<div class="absolute bottom-3 inset-x-3 bg-[#050609]/95 border border-[#2d3340] px-3 py-2 rounded flex items-center justify-between">
+<span class="font-mono text-xs text-white tracking-wider uppercase font-semibold">
+                  STEP 03 · EARTH CONTINUITY · OBSERVED ✓
+                </span>
+<span class="font-mono text-xs text-amber-brand font-bold">00:41</span>
+</div>
+</div>
+</div>
+<!-- Copy on Right (6 cols) -->
+<div class="lg:col-span-6 order-1 lg:order-2 flex flex-col">
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">03 — CHECK</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">AI checks each step.</h2>
+<p class="text-sm sm:text-base text-[#c6c6c6] leading-relaxed font-normal max-w-lg mb-6">
+              NVIDIA AI watches every step of the task and marks exactly where it happens in your video.
+            </p>
+<div class="p-4 rounded bg-[#13171f] border border-amber-brand/40 flex items-start gap-3 max-w-lg">
+<span class="material-symbols-outlined text-amber-brand text-lg mt-0.5">warning</span>
+<div class="flex flex-col">
+<span class="font-mono text-xs font-bold text-amber-brand uppercase tracking-wider">CRITICAL INTEGRITY RULE</span>
+<span class="text-xs text-[#c6c6c6] mt-0.5">Safety steps are never passed automatically.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 04 — DECIDE (Full-Width Responsive Instrument Ledger Table) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-3xl mb-8">
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">04 — DECIDE</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">An Expert decides.</h2>
+<p class="text-sm sm:text-base text-[#c6c6c6] leading-relaxed">
+            A safety step marked unclear caps the AI at "needs review". AI recommends. Experts decide.
+          </p>
+</div>
+<!-- Instrument Ledger Table with AI Observation on desktop -->
+<div class="w-full border border-[#2d3340] rounded bg-[#0b0d12] overflow-hidden shadow-2xl mb-4">
+<!-- Table Header -->
+<div class="grid grid-cols-12 px-4 py-3 bg-[#13171f] border-b border-[#2d3340] font-mono text-xs text-[#c6c6c6] tracking-widest uppercase">
+<span class="col-span-4 sm:col-span-3">STEP NAME</span>
+<span class="col-span-3 sm:col-span-2 text-center">TIME</span>
+<span class="hidden sm:block sm:col-span-4 text-left">AI OBSERVATION</span>
+<span class="col-span-5 sm:col-span-3 text-right">STATUS</span>
+</div>
+<!-- Row 1 -->
+<div class="ledger-row grid grid-cols-12 px-4 py-3.5 border-b border-[#1f242e] text-xs items-center transition-colors" id="ledgerRow1">
+<span class="col-span-4 sm:col-span-3 font-semibold text-white">Isolate power</span>
+<span class="col-span-3 sm:col-span-2 text-center font-mono text-[#c6c6c6]">00:04</span>
+<span class="hidden sm:block sm:col-span-4 font-mono text-[#c6c6c6] text-[11px]">Breaker off, tested dead with probe</span>
+<span class="col-span-5 sm:col-span-3 text-right font-mono text-white flex items-center justify-end gap-1.5">
+<span class="text-white font-bold">✓</span> Observed
+            </span>
+</div>
+<!-- Row 2 -->
+<div class="ledger-row grid grid-cols-12 px-4 py-3.5 border-b border-[#1f242e] text-xs items-center transition-colors" id="ledgerRow2">
+<span class="col-span-4 sm:col-span-3 font-semibold text-white">Strip &amp; terminate</span>
+<span class="col-span-3 sm:col-span-2 text-center font-mono text-[#c6c6c6]">00:19</span>
+<span class="hidden sm:block sm:col-span-4 font-mono text-[#c6c6c6] text-[11px]">Conductors stripped cleanly to L/N/E</span>
+<span class="col-span-5 sm:col-span-3 text-right font-mono text-white flex items-center justify-end gap-1.5">
+<span class="text-white font-bold">✓</span> Observed
+            </span>
+</div>
+<!-- Row 3: Needs Review (Amber Highlight) -->
+<div class="ledger-row grid grid-cols-12 px-4 py-3.5 border-b border-[#1f242e] text-xs items-center bg-[#ef9a57]/10 transition-colors" id="ledgerRow3">
+<span class="col-span-4 sm:col-span-3 font-semibold text-amber-brand">Earth continuity</span>
+<span class="col-span-3 sm:col-span-2 text-center font-mono text-amber-brand">00:41</span>
+<span class="hidden sm:block sm:col-span-4 font-mono text-amber-brand text-[11px]">Earth sleeve seated; terminal torque flagged for human</span>
+<span class="col-span-5 sm:col-span-3 text-right font-mono text-amber-brand font-bold flex items-center justify-end gap-1.5">
+<span>◐</span> Needs review
+            </span>
+</div>
+<!-- Row 4 -->
+<div class="ledger-row grid grid-cols-12 px-4 py-3.5 border-b border-[#2d3340] text-xs items-center transition-colors" id="ledgerRow4">
+<span class="col-span-4 sm:col-span-3 font-semibold text-white">Faceplate secure</span>
+<span class="col-span-3 sm:col-span-2 text-center font-mono text-[#c6c6c6]">00:58</span>
+<span class="hidden sm:block sm:col-span-4 font-mono text-[#c6c6c6] text-[11px]">Mounting screws flush, plate stable</span>
+<span class="col-span-5 sm:col-span-3 text-right font-mono text-white flex items-center justify-end gap-1.5">
+<span class="text-white font-bold">✓</span> Observed
+            </span>
+</div>
+<!-- Emphasized Final Row -->
+<div class="grid grid-cols-12 px-4 py-4 bg-[#13171f] text-xs items-center border-l-4 border-l-amber-brand">
+<span class="col-span-6 font-mono text-xs tracking-wider uppercase font-bold text-white">EXPERT DECISION &amp; JURY SIGN-OFF</span>
+<span class="col-span-6 text-right font-mono text-xs font-bold text-amber-brand flex items-center justify-end gap-1.5">
+<span>✓</span> Badge issued
+            </span>
+</div>
+</div>
+</div>
+</section>
+<!-- 05 — BADGE (Visual Left, Copy Right) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+<!-- Visual on Left (6 cols) -->
+<div class="lg:col-span-6">
+<div class="w-full bg-[#0b0d12] border border-[#2d3340] rounded p-6 sm:p-8 flex flex-col items-center shadow-2xl">
+<!-- 4 Layers Stack -->
+<div class="w-full flex flex-col gap-2 mb-6">
+<div class="w-full h-9 border border-[#2d3340] bg-[#13171f]/80 rounded flex items-center justify-between px-4 text-xs font-mono">
+<span class="text-[#c6c6c6]">LAYER 01: RAW CAPTURE</span>
+<span class="text-white font-bold">VIDEO</span>
+</div>
+<div class="w-full h-9 border border-[#2d3340] bg-[#13171f]/80 rounded flex items-center justify-between px-4 text-xs font-mono">
+<span class="text-[#c6c6c6]">LAYER 02: TETHER</span>
+<span class="text-white font-bold">CODE</span>
+</div>
+<div class="w-full h-9 border border-[#2d3340] bg-[#13171f]/80 rounded flex items-center justify-between px-4 text-xs font-mono">
+<span class="text-[#c6c6c6]">LAYER 03: TELEMETRY MAP</span>
+<span class="text-amber-brand font-bold">AI CHECK</span>
+</div>
+<div class="w-full h-9 border border-amber-brand/40 bg-[#13171f] rounded flex items-center justify-between px-4 text-xs font-mono">
+<span class="text-[#c6c6c6]">LAYER 04: JURY SIGN-OFF</span>
+<span class="text-white font-bold">EXPERT</span>
+</div>
+</div>
+<!-- Convergence Vector -->
+<span class="material-symbols-outlined text-amber-brand text-xl mb-4">arrow_downward</span>
+<!-- Sealed Badge -->
+<div class="w-28 h-28 sm:w-32 sm:h-32 rounded-full border-2 border-amber-brand bg-[#13171f] p-1.5 flex items-center justify-center relative shadow-[0_0_25px_rgba(239,154,87,0.2)]">
+<div class="w-full h-full rounded-full border border-dashed border-amber-brand/50 flex flex-col items-center justify-center text-center p-2 bg-[#050609]">
+<span class="material-symbols-outlined text-amber-brand text-2xl" style="font-variation-settings: 'FILL' 1;">verified</span>
+<span class="font-mono text-[9px] text-[#c6c6c6] uppercase tracking-wider mt-1">SMART FUNDIS</span>
+<span class="font-mono text-[9px] text-white font-bold uppercase tracking-widest mt-1 border border-white/20 px-1.5 rounded">EXAMPLE</span>
+</div>
+</div>
+<div class="font-mono text-xs text-amber-brand tracking-widest uppercase mt-4">
+                SEPARATION 0.00 mm · SEATED
+              </div>
+</div>
+</div>
+<!-- Copy on Right (6 cols) -->
+<div class="lg:col-span-6 flex flex-col">
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">05 — BADGE</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">Your work, your badge.</h2>
+<p class="text-sm sm:text-base text-[#c6c6c6] leading-relaxed font-normal max-w-lg mb-6">
+              Your video stays private. Only your badge is public, on a profile you can share with any client.
+            </p>
+<div class="space-y-3 font-mono text-xs text-[#c6c6c6]">
+<div class="flex items-center gap-2">
+<span class="text-white font-bold">✓</span>
+<span>Cryptographically tethered proof of physical skill</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-white font-bold">✓</span>
+<span>No invasive surveillance or video distribution</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="text-white font-bold">✓</span>
+<span>Instant verification link for client quote sharing</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 06 — TRADES (4-Column Responsive Grid on Desktop) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24" id="trades">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between mb-10 gap-4">
+<div>
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">06 — TRADES</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight">
+              Two trades live.<br class="hidden sm:block"/> Ten on the bench.
+            </h2>
+</div>
+<span class="font-mono text-xs text-[#c6c6c6] uppercase tracking-wider">EXPANDING QUARTERLY ACROSS EAST AFRICA</span>
+</div>
+<!-- 4-column Desktop Grid / 2-column Mobile Grid -->
+<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
+<!-- Live Trade 1: Electrical -->
+<div class="p-4 sm:p-5 bg-[#0b0d12] border border-amber-brand/60 rounded flex flex-col justify-between h-36 relative shadow-lg hover:border-amber-brand transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-amber-brand text-2xl">electrical_services</span>
+<span class="font-mono text-xs text-[#050609] bg-amber-brand px-2 py-0.5 font-bold rounded">LIVE</span>
+</div>
+<div>
+<div class="font-headline text-sm sm:text-base font-bold text-white uppercase">Electrical</div>
+<a class="font-mono text-xs text-amber-brand tracking-wider uppercase mt-1.5 inline-block hover:underline" href="#">Verify now →</a>
+</div>
+</div>
+<!-- Live Trade 2: Hairdressing -->
+<div class="p-4 sm:p-5 bg-[#0b0d12] border border-amber-brand/60 rounded flex flex-col justify-between h-36 relative shadow-lg hover:border-amber-brand transition-colors">
+<div class="flex justify-between items-start">
+<span class="material-symbols-outlined text-amber-brand text-2xl">content_cut</span>
+<span class="font-mono text-xs text-[#050609] bg-amber-brand px-2 py-0.5 font-bold rounded">LIVE</span>
+</div>
+<div>
+<div class="font-headline text-sm sm:text-base font-bold text-white uppercase">Hairdressing</div>
+<a class="font-mono text-xs text-amber-brand tracking-wider uppercase mt-1.5 inline-block hover:underline" href="#">Verify now →</a>
+</div>
+</div>
+<!-- 10 Bench Trades (Full opacity cards with distinct dim typography) -->
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Plumbing</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Masonry</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Carpentry</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Welding</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Mechanic</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Tailoring</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Beauty</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Solar install</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Mama fua</div>
+</div>
+<div class="p-4 sm:p-5 bg-[#08090d] border border-[#1f242e] rounded flex flex-col justify-between h-36">
+<div class="font-mono text-[11px] text-[#c6c6c6] uppercase tracking-wider">COMING SOON</div>
+<div class="text-sm sm:text-base font-mono font-medium text-white">Movers</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 07 — SCOPE (2 Columns: What we check vs What we don't check) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="max-w-2xl mb-8">
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">07 — SCOPE</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-4">One word, exactly defined.</h2>
+</div>
+<!-- 2 Column Scope Prism -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+<!-- Left Column: What We Check -->
+<div class="border border-[#2d3340] rounded bg-[#0b0d12] p-6 shadow-xl">
+<div class="flex items-center justify-between pb-4 border-b border-[#1f242e] mb-4">
+<span class="font-mono text-xs text-[#c6c6c6] tracking-wider uppercase font-semibold">WHAT WE CHECK</span>
+<span class="font-mono text-xs text-white font-bold bg-[#13171f] px-2 py-0.5 border border-white/20">VIDEO CAPTURE</span>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 text-sm text-white">
+<span class="text-white font-bold">✓</span>
+<span>Recorded in the app</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-white">
+<span class="text-white font-bold">✓</span>
+<span>Fresh code on camera</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-white">
+<span class="text-white font-bold">✓</span>
+<span>Every step checked by AI</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-white">
+<span class="text-white font-bold">✓</span>
+<span>Safety never auto-passed</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-white">
+<span class="text-white font-bold">✓</span>
+<span>An Expert in your trade decides</span>
+</div>
+</div>
+</div>
+<!-- Right Column: What We Don't Check -->
+<div class="border border-[#2d3340] rounded bg-[#08090d] p-6 shadow-xl">
+<div class="flex items-center justify-between pb-4 border-b border-[#1f242e] mb-4">
+<span class="font-mono text-xs text-[#c6c6c6] tracking-wider uppercase font-semibold">WHAT WE DON'T CHECK</span>
+<span class="font-mono text-xs text-[#c6c6c6] bg-[#13171f] px-2 py-0.5 border border-[#1f242e]">STATUTORY INSTITUTIONS</span>
+</div>
+<div class="flex flex-col gap-3">
+<div class="flex items-center gap-3 text-sm text-[#c6c6c6] line-through decoration-[#ef9a57]">
+<span>✕</span>
+<span>ID or background</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-[#c6c6c6] line-through decoration-[#ef9a57]">
+<span>✕</span>
+<span>Licences or insurance</span>
+</div>
+<div class="flex items-center gap-3 text-sm text-[#c6c6c6] line-through decoration-[#ef9a57]">
+<span>✕</span>
+<span>Formal qualifications</span>
+</div>
+</div>
+<p class="mt-6 pt-4 border-t border-[#1f242e] text-xs font-mono text-[#c6c6c6] leading-relaxed">
+              NITA, KNQA and TVETs certify qualifications. We verify a skill, on video.
+            </p>
+</div>
+</div>
+<div class="flex justify-start">
+<a class="h-12 min-h-[48px] px-8 rounded-full border border-amber-brand text-amber-brand font-mono text-xs tracking-wider uppercase flex items-center justify-center hover:bg-amber-brand/10 transition-colors active:scale-95" href="#verifier">
+            Skilled in your trade? Become a verifier
+          </a>
+</div>
+</div>
+</section>
+<!-- 08 — NEXT (2 Columns: Image Left, 2x2 Roadmap Cards Right) -->
+<section class="w-full border-b border-white/10 py-16 lg:py-24" id="roadmap">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+<div class="flex items-center gap-2 mb-3">
+<span class="font-mono text-xs tracking-[0.25em] text-amber-brand uppercase font-medium">08 — NEXT</span>
+</div>
+<h2 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-black text-white tracking-tight mb-8">
+          Coming next: earn from your skills
+        </h2>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+<!-- Co-op Image on Left (6 cols) -->
+<div class="lg:col-span-6">
+<div class="w-full rounded border border-[#2d3340] bg-[#0b0d12] p-2 relative shadow-2xl">
+<div class="aspect-[16/9] w-full overflow-hidden rounded relative">
+<img alt="Smart Fundis tool array cooperative teaser" class="w-full h-full object-cover filter contrast-125 opacity-90" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC1LnsHfQJIUT6JmODo_wa0Bu_SfNPtvz3F1Hh-7faByMGxx6prTTCR0ZQ1JP4pMSvnUZO7Bo33vqY-dqpRBZ59NFdJdAoI1VxDxDdDHIKNs6rnwEDbQCLbHUL2e6XvhS5E_6AtpBGwpzwdnReK0FOVgXBV0tiNUWxEDk2AipSefEs12Ndy3CuCv3wR4EEaZsneTJAanlVSFRZiu0DJeJFpFrqGcQ09MW6Rj7nbkMdaYhZ_dJPeXF2XsT8k6hT_oHEol8SeL2cR5R4"/>
+<div class="absolute inset-0 bg-gradient-to-t from-[#050609] via-transparent to-transparent"></div>
+</div>
+</div>
+</div>
+<!-- 2x2 Roadmap Grid on Right (6 cols) -->
+<div class="lg:col-span-6 flex flex-col justify-between">
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+<div class="p-4 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col justify-between h-28">
+<span class="font-mono text-[11px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs sm:text-sm text-white">Smart Fundis Data Co-op: earn from your skills, by choice</span>
+</div>
+<div class="p-4 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col justify-between h-28">
+<span class="font-mono text-[11px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs sm:text-sm text-white">Bookings &amp; M-Pesa payments</span>
+</div>
+<div class="p-4 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col justify-between h-28">
+<span class="font-mono text-[11px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs sm:text-sm text-white">Fundi Pro</span>
+</div>
+<div class="p-4 bg-[#0b0d12] border border-[#2d3340] rounded flex flex-col justify-between h-28">
+<span class="font-mono text-[11px] text-amber-brand tracking-widest uppercase">COMING SOON</span>
+<span class="font-medium text-xs sm:text-sm text-white">Training partners</span>
+</div>
+</div>
+<a class="font-mono text-xs text-amber-brand tracking-wider uppercase font-semibold flex items-center gap-1.5 hover:underline" href="#roadmap">
+              SEE THE ROADMAP →
+            </a>
+</div>
+</div>
+</div>
+</section>
+<!-- 09 — FOOTER & CTA BANNER -->
+<footer class="w-full pt-16 sm:pt-24 pb-12 flex flex-col">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+<!-- Giant Final Headline & Action Pills -->
+<div class="flex flex-col items-center text-center pb-16 border-b border-white/10">
+<h2 class="font-headline text-4xl sm:text-6xl lg:text-7xl font-black text-white tracking-tight uppercase mb-8">
+            Show your work.
+          </h2>
+<div class="flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
+<a class="h-12 min-h-[48px] px-8 rounded-full bg-amber-brand text-[#050609] font-bold text-xs tracking-wider uppercase flex items-center justify-center active:scale-95 transition-all shadow-[0_0_15px_rgba(239,154,87,0.2)] hover:bg-[#ffb782]" href="#join">
+              Join as a fundi
+            </a>
+<a class="h-12 min-h-[48px] px-8 rounded-full border border-[#374151] bg-[#0b0d12] text-white font-semibold text-xs tracking-wider uppercase flex items-center justify-center hover:border-amber-brand transition-colors active:scale-95" href="#trades">
+              Find a fundi
+            </a>
+</div>
+</div>
+<!-- 4-Column Directory -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 py-12 border-b border-white/10">
+<div>
+<div class="font-mono text-xs text-amber-brand tracking-widest uppercase mb-4 font-semibold">FOR FUNDIS</div>
+<div class="flex flex-col gap-2.5 text-xs text-[#c6c6c6]">
+<a class="hover:text-white transition-colors" href="#">Join as a fundi</a>
+<a class="hover:text-white transition-colors" href="#">How verification works</a>
+<a class="hover:text-white transition-colors" href="#">Your privacy</a>
+</div>
+</div>
+<div>
+<div class="font-mono text-xs text-amber-brand tracking-widest uppercase mb-4 font-semibold">FOR CLIENTS</div>
+<div class="flex flex-col gap-2.5 text-xs text-[#c6c6c6]">
+<a class="hover:text-white transition-colors" href="#">Find a fundi</a>
+<a class="hover:text-white transition-colors" href="#">What 'verified' means</a>
+</div>
+</div>
+<div>
+<div class="font-mono text-xs text-amber-brand tracking-widest uppercase mb-4 font-semibold">FOR EXPERTS</div>
+<div class="flex flex-col gap-2.5 text-xs text-[#c6c6c6]">
+<a class="hover:text-white transition-colors" href="#">Become a verifier</a>
+</div>
+</div>
+<div id="about">
+<div class="font-mono text-xs text-amber-brand tracking-widest uppercase mb-4 font-semibold">ABOUT &amp; COMPANY</div>
+<div class="flex flex-col gap-2.5 text-xs text-[#c6c6c6]">
+<a class="hover:text-white transition-colors" href="#">Responsible AI</a>
+<a class="hover:text-white transition-colors" href="#">Roadmap</a>
+<a class="hover:text-white transition-colors" href="#">Contact</a>
+</div>
+</div>
+</div>
+<!-- Giant Outlined Full-Width Monospaced Wordmark -->
+<div class="w-full my-12 py-6 border-y border-[#1f242e] flex items-center justify-center">
+<span class="font-mono text-3xl sm:text-5xl lg:text-7xl font-black tracking-[0.25em] text-white/20 select-none uppercase text-center">
+            SMART FUNDIS
+          </span>
+</div>
+<!-- Legal Notice & Statutory Disclaimer -->
+<div class="flex flex-col sm:flex-row items-start sm:items-center justify-between text-xs font-mono text-[#c6c6c6] gap-2">
+<p>We verify skills. NITA, KNQA and TVETs certify.</p>
+<p>© 2026 Smart Fundis. All rights reserved.</p>
+</div>
+</div>
+</footer>
+</main>
+<!-- Mobile Bottom Tab Navigation (<1024px only; lg:hidden) -->
+<nav class="lg:hidden fixed bottom-0 left-0 right-0 w-full z-50 flex justify-around items-center px-2 py-1 bg-[#050609]/95 backdrop-blur-md border-t border-white/10">
+<a class="flex flex-col items-center justify-center text-amber-brand py-1 active:scale-95 transition-transform flex-1" href="#evidence">
+<span class="material-symbols-outlined text-[20px]" style="font-variation-settings: 'FILL' 1;">frame_inspect</span>
+<span class="font-mono uppercase tracking-wider text-[11px] mt-0.5 font-bold">EVIDENCE</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#c6c6c6] py-1 hover:text-amber-brand active:scale-95 transition-colors flex-1" href="#trades">
+<span class="material-symbols-outlined text-[20px]">construction</span>
+<span class="font-mono uppercase tracking-wider text-[11px] mt-0.5">TRADES</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#c6c6c6] py-1 hover:text-amber-brand active:scale-95 transition-colors flex-1" href="#telemetry">
+<span class="material-symbols-outlined text-[20px]">radar</span>
+<span class="font-mono uppercase tracking-wider text-[11px] mt-0.5">TELEMETRY</span>
+</a>
+<a class="flex flex-col items-center justify-center text-[#c6c6c6] py-1 hover:text-amber-brand active:scale-95 transition-colors flex-1" href="#about">
+<span class="material-symbols-outlined text-[20px]">domain</span>
+<span class="font-mono uppercase tracking-wider text-[11px] mt-0.5">COMPANY</span>
+</a>
+</nav>
+</div>
+<!-- Interactive Step Switching Logic -->
+<script>
+  (function() {
+    const stepConfig = {
+      1: {
+        num: "01",
+        name: "ISOLATE POWER",
+        time: "00:04",
+        status: "Observed",
+        topText: "01 ISOLATE POWER · 00:04",
+        bottomIcon: "✓",
+        bottomText: "BREAKER OFF · TESTED DEAD",
+        bottomColorClass: "text-[#10b981]",
+        bottomBorderClass: "border-[#10b981]/50",
+        reticle: {
+          top: "14%",
+          left: "22%",
+          width: "28%",
+          height: "30%",
+          tag: "ISOLATOR // POS: X22 Y14",
+          borderColor: "border-[#10b981]",
+          shadow: "shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 01 Inspection"
+      },
+      2: {
+        num: "02",
+        name: "STRIP & TERMINATE",
+        time: "00:19",
+        status: "Observed",
+        topText: "02 STRIP & TERMINATE · 00:19",
+        bottomIcon: "✓",
+        bottomText: "CONDUCTORS TO L/N/E · OBSERVED",
+        bottomColorClass: "text-[#10b981]",
+        bottomBorderClass: "border-[#10b981]/50",
+        reticle: {
+          top: "26%",
+          left: "58%",
+          width: "25%",
+          height: "34%",
+          tag: "TERMINALS // POS: X58 Y26",
+          borderColor: "border-[#10b981]",
+          shadow: "shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 02 Inspection"
+      },
+      3: {
+        num: "03",
+        name: "EARTH CONTINUITY",
+        time: "00:41",
+        status: "Needs review",
+        topText: "03 EARTH CONTINUITY · 00:41",
+        bottomIcon: "◐",
+        bottomText: "NEEDS REVIEW · SAFETY CRITICAL",
+        bottomColorClass: "text-amber-brand",
+        bottomBorderClass: "border-amber-brand/70",
+        reticle: {
+          top: "31%",
+          left: "63%",
+          width: "22%",
+          height: "32%",
+          tag: "EARTH TERM // POS: X63 Y31",
+          borderColor: "border-amber-brand",
+          shadow: "shadow-[0_0_12px_rgba(239,154,87,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 03 Inspection"
+      },
+      4: {
+        num: "04",
+        name: "FACEPLATE SECURE",
+        time: "00:58",
+        status: "Observed",
+        topText: "04 FACEPLATE SECURE · 00:58",
+        bottomIcon: "✓",
+        bottomText: "SCREWS SEATED · FLUSH MOUNT",
+        bottomColorClass: "text-[#10b981]",
+        bottomBorderClass: "border-[#10b981]/50",
+        reticle: {
+          top: "44%",
+          left: "44%",
+          width: "26%",
+          height: "28%",
+          tag: "DRIVER TORQUE // POS: X44 Y44",
+          borderColor: "border-[#10b981]",
+          shadow: "shadow-[0_0_12px_rgba(16,185,129,0.4)]"
+        },
+        caption: "Electrical · Install a 13A socket · Step 04 Inspection"
+      }
+    };
+
+    const tabs = document.querySelectorAll('.step-tab');
+    const hudReticle = document.getElementById('hudReticle');
+    const reticleTag = document.getElementById('reticleTag');
+    const stepMarkerTopText = document.getElementById('stepMarkerTopText');
+    const stepMarkerBottom = document.getElementById('stepMarkerBottom');
+    const stepMarkerBottomIcon = document.getElementById('stepMarkerBottomIcon');
+    const stepMarkerBottomText = document.getElementById('stepMarkerBottomText');
+    const frameTelemetryStatus = document.getElementById('frameTelemetryStatus');
+    const badgeStepCaption = document.getElementById('badgeStepCaption');
+    const stepCounter = document.getElementById('stepCounter');
+
+    function selectStep(stepId) {
+      const data = stepConfig[stepId];
+      if (!data) return;
+
+      // 1. Update Tabs style
+      tabs.forEach(tab => {
+        const id = tab.getAttribute('data-step');
+        if (id == stepId) {
+          tab.className = "step-tab active py-1.5 px-1 bg-[#13171f] border-2 border-amber-brand shadow-[0_0_10px_rgba(239,154,87,0.25)] rounded text-left flex flex-col justify-between transition-all duration-150 group";
+          const numSpan = tab.querySelector('.font-mono.font-bold');
+          if (numSpan) numSpan.className = "font-mono text-[8px] font-bold text-amber-brand";
+          const title = tab.querySelectorAll('.font-mono')[2];
+          if (title) title.className = "font-mono text-[8px] truncate text-white font-bold leading-tight mt-0.5";
+        } else {
+          tab.className = "step-tab py-1.5 px-1 bg-[#0b0d12] border border-[#2d3340] rounded text-left flex flex-col justify-between transition-all duration-150 group hover:border-[#474747]";
+          const numSpan = tab.querySelector('.font-mono.font-bold');
+          if (numSpan) numSpan.className = "font-mono text-[8px] font-bold text-[#9ca3af]";
+          const title = tab.querySelectorAll('.font-mono')[2];
+          if (title) title.className = "font-mono text-[8px] truncate text-[#f2f4f7] font-medium leading-tight mt-0.5";
+        }
+      });
+
+      // 2. Update Reticle HUD
+      hudReticle.style.top = data.reticle.top;
+      hudReticle.style.left = data.reticle.left;
+      hudReticle.style.width = data.reticle.width;
+      hudReticle.style.height = data.reticle.height;
+      hudReticle.className = `absolute pointer-events-none border-2 transition-all duration-300 ease-out z-10 ${data.reticle.borderColor} ${data.reticle.shadow}`;
+      
+      reticleTag.textContent = data.reticle.tag;
+      reticleTag.className = `absolute -top-3.5 left-0 bg-[#050609] text-[7.5px] font-mono px-1 border uppercase tracking-tighter whitespace-nowrap ${data.reticle.borderColor} ${data.bottomColorClass}`;
+
+      // Update corner brackets color
+      hudReticle.querySelectorAll('div[class*="border-t-2"], div[class*="border-b-2"]').forEach(el => {
+        el.className = el.className.replace(/border-(amber-brand|\[#10b981\])/g, data.status === 'Needs review' ? 'border-amber-brand' : 'border-[#10b981]');
+      });
+
+      // 3. Update Text Overlays
+      stepMarkerTopText.textContent = data.topText;
+      stepMarkerBottomIcon.textContent = data.bottomIcon;
+      stepMarkerBottomText.textContent = data.bottomText;
+      stepMarkerBottom.className = `absolute bottom-2 right-2 bg-[#050609]/90 backdrop-blur border px-2 py-0.5 rounded-[2px] flex items-center gap-1.5 shadow-lg z-10 transition-all ${data.bottomBorderClass}`;
+      stepMarkerBottomIcon.className = `text-[8px] ${data.bottomColorClass}`;
+      stepMarkerBottomText.className = `font-mono text-[8.5px] tracking-wider uppercase font-semibold ${data.bottomColorClass}`;
+
+      // 4. Update Header and Caption
+      frameTelemetryStatus.textContent = `LIVE INSPECT · STEP ${data.num}`;
+      badgeStepCaption.textContent = data.caption;
+      stepCounter.textContent = `STEP ${data.num} / 04`;
+
+      // 5. Sync Ledger Table Rows
+      for (let i = 1; i <= 4; i++) {
+        const row = document.getElementById(`ledgerRow${i}`);
+        if (!row) continue;
+        if (i == stepId) {
+          row.classList.add('bg-amber-brand/15', 'border-l-2', 'border-l-amber-brand');
+        } else {
+          row.classList.remove('bg-amber-brand/15', 'border-l-2', 'border-l-amber-brand');
+          if (i === 3) {
+            row.classList.add('bg-[#ef9a57]/10');
+          } else {
+            row.classList.remove('bg-[#ef9a57]/10');
+          }
+        }
+      }
+    }
+
+    tabs.forEach(tab => {
+      tab.addEventListener('click', function(e) {
+        e.preventDefault();
+        const step = this.getAttribute('data-step');
+        selectStep(step);
+      });
+    });
+
+    // Initialize with Step 3 as per screenshot context
+    selectStep(3);
+  })();
+</script>
+</body></html>

@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Smart Fundis — Trades</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;family=JetBrains+Mono:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#030406',
+              900: '#050609',
+              850: '#0a0c10',
+              800: '#0f1218',
+              700: '#171b22',
+              600: '#222733',
+            },
+            instrument: {
+              amber: '#ef9a57',
+              amberHover: '#f2a96f',
+              dimAmber: 'rgba(239, 154, 87, 0.15)',
+              borderAmber: 'rgba(239, 154, 87, 0.45)'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+<style>
+    body {
+      background-color: #050609;
+      color: #f2f4f7;
+      font-family: 'Inter', sans-serif;
+      margin: 0;
+      padding: 0;
+      -webkit-font-smoothing: antialiased;
+    }
+    .dot-grid {
+      background-image: radial-gradient(rgba(242, 244, 247, 0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent 0%, rgba(239, 154, 87, 0.6) 50%, transparent 100%);
+      box-shadow: 0 0 8px rgba(239, 154, 87, 0.5);
+    }
+    .hud-bracket-tl {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 10px;
+      height: 10px;
+      border-top: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-br {
+      position: absolute;
+      bottom: 8px;
+      right: 8px;
+      width: 10px;
+      height: 10px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-tr {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 10px;
+      height: 10px;
+      border-top: 1.5px solid #ef9a57;
+      border-right: 1.5px solid #ef9a57;
+    }
+    .hud-bracket-bl {
+      position: absolute;
+      bottom: 8px;
+      left: 8px;
+      width: 10px;
+      height: 10px;
+      border-bottom: 1.5px solid #ef9a57;
+      border-left: 1.5px solid #ef9a57;
+    }
+    @keyframes pulseDot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.35; transform: scale(0.85); }
+    }
+    .pulsing-accent {
+      animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+  </style>
+</head>
+<body class="bg-graphite-900 text-[#f2f4f7] selection:bg-instrument-amber selection:text-graphite-950 min-h-screen relative flex flex-col dot-grid">
+<!-- 1. RESPONSIVE HEADER (h-16 lg:h-[72px] sticky top-0 z-50 backdrop-blur-md bg-[#050609]/90 border-b border-white/10) -->
+<header class="sticky top-0 z-50 w-full h-14 md:h-16 lg:h-[72px] bg-[#050609]/90 backdrop-blur-md border-b border-white/10">
+<div class="max-w-7xl mx-auto h-full px-4 sm:px-6 lg:px-10 flex items-center justify-between">
+<!-- Brand Left -->
+<a class="flex items-center gap-3 group" href="#">
+<div class="w-7 h-7 lg:w-8 lg:h-8 rounded bg-[#10141c] border border-instrument-borderAmber flex items-center justify-center text-instrument-amber transition-colors group-hover:border-instrument-amber">
+<span class="material-symbols-outlined text-[17px] lg:text-[19px]" style="font-variation-settings: 'FILL' 1, 'wght' 600;">verified</span>
+</div>
+<span class="font-mono text-xs lg:text-sm font-bold tracking-[0.24em] text-[#f2f4f7] uppercase">Smart Fundis</span>
+</a>
+<!-- Center Desktop Nav Links (hidden on mobile, visible on md+) -->
+<nav class="hidden md:flex items-center space-x-8 font-mono text-xs tracking-wider">
+<a class="text-[#8e95a5] hover:text-[#f2f4f7] transition-colors py-1" href="#">EVIDENCE</a>
+<a class="text-instrument-amber font-semibold relative py-1 border-b-2 border-instrument-amber" href="#">TRADES</a>
+<a class="text-[#8e95a5] hover:text-[#f2f4f7] transition-colors py-1" href="#">TELEMETRY</a>
+<!-- Company Dropdown -->
+<div class="relative group py-2 cursor-pointer">
+<button class="flex items-center gap-1 text-[#8e95a5] group-hover:text-[#f2f4f7] transition-colors uppercase font-mono text-xs focus:outline-none">
+<span>COMPANY</span>
+<span class="text-[10px] transform group-hover:rotate-180 transition-transform">▾</span>
+</button>
+<div class="absolute left-0 top-full pt-1 hidden group-hover:block z-50 min-w-[140px]">
+<div class="bg-graphite-950 border border-[#232936] rounded-sm py-2 shadow-2xl backdrop-blur-md">
+<a class="block px-4 py-1.5 text-xs text-[#8e95a5] hover:text-[#f2f4f7] hover:bg-[#121620] transition-colors" href="#">About</a>
+<a class="block px-4 py-1.5 text-xs text-[#8e95a5] hover:text-[#f2f4f7] hover:bg-[#121620] transition-colors" href="#">Contact us</a>
+</div>
+</div>
+</div>
+</nav>
+<!-- Right Desktop / Actions -->
+<div class="flex items-center gap-3 sm:gap-5">
+<a class="hidden sm:inline-block font-mono text-xs text-[#8e95a5] hover:text-[#f2f4f7] tracking-wider transition-colors" href="#">
+          Sign in
+        </a>
+<button class="h-8 sm:h-9 lg:h-10 px-3.5 sm:px-5 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-[11px] sm:text-xs font-bold tracking-wider uppercase rounded-full transition-all active:scale-95 flex items-center justify-center">
+<span class="sm:hidden">Join</span>
+<span class="hidden sm:inline">Join as a fundi</span>
+</button>
+<!-- Mobile hamburger (<1024px) -->
+<button aria-label="Open menu" class="md:hidden w-8 h-8 flex items-center justify-center text-[#8e95a5] hover:text-[#f2f4f7] transition-colors">
+<span class="material-symbols-outlined text-[22px]">menu</span>
+</button>
+</div>
+</div>
+</header>
+<!-- MAIN WRAPPER (RESPONSIVE 12-COLUMN CONTAINER max-w-7xl) -->
+<main class="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-10 py-6 sm:py-10 lg:py-16 space-y-12 sm:space-y-16 lg:space-y-28">
+<!-- HERO SECTION (2 Columns on Desktop) -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+<!-- Left Column (7 cols) -->
+<div class="lg:col-span-7 space-y-4 sm:space-y-6">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-instrument-amber pulsing-accent"></span>
+<p class="font-mono text-xs sm:text-[11px] tracking-[0.24em] uppercase text-instrument-amber font-semibold">
+            SMART FUNDIS / TRADES
+          </p>
+</div>
+<h1 class="font-sans text-3xl sm:text-5xl lg:text-[72px] leading-[1.05] font-black tracking-[-0.035em] text-[#f2f4f7]">
+          Two trades live.<br class="hidden sm:inline"/> Ten on the bench.
+        </h1>
+<p class="font-sans text-sm sm:text-base lg:text-lg text-[#8e95a5] leading-relaxed max-w-xl">
+          Pick your trade, see exactly what the video must show, then record.
+        </p>
+<div class="pt-2 flex flex-wrap gap-4 items-center">
+<a class="inline-flex items-center gap-2 font-mono text-xs tracking-wider uppercase px-5 py-3 rounded-full bg-[#161a24] border border-[#262c3b] hover:border-instrument-amber text-[#f2f4f7] transition-all" href="#live-trades">
+<span>Explore live verifications</span>
+<span class="text-instrument-amber">↓</span>
+</a>
+</div>
+</div>
+<!-- Right Column (5 cols): Contextual Metric/Spec Card -->
+<div class="lg:col-span-5">
+<div class="bg-graphite-850/90 border border-[#202636] rounded-sm p-5 sm:p-6 backdrop-blur-sm space-y-5 shadow-2xl relative overflow-hidden">
+<div class="hud-bracket-tl"></div>
+<div class="hud-bracket-tr"></div>
+<div class="hud-bracket-bl"></div>
+<div class="hud-bracket-br"></div>
+<div class="flex items-center justify-between border-b border-[#1f2533] pb-3">
+<span class="font-mono text-[10px] tracking-[0.2em] text-[#8e95a5] uppercase">BENCHMARK STATUS</span>
+<span class="font-mono text-[9px] text-instrument-amber bg-instrument-amber/10 border border-instrument-borderAmber px-2 py-0.5 rounded">SYSTEM ACTIVE</span>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-graphite-950/80 p-3.5 border border-[#1d222e] rounded-sm">
+<span class="font-mono text-[9px] uppercase tracking-wider text-[#8e95a5] block">VERIFICATION MODE</span>
+<span class="font-sans text-base font-bold text-[#f2f4f7] mt-1 block">Video Rubrics</span>
+</div>
+<div class="bg-graphite-950/80 p-3.5 border border-[#1d222e] rounded-sm">
+<span class="font-mono text-[9px] uppercase tracking-wider text-[#8e95a5] block">ACTIVE TRADES</span>
+<span class="font-sans text-base font-bold text-instrument-amber mt-1 block">02 Live</span>
+</div>
+</div>
+<div class="space-y-2 text-xs text-[#8e95a5] font-sans leading-relaxed border-t border-[#1f2533] pt-3">
+<div class="flex items-center gap-2">
+<span class="font-mono text-instrument-amber text-[10px]">■</span>
+<span>Evaluated by peer Master Fundis and specialized rubrics</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="font-mono text-instrument-amber text-[10px]">■</span>
+<span>All work evidence preserved in tamper-evident log</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- 01 — LIVE SECTION (2 Columns on Desktop) -->
+<section class="space-y-6 sm:space-y-8 scroll-mt-24" id="live-trades">
+<!-- Section label -->
+<div class="flex items-center justify-between border-b border-[#1b202a] pb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-instrument-amber"></span>
+<span class="font-mono text-xs sm:text-sm tracking-[0.22em] uppercase font-bold text-[#f2f4f7]">01 — LIVE</span>
+</div>
+<span class="font-mono text-[10px] tracking-[0.18em] text-[#8e95a5] uppercase">2 TRADES AVAILABLE</span>
+</div>
+<!-- 2-Column Grid for Electrical & Hairdressing -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
+<!-- TRADE 01: ELECTRICAL EVIDENCE FRAME -->
+<article class="bg-graphite-850 border border-[#232936] rounded-sm overflow-hidden flex flex-col shadow-xl transition-all hover:border-[#343e52]">
+<!-- Meta Header Row -->
+<div class="bg-graphite-950 px-4 py-2.5 border-b border-[#1e2430] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] tracking-[0.18em] uppercase text-[#d6dae3] font-bold">TRADE 01 // ELECTRICAL</span>
+</div>
+<span class="font-mono text-[9px] font-bold tracking-[0.16em] uppercase text-graphite-950 bg-instrument-amber px-2 py-0.5 rounded-[2px]">
+              LIVE
+            </span>
+</div>
+<!-- Video / Photo Frame -->
+<div class="relative w-full h-[220px] sm:h-[260px] lg:h-[280px] bg-black overflow-hidden border-b border-[#202633]">
+<img alt="Skilled African electrician terminating wires into socket" class="w-full h-full object-cover filter contrast-[1.12] brightness-[0.92]" src="https://lh3.googleusercontent.com/aida/AEtjO1XWWhm9uMGL0ZEcuOo832Mag6c1FdrRs1dce8IRXvIQXEh8Jd24C9R4ynUIOGXQA-SR5yX_9UV0TnEF3-fiLxnUIUX55Q-4-EwO3bhNiunsargmaHHIV7MUa0VcPp52hhqZEjHRqXan1WGZnCqbWr8WXlwqa0Z977PHkatCHHlOMndCP6K3L6BwsNnXCsCtaVtds8hAotdpClJORAgmn243Bt1nSnBDJZZBfY8ly-HJ6X7uNEbsNjE0HFE"/>
+<div class="absolute inset-0 bg-gradient-to-t from-graphite-950/85 via-transparent to-graphite-950/30"></div>
+<!-- Scan line -->
+<div class="scan-line top-1/2 -translate-y-1/2"></div>
+<!-- HUD Reticles -->
+<div class="hud-bracket-tl"></div>
+<div class="hud-bracket-tr"></div>
+<div class="hud-bracket-bl"></div>
+<div class="hud-bracket-br"></div>
+<!-- Step marker 01 -->
+<div class="absolute top-4 left-4 bg-graphite-950/90 border border-instrument-borderAmber px-2.5 py-1 rounded flex items-center gap-1.5 backdrop-blur-sm">
+<span class="text-instrument-amber text-[9px]">◆</span>
+<span class="font-mono text-[10px] tracking-wider text-[#f2f4f7] font-semibold">01 ISOLATE · 00:04</span>
+</div>
+<!-- Step marker 03 Earth Continuity active inspect -->
+<div class="absolute bottom-4 right-4 bg-graphite-950/90 border border-instrument-amber px-2.5 py-1 rounded flex items-center gap-1.5 backdrop-blur-sm shadow-[0_0_8px_rgba(239,154,87,0.3)]">
+<span class="text-instrument-amber text-[9px] pulsing-accent">◆</span>
+<span class="font-mono text-[10px] tracking-wider text-instrument-amber font-bold">03 EARTH · 00:41</span>
+</div>
+</div>
+<!-- Frame Body Content -->
+<div class="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-5">
+<div>
+<div class="font-mono text-[10px] tracking-[0.2em] uppercase text-[#8e95a5]">TASK</div>
+<h2 class="font-sans text-lg sm:text-xl font-bold text-[#f2f4f7] tracking-tight mt-1">Install a 13A socket</h2>
+</div>
+<!-- Mini Ledger: Rubric Preview -->
+<div class="border border-[#1f2533] bg-graphite-900 rounded-sm">
+<div class="px-3 py-2 bg-[#0c0f15] border-b border-[#1f2533] flex items-center justify-between">
+<span class="font-mono text-[10px] tracking-[0.18em] uppercase text-[#9fa7b8] font-semibold">RUBRIC PREVIEW</span>
+<span class="font-mono text-[9px] tracking-[0.16em] text-instrument-amber uppercase border border-instrument-borderAmber/60 px-1.5 py-0.5 rounded-sm">BENCHMARK</span>
+</div>
+<ul class="divide-y divide-[#181d27]">
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Isolate power
+                  </span>
+<span class="font-mono text-[9px] tracking-[0.14em] text-instrument-amber border border-instrument-borderAmber px-1.5 py-0.5 rounded uppercase font-semibold">SAFETY</span>
+</li>
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Strip &amp; terminate
+                  </span>
+<span class="font-mono text-[10px] text-[#6b7280]">00:19</span>
+</li>
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Earth continuity
+                  </span>
+<span class="font-mono text-[9px] tracking-[0.14em] text-instrument-amber border border-instrument-borderAmber px-1.5 py-0.5 rounded uppercase font-semibold">SAFETY</span>
+</li>
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Faceplate secure
+                  </span>
+<span class="font-mono text-[10px] text-[#6b7280]">00:58</span>
+</li>
+</ul>
+</div>
+<!-- Action Pill -->
+<button class="w-full h-12 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-xs font-bold tracking-[0.16em] uppercase rounded-full transition-transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm">
+<span>Verify now</span>
+<span class="text-sm font-black">→</span>
+</button>
+</div>
+</article>
+<!-- TRADE 02: HAIRDRESSING EVIDENCE FRAME -->
+<article class="bg-graphite-850 border border-[#232936] rounded-sm overflow-hidden flex flex-col shadow-xl transition-all hover:border-[#343e52]">
+<!-- Meta Header Row -->
+<div class="bg-graphite-950 px-4 py-2.5 border-b border-[#1e2430] flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-mono text-[11px] tracking-[0.18em] uppercase text-[#d6dae3] font-bold">TRADE 02 // HAIRDRESSING</span>
+</div>
+<span class="font-mono text-[9px] font-bold tracking-[0.16em] uppercase text-graphite-950 bg-instrument-amber px-2 py-0.5 rounded-[2px]">
+              LIVE
+            </span>
+</div>
+<!-- Video / Photo Frame -->
+<div class="relative w-full h-[220px] sm:h-[260px] lg:h-[280px] bg-black overflow-hidden border-b border-[#202633]">
+<img alt="Skilled artisan hands braiding hair in workshop" class="w-full h-full object-cover filter contrast-[1.12] brightness-[0.92]" src="https://lh3.googleusercontent.com/aida/AEtjO1Vp5n-HLwX2lbk3KbO71IkIPG7VOBfuoT0mYLr_SXya_zZlNZuAvg_6f3XCviptZZgNn_Pg0LqEhqkwNjilpttpLWtf5Dyqh4Efn7hQgkdvdk2oHFO4ODEMrR-zsias2FZUXbw4RLy8vGmhAJPloF0mQNBLpf3nKyMILfswuiubTKkEDY2GqoXBfDp6M8tcn8yf5y3m5mONMOCA7le2ka44AklSUkGw5BA8iQy3a4KO4qFWCyr3R-7p9ys"/>
+<div class="absolute inset-0 bg-gradient-to-t from-graphite-950/85 via-transparent to-graphite-950/30"></div>
+<!-- Scan line -->
+<div class="scan-line top-1/2 -translate-y-1/2"></div>
+<!-- HUD Reticles -->
+<div class="hud-bracket-tl"></div>
+<div class="hud-bracket-tr"></div>
+<div class="hud-bracket-bl"></div>
+<div class="hud-bracket-br"></div>
+<!-- Step marker 01 -->
+<div class="absolute top-4 left-4 bg-graphite-950/90 border border-instrument-borderAmber px-2.5 py-1 rounded flex items-center gap-1.5 backdrop-blur-sm">
+<span class="text-instrument-amber text-[9px]">◆</span>
+<span class="font-mono text-[10px] tracking-wider text-[#f2f4f7] font-semibold">01 PARTING · 00:06</span>
+</div>
+<!-- Step marker 02 -->
+<div class="absolute bottom-4 right-4 bg-graphite-950/90 border border-instrument-amber px-2.5 py-1 rounded flex items-center gap-1.5 backdrop-blur-sm shadow-[0_0_8px_rgba(239,154,87,0.3)]">
+<span class="text-instrument-amber text-[9px] pulsing-accent">◆</span>
+<span class="font-mono text-[10px] tracking-wider text-instrument-amber font-bold">02 TENSION · 00:27</span>
+</div>
+</div>
+<!-- Frame Body Content -->
+<div class="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-5">
+<div>
+<div class="font-mono text-[10px] tracking-[0.2em] uppercase text-[#8e95a5]">TASK</div>
+<h2 class="font-sans text-lg sm:text-xl font-bold text-[#f2f4f7] tracking-tight mt-1">Cornrows / braiding</h2>
+</div>
+<!-- Mini Ledger: Rubric Preview -->
+<div class="border border-[#1f2533] bg-graphite-900 rounded-sm">
+<div class="px-3 py-2 bg-[#0c0f15] border-b border-[#1f2533] flex items-center justify-between">
+<span class="font-mono text-[10px] tracking-[0.18em] uppercase text-[#9fa7b8] font-semibold">RUBRIC PREVIEW</span>
+<span class="font-mono text-[9px] tracking-[0.16em] text-instrument-amber uppercase border border-instrument-borderAmber/60 px-1.5 py-0.5 rounded-sm">BENCHMARK</span>
+</div>
+<ul class="divide-y divide-[#181d27]">
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Clean tools &amp; hands
+                  </span>
+<span class="font-mono text-[9px] tracking-[0.14em] text-instrument-amber border border-instrument-borderAmber px-1.5 py-0.5 rounded uppercase font-semibold">SAFETY</span>
+</li>
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Even parting
+                  </span>
+<span class="font-mono text-[10px] text-[#6b7280]">00:12</span>
+</li>
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Consistent tension
+                  </span>
+<span class="font-mono text-[10px] text-[#6b7280]">00:27</span>
+</li>
+<li class="px-3 py-2.5 flex items-center justify-between text-xs sm:text-[13px]">
+<span class="font-sans text-[#d6dae3] flex items-center gap-2">
+<span class="text-white font-bold text-xs select-none">✓</span> Neat finish
+                  </span>
+<span class="font-mono text-[10px] text-[#6b7280]">01:12</span>
+</li>
+</ul>
+</div>
+<!-- Action Pill -->
+<button class="w-full h-12 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-xs font-bold tracking-[0.16em] uppercase rounded-full transition-transform active:scale-[0.98] flex items-center justify-center gap-2 shadow-sm">
+<span>Verify now</span>
+<span class="text-sm font-black">→</span>
+</button>
+</div>
+</article>
+</div>
+</section>
+<!-- 02 — ON THE BENCH SECTION (5 Columns on Desktop) -->
+<section class="space-y-6 sm:space-y-8">
+<!-- Section label -->
+<div class="flex items-center justify-between border-b border-[#1b202a] pb-3">
+<div class="flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-[#8e95a5]"></span>
+<span class="font-mono text-xs sm:text-sm tracking-[0.22em] uppercase font-bold text-[#f2f4f7]">02 — ON THE BENCH</span>
+</div>
+<span class="font-mono text-[10px] tracking-[0.18em] text-[#8e95a5] uppercase">NEXT IN PIPELINE</span>
+</div>
+<!-- 5-Column Grid on Desktop, 3 on Tablet, 2 on Mobile -->
+<div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3.5 sm:gap-4">
+<!-- 1. Plumbing -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Plumbing tools and pipes" class="w-full h-full object-cover filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1WMgEsZmVkljzrcx0nRB-8Df80tbRSRDUbKrXxcJkvvjmjrf9-RkA3kjE5oGx_N0aq3VBzxw9Cysnx4VNMxq9ilKNBQGz0oaAI2lishmskZrcO5w10URSEttXlMhaeJ_YwKsLA1FPRQp7bwva0qox56iafewOL31M0YlZwMtZp22dP2FLQZEBwFZQRKBARkGGNmsURuvoMp7TjayDB6qU92TtSqtmPwnckzmCaz0t_pZaAfKcqzmPxCxTg"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Plumbing</div>
+</div>
+</div>
+<!-- 2. Masonry -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Masonry trowel" class="w-full h-full object-cover object-[50%_65%] filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1V9oEqM7NH_kynM2fvHOEUF4vHK2Qu963GvPWbDlU0ZEarm56LPLVMW7huG5Kh0zp4irB_ZXfoCsMoaBkfI4HJtn4iDsMd2J4HHbhpteoYdH6NPlfuJztImHcxTk7qDhu67CC_OehGxPiExvOEIdmLACxh-zijaqoDpS6OZgghX3gwEWUTsMUUnc6Ko1RgBPnnL8HBurmNcEAi6jD3YRTwIKjYR0Dxab1PL866dd95Xt1GRhb4tE1syAQ"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Masonry</div>
+</div>
+</div>
+<!-- 3. Carpentry -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Carpentry workbench" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1XZkKJrpG7moyklUx6Lrqk_zrn2MooDB4TNImrMN3hckmpmyhprTGnZh_WwsFJhN1beD5xsFAaVewrxIS7rp6iYFQJ_EN9PuIa41yp4o_mWYJCZTqMJPO_xd5LvIVPs4X_o-pbN5a0IO3pFM4Bi44nAReyL_O26fE4TuoUKm_ncL8BBmpopUqNlIq8Gc99FBE1UXOJdgtHRp8nMdyfMOQCyz3MXnK0C-UzCQbTNX5HOnQ5jcang9k7ZDho"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Carpentry</div>
+</div>
+</div>
+<!-- 4. Welding -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Welding mask on workbench" class="w-full h-full object-cover object-[70%_50%] filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1V9oEqM7NH_kynM2fvHOEUF4vHK2Qu963GvPWbDlU0ZEarm56LPLVMW7huG5Kh0zp4irB_ZXfoCsMoaBkfI4HJtn4iDsMd2J4HHbhpteoYdH6NPlfuJztImHcxTk7qDhu67CC_OehGxPiExvOEIdmLACxh-zijaqoDpS6OZgghX3gwEWUTsMUUnc6Ko1RgBPnnL8HBurmNcEAi6jD3YRTwIKjYR0Dxab1PL866dd95Xt1GRhb4tE1syAQ"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Welding</div>
+</div>
+</div>
+<!-- 5. Mechanic -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Mechanic hands and tools" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1VLBj9JWFgxQnE79kcneWZfFF88fIm74dWck9wfmCPzPiiijnDXOJYSAQqYdR46tX9n9peGN3RwmducIC0_0kVXKHEOxuG47O5XxvG1nqsCn3AunqaFv_XlWLDPMv5a8Jc08lyj9q5M6dd_iZUyuxfdhDn9CnH0b6jWz4mclPTnTQ_avl8J61GL0_5bjc6LTqqcldjtqoPlMrBOInEdIHFDt15tBpiS7gnwxCIKSC3FiVfsNWRBukbWIQ"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Mechanic</div>
+</div>
+</div>
+<!-- 6. Tailoring -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Tailoring and artisan workbench" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1W46-XmJeJ5kvCwi-N3yJ_5Uoto0H9J4i9jVAOILQ4-m4-3iyH9nxHG2QekAs55n3XO5DuqHcmGxR0czgTQF1884eZ9tLxouseYzQzJnZPl3GHkfsVTn2FACsn6R9W31Vpl8f0VKPajX6rjFXdS1l0Lz4qW2nKXSrntBrNOQwAeNCBWbOhLbSfQsMJQnhoaqiy06gnSqfo3NSb-RTULXidmLlBjH6OWe5_AJWYpZxOPwgGDEJxFskRG58Y"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Tailoring</div>
+</div>
+</div>
+<!-- 7. Beauty -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Beauty salon craft" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1XXvt2Rw2UHKUAxmnQZ6ixX7gHA59-Njl15g86RhqBHRn8C1c9M5Xj7ngbr1BJYGX-e4O3YrLsM3A3TZSb4fPDlDVXRbSgyiqSmPNUlDZYDM9MU1nmRhcSTyDF3f7baIX-D_IKQlkOMDxrEgENUx1LIEkuiNzj8CAvzlqMGiN7XqslkGbi_roqFTNqnBWnm7Fdzce2zVKacTe5ELLZKuNPxIAxWZe2a6dEQZ7tcVvncst-6oyCv4WlBldg"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Beauty</div>
+</div>
+</div>
+<!-- 8. Solar installation -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Solar wiring and electrical components" class="w-full h-full object-cover object-center filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1XzhOb5nDc7fVuedilPKjGr5wsj9_QAvkfjzCE0n13m0A4D5HKBqEoOwuhs4iduca5uS8PiFDZlRbQk0hV0X1C94L4339RYTDGApILDNThmbJH_l6LIlPiAvFKG8U7iu7D3LsV-0mRJoR13O5jq-tr-B3MbU19tV_XrgAD90RpZkK7ZomwWL1Rhjsvh3YieqJ-Bn5rGRggPJrD2f2MIhTYKLXxm4oD-tVb3fJ2CZCHxBcYFqDeX-lXz7Uw"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Solar installation</div>
+</div>
+</div>
+<!-- 9. Mama fua (laundry) -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Laundry and household craft" class="w-full h-full object-cover object-[70%_40%] filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1W46-XmJeJ5kvCwi-N3yJ_5Uoto0H9J4i9jVAOILQ4-m4-3iyH9nxHG2QekAs55n3XO5DuqHcmGxR0czgTQF1884eZ9tLxouseYzQzJnZPl3GHkfsVTn2FACsn6R9W31Vpl8f0VKPajX6rjFXdS1l0Lz4qW2nKXSrntBrNOQwAeNCBWbOhLbSfQsMJQnhoaqiy06gnSqfo3NSb-RTULXidmLlBjH6OWe5_AJWYpZxOPwgGDEJxFskRG58Y"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Mama fua (laundry)</div>
+</div>
+</div>
+<!-- 10. Movers -->
+<div class="bg-graphite-850 border border-[#202633] rounded-sm p-3 flex flex-col justify-between space-y-3">
+<div class="w-full h-20 sm:h-24 bg-graphite-950 border border-[#1a1f29] rounded-sm overflow-hidden relative">
+<img alt="Moving tools and straps" class="w-full h-full object-cover object-[85%_65%] filter grayscale contrast-125 brightness-90" src="https://lh3.googleusercontent.com/aida/AEtjO1V9oEqM7NH_kynM2fvHOEUF4vHK2Qu963GvPWbDlU0ZEarm56LPLVMW7huG5Kh0zp4irB_ZXfoCsMoaBkfI4HJtn4iDsMd2J4HHbhpteoYdH6NPlfuJztImHcxTk7qDhu67CC_OehGxPiExvOEIdmLACxh-zijaqoDpS6OZgghX3gwEWUTsMUUnc6Ko1RgBPnnL8HBurmNcEAi6jD3YRTwIKjYR0Dxab1PL866dd95Xt1GRhb4tE1syAQ"/>
+<div class="absolute inset-0 bg-graphite-950/20"></div>
+</div>
+<div>
+<span class="font-mono text-[8px] sm:text-[9px] tracking-[0.18em] text-[#8e95a5] uppercase block">COMING SOON</span>
+<div class="font-sans text-xs sm:text-sm font-bold text-[#f2f4f7] tracking-tight mt-0.5">Movers</div>
+</div>
+</div>
+</div>
+<!-- Readout Note & Roadmap Link -->
+<div class="bg-graphite-850/80 border border-[#1e2430] p-4 sm:p-5 rounded-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+<p class="font-sans text-xs sm:text-sm text-[#a0a8b8] leading-relaxed">
+          New trades open when their rubric and Experts are ready.
+        </p>
+<div>
+<a class="inline-flex items-center gap-1.5 font-mono text-xs font-bold text-instrument-amber hover:underline tracking-wide whitespace-nowrap" href="#">
+<span>See the roadmap</span>
+<span>→</span>
+</a>
+</div>
+</div>
+</section>
+<!-- FOOTER SECTION (~120px separation rhythm on desktop) -->
+<footer class="pt-12 sm:pt-16 lg:pt-28 border-t border-[#1e2430] space-y-12 sm:space-y-16">
+<!-- CTA Band: "SHOW YOUR WORK." -->
+<div class="max-w-2xl mx-auto text-center space-y-5">
+<h3 class="font-sans text-2xl sm:text-4xl lg:text-5xl font-black uppercase tracking-tight text-[#f2f4f7]">
+          Show your work.
+        </h3>
+<p class="font-sans text-sm text-[#8e95a5]">
+          Real proof of craft. Verified by experienced peers.
+        </p>
+<div class="flex flex-col sm:flex-row items-center justify-center gap-3 pt-2">
+<button class="w-full sm:w-auto px-8 h-12 bg-instrument-amber hover:bg-instrument-amberHover text-graphite-950 font-mono text-xs font-bold tracking-[0.14em] uppercase rounded-full transition-transform active:scale-[0.98] flex items-center justify-center shadow-sm">
+            Join as a fundi
+          </button>
+<button class="w-full sm:w-auto px-8 h-12 bg-transparent hover:bg-graphite-800 text-[#f2f4f7] border border-[#282f3d] font-mono text-xs font-bold tracking-[0.14em] uppercase rounded-full transition-colors active:scale-[0.98] flex items-center justify-center">
+            Find a fundi
+          </button>
+</div>
+</div>
+<!-- 4-Column Link Groups Grid -->
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 pt-4 font-mono">
+<!-- Group 1: FOR FUNDIS -->
+<div class="space-y-3">
+<div class="text-[10px] sm:text-xs tracking-[0.22em] uppercase text-instrument-amber font-bold">FOR FUNDIS</div>
+<ul class="space-y-2 text-xs text-[#8e95a5]">
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Join as a fundi</a></li>
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">How verification works</a></li>
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Your privacy</a></li>
+</ul>
+</div>
+<!-- Group 2: FOR CLIENTS -->
+<div class="space-y-3">
+<div class="text-[10px] sm:text-xs tracking-[0.22em] uppercase text-instrument-amber font-bold">FOR CLIENTS</div>
+<ul class="space-y-2 text-xs text-[#8e95a5]">
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Find a fundi</a></li>
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">What 'verified' means</a></li>
+</ul>
+</div>
+<!-- Group 3: FOR EXPERTS -->
+<div class="space-y-3">
+<div class="text-[10px] sm:text-xs tracking-[0.22em] uppercase text-instrument-amber font-bold">FOR EXPERTS</div>
+<ul class="space-y-2 text-xs text-[#8e95a5]">
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Become a verifier</a></li>
+</ul>
+</div>
+<!-- Group 4: COMPANY -->
+<div class="space-y-3">
+<div class="text-[10px] sm:text-xs tracking-[0.22em] uppercase text-instrument-amber font-bold">COMPANY</div>
+<ul class="space-y-2 text-xs text-[#8e95a5]">
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">About</a></li>
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Contact us</a></li>
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Responsible AI</a></li>
+<li><a class="hover:text-[#f2f4f7] transition-colors" href="#">Roadmap</a></li>
+</ul>
+</div>
+</div>
+<!-- Faint Technical Display Wordmark -->
+<div class="pt-8 text-center select-none overflow-hidden">
+<span class="font-mono text-2xl sm:text-5xl lg:text-7xl tracking-[0.35em] uppercase font-black text-[#141822] whitespace-nowrap block">
+          SMART FUNDIS
+        </span>
+</div>
+<!-- Legal & Accreditation disclaimer -->
+<div class="border-t border-[#1a1f2b] pt-6 pb-20 lg:pb-8 flex flex-col sm:flex-row items-center justify-between gap-3 text-center sm:text-left">
+<p class="font-sans text-[11px] text-[#6b7280]">
+          We verify skills. NITA, KNQA and TVETs certify.
+        </p>
+<p class="font-mono text-[10px] text-[#4b5563]">
+          © 2026 Smart Fundis. All rights reserved.
+        </p>
+</div>
+</footer>
+</main>
+<!-- FIXED BOTTOM TAB BAR (VISIBLE ONLY BELOW LG / 1024px) -->
+<nav class="lg:hidden fixed bottom-0 z-50 w-full h-14 bg-graphite-950/95 backdrop-blur-md border-t border-[#1e2430] px-3 flex items-center justify-around">
+<!-- EVIDENCE -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-[#6b7280] hover:text-[#9fa7b8] transition-colors" href="#">
+<span class="material-symbols-outlined text-[19px]">view_timeline</span>
+<span class="font-mono text-[9px] tracking-[0.16em] uppercase">EVIDENCE</span>
+</a>
+<!-- TRADES (active, accent) -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-instrument-amber" href="#">
+<span class="material-symbols-outlined text-[19px]" style="font-variation-settings: 'FILL' 1;">construction</span>
+<span class="font-mono text-[9px] tracking-[0.16em] uppercase font-bold">TRADES</span>
+</a>
+<!-- TELEMETRY -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-[#6b7280] hover:text-[#9fa7b8] transition-colors" href="#">
+<span class="material-symbols-outlined text-[19px]">radar</span>
+<span class="font-mono text-[9px] tracking-[0.16em] uppercase">TELEMETRY</span>
+</a>
+<!-- COMPANY -->
+<a class="flex flex-col items-center justify-center gap-0.5 text-[#6b7280] hover:text-[#9fa7b8] transition-colors" href="#">
+<span class="material-symbols-outlined text-[19px]">corporate_fare</span>
+<span class="font-mono text-[9px] tracking-[0.16em] uppercase">COMPANY</span>
+</a>
+</nav>
+</body></html>

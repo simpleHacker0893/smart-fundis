@@ -13,6 +13,9 @@ These override anything below that disagrees with them.
 | **Header links follow the latest Stitch template** | EVIDENCE · TRADES · TELEMETRY · COMPANY ▾ (About, Contact us), then Sign in and Join as a fundi. This resolves C-4 |
 | **Mobile header exactly as the Stitch export** | Use the REFERENCE's 48 px header: logo tile, wordmark, "JOIN" pill, menu button. This resolves C-10. The only fix is invisible: extend the hit area to 48 px |
 | **Footer uses the Stitch links** | Use the `00-shell-v2.md` footer link list (§6) |
+| **Landing v3 replaces the REFERENCE (later, 2026-09-25)** | The landing page, header and footer are built from `exports/01-landing-v3-responsive.{html,png}` (Stitch screen `c40937e4…`, "Kazi yako, sifa yako (Responsive Web App)"). Copy still comes from `prompts/01-landing.md` and the §5 honesty fixes still apply. Images from every v3 screen are in `exports/images/v3/`. Supersedes the REFERENCE and `02-evidence-responsive` as the shell source |
+| **Header redesign (operator, 2026-09-25)** | Mobile: two rows (48 px: logo lockup, Sign in, Join; 44 px: EVIDENCE · TRADES · TELEMETRY · COMPANY, always visible). Desktop: one 72 px row. Signed in: Clerk `UserButton` (manage account, sign out, Dashboard). New evidence-frame logo (corner reticles + amber check) and the "Smart Fundis / VERIFIED SKILLS" lockup. The mobile menu sheet and the bottom tab bar are dropped (the nav row replaces them). Supersedes C-10's 48 px single row |
+| **Nav targets** | Until the pages exist, EVIDENCE, TRADES and TELEMETRY go to landing sections (`/#evidence`, `/#trades`, `/#telemetry`) and COMPANY to the footer directory (`#company`). "Find a fundi" goes to `/#trades` |
 | **English only; no Kiswahili for now** | No Kiswahili text on any page, and no language switcher. **Exception:** the verification consent screen ships in English and Kiswahili (C-11, resolved) |
 
 ## 1. Source of truth
