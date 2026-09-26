@@ -181,7 +181,7 @@ async function checkUpload(
  * - `consentVersion` is the current CONSENT_VERSION (`consent-v1`); the server
  *   sets `consentAt`;
  * - the Task is the active Rubric's Task of a Verify-now Trade;
- * - where a client is on camera (lib/trades.ts `clientOnCamera`),
+ * - where the Task needs it (lib/trades.ts `taskNeedsClientConsent`),
  *   `clientConsent` is true;
  * - `livenessCode` equals the code newLivenessCode issued to this caller,
  *   which is at most 2 hours old. The stored code is the server's, and it is

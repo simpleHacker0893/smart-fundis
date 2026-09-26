@@ -105,7 +105,7 @@ export default defineSchema({
     consentAt: v.number(),
     // The Fundi's tick "The client agreed to be filmed" (#38, third-party
     // privacy). Present, and true, only for a Task where a client may be on
-    // camera (lib/trades.ts `clientOnCamera`).
+    // camera (lib/trades.ts `needsClientConsent`).
     clientConsent: v.optional(v.boolean()),
     // Video: absent once deleted, and for demo rows.
     // A `_storage` ID: lib/storage.ts isStorageReferenced checks it, so a

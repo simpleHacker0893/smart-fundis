@@ -247,11 +247,11 @@ describe("trades.uploadPicker", () => {
         slug: "13a-socket",
         name: "Install a 13A socket",
         rubricVersion: 1,
-        clientOnCamera: false,
+        needsClientConsent: false,
         items: socket?.items,
       },
     ]);
-    expect(hairdressing.tasks).toMatchObject([{ slug: "cornrows", clientOnCamera: true }]);
+    expect(hairdressing.tasks).toMatchObject([{ slug: "cornrows", needsClientConsent: true }]);
     expect(hairdressing.tasks[0].items.map((item) => item.id)).toEqual([
       "prep",
       "tool_hygiene",

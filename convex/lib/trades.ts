@@ -13,11 +13,11 @@ export type TaskSeed = {
   /**
    * Third-party privacy (#38, rai-reviewer on #37): true when a client is
    * normally on camera for this Task, so the Fundi must tick "The client
-   * agreed to be filmed" before uploading. Policy, not Rubric content: it is
+   * agreed to be filmed" before uploading (taskNeedsClientConsent). Policy, not Rubric content: it is
    * not stored on the Rubric and not sent to the AI, so changing it needs no
    * new Rubric version.
    */
-  clientOnCamera: boolean;
+  needsClientConsent: boolean;
 };
 
 export type TradeSeed = TradeCatalogueEntry & {
@@ -45,7 +45,7 @@ export const TRADE_TASKS: Readonly<Record<string, TaskSeed>> = {
     // Filmed at the socket, usually on a practice board or with nobody else
     // in frame. The recording tips ask the Fundi to keep other people out of
     // the frame instead (web/messages/en.json).
-    clientOnCamera: false,
+    needsClientConsent: false,
     items: [
       {
         id: "isolate",
@@ -89,7 +89,7 @@ export const TRADE_TASKS: Readonly<Record<string, TaskSeed>> = {
     name: "Cornrows",
     version: 1,
     // The client's head is always in frame.
-    clientOnCamera: true,
+    needsClientConsent: true,
     items: [
       {
         id: "prep",
@@ -142,5 +142,5 @@ export const TRADE_CATALOGUE: readonly TradeSeed[] = TRADE_ROWS.map((row) => {
  */
 export function taskNeedsClientConsent(tradeSlug: string, taskSlug: string): boolean {
   const task = TRADE_TASKS[tradeSlug];
-  return task === undefined || task.slug !== taskSlug ? true : task.clientOnCamera;
+  return task === undefined || task.slug !== taskSlug ? true : task.needsClientConsent;
 }
