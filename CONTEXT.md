@@ -118,7 +118,7 @@ A made-up Fundi created only by the demo seed, with an invented name, an initial
 A made-up Client account created only by the demo seed (D-31), with an invented name and mock data such as Jobs. It holds no real person's details and is visibly tagged **"Demo"**.
 
 ### Awaiting expert review
-The one neutral status line a Fundi sees after the AI has run and before an Expert decides. **V2 (D-50):** it is shown for every Verdict, and nothing hints at the Verdict, the `needs_review` cap or a safety flag until the decision. "The AI noticed…" appears only after a reshoot or reject decision (D-52).
+The one neutral status line a Fundi sees after the AI has run and before an Expert decides. **V2 (D-50):** it is shown for every Verdict, and nothing hints at the Verdict, the `needs_review` cap or a safety flag until the decision. "The AI noticed…" appears only after an Expert decision (approved, reshoot or rejected), with the AI's evidence text in English ("AI note in English") and no timestamps until the timestamp eval passes (D-59, D-61; superseding D-52).
 *Avoid:* "AI passed", "almost there", "pending approval".
 
 ### Showcase link

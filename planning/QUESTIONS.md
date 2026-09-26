@@ -42,7 +42,7 @@ Specs: `docs/superpowers/specs/2026-09-26-v2-marketplace-design.md` (§2.1, §20
 | V2-Q42 | Fundi Pro price? | KSh 200 a month (round 6). |
 | V2-Q24 | Phone reveal needs sign-in? | Yes, signed-in users only (round 6). Confirmed by D-46: every reveal needs `requireClient`, and V6's anonymous `visitorKey` reveal is retired. |
 | V2-Q37 | Must a responding Fundi be Listed? | Yes (round 6, reading of "also for fundi, yes"); confirmed by the V2-25 review (convex S9). |
-| V2-Q20 | Show AI Observations to the Fundi after the decision? | Narrowed: "The AI noticed…" only on a reshoot or reject decision, never on an approved Assessment, in V2 (D-52, V2-25 review). |
+| V2-Q20 | Show AI Observations to the Fundi after the decision? | Answered: "The AI noticed…" after every Expert decision, including approved, with English evidence text and no timestamps until the timestamp eval passes (D-59, D-61; superseding D-52's narrowing). |
 | V2-Q26 | Keep Brev up 24/7 for Job pre-fill? | Moot: V10 is last and optional, cut unless Brev already runs for video (D-58). |
 | V2-Q38 | Where are Pay-to details shown? | Only to the Client who hired that Fundi; no public Till (round 6). |
 | R6-1 | Pay-to details? | Required only for Fundis who respond to Jobs, not to register; verification-only Fundis are prompted, never blocked (V2-Q47). |
