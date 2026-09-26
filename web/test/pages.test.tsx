@@ -253,14 +253,24 @@ describe("/about (#24)", () => {
   });
 });
 
-describe("/contact (#24)", () => {
+describe("/contact (#24, #29)", () => {
   const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Contact" });
 
-  it("renders the mailto form to the one contact address, with no backend", async () => {
+  // These renders have no Convex provider, like a build without NEXT_PUBLIC_CONVEX_URL.
+  // The Convex form itself is covered in contact-form.test.tsx.
+  it("falls back to the mailto form without Convex, and always shows the email", async () => {
     const markup = await render("/contact");
     expect(markup).toMatch(/<form/);
     expect(markup).not.toMatch(/action="http|method="post"|example\.com/i);
     expect(markup).toContain('href="mailto:info@smartfundis.com"');
+  });
+
+  it("keeps the email alternative and never promises a reply time", async () => {
+    const text = visibleStrings(await render("/contact")).join(" ");
+    expect(text).toContain("info@smartfundis.com");
+    const copy = JSON.stringify(en.Contact);
+    expect(copy).toContain("Message received. We reply by email or phone.");
+    expect(copy).not.toMatch(/within|\d+\s*(hours?|days?|hrs?)\b|24\/7|live chat|online now/i);
   });
 
   it("builds a mailto link with the role and message, to the one contact address", async () => {

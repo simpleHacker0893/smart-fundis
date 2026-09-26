@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import { useAuth } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import { ConvexProviderWithClerk } from "convex/react-clerk";
+import { ConvexAvailableContext } from "@/components/convex-available";
 import { StoreUserOnAuth } from "@/components/store-user-on-auth";
 
 // next.config.ts fills NEXT_PUBLIC_CONVEX_URL from the root CONVEX_URL (D-13).
@@ -23,16 +24,18 @@ if (!convex) {
 //
 // Without a URL (a build with no root .env, such as CI) it renders the
 // children without Convex and warns once, so public pages still prerender.
-// Only components that use Convex (the dashboard) need the provider, and the
-// store hook is not rendered at all without a client.
+// Components that call Convex hooks check useConvexAvailable() and fall back
+// (the contact form uses mailto); the store hook is not rendered without a client.
 export function ConvexClientProvider({ children }: { children: ReactNode }) {
   if (!convex) {
     return children;
   }
   return (
     <ConvexProviderWithClerk client={convex} useAuth={useAuth}>
-      <StoreUserOnAuth />
-      {children}
+      <ConvexAvailableContext value={true}>
+        <StoreUserOnAuth />
+        {children}
+      </ConvexAvailableContext>
     </ConvexProviderWithClerk>
   );
 }

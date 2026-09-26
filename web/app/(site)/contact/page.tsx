@@ -13,8 +13,9 @@ export async function generateMetadata(): Promise<Metadata> {
 
 /**
  * /contact (#24), from 06-contact-v3-responsive with prompt 06 copy.
- * The form must not look live: with no message backend (#29 adds one) it
- * composes an email (mailto) to the one contact address in lib/contact.ts.
+ * The form stores messages through Convex `contact.send` (#29). A build with
+ * no Convex URL falls back to composing an email (mailto) to the one contact
+ * address in lib/contact.ts, which stays shown as the alternative either way.
  * Dropped from the export: "channel open", "direct ingress" and the
  * team@example.com placeholder.
  */

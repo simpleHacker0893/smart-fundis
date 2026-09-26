@@ -571,6 +571,39 @@
       "note": "Opens your email app. We only use your details to reply.",
       "subject": "Smart Fundis: {role}"
     },
+    "form": {
+      "roleLegend": "I am…",
+      "roles": {
+        "client": "I’m a client",
+        "fundi": "I’m a fundi",
+        "other": "Other"
+      },
+      "name": "Name",
+      "contact": "Email or phone",
+      "contactHint": "An email, or a Kenyan phone number such as 0712 345 678.",
+      "topic": "Topic",
+      "message": "Message",
+      "messageHint": "10 to 2,000 characters.",
+      "honeypot": "Leave this field empty",
+      "send": "Send message",
+      "sending": "Sending…",
+      "note": "We only use your details to reply.",
+      "success": "Message received. We reply by email or phone.",
+      "errors": {
+        "nameRequired": "Enter your name.",
+        "nameTooLong": "Keep your name to 80 characters.",
+        "contactRequired": "Enter an email or phone number.",
+        "contactInvalid": "Enter a valid email, or a Kenyan phone number such as 0712 345 678.",
+        "roleInvalid": "Choose who you are.",
+        "topicRequired": "Enter a topic.",
+        "topicTooLong": "Keep the topic to 120 characters.",
+        "messageRequired": "Write a message.",
+        "messageTooShort": "Write at least 10 characters.",
+        "messageTooLong": "Keep the message to 2,000 characters.",
+        "throttled": "Too many messages from this contact. Try again in a few minutes.",
+        "failed": "Your message could not be sent. Try again, or email {email}."
+      }
+    },
     "direct": {
       "label": "02 — Direct",
       "email": "Email",
