@@ -113,7 +113,7 @@ test.describe("upload at 360 px", () => {
 
     // US-3.8: Showcase links sit last, in their own section, and never earn a Badge.
     const sc = en.Showcase;
-    const h2s = await page.getByRole("heading", { level: 2 }).allTextContents();
+    const h2s = await page.getByRole("main").getByRole("heading", { level: 2 }).allTextContents();
     expect(h2s.at(-1)).toBe(sc.title);
     await expect(page.getByText(sc.intro)).toBeVisible();
     const youtube = page.getByLabel(sc.slots.youtube.label, { exact: true });
