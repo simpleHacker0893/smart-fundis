@@ -1,6 +1,7 @@
 import { convexTest } from "convex-test";
-import { describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
+import type { Id } from "./_generated/dataModel";
 import schema from "./schema";
 import { modules } from "./test.setup";
 
@@ -49,7 +50,24 @@ describe("seed.trades (US-3.2)", () => {
     const electrical = rubrics.find((r) => r.tradeSlug === "electrical");
     expect(electrical).toMatchObject({ taskSlug: "13a-socket", taskName: "Install a 13A socket" });
     const hair = rubrics.find((r) => r.tradeSlug === "hairdressing");
-    expect(hair).toMatchObject({ taskSlug: "cornrows", taskName: "Cornrows / braiding" });
+    expect(hair).toMatchObject({ taskSlug: "cornrows", taskName: "Cornrows" });
+  });
+
+  it("marks the rai-reviewed Electrical items `terminals` and `no_bare_copper` as safety items", async () => {
+    const t = setup();
+    await t.mutation(internal.seed.trades, {});
+    const { rubrics } = await tables(t);
+    const items = rubrics.find((r) => r.tradeSlug === "electrical")?.items ?? [];
+    const byId = Object.fromEntries(items.map((i) => [i.id, i]));
+    expect(byId.terminals).toMatchObject({ safety: true, text: expect.stringMatching(/to the camera/) });
+    expect(byId.no_bare_copper).toMatchObject({ safety: true, text: expect.stringMatching(/light pull/) });
+    expect(items.filter((i) => i.safety).map((i) => i.id)).toEqual([
+      "isolate",
+      "test_dead",
+      "terminals",
+      "earth",
+      "no_bare_copper",
+    ]);
   });
 
   it("is idempotent: a second run leaves 2 Trades and 2 Rubrics, with the same ids", async () => {
@@ -67,7 +85,100 @@ describe("seed.trades (US-3.2)", () => {
   });
 });
 
+describe("seed.trades on a deployment that already has v1 (review C4)", () => {
+  const STALE = [{ id: "terminals", text: "old text", safety: false }];
+
+  async function insertStaleV1(t: ReturnType<typeof setup>) {
+    return t.run(async (ctx) => {
+      const rubricId = await ctx.db.insert("rubrics", {
+        tradeSlug: "electrical",
+        taskSlug: "13a-socket",
+        taskName: "Install a 13A socket",
+        version: 1,
+        items: STALE,
+        status: "active",
+      });
+      await ctx.db.insert("trades", {
+        slug: "electrical",
+        name: "Electrical",
+        category: "skilled",
+        activeRubricId: rubricId,
+      });
+      return rubricId;
+    });
+  }
+
+  async function insertAssessment(t: ReturnType<typeof setup>, rubricId: Id<"rubrics">) {
+    const userId = await t.withIdentity(ANYANGO).mutation(api.users.store, {});
+    await t.run((ctx) =>
+      ctx.db.insert("assessments", {
+        fundiUserId: userId,
+        tradeSlug: "electrical",
+        rubricId,
+        consentVersion: "v1",
+        consentAt: 0,
+        livenessCode: "4821",
+        status: "queued",
+        attempts: 0,
+        licenseStatus: "none",
+      }),
+    );
+  }
+
+  it("rewrites a stale v1 in place (same id) when no Assessment references it", async () => {
+    const t = setup();
+    const rubricId = await insertStaleV1(t);
+    await t.mutation(internal.seed.trades, {});
+
+    const rubric = await t.run((ctx) => ctx.db.get("rubrics", rubricId));
+    expect(rubric?.items.find((i) => i.id === "terminals")?.safety).toBe(true);
+    expect(rubric?.items.length).toBeGreaterThan(1);
+    const { rubrics } = await tables(t);
+    expect(rubrics.filter((r) => r.tradeSlug === "electrical")).toHaveLength(1);
+  });
+
+  it("also renames the Task in place (Cornrows / braiding -> Cornrows)", async () => {
+    const t = setup();
+    await t.mutation(internal.seed.trades, {});
+    await t.run(async (ctx) => {
+      const hair = (await ctx.db.query("rubrics").take(10)).find((r) => r.tradeSlug === "hairdressing");
+      await ctx.db.patch("rubrics", hair!._id, { taskName: "Cornrows / braiding" });
+    });
+    await t.mutation(internal.seed.trades, {});
+    const { rubrics } = await tables(t);
+    expect(rubrics.find((r) => r.tradeSlug === "hairdressing")?.taskName).toBe("Cornrows");
+  });
+
+  it("throws, and changes nothing, when a stale v1 is referenced by an Assessment", async () => {
+    const t = setup();
+    const rubricId = await insertStaleV1(t);
+    await insertAssessment(t, rubricId);
+
+    await expect(t.mutation(internal.seed.trades, {})).rejects.toThrowError(/new version|referenced/i);
+    const rubric = await t.run((ctx) => ctx.db.get("rubrics", rubricId));
+    expect(rubric?.items).toEqual(STALE);
+  });
+
+  it("does not throw for a referenced Rubric whose content already matches", async () => {
+    const t = setup();
+    await t.mutation(internal.seed.trades, {});
+    const { rubrics } = await tables(t);
+    await insertAssessment(t, rubrics[0]._id);
+    await expect(t.mutation(internal.seed.trades, {})).resolves.toHaveLength(2);
+  });
+});
+
 describe("seed.expert (dev only, spec #36 decision 5)", () => {
+  const saved = process.env.ALLOW_DEV_SEED;
+  beforeEach(() => {
+    process.env.ALLOW_DEV_SEED = "true";
+  });
+  afterEach(() => {
+    if (saved === undefined) delete process.env.ALLOW_DEV_SEED;
+    else process.env.ALLOW_DEV_SEED = saved;
+  });
+
+
   async function experts(t: ReturnType<typeof setup>) {
     return t.run((ctx) => ctx.db.query("experts").take(100));
   }
@@ -79,7 +190,7 @@ describe("seed.expert (dev only, spec #36 decision 5)", () => {
 
     expect(await experts(t)).toMatchObject([{ userId, approvedTrades: ["electrical"], active: true }]);
     const me = await t.withIdentity(ANYANGO).query(api.users.me, {});
-    expect(me.roles.expert).toBe(true);
+    expect(me?.roles.expert).toBe(true);
   });
 
   it("is idempotent, and reactivates an inactive row without dropping its Trades", async () => {
@@ -95,6 +206,37 @@ describe("seed.expert (dev only, spec #36 decision 5)", () => {
     expect(rows).toHaveLength(1);
     expect(rows[0].active).toBe(true);
     expect([...rows[0].approvedTrades].sort()).toEqual(["electrical", "hairdressing"]);
+  });
+
+  it("is forbidden unless ALLOW_DEV_SEED is exactly \"true\", and writes nothing", async () => {
+    const t = setup();
+    await t.withIdentity(ANYANGO).mutation(api.users.store, {});
+    for (const value of [undefined, "1", "TRUE", ""]) {
+      if (value === undefined) delete process.env.ALLOW_DEV_SEED;
+      else process.env.ALLOW_DEV_SEED = value;
+      await expect(
+        t.mutation(internal.seed.expert, { email: ANYANGO.email }),
+      ).rejects.toThrowError(/forbidden/);
+    }
+    expect(await experts(t)).toHaveLength(0);
+    expect(await t.run((ctx) => ctx.db.query("auditLog").take(10))).toHaveLength(0);
+  });
+
+  it("writes an auditLog row with the target User as actor", async () => {
+    const t = setup();
+    const userId = await t.withIdentity(ANYANGO).mutation(api.users.store, {});
+    const expertId = await t.mutation(internal.seed.expert, { email: ANYANGO.email });
+
+    const log = await t.run((ctx) => ctx.db.query("auditLog").take(10));
+    expect(log).toMatchObject([
+      {
+        actorUserId: userId,
+        action: "seed.expert",
+        targetTable: "experts",
+        targetId: expertId,
+        reason: expect.stringMatching(/dev seed/i),
+      },
+    ]);
   });
 
   it("refuses an email with no users row, and writes nothing", async () => {

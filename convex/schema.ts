@@ -17,7 +17,7 @@ import {
 // Architecture spec §5. Roles and Badges are derived, never stored (ADR-18).
 // Index names follow the Convex rule "every field in the name"; the spec §5
 // short names map as: by_trade_task -> by_tradeSlug_and_taskSlug_and_version,
-// by_fundi -> by_fundiUserId, by_status_trade -> by_status_and_tradeSlug,
+// by_fundi -> by_fundiUserId_and_status, by_status_trade -> by_status_and_tradeSlug,
 // by_status_claimedAt -> by_status_and_claimedAt, by_assessment ->
 // by_assessmentId, by_decider -> by_deciderUserId, by_target ->
 // by_targetTable_and_targetId.
@@ -87,6 +87,9 @@ export default defineSchema({
     taskName: v.string(),
     version: v.number(),
     items: v.array(rubricItemValidator),
+    // Only whether this version is retired. It does NOT decide which version
+    // is live: `trades.activeRubricId` is the source of truth for the Trade's
+    // current Rubric and for "Verify now". Several versions may be `active`.
     status: rubricStatusValidator,
   }).index("by_tradeSlug_and_taskSlug_and_version", ["tradeSlug", "taskSlug", "version"]),
 
@@ -111,6 +114,8 @@ export default defineSchema({
     status: assessmentStatusValidator,
     attempts: v.number(),
     claimedAt: v.optional(v.number()),
+    // Which worker claimed it (/ai/claim), for tracing a stuck `analyzing` row.
+    claimedBy: v.optional(v.string()),
     reshootReason: v.optional(reshootReasonValidator),
     // AI result (a recommendation, never a decision)
     observations: v.optional(v.array(observationValidator)),
@@ -129,7 +134,11 @@ export default defineSchema({
     // Kept for later: always "none" until the Pilot
     licenseStatus: v.literal("none"),
   })
-    .index("by_fundiUserId", ["fundiUserId"])
+    // A Fundi's own Assessments, optionally narrowed by status (eq on
+    // fundiUserId alone still works as a prefix).
+    .index("by_fundiUserId_and_status", ["fundiUserId", "status"])
+    // seed.trades: is this Rubric version referenced (then it is frozen)?
+    .index("by_rubricId", ["rubricId"])
     // Convex appends _creationTime, so each status reads oldest first.
     .index("by_status", ["status"])
     .index("by_status_and_tradeSlug", ["status", "tradeSlug"])

@@ -46,6 +46,11 @@ export async function requireUser(ctx: Ctx): Promise<Caller> {
  * - base: `fundi` when a fundiProfiles row exists for the user, else `none`.
  * - expert: an experts row that is active with a non-empty approvedTrades.
  * - admin: the token email is on ADMIN_EMAILS AND email_verified is true.
+ *   Clerk does not send `email_verified` by default: the Clerk `convex` JWT
+ *   template must include `"email_verified": "{{user.email_verified}}"` (and
+ *   `"email": "{{user.primary_email_address}}"`), or nobody is ever Admin.
+ *   users.test.ts "refuses Admin when email_verified is false or missing"
+ *   pins that behaviour.
  */
 export async function getRoles(ctx: Ctx, caller: Caller): Promise<Roles> {
   const { identity, user } = caller;
