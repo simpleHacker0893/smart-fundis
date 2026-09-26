@@ -40,6 +40,7 @@ vi.mock("convex/react", async () => {
   const others: Record<string, unknown> = {
     "trades:uploadPicker": [],
     "assessments:currentLivenessCode": null,
+    "fundiProfiles:myShowcaseLinks": { youtube: null, tiktok: null },
   };
   return {
     useConvexAuth: () => ({ isLoading: !state.isAuthenticated, isAuthenticated: state.isAuthenticated }),
@@ -184,10 +185,37 @@ describe("/fundi page (spec §4 page guard)", () => {
     expect(h2s()).toContain(en.AssessmentList.title);
   });
 
+  it("puts the Showcase links in their own section below the upload and the Assessment list (US-3.8)", async () => {
+    state.me = { user: USER, roles: roles({ base: "fundi" }) };
+    state.list = [
+      {
+        _id: "a1",
+        _creationTime: Date.UTC(2026, 8, 26),
+        status: "queued",
+        tradeSlug: "electrical",
+        tradeName: "Electrical",
+        taskSlug: "13a-socket",
+        taskName: "Install a 13A socket",
+      },
+    ];
+    await render();
+    const h2s = [...container.querySelectorAll("h2")].map((h) => h.textContent);
+    expect(h2s).toEqual([en.UploadFlow.title, en.AssessmentList.title, en.Showcase.title]);
+    expect(state.calls.some((c) => c.name === "fundiProfiles:myShowcaseLinks" && c.args !== "skip")).toBe(true);
+    const showcase = container.querySelectorAll("section")[2];
+    expect(showcase.textContent).toContain(en.Showcase.intro);
+    expect(showcase.querySelector("h2")?.textContent).toBe(en.Showcase.title);
+  });
+
   it("reads no Fundi-only query for anyone else", async () => {
     state.me = { user: USER, roles: roles() };
     await render();
-    const fundiOnly = ["assessments:listMine", "trades:uploadPicker", "assessments:currentLivenessCode"];
+    const fundiOnly = [
+      "assessments:listMine",
+      "trades:uploadPicker",
+      "assessments:currentLivenessCode",
+      "fundiProfiles:myShowcaseLinks",
+    ];
     expect(state.calls.filter((c) => fundiOnly.includes(c.name) && c.args !== "skip")).toEqual([]);
   });
 

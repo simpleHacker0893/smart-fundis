@@ -5,7 +5,7 @@ import { createRoot, type Root } from "react-dom/client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { defaultLocale } from "@/i18n/config";
 import en from "@/messages/en.json";
-import { parseShowcaseLink, type ShowcaseLink } from "@/lib/showcase-links";
+import { parseShowcaseLink, type ShowcaseLink } from "@convex/lib/showcaseLinks";
 
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 

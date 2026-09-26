@@ -1499,22 +1499,42 @@
     }
   },
   "Showcase": {
-    "note": "Shared by the Fundi. Smart Fundis has not checked this video, and it does not earn a Badge.",
+    "title": "Show your past work",
+    "intro": "Share a YouTube or TikTok video of work you have done. These links never earn a Badge: only a video recorded here can be verified by Smart Fundis.",
+    "loading": "Loading your links…",
     "label": "Showcase — not verified",
+    "note": "Shared by the Fundi. Smart Fundis has not checked this video, and it does not earn a Badge.",
     "youtubeTitle": "YouTube video shared by the Fundi",
     "tiktokTitle": "TikTok video shared by the Fundi",
-    "linkLabel": "YouTube or TikTok link",
-    "linkHint": "Paste a link to one video, for example https://www.youtube.com/watch?v=…",
-    "errors": {
-      "empty": "Paste a YouTube or TikTok link.",
-      "unsupported": "Use a link to one YouTube or TikTok video.",
-      "tiktok_short": "Open the video in TikTok, tap Share, then Copy link, and paste the full tiktok.com link.",
-      "duplicate": "That video is already in your list.",
-      "save": "We could not save your links. Check your connection and try again."
+    "slots": {
+      "youtube": {
+        "label": "YouTube link",
+        "hint": "A link to one video, for example https://www.youtube.com/watch?v=…",
+        "save": "Save YouTube link",
+        "remove": "Remove YouTube link",
+        "saved": "Your YouTube link is saved."
+      },
+      "tiktok": {
+        "label": "TikTok link",
+        "hint": "A link to one video, for example https://www.tiktok.com/@name/video/…",
+        "save": "Save TikTok link",
+        "remove": "Remove TikTok link",
+        "saved": "Your TikTok link is saved."
+      }
     },
-    "title": "Your work videos",
-    "intro": "Share links to your own YouTube or TikTok videos. They show as a showcase; only a video recorded here can earn a Badge.",
-    "add": "Add link",
-    "remove": "Remove link {n}"
+    "errors": {
+      "youtube": {
+        "empty": "Paste a YouTube link first.",
+        "unsupported": "Use a link to one YouTube video.",
+        "wrong_site": "That is a TikTok link. Paste it in the TikTok box."
+      },
+      "tiktok": {
+        "empty": "Paste a TikTok link first.",
+        "unsupported": "Use a link to one TikTok video.",
+        "wrong_site": "That is a YouTube link. Paste it in the YouTube box.",
+        "tiktok_short": "Open the video in TikTok, tap Share, then Copy link, and paste the full tiktok.com link."
+      },
+      "save": "We could not save your links. Check your connection and try again."
+    }
   }
 }

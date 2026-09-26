@@ -1,12 +1,12 @@
 "use client";
 
 import { useTranslations } from "next-intl";
-import type { ShowcaseLink } from "@/lib/showcase-links";
+import type { ShowcaseLink } from "@convex/lib/showcaseLinks";
 
 /**
  * One shared YouTube or TikTok video (US-3.8, ADR-7): embedded only, always
  * labelled "Showcase — not verified". The iframe src is built from a checked
- * video id (lib/showcase-links.ts), never from the pasted URL.
+ * video id (convex/lib/showcaseLinks.ts), never from the pasted URL.
  */
 export function ShowcaseEmbed({ link }: { link: ShowcaseLink }) {
   const t = useTranslations("Showcase");
