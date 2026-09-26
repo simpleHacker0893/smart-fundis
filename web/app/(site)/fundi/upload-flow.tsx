@@ -6,7 +6,7 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { api } from "@convex/_generated/api";
 import { LABEL } from "@/components/ui/field-label";
-import { pillClass } from "@/components/ui/pill";
+import { PRIMARY_PILL, SECONDARY_PILL } from "@/components/ui/pill";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
 import type messages from "@/messages/en.json";
 import { RecordStep } from "./record-step";
@@ -103,11 +103,7 @@ function TaskPicker({ onChoose }: { onChoose: (choice: Choice) => void }) {
                   {task.items.some((item) => item.safety) ? (
                     <p className="text-sm text-foreground/75">{t("pick.safetyNote")}</p>
                   ) : null}
-                  <button
-                    type="button"
-                    className={pillClass({ variant: "primary", size: "full", className: "sm:w-auto" })}
-                    onClick={() => onChoose({ trade, task })}
-                  >
+                  <button type="button" className={PRIMARY_PILL} onClick={() => onChoose({ trade, task })}>
                     {t("pick.choose", { task: taskName })}
                   </button>
                 </div>
@@ -168,11 +164,11 @@ export function StepNav({
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       {nextLabel && onNext ? (
-        <button type="button" className={pillClass({ variant: "primary", size: "full", className: "sm:w-auto" })} onClick={onNext}>
+        <button type="button" className={PRIMARY_PILL} onClick={onNext}>
           {nextLabel}
         </button>
       ) : null}
-      <button type="button" className={pillClass({ variant: "secondary", size: "full", className: "sm:w-auto" })} onClick={onBack}>
+      <button type="button" className={SECONDARY_PILL} onClick={onBack}>
         {backLabel}
       </button>
     </div>

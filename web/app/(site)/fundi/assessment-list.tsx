@@ -4,6 +4,7 @@ import { useQuery } from "convex/react";
 import { useFormatter, useTranslations } from "next-intl";
 import { api } from "@convex/_generated/api";
 import type { FunctionReturnType } from "convex/server";
+import { CHIP } from "@/components/ui/chip";
 import { LABEL } from "@/components/ui/field-label";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
 
@@ -53,11 +54,7 @@ function AssessmentItem({ assessment }: { assessment: Assessment }) {
       <span className={LABEL}>
         {t("sent", { date: format.dateTime(assessment._creationTime, { dateStyle: "medium" }) })}
       </span>
-      <span
-        data-testid="status-chip"
-        data-status={assessment.status}
-        className="self-start rounded-full border border-line px-3 py-1 text-sm font-medium"
-      >
+      <span data-testid="status-chip" data-status={assessment.status} className={CHIP}>
         {t(`status.${assessment.status}`)}
       </span>
       {detail ? <span className="text-sm text-foreground/75">{detail}</span> : null}
@@ -68,7 +65,7 @@ function AssessmentItem({ assessment }: { assessment: Assessment }) {
 /** The extra line under a reshoot or rejection chip, or null. */
 function statusDetail(assessment: Assessment, t: ReturnType<typeof useTranslations<"AssessmentList">>) {
   if (assessment.status === "reshoot") {
-    // The reason's own en/sw text is the AI's; the web shows its copy by code.
+    // The reason's own text is the AI's; the web shows its en.json copy by code (D-64).
     return assessment.reshootReason ? t(`reshootReasons.${assessment.reshootReason.code}`) : t("reshootByExpert");
   }
   // listMine does not carry the Expert's note yet (reviews come with #41).

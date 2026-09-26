@@ -2,6 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import type { ShowcaseLink } from "@convex/lib/showcaseLinks";
+import { CHIP } from "@/components/ui/chip";
 
 /**
  * One shared YouTube or TikTok video (US-3.8, ADR-7): embedded only, always
@@ -26,7 +27,7 @@ export function ShowcaseEmbed({ link }: { link: ShowcaseLink }) {
         }
       />
       <figcaption className="flex flex-col gap-1">
-        <span className="self-start rounded-full border border-line px-3 py-1 text-sm font-medium">{t("label")}</span>
+        <span className={CHIP}>{t("label")}</span>
         <span className="text-sm text-foreground/75">{t("note")}</span>
       </figcaption>
     </figure>

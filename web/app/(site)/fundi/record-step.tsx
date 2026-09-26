@@ -7,7 +7,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { CONSENT_VERSION } from "@convex/lib/assessmentUpload";
 import { LABEL } from "@/components/ui/field-label";
-import { pillClass } from "@/components/ui/pill";
+import { PRIMARY_PILL, SECONDARY_PILL, pillClass } from "@/components/ui/pill";
 import { UPLOAD_ERRORS, uploadErrorKey, type UploadErrorKey } from "@/lib/upload-errors";
 import { checkVideoBeforeUpload, postVideo } from "@/lib/video-upload";
 import { StepNav, type PickerTask, type PickerTrade } from "./upload-flow";
@@ -18,8 +18,6 @@ type Upload =
   | { kind: "saving" }
   | { kind: "error"; key: UploadErrorKey };
 
-const PRIMARY = pillClass({ variant: "primary", size: "full", className: "sm:w-auto disabled:opacity-50 disabled:pointer-events-none" });
-const SECONDARY = pillClass({ variant: "secondary", size: "full", className: "sm:w-auto" });
 /** A file input's visible label, styled as a 48 px pill; the input itself is visually hidden. */
 const FILE_LABEL = `${pillClass({ variant: "secondary", size: "full", className: "min-h-12 cursor-pointer sm:w-auto" })} peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring`;
 const TICK = "flex min-h-12 cursor-pointer items-start gap-3 py-2 text-base";
@@ -137,7 +135,7 @@ export function RecordStep({
             <p role="alert" className="text-base text-primary">
               {t("code.error")}
             </p>
-            <button type="button" className={SECONDARY} onClick={() => void liveness.renew()}>
+            <button type="button" className={SECONDARY_PILL} onClick={() => void liveness.renew()}>
               {t("code.retry")}
             </button>
           </div>
@@ -242,7 +240,7 @@ export function RecordStep({
         ) : file === null ? (
           <p className="text-sm text-foreground/75">{t("video.needVideo")}</p>
         ) : null}
-        <button type="button" className={PRIMARY} disabled={!canUpload} onClick={() => void start()}>
+        <button type="button" className={PRIMARY_PILL} disabled={!canUpload} onClick={() => void start()}>
           {t("upload")}
         </button>
 
@@ -269,11 +267,11 @@ export function RecordStep({
               {t(UPLOAD_ERRORS[upload.key].messageKey)}
             </p>
             {recovery === "retry" ? (
-              <button type="button" className={SECONDARY} disabled={!canUpload} onClick={() => void start()}>
+              <button type="button" className={SECONDARY_PILL} disabled={!canUpload} onClick={() => void start()}>
                 {t("retry")}
               </button>
             ) : recovery === "newCode" ? (
-              <button type="button" className={SECONDARY} onClick={() => void newCode()}>
+              <button type="button" className={SECONDARY_PILL} onClick={() => void newCode()}>
                 {t("newCode")}
               </button>
             ) : null}
@@ -331,7 +329,7 @@ function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose:
         <span id={`${id}-new-tab`} hidden>
           {t("consent.newTab")}
         </span>
-        <button type="button" className={PRIMARY} onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
+        <button type="button" className={PRIMARY_PILL} onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
           {t("consent.close")}
         </button>
       </div>
