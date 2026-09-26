@@ -371,6 +371,20 @@ describe("fundiProfiles.setShowcaseLinks and myShowcaseLinks", () => {
     expect(await storedLinks()).toEqual({ youtube: YOUTUBE });
   });
 
+  it("rejects an oversize link as unsupported and saves nothing", async () => {
+    const fundi = await asFundi();
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE });
+    expect(
+      await errorData(
+        fundi.mutation(api.fundiProfiles.setShowcaseLinks, {
+          youtube: "https://youtu.be/" + "a".repeat(100_000),
+          tiktok: TIKTOK,
+        }),
+      ),
+    ).toEqual({ code: "invalid", fields: { youtube: "unsupported" } });
+    expect(await storedLinks()).toEqual({ youtube: YOUTUBE });
+  });
+
   it("rejects a signed-out caller", async () => {
     await expect(t.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE })).rejects.toThrowError(
       /not authenticated/i,

@@ -11,8 +11,15 @@
 // `link.url`, the canonical link:
 // - YouTube: https://www.youtube.com/watch?v=<11-char id>
 // - TikTok:  https://www.tiktok.com/@<handle>/video/<digits>
+//
+// Hosts are an exact allowlist, read by the URL parser (so userinfo such as
+// `www.youtube.com@evil.example` is not the host, and lookalike Unicode
+// hosts become punycode). A trailing-dot host (`www.youtube.com.`) is refused.
 
-export type ShowcaseKind = "youtube" | "tiktok";
+/** The Showcase slots, one per site, in the order the form shows them. */
+export const SHOWCASE_KINDS = ["youtube", "tiktok"] as const;
+
+export type ShowcaseKind = (typeof SHOWCASE_KINDS)[number];
 
 export type ShowcaseLink = {
   kind: ShowcaseKind;
@@ -23,6 +30,9 @@ export type ShowcaseLink = {
   /** The only URL ever put in an iframe: built from the checked id. */
   embedUrl: string;
 };
+
+/** A stored Showcase link as the web reads it back (fundiProfiles.myShowcaseLinks). */
+export type SavedShowcaseLink = Pick<ShowcaseLink, "id" | "url" | "embedUrl">;
 
 export type ShowcaseLinkError = "empty" | "unsupported" | "tiktok_short";
 
@@ -36,8 +46,13 @@ const TIKTOK_HOSTS = new Set(["tiktok.com", "www.tiktok.com", "m.tiktok.com"]);
 const TIKTOK_SHORT_HOSTS = new Set(["vm.tiktok.com", "vt.tiktok.com"]);
 const YOUTUBE_ID = /^[A-Za-z0-9_-]{11}$/;
 const TIKTOK_ID = /^\d{8,25}$/;
-// TikTok usernames: letters, digits, "_" and ".", at most 24 characters.
-const TIKTOK_HANDLE = /^@[A-Za-z0-9_.]{1,24}$/;
+// TikTok usernames: letters, digits, "_" and ".", at most 24 characters, and
+// not only dots.
+const TIKTOK_HANDLE = /^@(?=[A-Za-z0-9_.]*[A-Za-z0-9_])[A-Za-z0-9_.]{1,24}$/;
+// The text names its scheme when `scheme://` starts it, or `scheme:` that is
+// not a port (`javascript:`, `data:`), which is then refused. `host:443/...`
+// is a host with a port, so it gets https:// like any bare host.
+const HAS_SCHEME = /^[a-z][a-z0-9+.-]*:(?:\/\/|(?!\d))/i;
 
 /** Reads a pasted YouTube or TikTok video link into an embeddable link, or says why not. */
 export function parseShowcaseLink(
@@ -49,7 +64,7 @@ export function parseShowcaseLink(
 
   let parsed: URL;
   try {
-    parsed = new URL(/^[a-z][a-z0-9+.-]*:/i.test(text) ? text : `https://${text}`);
+    parsed = new URL(HAS_SCHEME.test(text) ? text : `https://${text}`);
   } catch {
     return { ok: false, error: "unsupported" };
   }

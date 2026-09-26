@@ -89,6 +89,68 @@ describe("parseShowcaseLink", () => {
       expect(parseShowcaseLink(input), input).toEqual({ ok: false, error: "unsupported" });
     }
   });
+
+  const CANONICAL = {
+    ok: true,
+    link: {
+      kind: "youtube",
+      id: "qSHhSnuUcXc",
+      url: "https://www.youtube.com/watch?v=qSHhSnuUcXc",
+      embedUrl: "https://www.youtube-nocookie.com/embed/qSHhSnuUcXc",
+    },
+  };
+
+  it("reads the host after the userinfo, and never passes the userinfo on", () => {
+    // The real host is evil.example; "www.youtube.com" is only the username.
+    expect(parseShowcaseLink("https://www.youtube.com@evil.example/watch?v=qSHhSnuUcXc")).toEqual({
+      ok: false,
+      error: "unsupported",
+    });
+    // A YouTube host with userinfo gives the canonical link, rebuilt without it.
+    expect(parseShowcaseLink("https://attacker@www.youtube.com/watch?v=qSHhSnuUcXc")).toEqual(CANONICAL);
+  });
+
+  it("refuses a trailing-dot host: the host allowlist is exact", () => {
+    // `www.youtube.com.` resolves to YouTube, but no one pastes it; refusing
+    // it keeps the allowlist a plain exact match.
+    expect(parseShowcaseLink("https://www.youtube.com./watch?v=qSHhSnuUcXc")).toEqual({
+      ok: false,
+      error: "unsupported",
+    });
+  });
+
+  it("refuses a lookalike host with a Cyrillic letter", () => {
+    // "yоutube" with U+043E CYRILLIC SMALL LETTER O; URL turns it into punycode.
+    expect(parseShowcaseLink("https://www.yоutube.com/watch?v=qSHhSnuUcXc")).toEqual({
+      ok: false,
+      error: "unsupported",
+    });
+  });
+
+  it("refuses non-http schemes with or without //", () => {
+    for (const input of ["data:text/html,x", "javascript:alert(1)", "javascript://%0Aalert(1)", "file:///etc/passwd"]) {
+      expect(parseShowcaseLink(input), input).toEqual({ ok: false, error: "unsupported" });
+    }
+  });
+
+  it("reads a host with a port, with or without a scheme", () => {
+    for (const input of [
+      "www.youtube.com:443/watch?v=qSHhSnuUcXc",
+      "https://www.youtube.com:443/watch?v=qSHhSnuUcXc",
+      "youtu.be:443/qSHhSnuUcXc",
+    ]) {
+      expect(parseShowcaseLink(input), input).toEqual(CANONICAL);
+    }
+  });
+
+  it("refuses a TikTok handle made only of dots", () => {
+    for (const handle of ["@.", "@...", "@........................"]) {
+      const input = `https://www.tiktok.com/${handle}/video/7212345678901234567`;
+      expect(parseShowcaseLink(input), input).toEqual({ ok: false, error: "unsupported" });
+    }
+    // A dot beside other characters is still fine.
+    expect(parseShowcaseLink("https://www.tiktok.com/@.a./video/7212345678901234567")).toMatchObject({ ok: true });
+  });
 });
 
 describe("parseShowcaseLinkFor", () => {
