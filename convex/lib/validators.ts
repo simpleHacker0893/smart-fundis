@@ -11,6 +11,8 @@ export const tradeCategoryValidator = v.union(
 );
 
 /** One Rubric item: a single observable step, `safety` when a mistake can hurt someone. */
+export type TradeCategory = Infer<typeof tradeCategoryValidator>;
+
 export const rubricItemValidator = v.object({
   id: v.string(),
   text: v.string(),

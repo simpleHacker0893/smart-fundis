@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation } from "./_generated/server";
-import type { RubricItem } from "./lib/validators";
+import type { RubricItem, TradeCategory } from "./lib/validators";
 
 // Seeds for V1 (#37). Every function here is internal: run them from the
 // Convex dashboard or `pnpm exec convex run seed:<name>`, never from a client.
@@ -9,7 +9,7 @@ import type { RubricItem } from "./lib/validators";
 type TradeSeed = {
   slug: string;
   name: string;
-  category: "skilled" | "semi_skilled" | "odd_job";
+  category: TradeCategory;
   task: { slug: string; name: string; version: number; items: RubricItem[] };
 };
 

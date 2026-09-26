@@ -28,12 +28,8 @@ export type FundiProfileErrors = Partial<{
   county: "unknown";
 }>;
 
-export type CleanFundiProfile = {
-  name: string;
-  phone: string;
-  tradeSlug: string;
-  county: string;
-};
+/** Same shape as the input, but every value has been cleaned. */
+export type CleanFundiProfile = FundiProfileInput;
 
 /**
  * Cleans the input: a one-line trimmed name, the phone as +254XXXXXXXXX, the
