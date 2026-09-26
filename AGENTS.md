@@ -18,7 +18,7 @@ Every agent (Claude Code session, subagent, Cursor, Copilot) follows these rules
 2. Fetch live docs (llms.txt or MCP) before using any API. Do not rely on memory for Convex, Clerk, LangGraph, vLLM or NVIDIA APIs.
 3. Every Convex function checks the caller's identity and role on the server.
 4. No secrets in `web/` or in Convex client code. `NVIDIA_API_KEY` lives only on the Brev box.
-5. Every user-visible string goes through `next-intl`, **in English and Kiswahili** (D-29): add every key to both `messages/en.json` and `messages/sw.json`, and show the language toggle. The consent screens stay bilingual as before (PRD §8). The Fundi sees `feedback_sw` under the same rules as `feedback_en`. Kiswahili copy gets a native-speaker check (R-20).
+5. Every user-visible string goes through `next-intl`, **in English only for now** (D-64, superseding D-29's EN + SW rule): add keys to `messages/en.json` only, add no new Kiswahili drafts, and show no language toggle. This includes the consent screens (accepted risk R-44). Kiswahili is a later phase; keeping every string in next-intl lets it be added without code changes.
 6. Finish each task with: what changed, how to verify it, and which acceptance criteria now pass. Write it to `docs/handoff/<task-id>.md` with `/handoff`.
 7. Stay inside your role's folders unless the Architect assigns cross-cutting work.
 
