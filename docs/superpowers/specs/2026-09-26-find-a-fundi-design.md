@@ -15,6 +15,8 @@ A Client in Kenya who needs a mechanic in Ruiru or a braider in Kisumu has no tr
 
 ## 2. Solution
 
+> **Amended 2026-09-26 for V2 (D-29, D-30):** Clients have accounts in V2 and the UI ships in English and Kiswahili. This spec describes the MVP (V6), and the V2 spec decides which of these Client steps need sign-in.
+
 A Client, with no account, goes **`/trades` → `/fundis?trade=&county=&area=&verified=1` → `/f/[id]`**:
 
 1. **`/trades`** becomes the Client's way in: every Trade with a real photo and a "Find a fundi →" link. "Verify now" stays as the secondary Fundi action on Trades that have a Rubric.
@@ -176,13 +178,15 @@ A Fundi is **Listed** when **all** of these hold:
    - no Portfolio and no opted-in links (CONTEXT: no photo or video)
    - no Expert mark
    - sample Rates are allowed, and inherit the profile's Demo tag
-9. **Copy stays English only** (AGENTS rule 5), except the Portfolio publish consent, which ships in English and Kiswahili like the verification consent (§8.2, D-21, and the proposed AGENTS diff in §14.1).
+9. **Copy stays English only** (AGENTS rule 5), except the Portfolio publish consent, which ships in English and Kiswahili like the verification consent (§8.2, D-21, and the proposed AGENTS diff in §14.1). *Amended by D-29: from V2 all copy ships in English and Kiswahili.*
 
 ---
 
 ## 8. Privacy
 
 ### 8.1 Phone: opt-in and tap-to-reveal (ADR-21)
+
+> **Retired in V8 (D-46).** The anonymous `contact.reveal({ …, visitorKey })` and the `contactReveals` table below describe V6 only. From V8 every reveal (Call, WhatsApp, Pay-to) needs `requireClient` and goes through one `contact.reveal({ fundiProfileId, channel, jobId?, interestId? })` keyed on `userId`, logged in `contactShares`, with the per-Fundi cap of 100 a day counted across all channels. V8 owns the migration and removes the V6 WhatsApp button (marketplace spec).
 
 - **Source and default:** the number is `users.phone` (collected in onboarding, ADR-16), normalised to `+2547XXXXXXXX` / `+2541XXXXXXXX`. `fundiProfiles.contact` defaults to `{ showPhone: false, whatsapp: false }`.
 - **The number is never in a query result:**
@@ -348,7 +352,7 @@ Rows exist **only** for Listed Fundis. The table is a cache of derived data, nev
 | `sortKey` | `tier × 10¹³ + t`. Tier 3 is a real Fundi verified in scope; tier 2 is Demo; tier 1 is a real Fundi not yet verified. `t` is the newest Badge `approvedAt` or Expert approval time for tiers 3 and 2, and the profile `_creationTime` for tier 1 |
 | `isDemo` | boolean |
 
-- **Indexes:** `by_scope_sort` `["scope", "sortKey"]`, `by_scope_county_sort` `["scope", "county", "sortKey"]`, `by_scope_verified_sort` `["scope", "verified", "sortKey"]`, `by_scope_county_verified_sort` `["scope", "county", "verified", "sortKey"]`, `by_fundiUser` `["fundiUserId"]`.
+- **Indexes** (renamed to the `by_a_and_b` style, for example `by_scope_and_sortKey`, in the V2 re-tier migration that adds `subscriber` and the five-tier `sortKey`; review §3.2): `by_scope_sort` `["scope", "sortKey"]`, `by_scope_county_sort` `["scope", "county", "sortKey"]`, `by_scope_verified_sort` `["scope", "verified", "sortKey"]`, `by_scope_county_verified_sort` `["scope", "county", "verified", "sortKey"]`, `by_fundiUser` `["fundiUserId"]`.
 - **Search index:** `search_area` on `searchText`, with `filterFields: ["scope", "county", "verified"]`.
 - **Queries:** read with `.order("desc")`.
 
@@ -363,12 +367,20 @@ Rows exist **only** for Listed Fundis. The table is a cache of derived data, nev
 | `moderation.hideProfile` / `unhideProfile` | the Listed rule |
 | `portfolio.setPublic`, `portfolio.remove`, `moderation.hideItem`, `profiles.setCover` | the cover photo |
 | `seed.demo` | Demo rows |
+| `interests.create` with addTrade (V8) | a declared Trade is added |
+| `clients.create` / `clients.update` when they write `users.phone` or the display name (V8) | card fields |
+| `subscriptions.extend`, `subscriptions.markExpired` (in batches), `payments.recordRefund` (V11) | `subscriber`, the Pro tier and the tag (ADR-28) |
+| `fundi.setServiceArea`, `fundi.clearServiceLocation` (V9) | the private service-area point |
+
+**Not callers (V2, review §3.2):** `setPayTo` and `clearPayTo` (Pay-to is never in a Listing). Centroid points are **copied** onto each Fundi or Job at write time, so later edits to `areas` do not propagate and are not callers.
 
 `profiles.getPublic` and `contact.reveal` do **not** trust the projection. They re-check the Listed rule, and derive Badges and Expert marks, from the source tables. So a stale row can at worst show a card that is out of date by one field, or whose profile returns not found.
 
 A convex-test (§12) checks, after each caller above, that the projection equals a from-scratch recomputation. `listings.rebuildAll` (internal, run by an Admin) exists for repair.
 
 ### 10.4 New tables `contactReveals` and `reports`
+
+`contactReveals` and the `contactRevealVisitor` limit are **retired in V8** (D-46); `contactShares` replaces them.
 
 | Table | Fields | Indexes |
 | --- | --- | --- |
@@ -417,6 +429,7 @@ type ListingCard = {
   notYetVerifiedIn: string | null;   // Trade name when scope is a declared-only Trade
   // UI rule: badges.length === 0 && !expert → "Not yet verified" (or "Not yet verified in <notYetVerifiedIn>")
   isDemo: boolean;
+  // V2 (ADR-28, D-47): pro: boolean — shows the "FUNDI PRO · PAID" tag; never implies verified
 };
 
 // profiles.getPublic  (query) — null → not found page
@@ -445,7 +458,7 @@ type PublicProfile = {
 };
 type RateItem = { label: string; amountKsh: number; unit: "job" | "hour" | "day" | "item" | "visit" };
 
-// contact.reveal  (mutation)
+// contact.reveal  (mutation) — V6 shape; replaced in V8 by the requireClient, userId-keyed form (D-46, §8.1)
 args: { fundiProfileId: Id<"fundiProfiles">; channel: "call" | "whatsapp"; visitorKey: string /* uuid v4 */ }
 returns:
   | { ok: true; phoneE164: string; display: string /* "0712 345 678" */ }
@@ -589,6 +602,8 @@ Highest seam first (architecture spec §10). Every Convex rule is tested with **
 | `/fundis` and a styled `/f/[id]` in V3; V6 after the MVP | spec §9, V3 brief, first draft of this spec | The **discovery core** (V6-1 projection, V6-2 `/fundis`, V6-3 `/trades`, V6-8 Demo Listings) runs **right after V1, before the V5 demo**. V5's `seed.demo` calls `syncListing`. The rest of V6 (profile v2, contact, Portfolio, moderation) follows. | D-23, D-27 |
 
 ### 14.1 Proposed `AGENTS.md` diff (the operator applies it; the Architect does not edit `AGENTS.md` here)
+
+> **Superseded 2026-09-26 (D-29):** AGENTS rule 5 now says the UI ships in English and Kiswahili. The diff below is kept as history.
 
 ```diff
 @@ Working rules

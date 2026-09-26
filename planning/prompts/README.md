@@ -41,3 +41,7 @@
 5. `60` V0.
 
 **Before Sunday:** only 00, 05, 10, 20, 25 and 30 are run (specs are allowed as preparation). 40, 50 and 60 are for build day.
+
+## Version 2 (dashboards, Client jobs, proximity)
+
+The post-MVP planning track lives in [`v2/`](v2/README.md): research → grill the V2 scope → V2 spec and ADRs → architecture review → slice briefs V7+ → dashboard design. After that, each V2 slice runs through the same 10 → 60 loop above.

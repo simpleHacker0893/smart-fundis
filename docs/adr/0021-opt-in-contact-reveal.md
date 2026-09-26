@@ -5,6 +5,10 @@ deciders: operator (OD-2), architect
 amends: spec §7 ("the public profile hides phone"), PRD US-5.7
 ---
 
+> **Note 2026-09-26 (D-30):** Clients have accounts in V2, so the "Clients have no account" context below applies to the MVP only. The V2 spec decides whether a reveal needs sign-in.
+>
+> **Amended by D-46 (V2), 2026-09-26:** from V8 every reveal needs a **Client profile** (`requireClient`: a phone, 18+, the terms accepted). `contact.reveal({ fundiProfileId, channel, jobId?, interestId? })` is keyed on `userId` through one internal helper; the anonymous `visitorKey` path, `contactReveals` and the `contactRevealVisitor` limit are **retired**, and reveals are logged in `contactShares`. The per-Fundi cap (100 a day) is counted **across Call, WhatsApp and Pay-to**. The opt-in rule below is unchanged. V8 owns the migration.
+
 # ADR-21: Contact is opt-in and the phone is revealed on tap
 
 ## Context

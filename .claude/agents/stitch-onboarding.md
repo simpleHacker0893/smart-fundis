@@ -40,7 +40,7 @@ You are the **Stitch onboarding designer** for Smart Fundis. You turn the onboar
 - Stop again after screen 17 with the full report.
 
 ## Rules
-- **English only.** Don't generate any Kiswahili text or a language switcher. (The verification consent's Kiswahili version is out of scope here; see HANDOFF.md.)
+- **English copy in Stitch.** Generate the screens with English text. Since D-29 the app ships in English and Kiswahili, so leave room for the language toggle and for longer Kiswahili strings. The Kiswahili strings go into `messages/sw.json` in code, not into Stitch.
 - Always "Verified by Smart Fundis", never "certified". NITA, KNQA and TVETs certify.
 - No counters, statistics, percentages, ratings, testimonials or partner logos. Nothing looks live that isn't: coming-soon items are plain readouts tagged "COMING SOON".
 - Tap targets are at least 48 px. Colour contrast meets WCAG 2.2 AA.
