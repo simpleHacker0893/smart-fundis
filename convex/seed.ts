@@ -1,7 +1,7 @@
 import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
-import { MVP_TRADES, type TaskSeed } from "./lib/trades";
+import { TRADE_CATALOGUE, type TaskSeed } from "./lib/trades";
 
 // Seeds for V1 (#37). Every function here is internal: run them from the
 // Convex dashboard or `pnpm exec convex run seed:<name>`, never from a client.
@@ -60,7 +60,7 @@ async function upsertRubric(ctx: MutationCtx, tradeSlug: string, task: TaskSeed)
         code: "rubric_frozen",
         message:
           `Rubric ${tradeSlug}/${task.slug} v${task.version} is referenced by an Assessment ` +
-          "and differs from MVP_TRADES. Add a new version instead of editing this one.",
+          "and differs from TRADE_CATALOGUE. Add a new version instead of editing this one.",
       });
     }
     await ctx.db.patch("rubrics", existing._id, { taskName: task.name, items: task.items });
@@ -69,7 +69,7 @@ async function upsertRubric(ctx: MutationCtx, tradeSlug: string, task: TaskSeed)
 }
 
 /**
- * Upserts all 12 Trades (MVP_TRADES) and the Rubrics of the two that have a
+ * Upserts all 62 Trades (TRADE_CATALOGUE) and the Rubrics of the two that have a
  * Task. Safe to run any number of times. It is reference data that
  * production needs too, so unlike seed.expert it is not behind
  * ALLOW_DEV_SEED; it cannot grant any role.
@@ -86,7 +86,7 @@ export const trades = internalMutation({
   returns: v.array(seededTradeValidator),
   handler: async (ctx) => {
     const seeded = [];
-    for (const seed of MVP_TRADES) {
+    for (const seed of TRADE_CATALOGUE) {
       const rubricId = seed.task === undefined ? undefined : await upsertRubric(ctx, seed.slug, seed.task);
 
       const existingTrade = await ctx.db

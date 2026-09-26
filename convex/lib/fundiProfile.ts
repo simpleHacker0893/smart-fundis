@@ -1,6 +1,7 @@
 import { cleanLine } from "./contact";
 import { canonicalCounty } from "./counties";
 import { normalizeKenyanPhone } from "./phone";
+import { TRADE_CATALOGUE } from "./trades";
 
 // Rules for the minimal Fundi profile form (#37). fundiProfiles.create
 // enforces them on the server, and the web form can import the same function
@@ -12,8 +13,9 @@ export const FUNDI_PROFILE_LIMITS = {
   // Hard cap on any raw argument (string length, or tradeSlugs entries),
   // checked before any normalisation.
   rawMax: 200,
-  // A Fundi may declare any of the 12 Trades (D-24), at least one.
-  tradesMax: 12,
+  // A Fundi may declare any catalogue Trade (operator change 2 on #37), at
+  // least one, so the cap is the catalogue length.
+  tradesMax: TRADE_CATALOGUE.length,
 } as const;
 
 export type FundiProfileInput = {

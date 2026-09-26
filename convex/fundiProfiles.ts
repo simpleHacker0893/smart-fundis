@@ -4,7 +4,7 @@ import { getFundiProfile, requireStoredUser } from "./lib/auth";
 import { cleanTradeSlugs, parseFundiProfile, type FundiProfileErrors } from "./lib/fundiProfile";
 
 /**
- * The minimal onboarding form (#37): name, phone, one or more of the 12
+ * The minimal onboarding form (#37): name, phone, one or more of the 62
  * Trades (operator change on #37, D-24) and county. A Trade need not be
  * "Verify now" to be declared. Creating the profile makes the caller a Fundi
  * (ADR-18).
@@ -17,7 +17,7 @@ import { cleanTradeSlugs, parseFundiProfile, type FundiProfileErrors } from "./l
  * - `{ code: "already_exists" }`: the caller already has a Fundi profile;
  * - `{ code: "invalid", fields }`: field codes from FundiProfileErrors;
  *   `fields.tradeSlugs` is "required" (none chosen) or "unknown" (a slug not
- *   in `trades`, or more than 12).
+ *   in `trades`, or more than the catalogue has).
  */
 export const create = mutation({
   args: {

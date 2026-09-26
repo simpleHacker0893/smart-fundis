@@ -3,6 +3,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import schema from "./schema";
+import { TRADE_CATALOGUE, TRADE_LICENCE, TRADE_SLUGS } from "./lib/trades";
 import { modules } from "./test.setup";
 
 const ANYANGO = {
@@ -25,36 +26,60 @@ async function tables(t: ReturnType<typeof setup>) {
   }));
 }
 
-/** The 12 Trades, in the order of web/lib/trades.ts, with their English names. */
-const ALL_TRADES = [
+/** The 62 Trades of the approved catalogue (docs/research/2026-09-26-kenya-trades-catalogue.md), in row order. */
+const CATALOGUE_SLUGS = [
+  "electrical", "hairdressing", "plumbing", "masonry", "carpentry", "welding", "mechanic", "tailoring",
+  "beauty", "solar", "mamaFua", "movers", "painting", "tiling", "roofing", "steelFixing", "glazing",
+  "gypsum", "constructionHelper", "paving", "signWriting", "furnitureMaking", "upholstery", "woodCarving",
+  "interiorDecor", "landscaping", "cleaning", "cooking", "baking", "shoeRepair", "leatherwork",
+  "motorcycleRepair", "autoElectrical", "panelBeating", "sprayPainting", "tyreRepair", "carWash",
+  "refrigerationAc", "phoneRepair", "electronicsRepair", "computerRepair", "cctvSecurity", "satelliteTv",
+  "pumpRepair", "motorRewinding", "generatorRepair", "pestControl", "barbering", "nails", "makeup",
+  "knitting", "weaving", "beadwork", "metalwork", "textileDecoration", "printing", "photography",
+  "eventDecor", "driving", "locksmith", "farmHand", "bicycleRepair",
+];
+
+/** Spot checks of English name and category against the catalogue table. */
+const SPOT_CHECKS = [
   ["electrical", "Electrical", "skilled"],
-  ["hairdressing", "Hairdressing", "skilled"],
-  ["plumbing", "Plumbing", "skilled"],
-  ["masonry", "Masonry", "skilled"],
-  ["carpentry", "Carpentry", "skilled"],
-  ["welding", "Welding", "skilled"],
-  ["mechanic", "Mechanic", "skilled"],
-  ["tailoring", "Tailoring", "semi_skilled"],
-  ["beauty", "Beauty", "semi_skilled"],
-  ["solar", "Solar installation", "skilled"],
+  ["tailoring", "Tailoring", "skilled"],
+  ["beauty", "Beauty", "skilled"],
   ["mamaFua", "Mama fua (laundry)", "odd_job"],
-  ["movers", "Movers", "odd_job"],
+  ["painting", "Painting & decorating", "skilled"],
+  ["paving", "Cabro & paving", "semi_skilled"],
+  ["constructionHelper", "Site helper (mjengo)", "odd_job"],
+  ["motorcycleRepair", "Motorcycle (boda) repair", "skilled"],
+  ["textileDecoration", "Embroidery, batik & tie-dye", "skilled"],
+  ["driving", "Driver", "semi_skilled"],
+  ["bicycleRepair", "Bicycle repair", "semi_skilled"],
 ] as const;
 const VERIFY_NOW = ["electrical", "hairdressing"];
 
 describe("seed.trades (US-3.2, operator change on #37)", () => {
-  it("creates all 12 Trades with their names and categories", async () => {
+  it("creates all 62 catalogue Trades with the catalogue's names and categories", async () => {
     const t = setup();
-    await t.mutation(internal.seed.trades, {});
+    const seeded = await t.mutation(internal.seed.trades, {});
+    expect(seeded.map((s) => s.slug)).toEqual(CATALOGUE_SLUGS);
     const { trades } = await tables(t);
     const bySlug = Object.fromEntries(trades.map((tr) => [tr.slug, tr]));
-    expect(trades).toHaveLength(12);
-    for (const [slug, name, category] of ALL_TRADES) {
+    expect(trades).toHaveLength(62);
+    for (const seed of TRADE_CATALOGUE) {
+      expect(bySlug[seed.slug], seed.slug).toMatchObject({ name: seed.name, category: seed.category });
+    }
+    for (const [slug, name, category] of SPOT_CHECKS) {
       expect(bySlug[slug], slug).toMatchObject({ name, category });
     }
   });
 
-  it("gives only Electrical and Hairdressing a Rubric; the other 10 have no activeRubricId", async () => {
+  it("moves an existing Trade to its new catalogue category (tailoring was semi_skilled)", async () => {
+    const t = setup();
+    await t.run((ctx) => ctx.db.insert("trades", { slug: "tailoring", name: "Tailoring", category: "semi_skilled" }));
+    await t.mutation(internal.seed.trades, {});
+    const { trades } = await tables(t);
+    expect(trades.filter((tr) => tr.slug === "tailoring")).toMatchObject([{ category: "skilled" }]);
+  });
+
+  it("gives only Electrical and Hairdressing a Rubric; the other 60 have no activeRubricId", async () => {
     const t = setup();
     await t.mutation(internal.seed.trades, {});
     const { trades, rubrics } = await tables(t);
@@ -106,18 +131,48 @@ describe("seed.trades (US-3.2, operator change on #37)", () => {
     ]);
   });
 
-  it("is idempotent: a second run leaves 12 Trades and 2 Rubrics, with the same ids", async () => {
+  it("is idempotent: a second run leaves 62 Trades and 2 Rubrics, with the same ids", async () => {
     const t = setup();
     await t.mutation(internal.seed.trades, {});
     const first = await tables(t);
     await t.mutation(internal.seed.trades, {});
     const second = await tables(t);
 
-    expect(second.trades).toHaveLength(12);
+    expect(second.trades).toHaveLength(62);
     expect(second.rubrics).toHaveLength(2);
     expect(second.trades.map((tr) => [tr._id, tr.activeRubricId])).toEqual(
       first.trades.map((tr) => [tr._id, tr.activeRubricId]),
     );
+  });
+});
+
+describe("the Trade catalogue (lib/trades)", () => {
+  it("exports TRADE_SLUGS in catalogue row order, each once", () => {
+    expect(TRADE_SLUGS).toEqual(CATALOGUE_SLUGS);
+    expect(new Set(TRADE_SLUGS).size).toBe(62);
+  });
+
+  it("keeps a Task only on Electrical and Hairdressing", () => {
+    expect(TRADE_CATALOGUE.filter((tr) => tr.task !== undefined).map((tr) => tr.slug)).toEqual(VERIFY_NOW);
+  });
+
+  it("tags the Trades the catalogue says need a licence", () => {
+    expect(TRADE_LICENCE).toEqual({
+      electrical: "EPRA",
+      plumbing: "NCA",
+      masonry: "NCA",
+      carpentry: "NCA",
+      solar: "EPRA",
+      painting: "NCA",
+      tiling: "NCA",
+      roofing: "NCA",
+      steelFixing: "NCA",
+      glazing: "NCA",
+      gypsum: "NCA",
+      paving: "NCA",
+      pestControl: "PCPB",
+      driving: "NTSA",
+    });
   });
 });
 
@@ -200,7 +255,7 @@ describe("seed.trades on a deployment that already has v1 (review C4)", () => {
     await t.mutation(internal.seed.trades, {});
     const { rubrics } = await tables(t);
     await insertAssessment(t, rubrics[0]._id);
-    await expect(t.mutation(internal.seed.trades, {})).resolves.toHaveLength(12);
+    await expect(t.mutation(internal.seed.trades, {})).resolves.toHaveLength(62);
   });
 });
 

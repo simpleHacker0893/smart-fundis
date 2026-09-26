@@ -10,12 +10,26 @@ export type TradeSeed = {
   category: TradeCategory;
   /** Only a Trade with a Task has a Rubric, and so "Verify now". */
   task?: TaskSeed;
+  /**
+   * The regulator whose licence or registration the catalogue says this Trade
+   * needs ("Yes" or a named regulator in the Licence column). Code only, not
+   * stored: nothing checks it yet.
+   */
+  licence?: TradeLicence;
 };
 
 /**
- * All 12 Trades (find-a-fundi spec §3, D-24), in the order of web/lib/trades.ts.
- * Slugs and English names match web/lib/trades.ts and en.json
- * Landing.trades.names exactly; the category is internal only.
+ * EPRA: electrical worker / solar PV licence. NCA: construction worker
+ * accreditation. PCPB: pest control registration. NTSA: driving licence.
+ */
+export type TradeLicence = "EPRA" | "NCA" | "PCPB" | "NTSA";
+
+/**
+ * All 62 Trades of the operator-approved catalogue
+ * (docs/research/2026-09-26-kenya-trades-catalogue.md), in its row order
+ * (#1..#62). Slug, English `name` and `category` match the table exactly.
+ * Convex keeps English names only; the EN and SW names and descriptions the
+ * user sees live in next-intl, keyed by slug (see TRADE_SLUGS).
  *
  * Only Electrical and Hairdressing have a Task and Rubric (US-3.2), so only
  * they are "Verify now". The rest can be declared on a profile but cannot
@@ -26,11 +40,12 @@ export type TradeSeed = {
  * throws), and rewrites a stored version in place only while no Assessment
  * references it, which is how the rai-reviewer edits to v1 reach dev.
  */
-export const MVP_TRADES: readonly TradeSeed[] = [
+export const TRADE_CATALOGUE: readonly TradeSeed[] = [
   {
     slug: "electrical",
     name: "Electrical",
     category: "skilled",
+    licence: "EPRA",
     task: {
       slug: "13a-socket",
       name: "Install a 13A socket",
@@ -116,20 +131,82 @@ export const MVP_TRADES: readonly TradeSeed[] = [
       ],
     },
   },
-  { slug: "plumbing", name: "Plumbing", category: "skilled" },
-  { slug: "masonry", name: "Masonry", category: "skilled" },
-  { slug: "carpentry", name: "Carpentry", category: "skilled" },
+  { slug: "plumbing", name: "Plumbing", category: "skilled", licence: "NCA" },
+  { slug: "masonry", name: "Masonry", category: "skilled", licence: "NCA" },
+  { slug: "carpentry", name: "Carpentry", category: "skilled", licence: "NCA" },
   { slug: "welding", name: "Welding", category: "skilled" },
   { slug: "mechanic", name: "Mechanic", category: "skilled" },
-  { slug: "tailoring", name: "Tailoring", category: "semi_skilled" },
-  { slug: "beauty", name: "Beauty", category: "semi_skilled" },
-  { slug: "solar", name: "Solar installation", category: "skilled" },
+  { slug: "tailoring", name: "Tailoring", category: "skilled" },
+  { slug: "beauty", name: "Beauty", category: "skilled" },
+  { slug: "solar", name: "Solar installation", category: "skilled", licence: "EPRA" },
   { slug: "mamaFua", name: "Mama fua (laundry)", category: "odd_job" },
   { slug: "movers", name: "Movers", category: "odd_job" },
+  { slug: "painting", name: "Painting & decorating", category: "skilled", licence: "NCA" },
+  { slug: "tiling", name: "Tiling & terrazzo", category: "skilled", licence: "NCA" },
+  { slug: "roofing", name: "Roofing", category: "skilled", licence: "NCA" },
+  { slug: "steelFixing", name: "Steel fixing", category: "skilled", licence: "NCA" },
+  { slug: "glazing", name: "Glass & aluminium", category: "skilled", licence: "NCA" },
+  { slug: "gypsum", name: "Gypsum & ceilings", category: "skilled", licence: "NCA" },
+  { slug: "constructionHelper", name: "Site helper (mjengo)", category: "odd_job" },
+  { slug: "paving", name: "Cabro & paving", category: "semi_skilled", licence: "NCA" },
+  { slug: "signWriting", name: "Sign writing", category: "skilled" },
+  { slug: "furnitureMaking", name: "Furniture making", category: "skilled" },
+  { slug: "upholstery", name: "Upholstery", category: "skilled" },
+  { slug: "woodCarving", name: "Wood carving", category: "skilled" },
+  { slug: "interiorDecor", name: "Curtains & interior decor", category: "semi_skilled" },
+  { slug: "landscaping", name: "Landscaping & gardening", category: "semi_skilled" },
+  { slug: "cleaning", name: "Cleaning", category: "odd_job" },
+  { slug: "cooking", name: "Cooking & catering", category: "skilled" },
+  { slug: "baking", name: "Baking & cakes", category: "skilled" },
+  { slug: "shoeRepair", name: "Shoe repair & making", category: "skilled" },
+  { slug: "leatherwork", name: "Leatherwork", category: "skilled" },
+  { slug: "motorcycleRepair", name: "Motorcycle (boda) repair", category: "skilled" },
+  { slug: "autoElectrical", name: "Auto electrical", category: "skilled" },
+  { slug: "panelBeating", name: "Panel beating", category: "skilled" },
+  { slug: "sprayPainting", name: "Spray painting", category: "skilled" },
+  { slug: "tyreRepair", name: "Tyre repair", category: "semi_skilled" },
+  { slug: "carWash", name: "Car wash & detailing", category: "odd_job" },
+  { slug: "refrigerationAc", name: "Fridge & AC repair", category: "skilled" },
+  { slug: "phoneRepair", name: "Phone repair", category: "skilled" },
+  { slug: "electronicsRepair", name: "Electronics & appliance repair", category: "skilled" },
+  { slug: "computerRepair", name: "Computer repair", category: "skilled" },
+  { slug: "cctvSecurity", name: "CCTV & security systems", category: "skilled" },
+  { slug: "satelliteTv", name: "TV dish & internet installation", category: "semi_skilled" },
+  { slug: "pumpRepair", name: "Water pump & borehole repair", category: "skilled" },
+  { slug: "motorRewinding", name: "Motor rewinding", category: "skilled" },
+  { slug: "generatorRepair", name: "Generator repair", category: "skilled" },
+  { slug: "pestControl", name: "Fumigation & pest control", category: "semi_skilled", licence: "PCPB" },
+  { slug: "barbering", name: "Barbering", category: "skilled" },
+  { slug: "nails", name: "Nail technician", category: "skilled" },
+  { slug: "makeup", name: "Make-up artist", category: "skilled" },
+  { slug: "knitting", name: "Knitting & crochet", category: "skilled" },
+  { slug: "weaving", name: "Weaving & basketry", category: "skilled" },
+  { slug: "beadwork", name: "Jewellery & beadwork", category: "skilled" },
+  { slug: "metalwork", name: "Jua kali metalwork", category: "skilled" },
+  { slug: "textileDecoration", name: "Embroidery, batik & tie-dye", category: "skilled" },
+  { slug: "printing", name: "Printing & branding", category: "semi_skilled" },
+  { slug: "photography", name: "Photography & video", category: "skilled" },
+  { slug: "eventDecor", name: "Event decor & tents", category: "semi_skilled" },
+  { slug: "driving", name: "Driver", category: "semi_skilled", licence: "NTSA" },
+  { slug: "locksmith", name: "Locksmith & key cutting", category: "semi_skilled" },
+  { slug: "farmHand", name: "Farm work (shamba)", category: "odd_job" },
+  { slug: "bicycleRepair", name: "Bicycle repair", category: "semi_skilled" },
 ];
 
-/** Where each seeded Trade sits in trades.list (the order of MVP_TRADES). */
+/**
+ * Every catalogue slug, in catalogue order. The web imports it to check that
+ * next-intl has an EN and SW name and description for each Trade.
+ */
+export const TRADE_SLUGS: readonly string[] = TRADE_CATALOGUE.map((trade) => trade.slug);
+
+/** Slug -> regulator, for the Trades that need a licence. */
+export const TRADE_LICENCE: Readonly<Record<string, TradeLicence>> = Object.fromEntries(
+  TRADE_CATALOGUE.flatMap((trade) => (trade.licence === undefined ? [] : [[trade.slug, trade.licence]])),
+);
+
+const ORDER = new Map(TRADE_SLUGS.map((slug, i) => [slug, i]));
+
+/** Where each seeded Trade sits in trades.list (catalogue order); unknown slugs go last. */
 export function tradeOrder(slug: string): number {
-  const i = MVP_TRADES.findIndex((trade) => trade.slug === slug);
-  return i === -1 ? MVP_TRADES.length : i;
+  return ORDER.get(slug) ?? TRADE_CATALOGUE.length;
 }

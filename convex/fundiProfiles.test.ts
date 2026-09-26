@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { api, internal } from "./_generated/api";
 import schema from "./schema";
 import { canonicalCounty, KENYAN_COUNTIES } from "./lib/counties";
+import { TRADE_CATALOGUE, TRADE_SLUGS } from "./lib/trades";
 import { modules } from "./test.setup";
 
 // The minimal onboarding form (#37, spec #36 decision 2; US-2.3 minimal, US-2.7).
@@ -102,18 +103,29 @@ describe("fundiProfiles.create", () => {
     expect(await profiles()).toMatchObject([{ trades: ["plumbing", "electrical", "mamaFua"] }]);
   });
 
-  it("accepts all 12 Trades", async () => {
+  it("accepts several of the new catalogue Trades", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    await t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, {
+      ...VALID,
+      tradeSlugs: ["bicycleRepair", "tiling", "pestControl", "driving", "phoneRepair"],
+    });
+    expect(await profiles()).toMatchObject([
+      { trades: ["bicycleRepair", "tiling", "pestControl", "driving", "phoneRepair"] },
+    ]);
+  });
+
+  it("accepts all 62 Trades", async () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     const all = (await t.withIdentity(WANJIRU).query(api.trades.list, {})).map((tr) => tr.slug);
     await t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, { ...VALID, tradeSlugs: all });
-    expect((await profiles())[0].trades).toHaveLength(12);
+    expect((await profiles())[0].trades).toHaveLength(62);
   });
 
   it.each([
     ["no Trade", { tradeSlugs: [] }, { tradeSlugs: "required" }],
     ["only blank Trades", { tradeSlugs: ["  "] }, { tradeSlugs: "required" }],
     ["an unknown Trade", { tradeSlugs: ["electrical", "boat-building"] }, { tradeSlugs: "unknown" }],
-    ["more than 12 distinct Trades", { tradeSlugs: Array.from({ length: 13 }, (_, i) => `t${i}`) }, { tradeSlugs: "unknown" }],
+    ["more distinct Trades than the catalogue has", { tradeSlugs: Array.from({ length: TRADE_SLUGS.length + 1 }, (_, i) => `t${i}`) }, { tradeSlugs: "unknown" }],
     ["a county that is not one of the 47", { county: "Atlantis" }, { county: "unknown" }],
     ["a phone that is not a Kenyan mobile", { phone: "12345" }, { phone: "invalid" }],
     ["a blank name", { name: "   " }, { name: "required" }],
@@ -148,31 +160,32 @@ describe("fundiProfiles.create", () => {
 });
 
 describe("trades.list", () => {
-  it("lists all 12 Trades in the web's order, and only Electrical and Hairdressing can be verified now", async () => {
+  it("lists all 62 Trades in catalogue order, and only Electrical and Hairdressing can be verified now", async () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     const trades = await t.withIdentity(WANJIRU).query(api.trades.list, {});
-    expect(trades).toEqual([
-      { slug: "electrical", name: "Electrical", verifyNow: true },
-      { slug: "hairdressing", name: "Hairdressing", verifyNow: true },
-      { slug: "plumbing", name: "Plumbing", verifyNow: false },
-      { slug: "masonry", name: "Masonry", verifyNow: false },
-      { slug: "carpentry", name: "Carpentry", verifyNow: false },
-      { slug: "welding", name: "Welding", verifyNow: false },
-      { slug: "mechanic", name: "Mechanic", verifyNow: false },
-      { slug: "tailoring", name: "Tailoring", verifyNow: false },
-      { slug: "beauty", name: "Beauty", verifyNow: false },
-      { slug: "solar", name: "Solar installation", verifyNow: false },
-      { slug: "mamaFua", name: "Mama fua (laundry)", verifyNow: false },
-      { slug: "movers", name: "Movers", verifyNow: false },
+    expect(trades).toEqual(
+      TRADE_CATALOGUE.map((tr) => ({
+        slug: tr.slug,
+        name: tr.name,
+        category: tr.category,
+        verifyNow: tr.slug === "electrical" || tr.slug === "hairdressing",
+      })),
+    );
+    expect(trades).toHaveLength(62);
+    expect(trades.slice(0, 3)).toEqual([
+      { slug: "electrical", name: "Electrical", category: "skilled", verifyNow: true },
+      { slug: "hairdressing", name: "Hairdressing", category: "skilled", verifyNow: true },
+      { slug: "plumbing", name: "Plumbing", category: "skilled", verifyNow: false },
     ]);
+    expect(trades[61]).toEqual({ slug: "bicycleRepair", name: "Bicycle repair", category: "semi_skilled", verifyNow: false });
   });
 
   it("lists a Trade that is not in the seed list after the seeded ones", async () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     await t.run((ctx) => ctx.db.insert("trades", { slug: "aaa-boats", name: "Boats", category: "odd_job" }));
     const trades = await t.withIdentity(WANJIRU).query(api.trades.list, {});
-    expect(trades).toHaveLength(13);
-    expect(trades[12]).toEqual({ slug: "aaa-boats", name: "Boats", verifyNow: false });
+    expect(trades).toHaveLength(63);
+    expect(trades[62]).toEqual({ slug: "aaa-boats", name: "Boats", category: "odd_job", verifyNow: false });
   });
 
   it("rejects an unauthenticated caller", async () => {
