@@ -58,6 +58,28 @@ describe("ConvexClientProvider", () => {
     expect(warn).toHaveBeenCalledTimes(1);
   });
 
+  it("tells children whether Convex is available (true with the URL, false without)", async () => {
+    async function probe() {
+      const { ConvexClientProvider } = await import("@/components/convex-client-provider");
+      const { useConvexAvailable } = await import("@/components/convex-available");
+      function Probe() {
+        return <b>{String(useConvexAvailable())}</b>;
+      }
+      return renderToStaticMarkup(
+        <ConvexClientProvider>
+          <Probe />
+        </ConvexClientProvider>,
+      );
+    }
+    process.env.NEXT_PUBLIC_CONVEX_URL = "https://example.convex.cloud";
+    expect(await probe()).toContain("<b>true</b>");
+
+    vi.resetModules();
+    delete process.env.NEXT_PUBLIC_CONVEX_URL;
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    expect(await probe()).toBe("<b>false</b>");
+  });
+
   it("warns only once however often it renders without the URL", async () => {
     delete process.env.NEXT_PUBLIC_CONVEX_URL;
     const warn = vi.spyOn(console, "warn").mockImplementation(() => {});

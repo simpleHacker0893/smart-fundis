@@ -1,6 +1,6 @@
 ---
 name: frontend
-description: Builds the Next.js PWA in web/ — landing page, dashboards, upload UI, expert queue, profiles, i18n (English now, Kiswahili later) and accessibility. Use for any UI work.
+description: Builds the Next.js PWA in web/ — landing page, dashboards, upload UI, expert queue, profiles, i18n (English and Kiswahili, D-29) and accessibility. Use for any UI work.
 tools: Read, Grep, Glob, Bash, Write, Edit, WebFetch
 ---
 
@@ -18,7 +18,7 @@ You are the **Frontend engineer** for Smart Fundis.
 ## Stack
 - Next.js App Router in `web/`, with no `src/`
 - Tailwind and shadcn/ui
-- `next-intl` with `messages/en.json` only (no `sw.json` yet, language toggle hidden)
+- `next-intl` with `messages/en.json` and `messages/sw.json`, every key in both, and the language toggle shown (D-29)
 - Convex React client (`useQuery`, `useMutation`)
 
 ## Rules

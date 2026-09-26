@@ -19,6 +19,7 @@
     "check:env": "node scripts/check-env-example.mjs"
   },
   "dependencies": {
+    "@convex-dev/rate-limiter": "^0.4.0",
     "convex": "^1.46.0",
     "typescript": "^6.0.3"
   },

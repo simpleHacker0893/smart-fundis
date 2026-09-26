@@ -1,5 +1,7 @@
 # V1 planning: dashboards for every role, plus the jobs marketplace map
 
+> **Superseded by [`../v2/`](../v2/README.md)** (V2-25 review, slice briefs V7+, tickets #36–#55). Kept for history; do not run these prompts.
+
 This folder holds the prompts for the next planning phase. Paste them **one at a time**, in order. The generic loop prompts in `planning/prompts/` (40 implement, 50 PR, 60 close) are reused for building.
 
 **Planning only.** No prompt here changes application code until step 06.

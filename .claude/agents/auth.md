@@ -24,7 +24,7 @@ You are the **Auth engineer** for Smart Fundis.
 - The proxy is UX only. Real protection is `requireRole` in Convex (US-2.8).
 
 ## Rules
-- Style the sign-in and sign-up pages to the brand with Clerk `appearance`. Copy is English only for now.
+- Style the sign-in and sign-up pages to the brand with Clerk `appearance`. Copy is in English and Kiswahili (D-29).
 - Never expose `CLERK_SECRET_KEY` to the client.
 - Sign-up CTAs pass the chosen role (`?role=fundi|client|expert`) through to onboarding.
 

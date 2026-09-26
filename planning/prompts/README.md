@@ -42,6 +42,8 @@
 
 **Before Sunday:** only 00, 05, 10, 20, 25 and 30 are run (specs are allowed as preparation). 40, 50 and 60 are for build day.
 
-## Next phase: V1 dashboards and the jobs marketplace map
+## Version 2 (dashboards, Client jobs, proximity)
 
-The step-by-step prompts for the next planning phase are in [`v1/`](v1/README.md). They run: domain research, scope reconciliation (conflicts with ADR-6, ADR-7 and D-2), the V1 dashboards loop (grill, spec, Stitch design, tickets, build, close), and a `/wayfinder` map for the jobs marketplace (client accounts, job posting, geo and proximity, pricing).
+The post-MVP planning track lives in [`v2/`](v2/README.md): research → grill the V2 scope → V2 spec and ADRs → architecture review → slice briefs V7+ → dashboard design. After that, each V2 slice runs through the same 10 → 60 loop above. The first build tickets are published: MVP V1 (spec #36) and V7 dashboards (spec #44).
+
+> **Superseded:** [`v1/`](v1/README.md) is an earlier draft of the same dashboards-and-jobs plan. Its "V1" is not the MVP V1 slice. Keep it for history only; use `v2/`.

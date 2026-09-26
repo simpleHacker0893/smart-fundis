@@ -18,7 +18,7 @@ Every agent (Claude Code session, subagent, Cursor, Copilot) follows these rules
 2. Fetch live docs (llms.txt or MCP) before using any API. Do not rely on memory for Convex, Clerk, LangGraph, vLLM or NVIDIA APIs.
 3. Every Convex function checks the caller's identity and role on the server.
 4. No secrets in `web/` or in Convex client code. `NVIDIA_API_KEY` lives only on the Brev box.
-5. Every user-visible string goes through `next-intl`. **For now the UI is English only:** fill `messages/en.json`, keep `sw.json` absent, and keep the language toggle hidden. The one exception is the **consent screen**, which ships in both English and Kiswahili (PRD §8). The AI pipeline still returns `feedback_sw`, but the UI does not show it yet.
+5. Every user-visible string goes through `next-intl`, **in English and Kiswahili** (D-29): add every key to both `messages/en.json` and `messages/sw.json`, and show the language toggle. The consent screens stay bilingual as before (PRD §8). The Fundi sees `feedback_sw` under the same rules as `feedback_en`. Kiswahili copy gets a native-speaker check (R-20).
 6. Finish each task with: what changed, how to verify it, and which acceptance criteria now pass. Write it to `docs/handoff/<task-id>.md` with `/handoff`.
 7. Stay inside your role's folders unless the Architect assigns cross-cutting work.
 
@@ -76,3 +76,17 @@ No NVIDIA skill covers serving Cosmos Reason 2 with vLLM, so use the official do
 - One branch and PR per ticket (`v<n>/<issue#>-<slug>`), reviewed locally (`/code-review`, plus `convex-reviewer` for `convex/`) and then by the Architect on GitHub, and squash-merged by the Architect only. The `claude-review` CI check is off for now (D-10).
 - The brand is the v2 "Instrument" system (D-9): graphite `#050609`, text `#f2f4f7`, and amber `#ef9a57` as punctuation only. Design mobile-first at 360 px.
 - If a rule here conflicts with a spec, stop and ask the Architect.
+
+<!-- convex-ai-start -->
+
+This project uses [Convex](https://convex.dev) as its backend.
+
+When working on Convex code, **always read
+`convex/_generated/ai/guidelines.md` first** for important guidelines on
+how to correctly use Convex APIs and patterns. The file contains rules that
+override what you may have learned about Convex from training data.
+
+Convex agent skills for common tasks can be installed by running
+`npx convex ai-files install`.
+
+<!-- convex-ai-end -->

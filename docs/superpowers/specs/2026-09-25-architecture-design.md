@@ -4,6 +4,7 @@
 - **Supersedes:** PRD §6 phase order, §7 data model, and §9 prompt sequence. Where this spec and `docs/PRD.md` disagree, this spec wins.
 - **Glossary:** `CONTEXT.md`. **Decisions:** ADR-1 to ADR-17 (PRD §2), plus `docs/adr/0018-derived-roles.md` and `docs/adr/0019-paper-liveness-code.md`.
 - **Extended by:** `docs/superpowers/specs/2026-09-26-find-a-fundi-design.md` (V6, ADR-20 to ADR-22, D-18 to D-23).
+- **Extended by (draft, awaiting approval):** `docs/superpowers/specs/2026-09-26-v2-marketplace-design.md` (V7+, ADR-23 to ADR-26 and ADR-28, D-33 to D-40, D-43, D-44) and `docs/superpowers/specs/2026-09-26-v2-payments-design.md` (ADR-27, D-41, D-42).
 
 ---
 
@@ -21,6 +22,8 @@ A Fundi records one short phone video of one Task, with a paper Liveness code in
 5. An approval becomes a public **Badge**: "Verified by Smart Fundis — <Trade>: <Task> · <date>".
 
 Clients browse Verified Fundis without an account. Everything after the MVP appears only on `/roadmap`, tagged "Coming soon".
+
+> **Amended 2026-09-26 for V2 (D-29, D-30, D-31):** Clients have accounts in V2, every role signs in, and the demo seed adds Demo Clients with mock data. The UI ships in English and Kiswahili, and the Fundi sees `feedbackSw`. The V2 spec (`planning/prompts/v2/`) holds the details.
 
 **MVP loop, which is never cut:** landing → sign up → consent → upload → AI result → Expert approval → Badge on the public profile.
 
@@ -47,6 +50,8 @@ Clients browse Verified Fundis without an account. Everything after the MVP appe
    │                                        │ Nemotron (hosted) ──────────┼─▶ build.nvidia.com
    │                                        └─────────────────────────────┘
 ```
+
+> **Amended (D-32), 2026-09-26:** Nemotron is **self-hosted with vLLM on the Brev box** (`nemotron-3-nano-30b-a3b` fits the one-H100 box; Super needs at least 8× H100-80GB), through a LangChain chat model, not hosted at build.nvidia.com. The hosted `ChatNVIDIA` path above remains only as a fallback until the self-hosted client ships (a V2-30 ticket), and `NVIDIA_API_KEY` is needed only while that fallback exists. Supersedes ADR-4.
 
 **The upload-to-Badge path:**
 1. **Upload.** The Fundi uploads, which creates an Assessment at `queued` with a new Liveness code.
@@ -89,6 +94,8 @@ Clients browse Verified Fundis without an account. Everything after the MVP appe
 - **Admin:** the token's email is on `ADMIN_EMAILS` **and** `email_verified` is true.
 
 No role is ever read from function arguments or Clerk metadata.
+
+> **Amended 2026-09-26 (proposed, D-33, ADR-23):** a fourth derived role, **Client** (a `clientProfiles` row). Roles become `{ fundi, client, expert, admin }`; `/dashboard` uses a stored preference, else Admin → Expert → Fundi → Client; `/client` joins the sign-in-required prefixes. See `docs/superpowers/specs/2026-09-26-v2-marketplace-design.md` §5.
 
 **Helpers:**
 - `requireUser`, `getRoles`, `requireFundi`, `requireExpert(trade?)` and `requireAdmin`.
@@ -151,6 +158,8 @@ Compared with PRD §7:
 - **Verified Fundi:** has at least one Badge **and** `publicListing` is on. Only Verified Fundis appear on `/fundis`. When the Fundi turns `publicListing` off, `/f/[id]` returns not found.
   > **Amended 2026-09-26 (D-24, ADR-22):** every Listed Fundi (profile, `publicListing` on, not hidden by an Admin) appears on `/fundis`; verification is shown, not required. Verified Fundis first, a "Verified only" chip, a neutral "Not yet verified" label, and a derived "Expert verifier · <Trade>" mark (D-25).
 
+> **Amended 2026-09-26 (proposed, D-33 to D-43):** V2 adds `clientProfiles`, `areas`, `jobs`, `jobPhotos`, `interests`, `contactShares`, `jobReports`, `notifications`, `aiParseRequests` (marketplace spec §15) and `payments`, `paymentEvents`, `subscriptions`, `prices` (payments spec §12); `users`, `fundiProfiles` and `listings` gain optional fields. The Job status table is in the marketplace spec §6.1.
+
 **Status changes and who can make them.** Anything not in this table is rejected. Every row from the Expert decision onwards also writes a `reviews` row and an `auditLog` row.
 
 | From | To | By |
@@ -202,8 +211,11 @@ Both endpoints require `Authorization: Bearer <AI_SHARED_SECRET>`, checked with 
 **What each model does:**
 - **Cosmos** gets the video (`video_url` part, `fps: 4`) and the Rubric items. It returns one Observation per item, plus `liveness_digits`: the digits it read, or `null`.
 - **Nemotron** gets the Rubric and the Observations, never the video, and returns the Verdict through `ChatNVIDIA(...).with_structured_output(Verdict)`.
+  > **Amended (D-32):** the target is a self-hosted Nemotron on vLLM (Brev), called through a LangChain chat model with the same `with_structured_output(Verdict)` contract; hosted `ChatNVIDIA` is the fallback until that client ships. The Verdict JSON is unchanged.
 - **Prompts** live in versioned files under `ai-service/app/prompts/`.
 - **Invalid output:** a JSON parse failure gets one retry with a repair prompt, then an error callback.
+
+> **Amended 2026-09-26 (proposed, D-39):** a second, separate endpoint pair, `POST /ai/claim-parse` and `POST /ai/callback-parse`, lets Nemotron pre-fill a Client's Job post (its own bearer secret `AI_PARSE_SECRET`, same pull model, ADR-9; last and optional, D-58). The Assessment contract above is unchanged. See `docs/superpowers/specs/2026-09-26-v2-marketplace-design.md` §11.2 and §16.
 
 **The guard** accepts videos of **10–90 s** and at least **360p** that are not too dark. This cap stays for the MVP.
 
@@ -236,6 +248,8 @@ The consent version and time are stored on the Assessment.
 **What the public profile (`/f/[id]`) shows:** display name, county and area, Trades, years of experience, languages, bio, Badges, and Showcase links embedded with `youtube-nocookie` or the TikTok embed and labelled "Showcase — not verified". It **hides** phone, email, videos, AI feedback, and rejected or pending Assessments.
 
 > **Amended 2026-09-26 for V6 (D-20, ADR-20, ADR-21):** from V6 the profile may also show the Fundi's opt-in public Portfolio ("Not verified"), self-declared Rates ("Set by the fundi — not verified"), per-link opted-in LinkedIn/CV/portfolio links (D-26) and, on tap, an opted-in phone. Assessment videos, email and AI output stay hidden. See `docs/superpowers/specs/2026-09-26-find-a-fundi-design.md` §6–§8.
+
+> **Amended 2026-09-26 (proposed, D-34, D-36, D-41):** Job contact details, Pay-to details and location follow the marketplace spec §7 and §12: numbers only through logged mutations between connected parties, device points snapped to ~1 km and never returned, distance shown in bands only, and Clients pay Fundis directly (Smart Fundis never holds money).
 
 **Data Co-op:**
 - It's a Roadmap feature. The landing page teaser leads with it: "Coming next: earn from your skills".
@@ -295,10 +309,14 @@ There are no counters.
 
 **`/roadmap`:** Data Co-op, bookings and M-Pesa, Fundi Pro, training partners, Client accounts, Trades, and the Rubric editor.
 
+> **Amended 2026-09-26 (proposed, D-41):** when V7 ships, Client accounts leave `/roadmap` and "bookings and M-Pesa" becomes "Escrow & in-app payment to fundis". The JOBS header tab and the landing "Latest jobs" strip appear only in that release.
+
 **Language:**
 - The copy is English only. `next-intl` is wired up with only `en.json`, and the language toggle is hidden.
 - The **consent screen** is the one exception and ships in English and Kiswahili.
 - `feedbackSw` is stored but not shown yet.
+
+> **Amended 2026-09-26 (D-29):** from V2 the copy ships in English and Kiswahili (`en.json` and `sw.json`, toggle shown), and the Fundi sees `feedbackSw`. Client accounts leave `/roadmap` when V2 ships them (D-30).
 
 ---
 
@@ -371,7 +389,8 @@ If the eval is cut, the pitch says "no accuracy numbers yet".
 ## 12. Out of scope for the MVP
 
 - Client accounts, bookings, M-Pesa and Fundi Pro
-- search and a geohash index. **Amended 2026-09-26 (D-18):** filter search by Trade, county and free-text area is in scope for V6 "Find a Fundi"; geohash, maps and distance stay out. All Listed Fundis appear, with verification shown (D-24).
+  > **Amended 2026-09-26 (proposed, D-33, D-34, D-41):** V2 brings Client accounts, Jobs and direct pay; escrow and bookings stay out.
+- search and a geohash index. **Amended 2026-09-26 (D-18):** filter search by Trade, county and free-text area is in scope for V6 "Find a Fundi"; geohash, maps and distance stay out. All Listed Fundis appear, with verification shown (D-24). **Amended 2026-09-26 (proposed, D-36, D-37, ADR-25):** V2 adds device "near me" snapped to ~1 km, a ward picker, a geohash-cell index and distance bands; maps stay out.
 - the Data Co-op program itself and any licensing
 - a Rubric editor, Whisper, the Kiswahili UI (apart from consent), and a Clerk prod instance
 - serving video through an authenticated HTTP action
