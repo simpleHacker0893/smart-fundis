@@ -233,7 +233,21 @@ describe("recording tips (US-3.3)", () => {
   it("tells a hairdresser to keep the client's face out of the frame", async () => {
     await render();
     await tap(t("pick.choose", { task: en.Rubrics.cornrows.name }));
-    expect(container.textContent).toContain("Film the head from the back or top. Keep the client's face out of the frame.");
+    const text = container.textContent ?? "";
+    expect(text).toContain(
+      "Film the head from the back or top. When you show the hairline, film close so the client's eyes and face stay out of the frame.",
+    );
+    expect(text).toContain(
+      "Ask the client before you film, and film only if they agree. For a child, ask their parent or guardian.",
+    );
+  });
+
+  it("tells an electrician to keep people and the client's address out of the frame", async () => {
+    await render();
+    await tap(t("pick.choose", { task: en.Rubrics["13a-socket"].name }));
+    expect(container.textContent).toContain(
+      "Keep other people, and anything that shows your client's address, out of the frame.",
+    );
   });
 
   it("goes back to the picker", async () => {
@@ -315,11 +329,27 @@ describe("the verification consent (US-3.7, spec §7)", () => {
     expect(heading.textContent).toBe(t("consent.title"));
     expect(dialog().getAttribute("aria-labelledby")).toBe(heading.id);
     expect(dialog().contains(document.activeElement)).toBe(true);
-    // The consent-v1 points, unchanged.
+    // The consent-v1 points (never shipped before the rai-reviewer's copy fixes).
     const text = dialog().textContent ?? "";
-    for (const point of Object.values(en.UploadFlow.consent.points)) expect(text).toContain(point);
+    for (const point of ["review", "public", "training"] as const) expect(text).toContain(t(`consent.points.${point}`));
+    expect(text).toContain(
+      "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on a GPU server that Smart Fundis rents and controls.",
+    );
+    expect(text).toContain(
+      "Once the review is finished, you can ask us to delete the video through the Contact page. A delete button is coming soon.",
+    );
     expect(text).not.toMatch(/certif/i);
     expect(CONSENT_VERSION).toBe("consent-v1");
+  });
+
+  it("links the Contact page from the consent in a new tab, so the chosen video is kept", async () => {
+    await toRecordStep();
+    await chooseFile({ name: "socket.mp4", size: 1024, type: "video/mp4" });
+    const link = [...dialog().querySelectorAll("a")].find((a) => a.textContent === "Contact page");
+    expect(link?.getAttribute("href")).toBe("/contact");
+    expect(link?.getAttribute("target")).toBe("_blank");
+    expect(link?.getAttribute("rel")).toMatch(/noopener/);
+    expect(container.textContent).toContain(t("video.chosen", { name: "socket.mp4" }));
   });
 
   it("closes with Close or Esc and returns focus to the link, keeping the chosen video", async () => {
@@ -358,11 +388,29 @@ describe("the verification consent (US-3.7, spec §7)", () => {
 
   it("asks a hairdresser to confirm the client agreed to be filmed before Upload is enabled", async () => {
     await toRecordStep(en.Rubrics.cornrows.name);
+    expect(t("consent.client")).toBe(
+      "The client agreed to be filmed, and knows Smart Fundis experts and our AI will see the video.",
+    );
+    expect(container.textContent).toContain(
+      "Tick this only if the person in the video said yes to being filmed. If they are under 18, their parent or guardian must say yes.",
+    );
     await chooseFile({ name: "braids.mp4", size: 1024, type: "video/mp4" });
     await tick(t("consent.agree"));
     expect(button(t("upload")).disabled).toBe(true);
     await tick(t("consent.client"));
     expect(button(t("upload")).disabled).toBe(false);
+  });
+
+  it("asks for both ticks when the Task needs the client's consent", async () => {
+    await toRecordStep(en.Rubrics.cornrows.name);
+    expect(t("video.needBothTicks")).toBe("Tick both boxes above to upload.");
+    expect(container.textContent).toContain(t("video.needBothTicks"));
+    expect(container.textContent).not.toContain(t("video.needConsent"));
+    await tick(t("consent.agree"));
+    expect(container.textContent).toContain(t("video.needBothTicks"));
+    await tick(t("consent.client"));
+    expect(container.textContent).not.toContain(t("video.needBothTicks"));
+    expect(container.textContent).toContain(t("video.needVideo"));
   });
 });
 

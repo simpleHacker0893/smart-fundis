@@ -236,7 +236,9 @@ export function RecordStep({
 
       <div className="flex flex-col gap-3">
         {!consentGiven ? (
-          <p className="text-sm text-foreground/75">{t("video.needConsent")}</p>
+          <p className="text-sm text-foreground/75">
+            {task.needsClientConsent ? t("video.needBothTicks") : t("video.needConsent")}
+          </p>
         ) : file === null ? (
           <p className="text-sm text-foreground/75">{t("video.needVideo")}</p>
         ) : null}
@@ -289,7 +291,8 @@ const CONSENT_POINTS = ["who", "review", "public", "delete", "training"] as cons
 /**
  * The full verification consent (consent-v1, spec §7) as a native modal
  * dialog: labelled by its heading, which takes focus on open; Esc or Close
- * shuts it, and `onClose` runs for both.
+ * shuts it, and `onClose` runs for both. The Contact page link opens in a
+ * new tab, so following it never drops the chosen video.
  */
 function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose: () => void }) {
   const t = useTranslations("UploadFlow");
@@ -309,10 +312,25 @@ function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose:
         <ul className="flex list-disc flex-col gap-2 pl-5">
           {CONSENT_POINTS.map((point) => (
             <li key={point} className="text-base">
-              {t(`consent.points.${point}`)}
+              {t.rich(`consent.points.${point}`, {
+                contact: (chunks) => (
+                  <a
+                    href="/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-describedby={`${id}-new-tab`}
+                    className="underline decoration-primary underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                  >
+                    {chunks}
+                  </a>
+                ),
+              })}
             </li>
           ))}
         </ul>
+        <span id={`${id}-new-tab`} hidden>
+          {t("consent.newTab")}
+        </span>
         <button type="button" className={PRIMARY} onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
           {t("consent.close")}
         </button>

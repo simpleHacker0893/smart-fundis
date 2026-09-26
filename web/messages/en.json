@@ -1429,12 +1429,12 @@
       },
       "task": {
         "13a-socket": {
-          "people": "Keep other people out of the frame.",
+          "people": "Keep other people, and anything that shows your client's address, out of the frame.",
           "close": "Film the breaker and the tester close enough to read."
         },
         "cornrows": {
-          "face": "Film the head from the back or top. Keep the client's face out of the frame.",
-          "ask": "Ask the client before you film, and film only if they agree."
+          "face": "Film the head from the back or top. When you show the hairline, film close so the client's eyes and face stay out of the frame.",
+          "ask": "Ask the client before you film, and film only if they agree. For a child, ask their parent or guardian."
         }
       },
       "next": "Next: get my code"
@@ -1453,16 +1453,17 @@
       "open": "Verification consent",
       "intro": "How Smart Fundis uses your video:",
       "points": {
-        "who": "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on Smart Fundis' own GPU server.",
+        "who": "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on a GPU server that Smart Fundis rents and controls.",
         "review": "The AI only recommends. An expert decides, and only an expert's approval earns a Badge verified by Smart Fundis.",
         "public": "Only your Badge becomes public. Your video and the review notes stay private.",
-        "delete": "You can ask us to delete the video once the review is finished.",
+        "delete": "Once the review is finished, you can ask us to delete the video through the <contact>Contact page</contact>. A delete button is coming soon.",
         "training": "Your video is not used to train AI, and it is not part of the Data Co-op."
       },
+      "newTab": "Opens in a new tab",
       "close": "Close",
       "agree": "I have read and agree to the verification consent",
-      "client": "The client agreed to be filmed.",
-      "clientHint": "Tick this only if the person in the video said yes to being filmed."
+      "client": "The client agreed to be filmed, and knows Smart Fundis experts and our AI will see the video.",
+      "clientHint": "Tick this only if the person in the video said yes to being filmed. If they are under 18, their parent or guardian must say yes."
     },
     "video": {
       "title": "Your video",
@@ -1471,6 +1472,7 @@
       "hint": "One video, up to 100 MB.",
       "chosen": "Chosen: {name}",
       "needConsent": "Tick the consent above to upload.",
+      "needBothTicks": "Tick both boxes above to upload.",
       "needVideo": "Record or choose a video to upload."
     },
     "upload": "Upload video",

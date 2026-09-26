@@ -28,12 +28,26 @@ export function visibleStrings(markup: string): string[] {
 }
 
 /**
+ * A rich-text leaf ("see the <contact>Contact page</contact>.") renders as
+ * separate text nodes, one per piece between its tags; plain leaves pass
+ * through unchanged.
+ */
+function richTextPieces(leaf: string): string[] {
+  if (!/<\/?\w+>/.test(leaf)) return [leaf];
+  return leaf
+    .split(/<\/?\w+>/)
+    .map((piece) => piece.trim())
+    .filter(Boolean);
+}
+
+/**
  * True when `s` is copy from the messages: a leaf string as written, or a
- * leaf with ICU arguments ("Step {step} / 04") filled in. Pure numbers and
- * timestamps ("03", "00:41") are data, not copy, so they pass too.
+ * leaf with ICU arguments ("Step {step} / 04") filled in, or a piece of a
+ * rich-text leaf between its tags. Pure numbers and timestamps ("03",
+ * "00:41") are data, not copy, so they pass too.
  */
 export function makeIsFromMessages(messages: unknown): (s: string) => boolean {
-  const leaves = leafStrings(messages);
+  const leaves = leafStrings(messages).flatMap(richTextPieces);
   const exact = new Set(leaves);
   const templates = leaves
     .filter((leaf) => /\{\w+\}/.test(leaf))
