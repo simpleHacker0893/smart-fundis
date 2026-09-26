@@ -1,22 +1,20 @@
 "use client";
 
+import type { FunctionReturnType } from "convex/server";
 import { useTranslations } from "next-intl";
 import { useId, useState, type FormEvent } from "react";
-import { parseShowcaseLinkFor, type ShowcaseKind } from "@convex/lib/showcaseLinks";
+import type { api } from "@convex/_generated/api";
+import { parseShowcaseLinkFor, SHOWCASE_KINDS, type SavedShowcaseLink, type ShowcaseKind } from "@convex/lib/showcaseLinks";
 import { ShowcaseEmbed } from "@/components/showcase-embed";
 import { FIELD, LABEL } from "@/components/ui/field-label";
-import { pillClass } from "@/components/ui/pill";
+import { PRIMARY_PILL, SECONDARY_PILL } from "@/components/ui/pill";
 import { showcaseSaveErrorKey, type ShowcaseErrorKey } from "@/lib/showcase-errors";
 
-/** One saved slot, as fundiProfiles.myShowcaseLinks returns it. */
-export type SavedShowcaseLink = { id: string; url: string; embedUrl: string } | null;
-export type SavedShowcaseLinks = Record<ShowcaseKind, SavedShowcaseLink>;
+/** Both saved slots, as fundiProfiles.myShowcaseLinks returns them; null when empty. */
+export type SavedShowcaseLinks = FunctionReturnType<typeof api.fundiProfiles.myShowcaseLinks>;
 /** fundiProfiles.setShowcaseLinks args: an omitted slot is kept, null clears it. */
 export type ShowcaseLinksUpdate = Partial<Record<ShowcaseKind, string | null>>;
 
-const KINDS: readonly ShowcaseKind[] = ["youtube", "tiktok"];
-const PRIMARY = pillClass({ variant: "primary", size: "full", className: "sm:w-auto disabled:opacity-50" });
-const SECONDARY = pillClass({ variant: "secondary", size: "full", className: "sm:w-auto disabled:opacity-50" });
 
 /**
  * "Show your past work" on /fundi (US-3.8, ADR-7): one YouTube and one TikTok
@@ -43,7 +41,7 @@ export function ShowcaseLinksEditor({
       {links === undefined ? (
         <p className="text-base text-foreground/75">{t("loading")}</p>
       ) : (
-        KINDS.map((kind) => <ShowcaseSlot key={kind} kind={kind} saved={links[kind]} onSave={onSave} />)
+        SHOWCASE_KINDS.map((kind) => <ShowcaseSlot key={kind} kind={kind} saved={links[kind]} onSave={onSave} />)
       )}
     </section>
   );
@@ -55,7 +53,7 @@ function ShowcaseSlot({
   onSave,
 }: {
   kind: ShowcaseKind;
-  saved: SavedShowcaseLink;
+  saved: SavedShowcaseLink | null;
   onSave: (update: ShowcaseLinksUpdate) => Promise<unknown>;
 }) {
   const t = useTranslations("Showcase");
@@ -110,7 +108,7 @@ function ShowcaseSlot({
       {saved ? (
         <>
           <ShowcaseEmbed link={{ kind, ...saved }} />
-          <button type="button" disabled={saving} className={SECONDARY} onClick={() => void save(null)}>
+          <button type="button" disabled={saving} className={SECONDARY_PILL} onClick={() => void save(null)}>
             {t(`slots.${kind}.remove`)}
           </button>
         </>
@@ -143,7 +141,7 @@ function ShowcaseSlot({
             {t(`slots.${kind}.saved`)}
           </p>
         ) : null}
-        <button type="submit" disabled={saving} className={PRIMARY}>
+        <button type="submit" disabled={saving} className={PRIMARY_PILL}>
           {t(`slots.${kind}.save`)}
         </button>
       </form>
