@@ -29,6 +29,7 @@ const state = vi.hoisted(() => ({
   me: undefined as unknown,
   trades: undefined as unknown,
   create: vi.fn<(args: object) => Promise<string>>(),
+  store: vi.fn<(args: object) => Promise<string>>(),
   replace: vi.fn(),
 }));
 
@@ -40,7 +41,8 @@ vi.mock("convex/react", async () => {
       if (args === "skip") return undefined;
       return getFunctionName(ref) === "trades:list" ? state.trades : state.me;
     },
-    useMutation: () => state.create,
+    useMutation: (ref: Parameters<typeof getFunctionName>[0]) =>
+      getFunctionName(ref) === "users:store" ? state.store : state.create,
   };
 });
 
@@ -57,6 +59,8 @@ beforeEach(() => {
   state.trades = TRADES;
   state.create.mockReset();
   state.create.mockResolvedValue("fundiProfiles_1");
+  state.store.mockReset();
+  state.store.mockResolvedValue("users_1");
   state.replace.mockReset();
   container = document.createElement("div");
   document.body.appendChild(container);
@@ -390,13 +394,33 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     expect(state.replace).toHaveBeenCalledWith("/dashboard");
   });
 
-  it("asks the User to retry while their account is being set up (no_user)", async () => {
+  it("stores the User's row and tries once more when the server has none yet (no_user)", async () => {
     state.create.mockRejectedValueOnce(new ConvexError({ code: "no_user" }));
     await render();
     fillValid();
     await submit();
+    expect(state.store).toHaveBeenCalledExactlyOnceWith({});
+    expect(state.create).toHaveBeenCalledTimes(2);
+    expect(state.create.mock.calls[1]).toEqual(state.create.mock.calls[0]);
+    expect(state.replace).toHaveBeenCalledWith("/dashboard");
+    expect(container.querySelector('[role="alert"]')).toBeNull();
+  });
+
+  it("asks the User to retry when the row still cannot be stored (no_user)", async () => {
+    state.create.mockRejectedValue(new ConvexError({ code: "no_user" }));
+    await render();
+    fillValid();
+    await submit();
+    expect(state.create).toHaveBeenCalledTimes(2);
     expect(container.querySelector('[role="alert"]')?.textContent).toBe(t("errors.noUser"));
     expect(state.replace).not.toHaveBeenCalled();
+
+    state.create.mockReset();
+    state.create.mockRejectedValue(new ConvexError({ code: "no_user" }));
+    state.store.mockRejectedValueOnce(new Error("no email claim"));
+    await submit();
+    expect(state.create).toHaveBeenCalledTimes(1);
+    expect(container.querySelector('[role="alert"]')?.textContent).toBe(t("errors.noUser"));
   });
 
   it("shows the generic failure for anything else, and lets the User try again", async () => {
