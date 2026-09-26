@@ -2,9 +2,6 @@ import type { Roles } from "@convex/lib/auth";
 import { AFTER_AUTH_PATH } from "@/lib/auth-routes";
 import type { Me } from "@/lib/dashboard-route";
 
-/** Where a role page sends a caller who lacks its role (spec §4). */
-export const DASHBOARD_PATH = AFTER_AUTH_PATH;
-
 export type PageGuard<M extends Me = Me> =
   | { kind: "loading" }
   | { kind: "redirect"; to: string }
@@ -24,5 +21,5 @@ export function pageGuard<M extends Me>(
   holds: (roles: Roles) => boolean,
 ): PageGuard<M> {
   if (!me) return { kind: "loading" };
-  return holds(me.roles) ? { kind: "allow", me } : { kind: "redirect", to: DASHBOARD_PATH };
+  return holds(me.roles) ? { kind: "allow", me } : { kind: "redirect", to: AFTER_AUTH_PATH };
 }

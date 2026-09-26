@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@convex/_generated/api";
 import { useConvexAvailable } from "@/components/convex-available";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
 import { dashboardPath } from "@/lib/dashboard-route";
 
 /**
@@ -30,10 +31,5 @@ function RouteOnceLoaded() {
     if (me) router.replace(dashboardPath(me));
   }, [me, router]);
 
-  return (
-    <div role="status" aria-busy="true" className="flex flex-col gap-3">
-      <span className="text-base text-foreground/75">{t("loading")}</span>
-      <span aria-hidden="true" className="h-12 w-full animate-pulse rounded bg-panel motion-reduce:animate-none" />
-    </div>
-  );
+  return <LoadingSkeleton label={t("loading")} />;
 }

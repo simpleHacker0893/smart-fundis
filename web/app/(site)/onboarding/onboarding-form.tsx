@@ -8,6 +8,8 @@ import { api } from "@convex/_generated/api";
 import { KENYAN_COUNTIES } from "@convex/lib/counties";
 import { FUNDI_PROFILE_LIMITS, parseFundiProfile } from "@convex/lib/fundiProfile";
 import { useConvexAvailable } from "@/components/convex-available";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
+import { LABEL } from "@/components/ui/field-label";
 import { pillClass } from "@/components/ui/pill";
 import { AFTER_AUTH_PATH } from "@/lib/auth-routes";
 import {
@@ -22,7 +24,6 @@ import type { TradeSlug } from "@/lib/trades";
 
 const FIELD =
   "min-h-12 w-full rounded border border-line bg-background px-4 text-base text-foreground focus-visible:border-foreground/40 aria-invalid:border-primary";
-const LABEL = "font-mono text-xs tracking-widest text-foreground/75 uppercase";
 const ERROR = "text-sm text-primary";
 
 /**
@@ -52,14 +53,7 @@ function LoadedForm() {
   }, [hasProfile, router]);
 
   // `me` is null when signed out: treat it like loading.
-  if (!me || trades === undefined || hasProfile) {
-    return (
-      <div role="status" aria-busy="true" className="flex flex-col gap-3">
-        <span className="text-base text-foreground/75">{t("loading")}</span>
-        <span aria-hidden="true" className="h-12 w-full animate-pulse rounded bg-panel motion-reduce:animate-none" />
-      </div>
-    );
-  }
+  if (!me || trades === undefined || hasProfile) return <LoadingSkeleton label={t("loading")} />;
   if (trades.length === 0) return <p className="text-base text-foreground/75">{t("noTrades")}</p>;
   return <ProfileForm trades={trades} />;
 }

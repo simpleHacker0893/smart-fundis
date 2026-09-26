@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { Me } from "@/lib/dashboard-route";
-import { DASHBOARD_PATH, isFundi, pageGuard } from "@/lib/page-guard";
+import { AFTER_AUTH_PATH } from "@/lib/auth-routes";
+import { isFundi, pageGuard } from "@/lib/page-guard";
 
 const USER = { _id: "users_1", email: "a@example.com", name: "Wanjiru", county: "Nairobi" };
 
@@ -23,17 +24,17 @@ describe("pageGuard (spec §4 page guards)", () => {
   });
 
   it("sends a User with no Fundi profile back to /dashboard", () => {
-    expect(pageGuard(me({}), isFundi)).toEqual({ kind: "redirect", to: DASHBOARD_PATH });
-    expect(DASHBOARD_PATH).toBe("/dashboard");
+    expect(pageGuard(me({}), isFundi)).toEqual({ kind: "redirect", to: AFTER_AUTH_PATH });
+    expect(AFTER_AUTH_PATH).toBe("/dashboard");
   });
 
   it("sends an Expert or Admin who is not a Fundi back to /dashboard", () => {
-    expect(pageGuard(me({ expert: true }), isFundi)).toEqual({ kind: "redirect", to: DASHBOARD_PATH });
-    expect(pageGuard(me({ admin: true }), isFundi)).toEqual({ kind: "redirect", to: DASHBOARD_PATH });
+    expect(pageGuard(me({ expert: true }), isFundi)).toEqual({ kind: "redirect", to: AFTER_AUTH_PATH });
+    expect(pageGuard(me({ admin: true }), isFundi)).toEqual({ kind: "redirect", to: AFTER_AUTH_PATH });
   });
 
   it("sends a caller with no stored row back to /dashboard", () => {
-    expect(pageGuard(me({}, null), isFundi)).toEqual({ kind: "redirect", to: DASHBOARD_PATH });
+    expect(pageGuard(me({}, null), isFundi)).toEqual({ kind: "redirect", to: AFTER_AUTH_PATH });
   });
 
   it("lets in an Expert or Admin who is also a Fundi", () => {

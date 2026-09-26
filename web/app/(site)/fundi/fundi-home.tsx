@@ -6,9 +6,9 @@ import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@convex/_generated/api";
 import { useConvexAvailable } from "@/components/convex-available";
+import { LoadingSkeleton } from "@/components/loading-skeleton";
+import { LABEL } from "@/components/ui/field-label";
 import { isFundi, pageGuard } from "@/lib/page-guard";
-
-const LABEL = "font-mono text-xs tracking-widest text-foreground/75 uppercase";
 
 /**
  * The /fundi body behind the spec §4 page guard: a skeleton until `users.me`
@@ -39,14 +39,7 @@ function GuardedHome() {
     if (redirectTo) router.replace(redirectTo);
   }, [redirectTo, router]);
 
-  if (guard.kind !== "allow") {
-    return (
-      <div role="status" aria-busy="true" className="flex flex-col gap-3">
-        <span className="text-base text-foreground/75">{t("loading")}</span>
-        <span aria-hidden="true" className="h-12 w-full animate-pulse rounded bg-panel motion-reduce:animate-none" />
-      </div>
-    );
-  }
+  if (guard.kind !== "allow") return <LoadingSkeleton label={t("loading")} />;
 
   const user = guard.me.user;
   return (
