@@ -159,7 +159,7 @@ describe("/fundi page (spec §4 page guard)", () => {
     const text = container.textContent ?? "";
     expect(text).toContain(en.UploadFlow.title);
     // "Remove this from the page … allow easy upload": no name, county or Trades list.
-    for (const gone of [USER.name, USER.county, USER.phone, t("name"), t("county"), "Your Trades"]) {
+    for (const gone of [USER.name, USER.county, USER.phone, "Name", "County", "Your Trades"]) {
       expect(text).not.toContain(gone);
     }
   });

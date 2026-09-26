@@ -25,7 +25,7 @@ describe("Kiswahili draft for onboarding, /dashboard and /fundi (#37, R-20; froz
 
   it("still exists, with the /fundi keys drafted for #37", () => {
     expect(existsSync(DRAFT)).toBe(true);
-    for (const path of ["FundiPage.title", "FundiPage.name", "FundiPage.county"]) {
+    for (const path of ["FundiPage.title", "FundiPage.loading", "FundiPage.unavailable"]) {
       expect(typeof get(draft, path), path).toBe("string");
     }
   });

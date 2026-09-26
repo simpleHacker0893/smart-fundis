@@ -314,9 +314,7 @@
     },
     "title": "Your Fundi page",
     "loading": "Opening your Fundi page…",
-    "unavailable": "Your Fundi page is not available right now. Please try again later.",
-    "name": "Name",
-    "county": "County"
+    "unavailable": "Your Fundi page is not available right now. Please try again later."
   },
   "Shell": {
     "brand": "Smart Fundis",
