@@ -4,19 +4,22 @@ import { normalizeKenyanPhone } from "./phone";
 
 // Rules for the minimal Fundi profile form (#37). fundiProfiles.create
 // enforces them on the server, and the web form can import the same function
-// for its inline errors. No database access here: the Trade is checked
+// for its inline errors. No database access here: each Trade is checked
 // against the trades table by the mutation.
 
 export const FUNDI_PROFILE_LIMITS = {
   nameMax: 80,
-  // Hard cap on any raw argument, checked before any normalisation.
+  // Hard cap on any raw argument (string length, or tradeSlugs entries),
+  // checked before any normalisation.
   rawMax: 200,
+  // A Fundi may declare any of the 12 Trades (D-24), at least one.
+  tradesMax: 12,
 } as const;
 
 export type FundiProfileInput = {
   name: string;
   phone: string;
-  tradeSlug: string;
+  tradeSlugs: string[];
   county: string;
 };
 
@@ -24,7 +27,9 @@ export type FundiProfileInput = {
 export type FundiProfileErrors = Partial<{
   name: "required" | "tooLong";
   phone: "invalid";
-  tradeSlug: "unknown";
+  // required: no Trade chosen. unknown: a malformed slug or more than
+  // tradesMax; fundiProfiles.create also uses it for a slug not in `trades`.
+  tradeSlugs: "required" | "unknown";
   county: "unknown";
 }>;
 
@@ -33,8 +38,9 @@ export type CleanFundiProfile = FundiProfileInput;
 
 /**
  * Cleans the input: a one-line trimmed name, the phone as +254XXXXXXXXX, the
- * county's canonical name and a trimmed Trade slug. Returns the errors, and
- * the clean values only when there are none.
+ * county's canonical name and the Trade slugs trimmed, with blanks dropped
+ * and duplicates removed (first one kept). Returns the errors, and the clean
+ * values only when there are none.
  */
 export function parseFundiProfile(
   input: FundiProfileInput,
@@ -52,11 +58,20 @@ export function parseFundiProfile(
   const county = input.county.length > rawMax ? null : canonicalCounty(input.county);
   if (county === null) errors.county = "unknown";
 
-  const tradeSlug = input.tradeSlug.trim();
-  if (tradeSlug.length === 0 || tradeSlug.length > rawMax) errors.tradeSlug = "unknown";
+  const tradeSlugs = cleanTradeSlugs(input.tradeSlugs);
+  if (tradeSlugs === null) errors.tradeSlugs = "unknown";
+  else if (tradeSlugs.length === 0) errors.tradeSlugs = "required";
 
-  if (Object.keys(errors).length > 0 || name === null || phone === null || county === null) {
+  if (Object.keys(errors).length > 0 || name === null || phone === null || county === null || tradeSlugs === null) {
     return { ok: false, errors };
   }
-  return { ok: true, value: { name, phone, tradeSlug, county } };
+  return { ok: true, value: { name, phone, tradeSlugs, county } };
+}
+
+/** Trimmed, non-blank, de-duplicated slugs; null when any limit is broken. */
+export function cleanTradeSlugs(raw: string[]): string[] | null {
+  const { rawMax, tradesMax } = FUNDI_PROFILE_LIMITS;
+  if (raw.length > rawMax || raw.some((slug) => slug.length > rawMax)) return null;
+  const slugs = [...new Set(raw.map((slug) => slug.trim()).filter((slug) => slug.length > 0))];
+  return slugs.length > tradesMax ? null : slugs;
 }

@@ -83,7 +83,12 @@ function ProfileForm({ trades }: { trades: TradeOption[] }) {
     const form = event.currentTarget;
     const data = new FormData(form);
     const value = (key: ProfileField) => String(data.get(key) ?? "");
-    const input = { name: value("name"), phone: value("phone"), tradeSlug: value("tradeSlug"), county: value("county") };
+    const input = {
+      name: value("name"),
+      phone: value("phone"),
+      tradeSlugs: data.getAll("tradeSlugs").map(String),
+      county: value("county"),
+    };
 
     setFormError(null);
     const parsed = parseFundiProfile(input);
@@ -170,8 +175,8 @@ function ProfileForm({ trades }: { trades: TradeOption[] }) {
 
       <fieldset
         className="flex flex-col gap-2"
-        aria-invalid={invalid("tradeSlug")}
-        aria-describedby={describe("tradeSlug")}
+        aria-invalid={invalid("tradeSlugs")}
+        aria-describedby={describe("tradeSlugs")}
       >
         <legend className={`${LABEL} mb-2`}>{t("trade")}</legend>
         {trades.map((trade) => (
@@ -179,7 +184,7 @@ function ProfileForm({ trades }: { trades: TradeOption[] }) {
             <input
               id={`${id}-trade-${trade.slug}`}
               type="radio"
-              name="tradeSlug"
+              name="tradeSlugs"
               value={trade.slug}
               className="peer absolute inset-0 opacity-0"
             />
@@ -191,7 +196,7 @@ function ProfileForm({ trades }: { trades: TradeOption[] }) {
             </label>
           </div>
         ))}
-        {fieldError("tradeSlug")}
+        {fieldError("tradeSlugs")}
       </fieldset>
 
       <div className="flex flex-col gap-2">

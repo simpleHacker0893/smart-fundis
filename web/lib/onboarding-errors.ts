@@ -1,7 +1,7 @@
 import { ConvexError } from "convex/values";
 import type { FundiProfileErrors } from "@convex/lib/fundiProfile";
 
-export const PROFILE_FIELDS = ["name", "phone", "tradeSlug", "county"] as const;
+export const PROFILE_FIELDS = ["name", "phone", "tradeSlugs", "county"] as const;
 export type ProfileField = (typeof PROFILE_FIELDS)[number];
 
 // Every field error code (convex/lib/fundiProfile.ts) mapped to its
@@ -10,7 +10,7 @@ export type ProfileField = (typeof PROFILE_FIELDS)[number];
 const FIELD_ERROR_KEYS = {
   name: { required: "nameRequired", tooLong: "nameTooLong" },
   phone: { invalid: "phoneInvalid" },
-  tradeSlug: { unknown: "tradeRequired" },
+  tradeSlugs: { required: "tradeRequired", unknown: "tradeRequired" },
   county: { unknown: "countyRequired" },
 } as const satisfies { [F in ProfileField]: Record<NonNullable<FundiProfileErrors[F]>, string> };
 

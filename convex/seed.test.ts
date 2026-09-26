@@ -25,16 +25,52 @@ async function tables(t: ReturnType<typeof setup>) {
   }));
 }
 
-describe("seed.trades (US-3.2)", () => {
-  it("creates the two MVP Trades, each with an active Rubric", async () => {
+/** The 12 Trades, in the order of web/lib/trades.ts, with their English names. */
+const ALL_TRADES = [
+  ["electrical", "Electrical", "skilled"],
+  ["hairdressing", "Hairdressing", "skilled"],
+  ["plumbing", "Plumbing", "skilled"],
+  ["masonry", "Masonry", "skilled"],
+  ["carpentry", "Carpentry", "skilled"],
+  ["welding", "Welding", "skilled"],
+  ["mechanic", "Mechanic", "skilled"],
+  ["tailoring", "Tailoring", "semi_skilled"],
+  ["beauty", "Beauty", "semi_skilled"],
+  ["solar", "Solar installation", "skilled"],
+  ["mamaFua", "Mama fua (laundry)", "odd_job"],
+  ["movers", "Movers", "odd_job"],
+] as const;
+const VERIFY_NOW = ["electrical", "hairdressing"];
+
+describe("seed.trades (US-3.2, operator change on #37)", () => {
+  it("creates all 12 Trades with their names and categories", async () => {
+    const t = setup();
+    await t.mutation(internal.seed.trades, {});
+    const { trades } = await tables(t);
+    const bySlug = Object.fromEntries(trades.map((tr) => [tr.slug, tr]));
+    expect(trades).toHaveLength(12);
+    for (const [slug, name, category] of ALL_TRADES) {
+      expect(bySlug[slug], slug).toMatchObject({ name, category });
+    }
+  });
+
+  it("gives only Electrical and Hairdressing a Rubric; the other 10 have no activeRubricId", async () => {
+    const t = setup();
+    await t.mutation(internal.seed.trades, {});
+    const { trades, rubrics } = await tables(t);
+    expect(rubrics.map((r) => r.tradeSlug).sort()).toEqual(VERIFY_NOW);
+    const withRubric = trades.filter((tr) => tr.activeRubricId !== undefined).map((tr) => tr.slug);
+    expect(withRubric.sort()).toEqual(VERIFY_NOW);
+  });
+
+  it("gives Electrical and Hairdressing an active v1 Rubric", async () => {
     const t = setup();
     await t.mutation(internal.seed.trades, {});
 
     const { trades, rubrics } = await tables(t);
-    expect(trades.map((tr) => tr.slug).sort()).toEqual(["electrical", "hairdressing"]);
     expect(rubrics).toHaveLength(2);
 
-    for (const trade of trades) {
+    for (const trade of trades.filter((tr) => VERIFY_NOW.includes(tr.slug))) {
       const rubric = rubrics.find((r) => r._id === trade.activeRubricId);
       expect(rubric, `${trade.slug} activeRubricId`).toBeDefined();
       expect(rubric?.tradeSlug).toBe(trade.slug);
@@ -70,14 +106,14 @@ describe("seed.trades (US-3.2)", () => {
     ]);
   });
 
-  it("is idempotent: a second run leaves 2 Trades and 2 Rubrics, with the same ids", async () => {
+  it("is idempotent: a second run leaves 12 Trades and 2 Rubrics, with the same ids", async () => {
     const t = setup();
     await t.mutation(internal.seed.trades, {});
     const first = await tables(t);
     await t.mutation(internal.seed.trades, {});
     const second = await tables(t);
 
-    expect(second.trades).toHaveLength(2);
+    expect(second.trades).toHaveLength(12);
     expect(second.rubrics).toHaveLength(2);
     expect(second.trades.map((tr) => [tr._id, tr.activeRubricId])).toEqual(
       first.trades.map((tr) => [tr._id, tr.activeRubricId]),
@@ -164,7 +200,7 @@ describe("seed.trades on a deployment that already has v1 (review C4)", () => {
     await t.mutation(internal.seed.trades, {});
     const { rubrics } = await tables(t);
     await insertAssessment(t, rubrics[0]._id);
-    await expect(t.mutation(internal.seed.trades, {})).resolves.toHaveLength(2);
+    await expect(t.mutation(internal.seed.trades, {})).resolves.toHaveLength(12);
   });
 });
 

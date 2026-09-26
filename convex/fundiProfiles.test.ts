@@ -20,7 +20,7 @@ const WANJIRU = {
 const VALID = {
   name: "  Wanjiru   Kamau ",
   phone: "0712 345 678",
-  tradeSlug: "electrical",
+  tradeSlugs: ["electrical"],
   county: " nairobi ",
 };
 
@@ -87,14 +87,33 @@ describe("fundiProfiles.create", () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     await t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, VALID);
     const data = await errorData(
-      t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, { ...VALID, tradeSlug: "hairdressing" }),
+      t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, { ...VALID, tradeSlugs: ["hairdressing"] }),
     );
     expect(data).toMatchObject({ code: "already_exists" });
     expect(await profiles()).toMatchObject([{ trades: ["electrical"] }]);
   });
 
+  it("accepts several Trades, including ones that cannot be verified yet, trimmed and de-duplicated", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    await t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, {
+      ...VALID,
+      tradeSlugs: [" plumbing", "electrical", "plumbing ", "mamaFua", "electrical"],
+    });
+    expect(await profiles()).toMatchObject([{ trades: ["plumbing", "electrical", "mamaFua"] }]);
+  });
+
+  it("accepts all 12 Trades", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    const all = (await t.withIdentity(WANJIRU).query(api.trades.list, {})).map((tr) => tr.slug);
+    await t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, { ...VALID, tradeSlugs: all });
+    expect((await profiles())[0].trades).toHaveLength(12);
+  });
+
   it.each([
-    ["an unknown Trade", { tradeSlug: "plumbing" }, { tradeSlug: "unknown" }],
+    ["no Trade", { tradeSlugs: [] }, { tradeSlugs: "required" }],
+    ["only blank Trades", { tradeSlugs: ["  "] }, { tradeSlugs: "required" }],
+    ["an unknown Trade", { tradeSlugs: ["electrical", "boat-building"] }, { tradeSlugs: "unknown" }],
+    ["more than 12 distinct Trades", { tradeSlugs: Array.from({ length: 13 }, (_, i) => `t${i}`) }, { tradeSlugs: "unknown" }],
     ["a county that is not one of the 47", { county: "Atlantis" }, { county: "unknown" }],
     ["a phone that is not a Kenyan mobile", { phone: "12345" }, { phone: "invalid" }],
     ["a blank name", { name: "   " }, { name: "required" }],
@@ -111,6 +130,14 @@ describe("fundiProfiles.create", () => {
     expect(me?.roles.base).toBe("none");
   });
 
+  it("reports an unknown Trade together with the other field errors", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    const data = await errorData(
+      t.withIdentity(WANJIRU).mutation(api.fundiProfiles.create, { ...VALID, name: "", tradeSlugs: ["boats"] }),
+    );
+    expect(data).toEqual({ code: "invalid", fields: { name: "required", tradeSlugs: "unknown" } });
+  });
+
   it("does not accept a userId argument", async () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     await expect(
@@ -121,13 +148,31 @@ describe("fundiProfiles.create", () => {
 });
 
 describe("trades.list", () => {
-  it("lists the Trades for the onboarding picker, with whether each can be verified now", async () => {
+  it("lists all 12 Trades in the web's order, and only Electrical and Hairdressing can be verified now", async () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     const trades = await t.withIdentity(WANJIRU).query(api.trades.list, {});
     expect(trades).toEqual([
       { slug: "electrical", name: "Electrical", verifyNow: true },
       { slug: "hairdressing", name: "Hairdressing", verifyNow: true },
+      { slug: "plumbing", name: "Plumbing", verifyNow: false },
+      { slug: "masonry", name: "Masonry", verifyNow: false },
+      { slug: "carpentry", name: "Carpentry", verifyNow: false },
+      { slug: "welding", name: "Welding", verifyNow: false },
+      { slug: "mechanic", name: "Mechanic", verifyNow: false },
+      { slug: "tailoring", name: "Tailoring", verifyNow: false },
+      { slug: "beauty", name: "Beauty", verifyNow: false },
+      { slug: "solar", name: "Solar installation", verifyNow: false },
+      { slug: "mamaFua", name: "Mama fua (laundry)", verifyNow: false },
+      { slug: "movers", name: "Movers", verifyNow: false },
     ]);
+  });
+
+  it("lists a Trade that is not in the seed list after the seeded ones", async () => {
+    await t.withIdentity(WANJIRU).mutation(api.users.store, {});
+    await t.run((ctx) => ctx.db.insert("trades", { slug: "aaa-boats", name: "Boats", category: "odd_job" }));
+    const trades = await t.withIdentity(WANJIRU).query(api.trades.list, {});
+    expect(trades).toHaveLength(13);
+    expect(trades[12]).toEqual({ slug: "aaa-boats", name: "Boats", verifyNow: false });
   });
 
   it("rejects an unauthenticated caller", async () => {

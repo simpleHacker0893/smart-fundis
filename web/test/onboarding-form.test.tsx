@@ -150,7 +150,7 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
       expect(container.querySelector(`label[for="${el.id}"]`)?.textContent).toBe(label);
     }
     expect(container.querySelector("fieldset legend")?.textContent).toBe(t("trade"));
-    const tradeLabels = [...container.querySelectorAll<HTMLInputElement>('input[type="radio"][name="tradeSlug"]')].map(
+    const tradeLabels = [...container.querySelectorAll<HTMLInputElement>('input[type="radio"][name="tradeSlugs"]')].map(
       (r) => container.querySelector(`label[for="${r.id}"]`)?.textContent,
     );
     expect(tradeLabels).toEqual([tradeName("electrical"), tradeName("hairdressing")]);
@@ -186,7 +186,7 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     expect(state.create).not.toHaveBeenCalled();
     expect(fieldError("name")).toBe(t("errors.nameRequired"));
     expect(fieldError("phone")).toBe(t("errors.phoneInvalid"));
-    expect(fieldError("tradeSlug")).toBe(t("errors.tradeRequired"));
+    expect(fieldError("tradeSlugs")).toBe(t("errors.tradeRequired"));
     expect(fieldError("county")).toBe(t("errors.countyRequired"));
     expect(input("name").getAttribute("aria-invalid")).toBe("true");
     expect(input("name").getAttribute("aria-describedby")).toContain("-name-error");
@@ -200,7 +200,7 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     expect(state.create).toHaveBeenCalledWith({
       name: "  Wanjiru Kamau ",
       phone: "0712 345 678",
-      tradeSlug: "electrical",
+      tradeSlugs: ["electrical"],
       county: "Nairobi",
     });
     expect(state.replace).toHaveBeenCalledWith("/dashboard");
@@ -208,11 +208,11 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
   });
 
   it("shows the server's field errors inline", async () => {
-    state.create.mockRejectedValueOnce(new ConvexError({ code: "invalid", fields: { tradeSlug: "unknown" } }));
+    state.create.mockRejectedValueOnce(new ConvexError({ code: "invalid", fields: { tradeSlugs: "unknown" } }));
     await render();
     fillValid();
     await submit();
-    expect(fieldError("tradeSlug")).toBe(t("errors.tradeRequired"));
+    expect(fieldError("tradeSlugs")).toBe(t("errors.tradeRequired"));
     expect(state.replace).not.toHaveBeenCalled();
   });
 

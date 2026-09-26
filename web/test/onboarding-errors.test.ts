@@ -6,9 +6,10 @@ import { fieldErrorKeys, submitErrorOutcome } from "@/lib/onboarding-errors";
 describe("fieldErrorKeys", () => {
   it("maps every field error code to an Onboarding.errors key", () => {
     expect(
-      fieldErrorKeys({ name: "required", phone: "invalid", tradeSlug: "unknown", county: "unknown" }),
-    ).toEqual({ name: "nameRequired", phone: "phoneInvalid", tradeSlug: "tradeRequired", county: "countyRequired" });
+      fieldErrorKeys({ name: "required", phone: "invalid", tradeSlugs: "unknown", county: "unknown" }),
+    ).toEqual({ name: "nameRequired", phone: "phoneInvalid", tradeSlugs: "tradeRequired", county: "countyRequired" });
     expect(fieldErrorKeys({ name: "tooLong" })).toEqual({ name: "nameTooLong" });
+    expect(fieldErrorKeys({ tradeSlugs: "required" })).toEqual({ tradeSlugs: "tradeRequired" });
   });
 
   it("returns nothing for no errors", () => {
@@ -17,7 +18,7 @@ describe("fieldErrorKeys", () => {
 
   it("uses only keys that exist in en.json", () => {
     const keys = Object.values(
-      fieldErrorKeys({ name: "required", phone: "invalid", tradeSlug: "unknown", county: "unknown" }),
+      fieldErrorKeys({ name: "required", phone: "invalid", tradeSlugs: "unknown", county: "unknown" }),
     ).concat(Object.values(fieldErrorKeys({ name: "tooLong" })));
     for (const key of keys) expect(en.Onboarding.errors, key).toHaveProperty(key);
   });
