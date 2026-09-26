@@ -270,3 +270,133 @@ describe("trades.uploadPicker", () => {
     );
   });
 });
+
+// Showcase links (#38, US-3.8, ADR-7): one YouTube and one TikTok link on the
+// caller's own profile. Stored as the canonical link; never downloaded.
+describe("fundiProfiles.setShowcaseLinks and myShowcaseLinks", () => {
+  const YOUTUBE = "https://www.youtube.com/watch?v=2tdN85reWN0";
+  const TIKTOK = "https://www.tiktok.com/@fundi.wanjiru/video/7212345678901234567";
+  const OTIENO = {
+    tokenIdentifier: "https://clerk.example|user_otieno",
+    subject: "user_otieno",
+    issuer: "https://clerk.example",
+    email: "otieno@example.com",
+    emailVerified: true,
+    name: "Otieno Ouma",
+  };
+
+  async function asFundi(identity: typeof WANJIRU = WANJIRU) {
+    await t.withIdentity(identity).mutation(api.users.store, {});
+    await t.withIdentity(identity).mutation(api.fundiProfiles.create, VALID);
+    return t.withIdentity(identity);
+  }
+
+  async function storedLinks(identity: typeof WANJIRU = WANJIRU) {
+    return t.run(async (ctx) => {
+      // Test tables hold a handful of rows, so a scan is fine here.
+      const user = (await ctx.db.query("users").take(100)).find((u) => u.clerkId === identity.tokenIdentifier);
+      const profile = (await ctx.db.query("fundiProfiles").take(100)).find((p) => p.userId === user!._id);
+      // null, not undefined: t.run returns values through Convex serialisation.
+      return profile!.links ?? null;
+    });
+  }
+
+  it("saves both links as canonical links and reads them back with embeds", async () => {
+    const fundi = await asFundi();
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, {
+      youtube: "  https://youtu.be/2tdN85reWN0?si=share ",
+      tiktok: "tiktok.com/@fundi.wanjiru/video/7212345678901234567?lang=en",
+    });
+
+    expect(await storedLinks()).toEqual({ youtube: YOUTUBE, tiktok: TIKTOK });
+    expect(await fundi.query(api.fundiProfiles.myShowcaseLinks, {})).toEqual({
+      youtube: { id: "2tdN85reWN0", url: YOUTUBE, embedUrl: "https://www.youtube-nocookie.com/embed/2tdN85reWN0" },
+      tiktok: {
+        id: "7212345678901234567",
+        url: TIKTOK,
+        embedUrl: "https://www.tiktok.com/player/v1/7212345678901234567",
+      },
+    });
+  });
+
+  it("reads null for both when the Fundi has saved none", async () => {
+    const fundi = await asFundi();
+    expect(await fundi.query(api.fundiProfiles.myShowcaseLinks, {})).toEqual({ youtube: null, tiktok: null });
+  });
+
+  it("leaves an omitted slot unchanged, and clears a slot on null or blank", async () => {
+    const fundi = await asFundi();
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE, tiktok: TIKTOK });
+
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, { tiktok: null });
+    expect(await storedLinks()).toEqual({ youtube: YOUTUBE });
+
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: "   " });
+    expect(await storedLinks()).toBeNull();
+    expect(await fundi.query(api.fundiProfiles.myShowcaseLinks, {})).toEqual({ youtube: null, tiktok: null });
+  });
+
+  it("keeps the other link fields when it writes", async () => {
+    const fundi = await asFundi();
+    await t.run(async (ctx) => {
+      const profile = await ctx.db.query("fundiProfiles").first();
+      await ctx.db.patch("fundiProfiles", profile!._id, { links: { linkedin: "https://www.linkedin.com/in/x" } });
+    });
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE });
+    expect(await storedLinks()).toEqual({ linkedin: "https://www.linkedin.com/in/x", youtube: YOUTUBE });
+  });
+
+  it("rejects a wrong-site, malformed or short TikTok link and saves nothing", async () => {
+    const fundi = await asFundi();
+    await fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE });
+
+    expect(
+      await errorData(fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: TIKTOK, tiktok: YOUTUBE })),
+    ).toEqual({ code: "invalid", fields: { youtube: "wrong_site", tiktok: "wrong_site" } });
+    expect(
+      await errorData(
+        fundi.mutation(api.fundiProfiles.setShowcaseLinks, {
+          youtube: "https://www.youtube.com/watch?v=short",
+          tiktok: "https://vm.tiktok.com/ZMabc123/",
+        }),
+      ),
+    ).toEqual({ code: "invalid", fields: { youtube: "unsupported", tiktok: "tiktok_short" } });
+    // One bad slot fails the whole call: the good TikTok link is not saved either.
+    expect(
+      await errorData(
+        fundi.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: "javascript:alert(1)", tiktok: TIKTOK }),
+      ),
+    ).toEqual({ code: "invalid", fields: { youtube: "unsupported" } });
+
+    expect(await storedLinks()).toEqual({ youtube: YOUTUBE });
+  });
+
+  it("rejects a signed-out caller", async () => {
+    await expect(t.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE })).rejects.toThrowError(
+      /not authenticated/i,
+    );
+    await expect(t.query(api.fundiProfiles.myShowcaseLinks, {})).rejects.toThrowError(/not authenticated/i);
+  });
+
+  it("rejects a signed-in User who is not a Fundi and writes nothing", async () => {
+    await t.withIdentity(OTIENO).mutation(api.users.store, {});
+    expect(
+      await errorData(t.withIdentity(OTIENO).mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE })),
+    ).toMatchObject({ code: "forbidden" });
+    expect(await errorData(t.withIdentity(OTIENO).query(api.fundiProfiles.myShowcaseLinks, {}))).toMatchObject({
+      code: "forbidden",
+    });
+    expect(await profiles()).toHaveLength(0);
+  });
+
+  it("acts only on the caller's own profile", async () => {
+    const wanjiru = await asFundi();
+    const otieno = await asFundi(OTIENO);
+    await wanjiru.mutation(api.fundiProfiles.setShowcaseLinks, { youtube: YOUTUBE });
+    await otieno.mutation(api.fundiProfiles.setShowcaseLinks, { tiktok: TIKTOK });
+
+    expect(await storedLinks(WANJIRU)).toEqual({ youtube: YOUTUBE });
+    expect(await storedLinks(OTIENO)).toEqual({ tiktok: TIKTOK });
+    expect(await otieno.query(api.fundiProfiles.myShowcaseLinks, {})).toMatchObject({ youtube: null });
+  });
+});

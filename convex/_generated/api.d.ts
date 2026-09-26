@@ -18,6 +18,8 @@ import type * as lib_counties from "../lib/counties.js";
 import type * as lib_fundiProfile from "../lib/fundiProfile.js";
 import type * as lib_phone from "../lib/phone.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
+import type * as lib_showcaseLinks from "../lib/showcaseLinks.js";
+import type * as lib_storage from "../lib/storage.js";
 import type * as lib_tradeCatalogue from "../lib/tradeCatalogue.js";
 import type * as lib_trades from "../lib/trades.js";
 import type * as lib_validators from "../lib/validators.js";
@@ -42,6 +44,8 @@ declare const fullApi: ApiFromModules<{
   "lib/fundiProfile": typeof lib_fundiProfile;
   "lib/phone": typeof lib_phone;
   "lib/rateLimiter": typeof lib_rateLimiter;
+  "lib/showcaseLinks": typeof lib_showcaseLinks;
+  "lib/storage": typeof lib_storage;
   "lib/tradeCatalogue": typeof lib_tradeCatalogue;
   "lib/trades": typeof lib_trades;
   "lib/validators": typeof lib_validators;
