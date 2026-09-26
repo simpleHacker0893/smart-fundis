@@ -91,15 +91,13 @@ const chips = () => [...container.querySelectorAll('[data-testid="status-chip"]'
 const items = () => [...container.querySelectorAll('[data-testid="assessment"]')];
 
 describe("the Fundi's Assessment list (US-3.1, US-4.1)", () => {
-  it("shows a loading line until listMine loads", async () => {
+  it("shows nothing while listMine loads or when there are no Assessments, so the upload comes first", async () => {
     await render();
-    expect(container.textContent).toContain(t("loading"));
-  });
-
-  it("says so when there are no Assessments", async () => {
-    live.reset([]);
-    await render();
-    expect(container.textContent).toContain(t("empty"));
+    expect(container.innerHTML).toBe("");
+    await act(async () => live.push([]));
+    expect(container.innerHTML).toBe("");
+    await act(async () => live.push([row()]));
+    expect(container.querySelector("h2")?.textContent).toBe(t("title"));
   });
 
   it("shows each Assessment's Trade, Task and plain status (spec #36 decision 4)", async () => {

@@ -26,9 +26,10 @@ const TICK = "flex min-h-12 cursor-pointer items-start gap-3 py-2 text-base";
 
 /**
  * The last step before an Assessment exists (#38): the Liveness code shown
- * large (US-3.4), the verification consent (US-3.7, spec §7) with the
- * third-party tick when a client is on camera, the camera or a saved video
- * (US-3.5), and the upload with progress, retry and clear errors (US-3.6).
+ * large (US-3.4), then straight away the camera or a saved video (US-3.5),
+ * then the verification consent (US-3.7, spec §7) with the third-party tick
+ * when a client is on camera, just above the upload with progress, retry and
+ * clear errors (US-3.6).
  * Upload stays disabled until the required ticks are checked and a valid
  * video is chosen. assessments.create is the authority (US-3.9): it answers
  * `{ ok: false, code }` rather than throwing, and each code has a message.
@@ -134,44 +135,6 @@ export function RecordStep({
         <p className="text-base">{t("code.instructions")}</p>
       </section>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-3 text-lg font-semibold">{t("consent.title")}</legend>
-        <p className="text-base text-foreground/75">{t("consent.intro")}</p>
-        <ul className="flex list-disc flex-col gap-2 pl-5">
-          {CONSENT_POINTS.map((point) => (
-            <li key={point} className="text-base">
-              {t(`consent.points.${point}`)}
-            </li>
-          ))}
-        </ul>
-        <label className={TICK}>
-          <input
-            type="checkbox"
-            className="mt-1 size-6 shrink-0 accent-primary"
-            checked={consent}
-            onChange={(event) => setConsent(event.currentTarget.checked)}
-          />
-          <span>{t("consent.agree")}</span>
-        </label>
-        {task.clientOnCamera ? (
-          <>
-            <label className={TICK}>
-              <input
-                type="checkbox"
-                className="mt-1 size-6 shrink-0 accent-primary"
-                aria-describedby={`${id}-client-hint`}
-                checked={clientConsent}
-                onChange={(event) => setClientConsent(event.currentTarget.checked)}
-              />
-              <span>{t("consent.client")}</span>
-            </label>
-            <p id={`${id}-client-hint`} className="text-sm text-foreground/75">
-              {t("consent.clientHint")}
-            </p>
-          </>
-        ) : null}
-      </fieldset>
-
       <section className="flex flex-col gap-3" aria-labelledby={`${id}-video`}>
         <h3 id={`${id}-video`} className="text-lg font-semibold">
           {t("video.title")}
@@ -212,6 +175,44 @@ export function RecordStep({
         </div>
         {file ? <p className="text-base break-words">{t("video.chosen", { name: file.name })}</p> : null}
       </section>
+
+      <fieldset className="flex flex-col gap-3">
+        <legend className="mb-3 text-lg font-semibold">{t("consent.title")}</legend>
+        <p className="text-base text-foreground/75">{t("consent.intro")}</p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          {CONSENT_POINTS.map((point) => (
+            <li key={point} className="text-base">
+              {t(`consent.points.${point}`)}
+            </li>
+          ))}
+        </ul>
+        <label className={TICK}>
+          <input
+            type="checkbox"
+            className="mt-1 size-6 shrink-0 accent-primary"
+            checked={consent}
+            onChange={(event) => setConsent(event.currentTarget.checked)}
+          />
+          <span>{t("consent.agree")}</span>
+        </label>
+        {task.clientOnCamera ? (
+          <>
+            <label className={TICK}>
+              <input
+                type="checkbox"
+                className="mt-1 size-6 shrink-0 accent-primary"
+                aria-describedby={`${id}-client-hint`}
+                checked={clientConsent}
+                onChange={(event) => setClientConsent(event.currentTarget.checked)}
+              />
+              <span>{t("consent.client")}</span>
+            </label>
+            <p id={`${id}-client-hint`} className="text-sm text-foreground/75">
+              {t("consent.clientHint")}
+            </p>
+          </>
+        ) : null}
+      </fieldset>
 
       <div className="flex flex-col gap-3">
         {!consentGiven ? (

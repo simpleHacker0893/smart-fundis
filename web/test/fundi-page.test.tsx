@@ -25,7 +25,7 @@ const state = vi.hoisted(() => ({
   protect: vi.fn(async () => ({ userId: "user_123" })),
   isAuthenticated: true,
   me: undefined as unknown,
-  mine: undefined as unknown,
+  list: [] as unknown[],
   queryArgs: [] as unknown[],
   calls: [] as { name: string; args: unknown }[],
   replace: vi.fn(),
@@ -39,7 +39,6 @@ vi.mock("convex/react", async () => {
   // the upload flow and the Assessment list have their own tests.
   const others: Record<string, unknown> = {
     "trades:uploadPicker": [],
-    "assessments:listMine": [],
     "assessments:currentLivenessCode": null,
   };
   return {
@@ -50,7 +49,7 @@ vi.mock("convex/react", async () => {
       if (name === "users:me") state.queryArgs.push(args);
       if (args === "skip") return undefined;
       if (name === "users:me") return state.me;
-      if (name === "fundiProfiles:mine") return state.mine;
+      if (name === "assessments:listMine") return state.list;
       return others[name];
     },
     useMutation: () => vi.fn(),
@@ -62,14 +61,6 @@ vi.mock("next/navigation", () => ({
 }));
 
 const USER = { _id: "users_1", email: "w@example.com", name: "Wanjiru Kamau", phone: "+254712345678", county: "Kiambu" };
-const MINE = {
-  name: USER.name,
-  county: USER.county,
-  trades: [
-    { slug: "electrical", name: "Electrical", verifyNow: true },
-    { slug: "mamaFua", name: "Mama fua (laundry)", verifyNow: false },
-  ],
-};
 const roles = (r: object = {}) => ({ base: "none", expert: false, admin: false, ...r });
 
 let container: HTMLDivElement;
@@ -79,7 +70,7 @@ beforeEach(() => {
   state.protect.mockClear();
   state.isAuthenticated = true;
   state.me = undefined;
-  state.mine = MINE;
+  state.list = [];
   state.queryArgs = [];
   state.calls = [];
   state.replace.mockReset();
@@ -158,66 +149,53 @@ describe("/fundi page (spec §4 page guard)", () => {
     expect(state.replace).toHaveBeenCalledWith("/dashboard");
   });
 
-  it("shows a Fundi the heading, their name and county", async () => {
+  it("shows a Fundi the heading and the upload flow, with no profile block (operator, 2026-09-26)", async () => {
     state.me = { user: USER, roles: roles({ base: "fundi" }) };
     await render();
     expect(state.replace).not.toHaveBeenCalled();
     expect(heading()).toBe(t("title"));
     expect(status()).toBeNull();
     const text = container.textContent ?? "";
-    expect(text).toContain(t("name"));
-    expect(text).toContain(USER.name);
-    expect(text).toContain(t("county"));
-    expect(text).toContain(USER.county);
-    // Contact details are not shown back on this page.
-    expect(text).not.toContain(USER.phone);
+    expect(text).toContain(en.UploadFlow.title);
+    // "Remove this from the page … allow easy upload": no name, county or Trades list.
+    for (const gone of [USER.name, USER.county, USER.phone, t("name"), t("county"), "Your Trades"]) {
+      expect(text).not.toContain(gone);
+    }
+    expect(state.calls.some((c) => c.name === "fundiProfiles:mine")).toBe(false);
   });
 
-  it("leaves out a county the row does not have", async () => {
-    state.me = { user: { ...USER, county: undefined }, roles: roles({ base: "fundi" }) };
-    await render();
-    expect(heading()).toBe(t("title"));
-    expect(container.textContent).not.toContain(t("county"));
-  });
-
-  it("lists the profile's Trades, saying which can be verified now (fundiProfiles.mine)", async () => {
+  it("shows the Assessment list only once the Fundi has an Assessment", async () => {
     state.me = { user: USER, roles: roles({ base: "fundi" }) };
     await render();
-    const items = [...container.querySelectorAll('[data-testid="profile-trade"]')].map((li) => li.textContent);
-    expect(items).toEqual([
-      `${en.TradeCatalogue.electrical.name}${t("tradeVerifyNow")}`,
-      `${en.TradeCatalogue.mamaFua.name}${t("tradeVerifyLater")}`,
-    ]);
-    expect(container.textContent).toContain(t("trades"));
+    const h2s = () => [...container.querySelectorAll("h2")].map((h) => h.textContent);
+    expect(h2s()).not.toContain(en.AssessmentList.title);
+
+    state.list = [
+      {
+        _id: "a1",
+        _creationTime: Date.UTC(2026, 8, 26),
+        status: "queued",
+        tradeSlug: "electrical",
+        tradeName: "Electrical",
+        taskSlug: "13a-socket",
+        taskName: "Install a 13A socket",
+      },
+    ];
+    await render();
+    expect(h2s()).toContain(en.AssessmentList.title);
   });
 
-  it("shows a Fundi their Assessments and the upload flow, and reads neither for anyone else", async () => {
-    state.me = { user: USER, roles: roles({ base: "fundi" }) };
-    await render();
-    const h2s = [...container.querySelectorAll("h2")].map((h) => h.textContent);
-    expect(h2s).toContain(en.AssessmentList.title);
-    expect(h2s).toContain(en.UploadFlow.title);
-
-    act(() => root.unmount());
-    root = createRoot(container);
-    state.calls = [];
+  it("reads no Fundi-only query for anyone else", async () => {
     state.me = { user: USER, roles: roles() };
     await render();
-    const fundiOnly = ["assessments:listMine", "trades:uploadPicker", "assessments:currentLivenessCode"];
+    const fundiOnly = ["assessments:listMine", "trades:uploadPicker", "assessments:currentLivenessCode", "fundiProfiles:mine"];
     expect(state.calls.filter((c) => fundiOnly.includes(c.name) && c.args !== "skip")).toEqual([]);
-  });
-
-  it("does not read fundiProfiles.mine until the caller is known to be a Fundi", async () => {
-    state.me = { user: USER, roles: roles() };
-    await render();
-    const mineCalls = state.calls.filter((c) => c.name === "fundiProfiles:mine");
-    expect(mineCalls.every((c) => c.args === "skip")).toBe(true);
   });
 
   it("renders only strings from messages/en.json apart from the Fundi's own data", async () => {
     state.me = { user: USER, roles: roles({ base: "fundi" }) };
     await render();
-    const allowed = new Set([...leafStrings(en), USER.name, USER.county]);
+    const allowed = new Set(leafStrings(en));
     const texts = [...container.querySelectorAll("*")]
       .flatMap((el) => [...el.childNodes])
       .filter((n) => n.nodeType === Node.TEXT_NODE)

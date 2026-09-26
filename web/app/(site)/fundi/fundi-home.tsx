@@ -5,10 +5,8 @@ import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@convex/_generated/api";
-import { useCatalogueNames } from "@/components/use-catalogue-names";
 import { useConvexAvailable } from "@/components/convex-available";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
-import { LABEL } from "@/components/ui/field-label";
 import { isFundi, pageGuard } from "@/lib/page-guard";
 import { AssessmentList } from "./assessment-list";
 import { UploadFlow } from "./upload-flow";
@@ -18,10 +16,10 @@ import { UploadFlow } from "./upload-flow";
  * loads, then the page for a Fundi, or back to /dashboard for anyone else.
  * UX only: every Convex function checks the role again (ADR-18).
  *
- * `users.me` carries the name and county from the users row; the declared
- * Trades come from `fundiProfiles.mine`, read only once the guard allows
- * (it throws for a non-Fundi). So do the Assessment list and the upload
- * flow (#38), which likewise mount only for a Fundi.
+ * The page goes straight to the upload flow, then the Assessment list (#38).
+ * The operator removed the name, county and Trades block for an easier
+ * upload (2026-09-26). Both mount only once the guard allows, because their
+ * queries throw for a non-Fundi.
  */
 export function FundiHome() {
   const t = useTranslations("FundiPage");
@@ -45,54 +43,11 @@ function GuardedHome() {
 
   if (guard.kind !== "allow") return <LoadingSkeleton label={t("loading")} />;
 
-  const user = guard.me.user;
   return (
     <>
       <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-      {user ? (
-        <dl className="flex flex-col gap-4">
-          {user.name ? (
-            <div className="flex flex-col gap-1">
-              <dt className={LABEL}>{t("name")}</dt>
-              <dd className="text-base break-words">{user.name}</dd>
-            </div>
-          ) : null}
-          {user.county ? (
-            <div className="flex flex-col gap-1">
-              <dt className={LABEL}>{t("county")}</dt>
-              <dd className="text-base">{user.county}</dd>
-            </div>
-          ) : null}
-        </dl>
-      ) : null}
-      <ProfileTrades />
-      <AssessmentList />
       <UploadFlow />
+      <AssessmentList />
     </>
-  );
-}
-
-/** The Trades on the Fundi's profile, each marked Verify now or coming soon. */
-function ProfileTrades() {
-  const t = useTranslations("FundiPage");
-  const names = useCatalogueNames();
-  const mine = useQuery(api.fundiProfiles.mine, {});
-  if (mine === undefined || mine.trades.length === 0) return null;
-  return (
-    <section className="flex flex-col gap-2" aria-labelledby="fundi-trades">
-      <h2 id="fundi-trades" className={LABEL}>
-        {t("trades")}
-      </h2>
-      <ul className="flex flex-col gap-2">
-        {mine.trades.map((trade) => (
-          <li key={trade.slug} data-testid="profile-trade" className="flex flex-wrap items-baseline justify-between gap-x-3">
-            <span className="text-base">{names.trade(trade.slug, trade.name)}</span>
-            <span className="text-sm text-foreground/75">
-              {trade.verifyNow ? t("tradeVerifyNow") : t("tradeVerifyLater")}
-            </span>
-          </li>
-        ))}
-      </ul>
-    </section>
   );
 }

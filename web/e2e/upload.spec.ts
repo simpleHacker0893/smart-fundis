@@ -36,9 +36,11 @@ test.describe("upload at 360 px", () => {
     userId = await signInAsNewUser(page, "upload");
     await onboardAsFundi(page, { name: "E2E Upload Fundi", trade: en.TradeCatalogue.electrical.name });
 
-    // The profile's Trades, and no Assessments yet.
-    await expect(page.getByRole("heading", { level: 2, name: en.FundiPage.trades })).toBeVisible();
-    await expect(page.getByText(en.AssessmentList.empty)).toBeVisible();
+    // The page goes straight to the upload (operator, 2026-09-26): no profile
+    // block, and no Assessment list until there is an Assessment.
+    await expect(page.getByRole("heading", { level: 2, name: u.title })).toBeVisible();
+    await expect(page.getByText("E2E Upload Fundi", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 2, name: en.AssessmentList.title })).toHaveCount(0);
 
     // US-3.2: the picker shows the Task and its Rubric in plain words.
     await expect(page.getByText(u.pick.task.replace("{task}", socket.name))).toBeVisible();

@@ -316,10 +316,7 @@
     "loading": "Opening your Fundi page…",
     "unavailable": "Your Fundi page is not available right now. Please try again later.",
     "name": "Name",
-    "county": "County",
-    "trades": "Your Trades",
-    "tradeVerifyNow": "Can be verified now",
-    "tradeVerifyLater": "Verification coming soon"
+    "county": "County"
   },
   "Shell": {
     "brand": "Smart Fundis",
@@ -1384,8 +1381,6 @@
   },
   "AssessmentList": {
     "title": "Your Assessments",
-    "loading": "Loading your Assessments…",
-    "empty": "You have no Assessments yet. Verify a skill below to start one.",
     "taskLine": "{trade}: {task}",
     "sent": "Sent {date}",
     "status": {

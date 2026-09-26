@@ -19,23 +19,19 @@ type Assessment = FunctionReturnType<typeof api.assessments.listMine>[number];
 export function AssessmentList() {
   const t = useTranslations("AssessmentList");
   const assessments = useQuery(api.assessments.listMine, {});
+  // Nothing until there is something to show, so the upload comes first.
+  if (assessments === undefined || assessments.length === 0) return null;
 
   return (
     <section className="flex flex-col gap-3" aria-labelledby="fundi-assessments">
       <h2 id="fundi-assessments" className="text-xl font-semibold">
         {t("title")}
       </h2>
-      {assessments === undefined ? (
-        <p className="text-base text-foreground/75">{t("loading")}</p>
-      ) : assessments.length === 0 ? (
-        <p className="text-base text-foreground/75">{t("empty")}</p>
-      ) : (
-        <ul aria-live="polite" className="flex flex-col gap-3">
-          {assessments.map((assessment) => (
-            <AssessmentItem key={assessment._id} assessment={assessment} />
-          ))}
-        </ul>
-      )}
+      <ul aria-live="polite" className="flex flex-col gap-3">
+        {assessments.map((assessment) => (
+          <AssessmentItem key={assessment._id} assessment={assessment} />
+        ))}
+      </ul>
     </section>
   );
 }

@@ -465,3 +465,17 @@ describe("copy and accessibility", () => {
     }
   });
 });
+
+describe("easy upload (operator, 2026-09-26)", () => {
+  it("puts Record and Choose right under the code, and the consent just above Upload", async () => {
+    await toRecordStep();
+    const code = container.querySelector('[data-testid="liveness-code"]')!;
+    const record = control(t("video.record"));
+    const consent = container.querySelector("fieldset")!;
+    const upload = button(t("upload"));
+    const before = (a: Node, b: Node) => Boolean(a.compareDocumentPosition(b) & Node.DOCUMENT_POSITION_FOLLOWING);
+    expect(before(code, record)).toBe(true);
+    expect(before(record, consent)).toBe(true);
+    expect(before(consent, upload)).toBe(true);
+  });
+});

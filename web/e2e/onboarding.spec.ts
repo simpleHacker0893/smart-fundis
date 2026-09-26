@@ -82,10 +82,10 @@ test.describe("onboarding at 360 px", () => {
       await expect(page).toHaveURL(/\/fundi$/, { timeout: 5_000 });
     }).toPass({ timeout: 30_000 });
 
-    // /fundi lets the new Fundi in (spec §4 page guard) and shows what they typed.
+    // /fundi lets the new Fundi in (spec §4 page guard).
     await expect(page.getByRole("heading", { level: 1, name: en.FundiPage.title })).toBeVisible();
-    await expect(page.getByText("E2E Fundi", { exact: true })).toBeVisible();
-    await expect(page.getByText("Nairobi", { exact: true })).toBeVisible();
+    // It opens on the upload flow; the profile block was removed (operator, 2026-09-26, #38).
+    await expect(page.getByRole("heading", { level: 2, name: en.UploadFlow.title })).toBeVisible();
     await expect(page).toHaveURL(/\/fundi$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
   });
