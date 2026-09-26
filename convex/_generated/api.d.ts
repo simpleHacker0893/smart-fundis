@@ -8,8 +8,10 @@
  * @module
  */
 
+import type * as assessments from "../assessments.js";
 import type * as contact from "../contact.js";
 import type * as fundiProfiles from "../fundiProfiles.js";
+import type * as lib_assessmentUpload from "../lib/assessmentUpload.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_contact from "../lib/contact.js";
 import type * as lib_counties from "../lib/counties.js";
@@ -30,8 +32,10 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  assessments: typeof assessments;
   contact: typeof contact;
   fundiProfiles: typeof fundiProfiles;
+  "lib/assessmentUpload": typeof lib_assessmentUpload;
   "lib/auth": typeof lib_auth;
   "lib/contact": typeof lib_contact;
   "lib/counties": typeof lib_counties;

@@ -103,6 +103,10 @@ export default defineSchema({
     // Consent (verification only)
     consentVersion: v.string(),
     consentAt: v.number(),
+    // The Fundi's tick "The client agreed to be filmed" (#38, third-party
+    // privacy). Present, and true, only for a Task where a client may be on
+    // camera (lib/trades.ts `clientOnCamera`).
+    clientConsent: v.optional(v.boolean()),
     // Video: absent once deleted, and for demo rows
     videoStorageId: v.optional(v.id("_storage")),
     videoDeletedAt: v.optional(v.number()),
@@ -137,12 +141,27 @@ export default defineSchema({
     // A Fundi's own Assessments, optionally narrowed by status (eq on
     // fundiUserId alone still works as a prefix).
     .index("by_fundiUserId_and_status", ["fundiUserId", "status"])
+    // assessments.listMine: a Fundi's own Assessments, newest first.
+    .index("by_fundiUserId", ["fundiUserId"])
+    // assessments.create: a stored video already recorded on an Assessment is
+    // never reused, and never deleted by a rejected upload.
+    .index("by_videoStorageId", ["videoStorageId"])
     // seed.trades: is this Rubric version referenced (then it is frozen)?
     .index("by_rubricId", ["rubricId"])
     // Convex appends _creationTime, so each status reads oldest first.
     .index("by_status", ["status"])
     .index("by_status_and_tradeSlug", ["status", "tradeSlug"])
     .index("by_status_and_claimedAt", ["status", "claimedAt"]),
+
+  // The Liveness code a Fundi was shown and has not used yet (#38, US-3.4).
+  // assessments.newLivenessCode writes it (one row per User, replaced on each
+  // call) and assessments.create consumes it, so the client never picks the
+  // code that is stored on the Assessment.
+  livenessCodes: defineTable({
+    userId: v.id("users"),
+    code: v.string(),
+    issuedAt: v.number(),
+  }).index("by_userId", ["userId"]),
 
   // Every Expert decision (review, appeal, Admin override).
   reviews: defineTable({

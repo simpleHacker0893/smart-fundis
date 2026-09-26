@@ -94,6 +94,29 @@ export async function requireFundi(
 }
 
 /**
+ * requireFundi without the throw, for a mutation that must still write when
+ * the caller is refused (assessments.create deletes the uploaded file, and a
+ * throw would roll that delete back). Same identity source and role rules.
+ */
+export async function checkFundi(
+  ctx: Ctx,
+): Promise<
+  | ({ ok: true } & StoredCaller & { profile: Doc<"fundiProfiles"> })
+  | { ok: false; code: "not_signed_in" | "no_user" | "not_fundi" }
+> {
+  const identity = await ctx.auth.getUserIdentity();
+  if (identity === null) return { ok: false, code: "not_signed_in" };
+  const user = await ctx.db
+    .query("users")
+    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.tokenIdentifier))
+    .unique();
+  if (user === null) return { ok: false, code: "no_user" };
+  const profile = await getFundiProfile(ctx, user._id);
+  if (profile === null) return { ok: false, code: "not_fundi" };
+  return { ok: true, identity, user, profile };
+}
+
+/**
  * The caller, who must be an Expert (active, with approved Trades). With
  * `tradeSlug`, the Expert must also be approved for that Trade.
  */
