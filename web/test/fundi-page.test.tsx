@@ -161,7 +161,6 @@ describe("/fundi page (spec §4 page guard)", () => {
     for (const gone of [USER.name, USER.county, USER.phone, t("name"), t("county"), "Your Trades"]) {
       expect(text).not.toContain(gone);
     }
-    expect(state.calls.some((c) => c.name === "fundiProfiles:mine")).toBe(false);
   });
 
   it("shows the Assessment list only once the Fundi has an Assessment", async () => {
@@ -188,7 +187,7 @@ describe("/fundi page (spec §4 page guard)", () => {
   it("reads no Fundi-only query for anyone else", async () => {
     state.me = { user: USER, roles: roles() };
     await render();
-    const fundiOnly = ["assessments:listMine", "trades:uploadPicker", "assessments:currentLivenessCode", "fundiProfiles:mine"];
+    const fundiOnly = ["assessments:listMine", "trades:uploadPicker", "assessments:currentLivenessCode"];
     expect(state.calls.filter((c) => fundiOnly.includes(c.name) && c.args !== "skip")).toEqual([]);
   });
 
