@@ -75,6 +75,13 @@ describe("DashboardRouter (spec §4)", () => {
     expect(state.replace).not.toHaveBeenCalled();
   });
 
+  it("keeps loading and does not route when users.me returns null (signed out)", async () => {
+    state.me = null;
+    await render();
+    expect(container.querySelector('[role="status"]')?.textContent).toBe(t("loading"));
+    expect(state.replace).not.toHaveBeenCalled();
+  });
+
   it("sends a User with no Fundi profile to /onboarding", async () => {
     state.me = { user: USER, roles: roles() };
     await render();

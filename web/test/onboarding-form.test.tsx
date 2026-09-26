@@ -124,6 +124,14 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     expect(container.querySelector("form")).toBeNull();
   });
 
+  it("keeps loading, with no form, when users.me returns null (signed out)", async () => {
+    state.me = null;
+    await render();
+    expect(container.querySelector('[role="status"]')?.textContent).toBe(t("loading"));
+    expect(container.querySelector("form")).toBeNull();
+    expect(state.replace).not.toHaveBeenCalled();
+  });
+
   it("sends a User who already has a Fundi profile to /dashboard", async () => {
     state.me = { user: USER, roles: { base: "fundi", expert: false, admin: false } };
     await render();

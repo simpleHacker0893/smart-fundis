@@ -22,11 +22,12 @@ function RouteOnceLoaded() {
   const t = useTranslations("DashboardPage");
   const router = useRouter();
   const { isAuthenticated } = useConvexAuth();
-  // `me` requires a signed-in caller, so it waits for Convex auth.
+  // `me` needs a signed-in caller, so it waits for Convex auth. It is null
+  // when signed out: keep loading (the proxy sends signed-out visitors away).
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip");
 
   useEffect(() => {
-    if (me !== undefined) router.replace(dashboardPath(me));
+    if (me) router.replace(dashboardPath(me));
   }, [me, router]);
 
   return (

@@ -46,14 +46,21 @@ export const store = mutation({
 /**
  * The caller's own row (null before `store` has run) and their derived roles
  * (spec §4). It never takes a user id, so it can only ever describe the caller.
+ * Returns null when signed out (no identity) rather than throwing, so a client
+ * whose token lapses mid-session sees "loading/signed out" instead of an
+ * error. Mutations still go through requireUser, which throws.
  */
 export const me = query({
   args: {},
-  returns: v.object({
-    user: v.union(schema.doc("users"), v.null()),
-    roles: rolesValidator,
-  }),
+  returns: v.union(
+    v.object({
+      user: v.union(schema.doc("users"), v.null()),
+      roles: rolesValidator,
+    }),
+    v.null(),
+  ),
   handler: async (ctx) => {
+    if ((await ctx.auth.getUserIdentity()) === null) return null;
     const caller = await requireUser(ctx);
     const roles = await getRoles(ctx, caller);
     return { user: caller.user, roles };

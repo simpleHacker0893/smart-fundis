@@ -94,7 +94,7 @@ describe("getRoles: Expert", () => {
   it("shows through users.me", async () => {
     const t = await withExpertRow(["electrical"], true);
     const me = await t.withIdentity(WANJIRU).query(api.users.me, {});
-    expect(me.roles.expert).toBe(true);
+    expect(me?.roles.expert).toBe(true);
   });
 });
 

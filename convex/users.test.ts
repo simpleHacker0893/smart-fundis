@@ -135,9 +135,9 @@ describe("users.me", () => {
     const t = setup();
     const id = await t.withIdentity(WANJIRU).mutation(api.users.store, {});
     const me = await t.withIdentity(WANJIRU).query(api.users.me, {});
-    expect(Object.keys(me).sort()).toEqual(["roles", "user"]);
-    expect(me.user).toMatchObject({ _id: id, email: WANJIRU.email, name: WANJIRU.name });
-    expect(me.roles).toEqual({ base: "none", expert: false, admin: false });
+    expect(Object.keys(me ?? {}).sort()).toEqual(["roles", "user"]);
+    expect(me?.user).toMatchObject({ _id: id, email: WANJIRU.email, name: WANJIRU.name });
+    expect(me?.roles).toEqual({ base: "none", expert: false, admin: false });
   });
 
   it("never returns another user's row", async () => {
@@ -145,12 +145,12 @@ describe("users.me", () => {
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
 
     // Otieno has no row yet, so he gets null rather than someone else's row.
-    expect((await t.withIdentity(OTIENO).query(api.users.me, {})).user).toBeNull();
+    expect((await t.withIdentity(OTIENO).query(api.users.me, {}))?.user).toBeNull();
 
     const otienoId = await t.withIdentity(OTIENO).mutation(api.users.store, {});
     const me = await t.withIdentity(OTIENO).query(api.users.me, {});
-    expect(me.user?._id).toEqual(otienoId);
-    expect(me.user?.email).toBe(OTIENO.email);
+    expect(me?.user?._id).toEqual(otienoId);
+    expect(me?.user?.email).toBe(OTIENO.email);
   });
 
   it("does not accept a user id argument", async () => {
@@ -161,10 +161,10 @@ describe("users.me", () => {
     ).rejects.toThrowError();
   });
 
-  it("rejects an unauthenticated caller", async () => {
+  it("returns null for a signed-out caller instead of throwing", async () => {
     const t = setup();
     await t.withIdentity(WANJIRU).mutation(api.users.store, {});
-    await expect(t.query(api.users.me, {})).rejects.toThrowError(/not authenticated/i);
+    expect(await t.query(api.users.me, {})).toBeNull();
   });
 });
 
@@ -245,7 +245,7 @@ describe("getRoles (ADR-18)", () => {
   it("shows Admin through users.me for a verified email on ADMIN_EMAILS", async () => {
     const t = setup();
     const me = await t.withIdentity({ ...WANJIRU, email: "admin@example.com" }).query(api.users.me, {});
-    expect(me.roles.admin).toBe(true);
+    expect(me?.roles.admin).toBe(true);
   });
 
   it("refuses Admin when ADMIN_EMAILS is unset", async () => {

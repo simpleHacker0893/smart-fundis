@@ -55,8 +55,8 @@ describe("fundiProfiles.create", () => {
       { _id: profileId, userId, trades: ["electrical"], county: "Nairobi", publicListing: true },
     ]);
     const me = await t.withIdentity(WANJIRU).query(api.users.me, {});
-    expect(me.user).toMatchObject({ name: "Wanjiru Kamau", phone: "+254712345678", county: "Nairobi" });
-    expect(me.roles.base).toBe("fundi");
+    expect(me?.user).toMatchObject({ name: "Wanjiru Kamau", phone: "+254712345678", county: "Nairobi" });
+    expect(me?.roles.base).toBe("fundi");
   });
 
   it("keeps the name the Fundi typed when users.store runs on a later sign-in", async () => {
@@ -67,7 +67,7 @@ describe("fundiProfiles.create", () => {
       .mutation(api.users.store, {});
 
     const me = await t.withIdentity(WANJIRU).query(api.users.me, {});
-    expect(me.user).toMatchObject({ name: "Mama Wanjiru", email: "wanjiru@new.example" });
+    expect(me?.user).toMatchObject({ name: "Mama Wanjiru", email: "wanjiru@new.example" });
   });
 
   it("rejects an unauthenticated caller and writes nothing", async () => {
@@ -107,8 +107,8 @@ describe("fundiProfiles.create", () => {
     expect(data).toEqual({ code: "invalid", fields });
     expect(await profiles()).toHaveLength(0);
     const me = await t.withIdentity(WANJIRU).query(api.users.me, {});
-    expect(me.user?.phone).toBeUndefined();
-    expect(me.roles.base).toBe("none");
+    expect(me?.user?.phone).toBeUndefined();
+    expect(me?.roles.base).toBe("none");
   });
 
   it("does not accept a userId argument", async () => {

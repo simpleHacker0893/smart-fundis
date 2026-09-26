@@ -31,7 +31,7 @@ vi.mock("@clerk/nextjs/server", () => ({
 // Convex as the client sees it: auth state, the `me` result and `store`.
 const convex = vi.hoisted(() => ({
   isAuthenticated: false,
-  me: undefined as { user: { email: string } | null; roles: object } | undefined,
+  me: undefined as { user: { email: string } | null; roles: object } | null | undefined,
   queryArgs: [] as unknown[],
   store: vi.fn(async () => "users_id"),
   useMutation: vi.fn(),
@@ -103,6 +103,12 @@ describe("dashboard page", () => {
   it("keeps the server's email when users.me has no row yet (store has not run)", async () => {
     convex.isAuthenticated = true;
     convex.me = { user: null, roles: ROLES };
+    expect(await renderDashboard()).toContain(t("signedInAs", { email: CLERK_EMAIL }));
+  });
+
+  it("keeps the server's email when users.me returns null (signed out)", async () => {
+    convex.isAuthenticated = true;
+    convex.me = null;
     expect(await renderDashboard()).toContain(t("signedInAs", { email: CLERK_EMAIL }));
   });
 

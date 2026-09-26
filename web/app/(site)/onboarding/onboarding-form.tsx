@@ -51,7 +51,8 @@ function LoadedForm() {
     if (hasProfile) router.replace(AFTER_AUTH_PATH);
   }, [hasProfile, router]);
 
-  if (me === undefined || trades === undefined || hasProfile) {
+  // `me` is null when signed out: treat it like loading.
+  if (!me || trades === undefined || hasProfile) {
     return (
       <div role="status" aria-busy="true" className="flex flex-col gap-3">
         <span className="text-base text-foreground/75">{t("loading")}</span>
