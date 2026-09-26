@@ -76,8 +76,8 @@ Specs: `docs/superpowers/specs/2026-09-26-v2-marketplace-design.md` (§2.1, §20
 | V2-Q31 | Till or Paybill? | Till (the operator is providing one). | V11 go-live |
 | V2-Q32 | Approve the `mpesa` agent and `mpesa-daraja` skill? | Yes, listed in AGENTS.md when V11 is sliced. | V11 |
 | V2-Q45 | Email renewal reminders for Fundi Pro? | Not in V2 (in-app only). If wanted, pick an email provider as a separate decision; Clerk's support for custom transactional email is UNVERIFIED. | V11 |
-| V2-Q48 | Self-hosted Nemotron client (D-32): who builds the vLLM-served LangChain chat model that replaces `ChatNVIDIA`? | A gpu-devops + ai-pipeline ticket, cut in V2-30; `NVIDIA_API_KEY` stays only while the hosted fallback exists. | V2-30 slice cut |
-| V2-Q49 | Does Daraja STK Query work without a stored CheckoutRequestID? UNVERIFIED. | Check against the Daraja docs and sandbox in V11's first ticket; if not, a callback with no stored ID is never settled (R-40). | V11 |
+| V2-Q48 | Self-hosted Nemotron client (D-32): who builds the vLLM-served LangChain chat model that replaces `ChatNVIDIA`? | **Answered in V2-30:** a scope item in the MVP brief `planning/slices/V2.md` (gpu-devops + ai-pipeline), because the real Verdict needs it; V10 is blocked by it. `NVIDIA_API_KEY` stays only while the hosted fallback exists. | MVP V2 |
+| V2-Q49 | Does Daraja STK Query work without a stored CheckoutRequestID? UNVERIFIED. | Check against the Daraja docs and sandbox in V11's first ticket (V11-1); if not, a callback with no stored ID is never settled (R-40). | V11-1 |
 | V2-Q50 | Do Convex logs record HTTP action path tokens (the per-payment callback token)? UNVERIFIED. | Check in V11's first ticket; if they do, move the token out of the path. | V11 |
 | V2-Q51 | Does `@convex-dev/geospatial` `nearest()` with `filterKeys: { scope, tier }` meet the proximity needs (D-54)? | `convex-expert` confirms in V9's first ticket; otherwise the precision-5 ring search behind `ProximityIndex`. | V9 |
 | V2-Q52 | Parse p95 latency on Brev while Cosmos is busy? | gpu-devops measures it before V10 is cut; V10 is cut if the 15 s cap can't be met (D-58). | V10 |
