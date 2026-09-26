@@ -2,6 +2,7 @@ import { clerk } from "@clerk/testing/playwright";
 import { expect, test } from "@playwright/test";
 import en from "../messages/en.json";
 import { missingE2eEnv, skipMessage } from "./env";
+import { clerkApi } from "./helpers";
 
 // #37 acceptance: at 360 px, sign in → the onboarding form → /fundi
 // (US-2.3 minimal, US-2.7). A fresh Clerk User is created for each run through
@@ -11,21 +12,7 @@ import { missingE2eEnv, skipMessage } from "./env";
 // Needs: the root .env Clerk keys and CONVEX_URL, the Clerk `convex` JWT
 // template, and the Trades seeded (`pnpm exec convex run seed:trades`).
 
-const CLERK_API = "https://api.clerk.com/v1";
 const missing = missingE2eEnv();
-
-async function clerkApi(method: "POST" | "DELETE", path: string, body?: object): Promise<{ id?: string }> {
-  const response = await fetch(`${CLERK_API}${path}`, {
-    method,
-    headers: {
-      Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-      "Content-Type": "application/json",
-    },
-    body: body ? JSON.stringify(body) : undefined,
-  });
-  if (!response.ok) throw new Error(`Clerk ${method} ${path} failed: HTTP ${response.status}`);
-  return (await response.json()) as { id?: string };
-}
 
 const t = en.Onboarding;
 
