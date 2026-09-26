@@ -11,6 +11,7 @@
 import type * as contact from "../contact.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_contact from "../lib/contact.js";
+import type * as lib_rateLimiter from "../lib/rateLimiter.js";
 import type * as users from "../users.js";
 
 import type {
@@ -23,6 +24,7 @@ declare const fullApi: ApiFromModules<{
   contact: typeof contact;
   "lib/auth": typeof lib_auth;
   "lib/contact": typeof lib_contact;
+  "lib/rateLimiter": typeof lib_rateLimiter;
   users: typeof users;
 }>;
 
@@ -52,4 +54,6 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+};

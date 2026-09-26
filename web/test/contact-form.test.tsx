@@ -179,13 +179,30 @@ describe("contact form (Convex)", () => {
     expect(convex.send).toHaveBeenCalledWith(expect.objectContaining({ website: "http://spam.example" }));
   });
 
-  it("explains the throttle when the server says too many", async () => {
-    convex.send.mockRejectedValueOnce(new ConvexError({ code: "throttled", message: "x" }));
+  it("shows one generic message for any server refusal (throttle, cap or invalid)", async () => {
+    const generic = t("form.errors.failed", { email: "info@smartfundis.com" });
+    expect(generic).toBe(
+      "Your message could not be sent right now. Try again later, or email info@smartfundis.com.",
+    );
+    for (const code of ["refused", "throttled", "invalid"]) {
+      act(() => root.unmount());
+      root = createRoot(container);
+      convex.send.mockRejectedValueOnce(new ConvexError({ code, message: "x" }));
+      await render();
+      fillValid();
+      await submit();
+      expect(container.querySelector('[role="alert"]')?.textContent, code).toBe(generic);
+      expect(container.querySelector('[role="status"]')).toBeNull();
+    }
+    expect(JSON.stringify(en.Contact.form.errors)).not.toMatch(/too many/i);
+  });
+
+  it("caps each input at the server's limits", async () => {
     await render();
-    fillValid();
-    await submit();
-    expect(container.querySelector('[role="alert"]')?.textContent).toBe(t("form.errors.throttled"));
-    expect(container.querySelector('[role="status"]')).toBeNull();
+    expect(field("name").maxLength).toBe(80);
+    expect(field("contact").maxLength).toBe(254);
+    expect(field("topic").maxLength).toBe(120);
+    expect(field("message").maxLength).toBe(2000);
   });
 
   it("offers the email alternative when sending fails", async () => {

@@ -1,11 +1,10 @@
 "use client";
 
 import { useMutation } from "convex/react";
-import { ConvexError } from "convex/values";
 import { useTranslations } from "next-intl";
 import { useId, useState, type FormEvent } from "react";
 import { api } from "@convex/_generated/api";
-import { validateContact, type ContactErrors } from "@convex/lib/contact";
+import { CONTACT_LIMITS, isContactRole, validateContact, type ContactErrors } from "@convex/lib/contact";
 import { pillClass } from "@/components/ui/pill";
 
 // The picker offers three roles; the table also accepts "expert" (#29).
@@ -18,7 +17,7 @@ const FIELD =
 const LABEL = "font-mono text-xs tracking-widest text-foreground/75 uppercase";
 const ERROR = "text-sm text-primary";
 
-type Status = { kind: "idle" | "sending" | "sent" } | { kind: "failed"; reason: "throttled" | "failed" };
+type Status = { kind: "idle" | "sending" | "sent" | "failed" };
 
 // Every error the shared validator can return, mapped to its en.json key.
 const ERROR_KEYS = {
@@ -65,7 +64,7 @@ export function ConvexContactForm({ to }: { to: string }) {
 
     const found = validateContact(input);
     setErrors(found);
-    if (Object.keys(found).length > 0) {
+    if (Object.keys(found).length > 0 || !isContactRole(input.role)) {
       setStatus({ kind: "idle" });
       const first = found.role && !found.name && !found.contact ? "role" : FIELDS.find((f) => found[f]);
       form.querySelector<HTMLElement>(`[name="${first ?? "role"}"]`)?.focus();
@@ -74,12 +73,12 @@ export function ConvexContactForm({ to }: { to: string }) {
 
     setStatus({ kind: "sending" });
     try {
-      await send({ ...input, website: value("website") });
+      await send({ ...input, role: input.role, website: value("website") });
       setStatus({ kind: "sent" });
-    } catch (error) {
-      const throttled =
-        error instanceof ConvexError && (error.data as { code?: string } | undefined)?.code === "throttled";
-      setStatus({ kind: "failed", reason: throttled ? "throttled" : "failed" });
+    } catch {
+      // The server gives one generic refusal for invalid input, its throttle and
+      // its global cap alike; field-level errors come only from validateContact.
+      setStatus({ kind: "failed" });
     }
   }
 
@@ -117,7 +116,7 @@ export function ConvexContactForm({ to }: { to: string }) {
             name="name"
             type="text"
             autoComplete="name"
-            maxLength={200}
+            maxLength={CONTACT_LIMITS.nameMax}
             aria-invalid={errors.name ? true : undefined}
             aria-describedby={describe("name")}
             className={FIELD}
@@ -134,7 +133,7 @@ export function ConvexContactForm({ to }: { to: string }) {
             type="text"
             inputMode="email"
             autoComplete="email"
-            maxLength={300}
+            maxLength={CONTACT_LIMITS.emailMax}
             aria-invalid={errors.contact ? true : undefined}
             aria-describedby={describe("contact", true)}
             className={FIELD}
@@ -186,7 +185,7 @@ export function ConvexContactForm({ to }: { to: string }) {
           id={`${id}-topic`}
           name="topic"
           type="text"
-          maxLength={300}
+          maxLength={CONTACT_LIMITS.topicMax}
           aria-invalid={errors.topic ? true : undefined}
           aria-describedby={describe("topic")}
           className={FIELD}
@@ -202,7 +201,7 @@ export function ConvexContactForm({ to }: { to: string }) {
           id={`${id}-message`}
           name="message"
           rows={5}
-          maxLength={2400}
+          maxLength={CONTACT_LIMITS.messageMax}
           aria-invalid={errors.message ? true : undefined}
           aria-describedby={describe("message", true)}
           className={`${FIELD} py-3`}
@@ -221,7 +220,7 @@ export function ConvexContactForm({ to }: { to: string }) {
 
       {status.kind === "failed" ? (
         <p role="alert" className={ERROR}>
-          {status.reason === "throttled" ? t("errors.throttled") : t("errors.failed", { email: to })}
+          {t("errors.failed", { email: to })}
         </p>
       ) : null}
 

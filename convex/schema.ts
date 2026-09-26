@@ -1,5 +1,6 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
+import { contactRoleValidator } from "./lib/contact";
 
 // `users` (architecture spec §5; roles are derived, never stored here, ADR-18)
 // and `contactMessages` (#29).
@@ -19,14 +20,16 @@ export default defineSchema({
   // is no public read path. Admins read them in the Convex dashboard until V4.
   contactMessages: defineTable({
     name: v.string(),
-    // A lowercased email, or a Kenyan phone normalised to +254XXXXXXXXX.
+    // Where to reply: a lowercased ASCII email, or a Kenyan phone as +254XXXXXXXXX.
     contact: v.string(),
-    role: v.union(v.literal("client"), v.literal("fundi"), v.literal("expert"), v.literal("other")),
+    // The throttle key: contact with email +tags (and Gmail dots) folded.
+    contactKey: v.string(),
+    role: contactRoleValidator,
     topic: v.string(),
     message: v.string(),
     createdAt: v.number(),
     status: v.union(v.literal("new"), v.literal("read"), v.literal("closed")),
   })
     .index("by_status_and_createdAt", ["status", "createdAt"])
-    .index("by_contact_and_createdAt", ["contact", "createdAt"]),
+    .index("by_contactKey_and_createdAt", ["contactKey", "createdAt"]),
 });

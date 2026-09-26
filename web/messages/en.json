@@ -600,8 +600,7 @@
         "messageRequired": "Write a message.",
         "messageTooShort": "Write at least 10 characters.",
         "messageTooLong": "Keep the message to 2,000 characters.",
-        "throttled": "Too many messages from this contact. Try again in a few minutes.",
-        "failed": "Your message could not be sent. Try again, or email {email}."
+        "failed": "Your message could not be sent right now. Try again later, or email {email}."
       }
     },
     "direct": {
