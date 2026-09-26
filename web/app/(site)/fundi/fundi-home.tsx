@@ -1,23 +1,28 @@
 "use client";
 
-import { useConvexAuth, useQuery } from "convex/react";
+import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@convex/_generated/api";
 import { useConvexAvailable } from "@/components/convex-available";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
-import { LABEL } from "@/components/ui/field-label";
+import { ShowcaseLinksEditor } from "@/components/showcase-links-editor";
 import { isFundi, pageGuard } from "@/lib/page-guard";
+import { AssessmentList } from "./assessment-list";
+import { UploadFlow } from "./upload-flow";
 
 /**
  * The /fundi body behind the spec §4 page guard: a skeleton until `users.me`
  * loads, then the page for a Fundi, or back to /dashboard for anyone else.
  * UX only: every Convex function checks the role again (ADR-18).
  *
- * `users.me` carries the name and county from the users row; the Fundi's
- * Trade lives on fundiProfiles and is not shown yet (#38 adds the Fundi's own
- * query with the Assessment list).
+ * The page goes straight to the upload flow, then the Assessment list, then
+ * the Showcase links in their own section, last so nobody takes them for
+ * verification (#38, US-3.8).
+ * The operator removed the name, county and Trades block for an easier
+ * upload (2026-09-26). All three mount only once the guard allows, because their
+ * queries throw for a non-Fundi.
  */
 export function FundiHome() {
   const t = useTranslations("FundiPage");
@@ -41,26 +46,19 @@ function GuardedHome() {
 
   if (guard.kind !== "allow") return <LoadingSkeleton label={t("loading")} />;
 
-  const user = guard.me.user;
   return (
     <>
       <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-      {user ? (
-        <dl className="flex flex-col gap-4">
-          {user.name ? (
-            <div className="flex flex-col gap-1">
-              <dt className={LABEL}>{t("name")}</dt>
-              <dd className="text-base break-words">{user.name}</dd>
-            </div>
-          ) : null}
-          {user.county ? (
-            <div className="flex flex-col gap-1">
-              <dt className={LABEL}>{t("county")}</dt>
-              <dd className="text-base">{user.county}</dd>
-            </div>
-          ) : null}
-        </dl>
-      ) : null}
+      <UploadFlow />
+      <AssessmentList />
+      <ShowcaseLinks />
     </>
   );
+}
+
+/** The Fundi's YouTube and TikTok links (US-3.8), stored by fundiProfiles. */
+function ShowcaseLinks() {
+  const links = useQuery(api.fundiProfiles.myShowcaseLinks, {});
+  const save = useMutation(api.fundiProfiles.setShowcaseLinks);
+  return <ShowcaseLinksEditor links={links} onSave={save} />;
 }
