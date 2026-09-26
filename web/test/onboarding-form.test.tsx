@@ -12,12 +12,16 @@ import { makeIsFromMessages } from "./copy-helpers";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Onboarding" });
-const tradeName = createTranslator({ locale: defaultLocale, messages: en, namespace: "Landing.trades.names" });
+const tp = createTranslator({ locale: defaultLocale, messages: en, namespace: "TradePicker" });
+const catalogue = en.TradeCatalogue;
 
 const USER = { _id: "users_1", email: "a@example.com" };
 const TRADES = [
-  { slug: "electrical", name: "Electrical", verifyNow: true },
-  { slug: "hairdressing", name: "Hairdressing", verifyNow: true },
+  { slug: "electrical", name: "Electrical", category: "skilled", verifyNow: true },
+  { slug: "hairdressing", name: "Hairdressing", category: "skilled", verifyNow: true },
+  { slug: "plumbing", name: "Plumbing", category: "skilled", verifyNow: false },
+  { slug: "mamaFua", name: "Mama fua (laundry)", category: "odd_job", verifyNow: false },
+  { slug: "paving", name: "Cabro & paving", category: "semi_skilled", verifyNow: false },
 ];
 
 const state = vi.hoisted(() => ({
@@ -79,7 +83,7 @@ async function render({ convexAvailable = true } = {}) {
 }
 
 function input(name: string) {
-  const el = container.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]:not([type="radio"])`);
+  const el = container.querySelector<HTMLInputElement | HTMLSelectElement>(`[name="${name}"]:not([type="hidden"])`);
   if (!el) throw new Error(`no field ${name}`);
   return el;
 }
@@ -90,10 +94,43 @@ function setValue(el: HTMLInputElement | HTMLSelectElement, value: string) {
   el.dispatchEvent(new Event(el instanceof HTMLSelectElement ? "change" : "input", { bubbles: true }));
 }
 
+function checkbox(slug: string) {
+  return container.querySelector<HTMLInputElement>(`input[type="checkbox"][value="${slug}"]`);
+}
+
 function pickTrade(slug: string) {
-  const radio = container.querySelector<HTMLInputElement>(`input[type="radio"][value="${slug}"]`);
-  if (!radio) throw new Error(`no trade ${slug}`);
-  act(() => radio.click());
+  const box = checkbox(slug);
+  if (!box) throw new Error(`no trade ${slug} showing`);
+  act(() => box.click());
+}
+
+function byLabel<T extends HTMLElement>(label: string): T {
+  const el = [...container.querySelectorAll("label")].find((l) => l.textContent === label);
+  const target = el && container.querySelector<T>(`#${CSS.escape(el.htmlFor)}`);
+  if (!target) throw new Error(`no control labelled ${label}`);
+  return target;
+}
+
+const typeSelect = () => byLabel<HTMLSelectElement>(tp("type"));
+const searchBox = () => byLabel<HTMLInputElement>(tp("search"));
+
+function chooseType(type: string) {
+  act(() => setValue(typeSelect(), type));
+}
+
+function search(query: string) {
+  act(() => setValue(searchBox(), query));
+}
+
+/** The names of the Trade rows showing, by each checkbox's accessible name. */
+function shownTrades() {
+  return [...container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')].map(
+    (box) => document.getElementById(box.getAttribute("aria-labelledby")!)?.textContent,
+  );
+}
+
+function chips() {
+  return [...container.querySelectorAll<HTMLButtonElement>("button[data-chip]")].map((b) => b.textContent);
 }
 
 function fillValid() {
@@ -139,7 +176,7 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     expect(container.querySelector("form")).toBeNull();
   });
 
-  it("labels every field, and offers each Trade by its translated name and all 47 counties", async () => {
+  it("labels every field, and offers all 47 counties", async () => {
     await render();
     for (const [name, label] of [
       ["name", t("name")],
@@ -150,10 +187,6 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
       expect(container.querySelector(`label[for="${el.id}"]`)?.textContent).toBe(label);
     }
     expect(container.querySelector("fieldset legend")?.textContent).toBe(t("trade"));
-    const tradeLabels = [...container.querySelectorAll<HTMLInputElement>('input[type="radio"][name="tradeSlugs"]')].map(
-      (r) => container.querySelector(`label[for="${r.id}"]`)?.textContent,
-    );
-    expect(tradeLabels).toEqual([tradeName("electrical"), tradeName("hairdressing")]);
 
     const options = [...(input("county") as HTMLSelectElement).options];
     expect(options[0].value).toBe("");
@@ -163,9 +196,9 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
   });
 
   it("falls back to the Trade's stored name when it has no translation key", async () => {
-    state.trades = [...TRADES, { slug: "boat-building", name: "Boat building", verifyNow: false }];
+    state.trades = [...TRADES, { slug: "boat-building", name: "Boat building", category: "skilled", verifyNow: false }];
     await render();
-    expect(container.textContent).toContain("Boat building");
+    expect(shownTrades()).toContain("Boat building");
   });
 
   it("uses a phone keyboard and 48 px tap targets", async () => {
@@ -175,9 +208,136 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     for (const el of [input("name"), input("phone"), input("county"), container.querySelector("button[type=submit]")!]) {
       expect(el.className, el.getAttribute("name") ?? "submit").toMatch(/\b(min-h-12|h-12)\b/);
     }
-    for (const r of container.querySelectorAll<HTMLInputElement>('input[type="radio"]')) {
-      expect(container.querySelector(`label[for="${r.id}"]`)?.className).toMatch(/\bmin-h-12\b/);
+    for (const el of [typeSelect(), searchBox()]) expect(el.className).toMatch(/\bmin-h-12\b/);
+    for (const box of container.querySelectorAll<HTMLInputElement>('input[type="checkbox"]')) {
+      expect(box.closest("label")?.className).toMatch(/\bmin-h-12\b/);
     }
+    pickTrade("electrical");
+    const chipButtons = container.querySelectorAll("button[data-chip]");
+    expect(chipButtons).toHaveLength(1);
+    for (const chip of chipButtons) expect(chip.className).toMatch(/\bmin-h-12\b/);
+  });
+
+  describe("the Trade picker (operator change 2: a type-of-work dropdown, not rows)", () => {
+    it("offers the three types of work in a native select, never called a category", async () => {
+      await render();
+      const select = typeSelect();
+      expect(select.tagName).toBe("SELECT");
+      expect([...select.options].map((o) => [o.value, o.textContent])).toEqual([
+        ["skilled", tp("types.skilled")],
+        ["semi_skilled", tp("types.semi_skilled")],
+        ["odd_job", tp("types.odd_job")],
+      ]);
+      expect(container.textContent).not.toMatch(/categor/i);
+    });
+
+    it("lists only the chosen type's Trades, each with its name and one-line description", async () => {
+      await render();
+      expect(shownTrades()).toEqual([catalogue.electrical.name, catalogue.hairdressing.name, catalogue.plumbing.name]);
+      expect(container.textContent).toContain(catalogue.plumbing.description);
+      chooseType("odd_job");
+      expect(shownTrades()).toEqual([catalogue.mamaFua.name]);
+      expect(container.textContent).toContain(catalogue.mamaFua.description);
+      expect(container.textContent).not.toContain(catalogue.plumbing.description);
+    });
+
+    it("marks each Trade Verify now or Verification coming soon; only Verify now is amber", async () => {
+      await render();
+      const status = (slug: string) => {
+        const ids = checkbox(slug)!.getAttribute("aria-describedby")!.split(" ");
+        return ids.map((i) => document.getElementById(i)!).find((el) => el.dataset.status)!;
+      };
+      expect(status("electrical").textContent).toBe(tp("verifyNow"));
+      expect(status("electrical").className).toMatch(/\btext-primary\b/);
+      expect(status("plumbing").textContent).toBe(tp("verifyLater"));
+      expect(status("plumbing").className).not.toMatch(/primary|amber/);
+      expect(status("plumbing").textContent).not.toContain("✓");
+    });
+
+    it("notes when a Trade may need a licence", async () => {
+      await render();
+      expect(container.textContent).toContain(tp("licence", { regulator: "EPRA" }));
+      expect(container.textContent).toContain(tp("licence", { regulator: "NCA" }));
+    });
+
+    it("searches every type of work by name, and says when nothing matches", async () => {
+      await render();
+      search("fua");
+      expect(shownTrades()).toEqual([catalogue.mamaFua.name]);
+      expect(container.textContent).toContain(tp("matches", { count: 1 }));
+      search("PAVING");
+      expect(shownTrades()).toEqual([catalogue.paving.name]);
+      search("astronaut");
+      expect(shownTrades()).toEqual([]);
+      expect(container.textContent).toContain(tp("noMatches"));
+    });
+
+    it("clears the search when a type of work is chosen", async () => {
+      await render();
+      search("fua");
+      chooseType("skilled");
+      expect(searchBox().value).toBe("");
+      expect(shownTrades()).toHaveLength(3);
+    });
+
+    it("does not submit the form when Enter is pressed in the search box", async () => {
+      await render();
+      const event = new KeyboardEvent("keydown", { key: "Enter", bubbles: true, cancelable: true });
+      act(() => searchBox().dispatchEvent(event));
+      expect(event.defaultPrevented).toBe(true);
+    });
+
+    it("keeps selections across types of work and shows them as removable chips", async () => {
+      await render();
+      expect(container.textContent).toContain(tp("selected", { count: 0 }));
+      pickTrade("plumbing");
+      chooseType("odd_job");
+      pickTrade("mamaFua");
+      chooseType("skilled");
+      expect(checkbox("plumbing")!.checked).toBe(true);
+      expect(container.textContent).toContain(tp("selected", { count: 2 }));
+      expect(chips()).toEqual([catalogue.plumbing.name, catalogue.mamaFua.name]);
+
+      const remove = container.querySelector<HTMLButtonElement>(
+        `button[data-chip][aria-label="${tp("remove", { trade: catalogue.plumbing.name })}"]`,
+      )!;
+      act(() => remove.click());
+      expect(chips()).toEqual([catalogue.mamaFua.name]);
+      expect(checkbox("plumbing")!.checked).toBe(false);
+      expect(container.textContent).toContain(tp("selected", { count: 1 }));
+    });
+
+    it("sends every selected Trade, from every type of work, in catalogue order", async () => {
+      await render();
+      act(() => {
+        setValue(input("name"), "Otieno");
+        setValue(input("phone"), "0712 345 678");
+        setValue(input("county"), "Kisumu");
+      });
+      chooseType("odd_job");
+      pickTrade("mamaFua");
+      chooseType("skilled");
+      pickTrade("electrical");
+      await submit();
+      expect(state.create).toHaveBeenCalledWith({
+        name: "Otieno",
+        phone: "0712 345 678",
+        tradeSlugs: ["electrical", "mamaFua"],
+        county: "Kisumu",
+      });
+    });
+
+    it("moves focus to the type-of-work dropdown when no Trade is chosen", async () => {
+      await render();
+      act(() => {
+        setValue(input("name"), "Otieno");
+        setValue(input("phone"), "0712 345 678");
+      });
+      await submit();
+      expect(fieldError("tradeSlugs")).toBe(t("errors.tradeRequired"));
+      expect(document.activeElement).toBe(typeSelect());
+      expect(typeSelect().getAttribute("aria-describedby")).toContain("-tradeSlugs-error");
+    });
   });
 
   it("shows inline errors from the shared rules and does not call the server", async () => {
@@ -213,6 +373,8 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     fillValid();
     await submit();
     expect(fieldError("tradeSlugs")).toBe(t("errors.tradeRequired"));
+    // A Trade is selected, so hidden inputs come first in the DOM: focus still lands on the dropdown.
+    expect(document.activeElement).toBe(typeSelect());
     expect(state.replace).not.toHaveBeenCalled();
   });
 

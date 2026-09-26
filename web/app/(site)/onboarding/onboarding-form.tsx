@@ -9,7 +9,7 @@ import { KENYAN_COUNTIES } from "@convex/lib/counties";
 import { FUNDI_PROFILE_LIMITS, parseFundiProfile } from "@convex/lib/fundiProfile";
 import { useConvexAvailable } from "@/components/convex-available";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
-import { LABEL } from "@/components/ui/field-label";
+import { FIELD, LABEL } from "@/components/ui/field-label";
 import { pillClass } from "@/components/ui/pill";
 import { AFTER_AUTH_PATH } from "@/lib/auth-routes";
 import {
@@ -20,15 +20,14 @@ import {
   type FormErrorKey,
   type ProfileField,
 } from "@/lib/onboarding-errors";
-import type { TradeSlug } from "@/lib/trades";
+import type { PickerTrade } from "@/lib/trade-picker";
+import { TradePicker } from "./trade-picker";
 
-const FIELD =
-  "min-h-12 w-full rounded border border-line bg-background px-4 text-base text-foreground focus-visible:border-foreground/40 aria-invalid:border-primary";
 const ERROR = "text-sm text-primary";
 
 /**
- * The minimal Fundi profile form (#37, spec #36 decision 2): name, phone, one
- * Trade and county. Inline errors use the same rules as the server
+ * The minimal Fundi profile form (#37): name, phone, one or more Trades
+ * (operator changes 1 and 2: any of the 62 catalogue Trades) and county. Inline errors use the same rules as the server
  * (convex/lib/fundiProfile.ts); the server's error codes map to the same
  * keys. On success, or if a profile already exists, it goes to /dashboard,
  * which routes by role.
@@ -58,11 +57,8 @@ function LoadedForm() {
   return <ProfileForm trades={trades} />;
 }
 
-type TradeOption = { slug: string; name: string };
-
-function ProfileForm({ trades }: { trades: TradeOption[] }) {
+function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
   const t = useTranslations("Onboarding");
-  const tradeNames = useTranslations("Landing.trades.names");
   const id = useId();
   const router = useRouter();
   const create = useMutation(api.fundiProfiles.create);
@@ -70,12 +66,14 @@ function ProfileForm({ trades }: { trades: TradeOption[] }) {
   const [formError, setFormError] = useState<FormErrorKey | null>(null);
   const [saving, setSaving] = useState(false);
 
-  const tradeLabel = (trade: TradeOption) =>
-    tradeNames.has(trade.slug as TradeSlug) ? tradeNames(trade.slug as TradeSlug) : trade.name;
-
   function focusFirstError(form: HTMLFormElement, found: FieldErrorKeys) {
     const first = PROFILE_FIELDS.find((field) => found[field]);
-    if (first) form.querySelector<HTMLElement>(`[name="${first}"]`)?.focus();
+    // The Trade picker's hidden inputs can't take focus; its dropdown stands in.
+    if (!first) return;
+    const target =
+      form.querySelector<HTMLElement>(`[data-error-focus="${first}"]`) ??
+      form.querySelector<HTMLElement>(`[name="${first}"]`);
+    target?.focus();
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -173,31 +171,13 @@ function ProfileForm({ trades }: { trades: TradeOption[] }) {
         {fieldError("phone")}
       </div>
 
-      <fieldset
-        className="flex flex-col gap-2"
-        aria-invalid={invalid("tradeSlugs")}
-        aria-describedby={describe("tradeSlugs")}
-      >
-        <legend className={`${LABEL} mb-2`}>{t("trade")}</legend>
-        {trades.map((trade) => (
-          <div key={trade.slug} className="relative">
-            <input
-              id={`${id}-trade-${trade.slug}`}
-              type="radio"
-              name="tradeSlugs"
-              value={trade.slug}
-              className="peer absolute inset-0 opacity-0"
-            />
-            <label
-              htmlFor={`${id}-trade-${trade.slug}`}
-              className="flex min-h-12 cursor-pointer items-center rounded border border-line px-4 text-base peer-checked:border-primary peer-checked:text-primary peer-focus-visible:outline-2 peer-focus-visible:outline-ring"
-            >
-              {tradeLabel(trade)}
-            </label>
-          </div>
-        ))}
-        {fieldError("tradeSlugs")}
-      </fieldset>
+      <TradePicker
+        trades={trades}
+        legend={t("trade")}
+        invalid={invalid("tradeSlugs")}
+        errorId={errors.tradeSlugs ? errorId("tradeSlugs") : undefined}
+        error={fieldError("tradeSlugs")}
+      />
 
       <div className="flex flex-col gap-2">
         <label htmlFor={`${id}-county`} className={LABEL}>

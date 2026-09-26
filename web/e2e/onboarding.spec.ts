@@ -60,9 +60,26 @@ test.describe("onboarding at 360 px", () => {
 
     await page.getByLabel(t.name).fill("E2E Fundi");
     await page.getByLabel(t.phone).fill("0712 345 678");
-    // The transparent radio covers its label, so a tap lands on the radio itself.
-    await page.getByRole("radio", { name: en.Landing.trades.names.electrical }).tap();
-    await expect(page.getByRole("radio", { name: en.Landing.trades.names.electrical })).toBeChecked();
+    // Operator change 2: a type-of-work dropdown, then that type's Trades.
+    // Pick one Verify now Trade (Electrical) and one that is not (Mama fua).
+    const typeSelect = page.getByLabel(en.TradePicker.type);
+    await typeSelect.selectOption("skilled");
+    const electrical = page.getByRole("checkbox", { name: en.TradeCatalogue.electrical.name, exact: true });
+    await electrical.tap();
+    await expect(electrical).toBeChecked();
+    await typeSelect.selectOption("odd_job");
+    await expect(electrical).toBeHidden();
+    const mamaFua = page.getByRole("checkbox", { name: en.TradeCatalogue.mamaFua.name, exact: true });
+    await mamaFua.tap();
+    await expect(mamaFua).toBeChecked();
+    // Both stay selected across types, as removable chips.
+    await expect(page.getByText(en.TradePicker.selected.replace("{count}", "2"), { exact: true })).toBeVisible();
+    for (const trade of [en.TradeCatalogue.electrical.name, en.TradeCatalogue.mamaFua.name]) {
+      const chip = page.getByRole("button", { name: en.TradePicker.remove.replace("{trade}", trade) });
+      await expect(chip).toBeVisible();
+      expect((await chip.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    }
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
     await page.getByLabel(t.county).selectOption("Nairobi");
 
     const submit = page.getByRole("button", { name: t.submit });
