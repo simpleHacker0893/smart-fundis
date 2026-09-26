@@ -1,20 +1,27 @@
+import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 import { uploadRejectionValidator } from "@convex/lib/assessmentUpload";
+import { defaultLocale } from "@/i18n/config";
 import en from "@/messages/en.json";
 import { UploadError } from "@/lib/video-upload";
-import { recoveryFor, uploadErrorKey, UPLOAD_ERROR_KEYS } from "@/lib/upload-errors";
+import { UPLOAD_ERRORS, uploadErrorKey } from "@/lib/upload-errors";
 
 const rejectionCodes = uploadRejectionValidator.members.map((m) => m.value);
+const codes = Object.keys(UPLOAD_ERRORS) as (keyof typeof UPLOAD_ERRORS)[];
+const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "UploadFlow" });
 
 describe("upload error copy (US-3.6)", () => {
   it("covers every rejection code assessments.create can return", () => {
-    for (const code of rejectionCodes) expect(UPLOAD_ERROR_KEYS).toContain(code);
+    for (const code of rejectionCodes) expect(codes).toContain(code);
   });
 
-  it("has an en.json message for every key", () => {
-    const messages = en.UploadFlow.errors as Record<string, string>;
-    for (const key of UPLOAD_ERROR_KEYS) expect(messages[key], key).toMatch(/\S/);
-    expect(Object.keys(messages).sort()).toEqual([...UPLOAD_ERROR_KEYS].sort());
+  it("points every code at its own en.json message, and en.json has no others", () => {
+    for (const code of codes) {
+      const { messageKey } = UPLOAD_ERRORS[code];
+      expect(messageKey).toBe(`errors.${code}`);
+      expect(t(messageKey), code).toMatch(/\S/);
+    }
+    expect(Object.keys(en.UploadFlow.errors).sort()).toEqual([...codes].sort());
   });
 
   it("maps a failed POST to its code and anything else to 'unexpected'", () => {
@@ -24,15 +31,15 @@ describe("upload error copy (US-3.6)", () => {
   });
 
   it("offers a retry for transient failures, a new code for Liveness problems, and nothing when the Fundi must change something", () => {
-    expect(recoveryFor("network")).toBe("retry");
-    expect(recoveryFor("upload_failed")).toBe("retry");
-    expect(recoveryFor("file_missing")).toBe("retry");
-    expect(recoveryFor("unexpected")).toBe("retry");
-    expect(recoveryFor("liveness_expired")).toBe("newCode");
-    expect(recoveryFor("liveness_mismatch")).toBe("newCode");
-    expect(recoveryFor("liveness_missing")).toBe("newCode");
-    expect(recoveryFor("too_large")).toBe("none");
-    expect(recoveryFor("wrong_type")).toBe("none");
-    expect(recoveryFor("consent_missing")).toBe("none");
+    const recovery = (code: keyof typeof UPLOAD_ERRORS) => UPLOAD_ERRORS[code].recovery;
+    for (const code of ["network", "upload_failed", "file_missing", "file_in_use", "no_user", "unexpected"] as const) {
+      expect(recovery(code), code).toBe("retry");
+    }
+    for (const code of ["liveness_expired", "liveness_mismatch", "liveness_missing"] as const) {
+      expect(recovery(code), code).toBe("newCode");
+    }
+    for (const code of ["too_large", "wrong_type", "consent_missing", "not_fundi", "invalid_previous"] as const) {
+      expect(recovery(code), code).toBe("none");
+    }
   });
 });

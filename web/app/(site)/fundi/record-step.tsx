@@ -8,7 +8,7 @@ import type { Id } from "@convex/_generated/dataModel";
 import { CONSENT_VERSION } from "@convex/lib/assessmentUpload";
 import { LABEL } from "@/components/ui/field-label";
 import { pillClass } from "@/components/ui/pill";
-import { recoveryFor, uploadErrorKey, type UploadErrorKey } from "@/lib/upload-errors";
+import { UPLOAD_ERRORS, uploadErrorKey, type UploadErrorKey } from "@/lib/upload-errors";
 import { checkVideoBeforeUpload, postVideo } from "@/lib/video-upload";
 import { StepNav, type PickerTask, type PickerTrade } from "./upload-flow";
 
@@ -104,7 +104,7 @@ export function RecordStep({
     await liveness.renew();
   }
 
-  const recovery = upload.kind === "error" ? recoveryFor(upload.key) : "none";
+  const recovery = upload.kind === "error" ? UPLOAD_ERRORS[upload.key].recovery : "none";
 
   // The full consent opens in a modal <dialog> on this page, so the chosen
   // video is kept (spec §7). Closing it, by Close or Esc, returns focus here.
@@ -266,7 +266,7 @@ export function RecordStep({
         {upload.kind === "error" ? (
           <div className="flex flex-col gap-3">
             <p role="alert" className="text-base text-primary">
-              {t(`errors.${upload.key}`)}
+              {t(UPLOAD_ERRORS[upload.key].messageKey)}
             </p>
             {recovery === "retry" ? (
               <button type="button" className={SECONDARY} disabled={!canUpload} onClick={() => void start()}>
