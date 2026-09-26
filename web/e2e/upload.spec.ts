@@ -5,9 +5,9 @@ import { clerkApi, expectNoSideScroll, onboardAsFundi, signInAsNewUser } from ".
 
 // #38 acceptance at 360 px: /fundi → Trade → Task picker with the Rubric
 // (US-3.2) → recording tips (US-3.3) → the Liveness code (US-3.4) → consent
-// gating (US-3.7) → upload with progress (US-3.5, US-3.6) → the new
-// Assessment shows `queued` (US-3.1). The list updates through the Convex
-// subscription, with no reload.
+// link, dialog and tick (US-3.7) → upload with progress (US-3.5, US-3.6) →
+// the new Assessment shows `queued` (US-3.1) → Showcase links (US-3.8). The
+// list updates through the Convex subscription, with no reload.
 //
 // Not covered here: a later status change (queued → analyzing). Nothing can
 // change a status yet without an unguarded mutation; the claim action (#39)
@@ -71,7 +71,29 @@ test.describe("upload at 360 px", () => {
     });
     await expect(page.getByText(u.video.chosen.replace("{name}", "e2e-socket.mp4"))).toBeVisible();
     await expect(upload).toBeDisabled();
-    const consent = page.getByLabel(u.consent.agree);
+    // US-3.7: the consent is a link that opens the full text in a dialog on
+    // this page (so the chosen video is kept), then a tick.
+    const consentLink = page.getByRole("button", { name: u.consent.open, exact: true });
+    expect((await consentLink.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    await consentLink.tap();
+    const dialog = page.getByRole("dialog", { name: u.consent.title });
+    await expect(dialog).toBeVisible();
+    await expect(dialog.getByRole("heading", { level: 2, name: u.consent.title })).toBeFocused();
+    await expect(dialog.getByText(u.consent.points.training)).toBeVisible();
+    await expectNoSideScroll(page);
+    await dialog.getByRole("button", { name: u.consent.close }).tap();
+    await expect(dialog).toBeHidden();
+    await expect(consentLink).toBeFocused();
+    // Esc closes it too, and focus comes back to the link.
+    await consentLink.click();
+    await expect(dialog).toBeVisible();
+    await page.keyboard.press("Escape");
+    await expect(dialog).toBeHidden();
+    await expect(consentLink).toBeFocused();
+    await expect(page.getByText(u.video.chosen.replace("{name}", "e2e-socket.mp4"))).toBeVisible();
+
+    const consent = page.getByRole("checkbox", { name: /verification consent/ });
+    await expect(consent).toHaveAccessibleName(u.consent.agree);
     expect((await consent.locator("xpath=ancestor::label").boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     await consent.check();
     await expect(upload).toBeEnabled();
@@ -88,5 +110,30 @@ test.describe("upload at 360 px", () => {
     await expect(item.getByTestId("status-chip")).toHaveAttribute("data-status", "queued");
     await expect(page).toHaveURL(/\/fundi$/);
     await expectNoSideScroll(page);
+
+    // US-3.8: Showcase links sit last, in their own section, and never earn a Badge.
+    const sc = en.Showcase;
+    const h2s = await page.getByRole("heading", { level: 2 }).allTextContents();
+    expect(h2s.at(-1)).toBe(sc.title);
+    await expect(page.getByText(sc.intro)).toBeVisible();
+    const youtube = page.getByLabel(sc.slots.youtube.label, { exact: true });
+    await youtube.fill("https://www.youtube.com/watch?v=2tdN85reWN0");
+    await page.getByRole("button", { name: sc.slots.youtube.save }).tap();
+    await expect(page.getByText(sc.slots.youtube.saved)).toBeVisible();
+    const embed = page.getByTitle(sc.youtubeTitle);
+    await expect(embed).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/2tdN85reWN0");
+    await expect(page.getByText(sc.label, { exact: true })).toBeVisible();
+    await expect(page.getByText(sc.note)).toBeVisible();
+    // The second sample replaces the first: one YouTube slot.
+    await youtube.fill("https://www.youtube.com/watch?v=qSHhSnuUcXc");
+    await page.getByRole("button", { name: sc.slots.youtube.save }).tap();
+    await expect(embed).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/qSHhSnuUcXc");
+    // A YouTube link in the TikTok box is refused on the device.
+    await page.getByLabel(sc.slots.tiktok.label, { exact: true }).fill("https://www.youtube.com/watch?v=qSHhSnuUcXc");
+    await page.getByRole("button", { name: sc.slots.tiktok.save }).tap();
+    await expect(page.getByRole("alert").filter({ hasText: sc.errors.tiktok.wrong_site })).toBeVisible();
+    await expectNoSideScroll(page);
+    await page.getByRole("button", { name: sc.slots.youtube.remove }).tap();
+    await expect(embed).toHaveCount(0);
   });
 });

@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
-import { useEffect, useId, useRef, useState, type ChangeEvent } from "react";
+import { useEffect, useId, useRef, useState, type ChangeEvent, type Ref } from "react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { CONSENT_VERSION } from "@convex/lib/assessmentUpload";
@@ -27,8 +27,9 @@ const TICK = "flex min-h-12 cursor-pointer items-start gap-3 py-2 text-base";
 /**
  * The last step before an Assessment exists (#38): the Liveness code shown
  * large (US-3.4), then straight away the camera or a saved video (US-3.5),
- * then the verification consent (US-3.7, spec §7) with the third-party tick
- * when a client is on camera, just above the upload with progress, retry and
+ * then the verification consent (US-3.7, spec §7): a link that opens the full
+ * text in a dialog, the consent tick, and the third-party tick when a client
+ * is on camera, just above the upload with progress, retry and
  * clear errors (US-3.6).
  * Upload stays disabled until the required ticks are checked and a valid
  * video is chosen. assessments.create is the authority (US-3.9): it answers
@@ -105,6 +106,17 @@ export function RecordStep({
 
   const recovery = upload.kind === "error" ? recoveryFor(upload.key) : "none";
 
+  // The full consent opens in a modal <dialog> on this page, so the chosen
+  // video is kept (spec §7). Closing it, by Close or Esc, returns focus here.
+  const consentLink = useRef<HTMLButtonElement>(null);
+  const consentDialog = useRef<HTMLDialogElement>(null);
+  function openConsent() {
+    const dialog = consentDialog.current;
+    if (dialog === null || dialog.open) return;
+    dialog.showModal();
+    dialog.querySelector<HTMLElement>("h2")?.focus();
+  }
+
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3" aria-labelledby={`${id}-code`}>
@@ -177,15 +189,21 @@ export function RecordStep({
       </section>
 
       <fieldset className="flex flex-col gap-3">
-        <legend className="mb-3 text-lg font-semibold">{t("consent.title")}</legend>
-        <p className="text-base text-foreground/75">{t("consent.intro")}</p>
-        <ul className="flex list-disc flex-col gap-2 pl-5">
-          {CONSENT_POINTS.map((point) => (
-            <li key={point} className="text-base">
-              {t(`consent.points.${point}`)}
-            </li>
-          ))}
-        </ul>
+        <legend className="mb-1 flex flex-col items-start text-base">
+          {t("consent.before")}{" "}
+          <button
+            ref={consentLink}
+            type="button"
+            aria-haspopup="dialog"
+            className="inline-flex min-h-12 items-center gap-2 text-lg font-semibold underline decoration-primary underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+            onClick={openConsent}
+          >
+            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 shrink-0 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M6 3l5 5-5 5" />
+            </svg>
+            {t("consent.open")}
+          </button>
+        </legend>
         <label className={TICK}>
           <input
             type="checkbox"
@@ -213,6 +231,8 @@ export function RecordStep({
           </>
         ) : null}
       </fieldset>
+
+      <ConsentDialog ref={consentDialog} onClose={() => consentLink.current?.focus()} />
 
       <div className="flex flex-col gap-3">
         {!consentGiven ? (
@@ -265,6 +285,41 @@ export function RecordStep({
 }
 
 const CONSENT_POINTS = ["who", "review", "public", "delete", "training"] as const;
+
+/**
+ * The full verification consent (consent-v1, spec §7) as a native modal
+ * dialog: labelled by its heading, which takes focus on open; Esc or Close
+ * shuts it, and `onClose` runs for both.
+ */
+function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose: () => void }) {
+  const t = useTranslations("UploadFlow");
+  const id = useId();
+  return (
+    <dialog
+      ref={ref}
+      aria-labelledby={`${id}-title`}
+      onClose={onClose}
+      className="m-auto max-h-[calc(100dvh-2rem)] w-[calc(100%-2rem)] max-w-lg overflow-y-auto rounded border border-line bg-background p-6 text-foreground backdrop:bg-black/80"
+    >
+      <div className="flex flex-col gap-4">
+        <h2 id={`${id}-title`} tabIndex={-1} className="text-xl font-semibold focus:outline-none">
+          {t("consent.title")}
+        </h2>
+        <p className="text-base text-foreground/75">{t("consent.intro")}</p>
+        <ul className="flex list-disc flex-col gap-2 pl-5">
+          {CONSENT_POINTS.map((point) => (
+            <li key={point} className="text-base">
+              {t(`consent.points.${point}`)}
+            </li>
+          ))}
+        </ul>
+        <button type="button" className={PRIMARY} onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
+          {t("consent.close")}
+        </button>
+      </div>
+    </dialog>
+  );
+}
 
 /**
  * The code to show before recording (US-3.4): the caller's pending code if it

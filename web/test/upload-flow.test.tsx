@@ -281,11 +281,66 @@ describe("the Liveness code (US-3.4)", () => {
 });
 
 describe("the verification consent (US-3.7, spec §7)", () => {
-  it("covers who sees the video, AI and expert review, what becomes public, deletion and no AI training", async () => {
+  // jsdom has <dialog> but not showModal/close: stand in for the browser,
+  // which fires "close" for the Close button and for Esc alike.
+  beforeEach(() => {
+    HTMLDialogElement.prototype.showModal = vi.fn(function (this: HTMLDialogElement) {
+      this.setAttribute("open", "");
+    });
+    HTMLDialogElement.prototype.close = vi.fn(function (this: HTMLDialogElement) {
+      if (!this.hasAttribute("open")) return;
+      this.removeAttribute("open");
+      this.dispatchEvent(new Event("close"));
+    });
+  });
+
+  const dialog = () => container.querySelector("dialog")!;
+  const opener = () => button(t("consent.open"));
+
+  it("shows a link to the verification consent above Upload, not the full text", async () => {
     await toRecordStep();
-    const text = container.textContent ?? "";
+    const consent = container.querySelector("fieldset")!;
+    expect(consent.querySelector("legend")?.textContent).toBe(`${t("consent.before")} ${t("consent.open")}`);
+    expect(opener().getAttribute("aria-haspopup")).toBe("dialog");
+    expect(dialog().open).toBe(false);
+    expect(opener().className).toMatch(/\bmin-h-12\b/);
+  });
+
+  it("opens the full consent in a modal dialog, with a heading, focus inside, and no navigation", async () => {
+    await toRecordStep();
+    await tap(t("consent.open"));
+    expect(HTMLDialogElement.prototype.showModal).toHaveBeenCalledTimes(1);
+    expect(dialog().open).toBe(true);
+    const heading = dialog().querySelector("h2")!;
+    expect(heading.textContent).toBe(t("consent.title"));
+    expect(dialog().getAttribute("aria-labelledby")).toBe(heading.id);
+    expect(dialog().contains(document.activeElement)).toBe(true);
+    // The consent-v1 points, unchanged.
+    const text = dialog().textContent ?? "";
     for (const point of Object.values(en.UploadFlow.consent.points)) expect(text).toContain(point);
     expect(text).not.toMatch(/certif/i);
+    expect(CONSENT_VERSION).toBe("consent-v1");
+  });
+
+  it("closes with Close or Esc and returns focus to the link, keeping the chosen video", async () => {
+    await toRecordStep();
+    await chooseFile({ name: "socket.mp4", size: 1024, type: "video/mp4" });
+    await tap(t("consent.open"));
+    await tap(t("consent.close"));
+    expect(dialog().open).toBe(false);
+    expect(document.activeElement).toBe(opener());
+
+    await tap(t("consent.open"));
+    // Esc: the browser closes the modal dialog and fires "close".
+    await act(async () => dialog().close());
+    expect(document.activeElement).toBe(opener());
+    expect(container.textContent).toContain(t("video.chosen", { name: "socket.mp4" }));
+  });
+
+  it("names the tick after the verification consent", async () => {
+    await toRecordStep();
+    expect(t("consent.agree")).toMatch(/verification consent/);
+    expect(control(t("consent.agree")).type).toBe("checkbox");
   });
 
   it("keeps Upload disabled until the consent is ticked and a video is chosen", async () => {

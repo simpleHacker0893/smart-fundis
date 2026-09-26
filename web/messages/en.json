@@ -1449,7 +1449,9 @@
     },
     "consent": {
       "title": "Verification consent",
-      "intro": "Before you upload, read how Smart Fundis uses your video.",
+      "before": "Before you upload, read the",
+      "open": "Verification consent",
+      "intro": "How Smart Fundis uses your video:",
       "points": {
         "who": "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on Smart Fundis' own GPU server.",
         "review": "The AI only recommends. An expert decides, and only an expert's approval earns a Badge verified by Smart Fundis.",
@@ -1457,7 +1459,8 @@
         "delete": "You can ask us to delete the video once the review is finished.",
         "training": "Your video is not used to train AI, and it is not part of the Data Co-op."
       },
-      "agree": "I have read this and agree to Smart Fundis reviewing my video.",
+      "close": "Close",
+      "agree": "I have read and agree to the verification consent",
       "client": "The client agreed to be filmed.",
       "clientHint": "Tick this only if the person in the video said yes to being filmed."
     },
