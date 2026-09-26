@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getRoles, requireUser, rolesValidator } from "./lib/auth";
+import { getFundiProfile, getRoles, requireUser, rolesValidator } from "./lib/auth";
 import schema from "./schema";
 
 /**
@@ -23,8 +23,15 @@ export const store = mutation({
     const name = identity.name?.trim() ?? "";
 
     if (user !== null) {
-      if (user.email !== email || user.name !== name) {
-        await ctx.db.patch("users", user._id, { email, name });
+      // Once a Fundi profile exists, the name is the one the Fundi typed in
+      // the profile form (fundiProfiles.create), so the token no longer sets it.
+      const ownsName = (await getFundiProfile(ctx, user._id)) === null;
+      const patch = {
+        ...(user.email !== email ? { email } : {}),
+        ...(ownsName && user.name !== name ? { name } : {}),
+      };
+      if (Object.keys(patch).length > 0) {
+        await ctx.db.patch("users", user._id, patch);
       }
       return user._id;
     }

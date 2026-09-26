@@ -55,11 +55,13 @@ export type KenyanCounty = (typeof KENYAN_COUNTIES)[number];
 
 /**
  * The canonical county name for a user's input, or null when it is not one of
- * the 47. Ignores case, surrounding spaces, and the "County" suffix.
+ * the 47. Ignores case, extra spaces, the "County" suffix, and curly or
+ * backtick apostrophes (phone keyboards type "Murang’a").
  */
 export function canonicalCounty(raw: string): KenyanCounty | null {
   const key = raw
     .normalize("NFKC")
+    .replace(/[\u2018\u2019`]/g, "'")
     .trim()
     .replace(/\s+county$/i, "")
     .replace(/\s+/g, " ")
