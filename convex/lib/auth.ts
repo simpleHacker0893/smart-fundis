@@ -24,19 +24,46 @@ export type Roles = {
 export type Caller = { identity: UserIdentity; user: Doc<"users"> | null };
 
 /**
- * The signed-in caller, from the verified token only. Throws when there is no
- * identity. `user` is null until `users.store` has created the row.
+ * The one place that reads who the caller is: the verified identity and its
+ * users row (null until `users.store` has created it), or null when signed
+ * out. Every guard below, throwing or not, starts here.
  */
-export async function requireUser(ctx: Ctx): Promise<Caller> {
+async function lookupCaller(ctx: Ctx): Promise<Caller | null> {
   const identity = await ctx.auth.getUserIdentity();
-  if (identity === null) {
-    throw new Error("Not authenticated");
-  }
+  if (identity === null) return null;
   const user = await ctx.db
     .query("users")
     .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.tokenIdentifier))
     .unique();
   return { identity, user };
+}
+
+/** Why a caller is not a Fundi, as checkFundi reports it. */
+export type FundiRefusal = "not_signed_in" | "no_user" | "not_fundi";
+
+/** The error each throwing guard raises for a refusal. */
+function refusalError(code: FundiRefusal): Error {
+  switch (code) {
+    case "not_signed_in":
+      return new Error("Not authenticated");
+    case "no_user":
+      return new ConvexError({
+        code: "no_user",
+        message: "No user row yet. Call users.store after sign-in.",
+      });
+    case "not_fundi":
+      return new ConvexError({ code: "forbidden", message: "A Fundi profile is required." });
+  }
+}
+
+/**
+ * The signed-in caller, from the verified token only. Throws when there is no
+ * identity. `user` is null until `users.store` has created the row.
+ */
+export async function requireUser(ctx: Ctx): Promise<Caller> {
+  const caller = await lookupCaller(ctx);
+  if (caller === null) throw refusalError("not_signed_in");
+  return caller;
 }
 
 /**
@@ -72,48 +99,37 @@ export type StoredCaller = { identity: UserIdentity; user: Doc<"users"> };
  */
 export async function requireStoredUser(ctx: Ctx): Promise<StoredCaller> {
   const { identity, user } = await requireUser(ctx);
-  if (user === null) {
-    throw new ConvexError({
-      code: "no_user",
-      message: "No user row yet. Call users.store after sign-in.",
-    });
-  }
+  if (user === null) throw refusalError("no_user");
   return { identity, user };
 }
 
-/** The caller, who must be a Fundi (has a Fundi profile). */
-export async function requireFundi(
-  ctx: Ctx,
-): Promise<StoredCaller & { profile: Doc<"fundiProfiles"> }> {
-  const caller = await requireStoredUser(ctx);
-  const profile = await getFundiProfile(ctx, caller.user._id);
-  if (profile === null) {
-    throw new ConvexError({ code: "forbidden", message: "A Fundi profile is required." });
-  }
-  return { ...caller, profile };
-}
+/** A caller who is a Fundi, with their profile. */
+export type FundiCaller = StoredCaller & { profile: Doc<"fundiProfiles"> };
 
 /**
- * requireFundi without the throw, for a mutation that must still write when
- * the caller is refused (assessments.create deletes the uploaded file, and a
- * throw would roll that delete back). Same identity source and role rules.
+ * Whether the caller is a Fundi, without throwing, for a mutation that must
+ * still write when the caller is refused (assessments.create deletes the
+ * uploaded file, and a throw would roll that delete back). requireFundi is
+ * this plus the throw, so both apply the same rule.
  */
 export async function checkFundi(
   ctx: Ctx,
-): Promise<
-  | ({ ok: true } & StoredCaller & { profile: Doc<"fundiProfiles"> })
-  | { ok: false; code: "not_signed_in" | "no_user" | "not_fundi" }
-> {
-  const identity = await ctx.auth.getUserIdentity();
-  if (identity === null) return { ok: false, code: "not_signed_in" };
-  const user = await ctx.db
-    .query("users")
-    .withIndex("by_clerkId", (q) => q.eq("clerkId", identity.tokenIdentifier))
-    .unique();
+): Promise<({ ok: true } & FundiCaller) | { ok: false; code: FundiRefusal }> {
+  const caller = await lookupCaller(ctx);
+  if (caller === null) return { ok: false, code: "not_signed_in" };
+  const { identity, user } = caller;
   if (user === null) return { ok: false, code: "no_user" };
   const profile = await getFundiProfile(ctx, user._id);
   if (profile === null) return { ok: false, code: "not_fundi" };
   return { ok: true, identity, user, profile };
+}
+
+/** The caller, who must be a Fundi (has a Fundi profile). */
+export async function requireFundi(ctx: Ctx): Promise<FundiCaller> {
+  const checked = await checkFundi(ctx);
+  if (!checked.ok) throw refusalError(checked.code);
+  const { identity, user, profile } = checked;
+  return { identity, user, profile };
 }
 
 /**
