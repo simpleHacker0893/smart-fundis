@@ -1,9 +1,26 @@
 import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 import { contactRoleValidator } from "./lib/contact";
+import {
+  assessmentStatusValidator,
+  livenessCheckValidator,
+  observationValidator,
+  reshootReasonValidator,
+  reviewDecisionValidator,
+  reviewKindValidator,
+  rubricItemValidator,
+  rubricStatusValidator,
+  tradeCategoryValidator,
+  verdictValidator,
+} from "./lib/validators";
 
-// `users` (architecture spec §5; roles are derived, never stored here, ADR-18)
-// and `contactMessages` (#29).
+// Architecture spec §5. Roles and Badges are derived, never stored (ADR-18).
+// Index names follow the Convex rule "every field in the name"; the spec §5
+// short names map as: by_trade_task -> by_tradeSlug_and_taskSlug_and_version,
+// by_fundi -> by_fundiUserId, by_status_trade -> by_status_and_tradeSlug,
+// by_status_claimedAt -> by_status_and_claimedAt, by_assessment ->
+// by_assessmentId, by_decider -> by_deciderUserId, by_target ->
+// by_targetTable_and_targetId.
 export default defineSchema({
   users: defineTable({
     // Holds identity.tokenIdentifier (issuer|subject), not the raw Clerk user id (D-16).
@@ -15,6 +32,127 @@ export default defineSchema({
     county: v.optional(v.string()),
     isDemo: v.optional(v.boolean()),
   }).index("by_clerkId", ["clerkId"]),
+
+  // A Fundi profile. Its existence makes the User a Fundi (spec §4). V1 fills
+  // only userId, trades (one), county and publicListing; the rest is the V3/V6
+  // full profile form.
+  fundiProfiles: defineTable({
+    userId: v.id("users"),
+    // Trade slugs the Fundi declared. At least one.
+    trades: v.array(v.string()),
+    county: v.string(),
+    area: v.optional(v.string()),
+    yearsExp: v.optional(v.number()),
+    languages: v.optional(v.array(v.string())),
+    bio: v.optional(v.string()),
+    links: v.optional(
+      v.object({
+        youtube: v.optional(v.string()),
+        tiktok: v.optional(v.string()),
+        linkedin: v.optional(v.string()),
+        cv: v.optional(v.string()),
+        portfolio: v.optional(v.string()),
+      }),
+    ),
+    // "Tell me when it launches". Off by default; never consent (CONTEXT: Co-op interest).
+    coopInterest: v.optional(v.boolean()),
+    coopInterestAt: v.optional(v.number()),
+    // "Show my profile in Find a fundi". Set to true on create.
+    publicListing: v.boolean(),
+  }).index("by_userId", ["userId"]),
+
+  // An Expert: a User is one while `active` and `approvedTrades` is non-empty.
+  experts: defineTable({
+    userId: v.id("users"),
+    approvedTrades: v.array(v.string()),
+    active: v.boolean(),
+  }).index("by_userId", ["userId"]),
+
+  // A Trade is "Verify now" when it has an activeRubricId.
+  trades: defineTable({
+    slug: v.string(),
+    name: v.string(),
+    category: tradeCategoryValidator,
+    activeRubricId: v.optional(v.id("rubrics")),
+  }).index("by_slug", ["slug"]),
+
+  // One versioned checklist for one Task. `text` is English and is what the AI
+  // receives; the UI translates by item id (D-29, D-61).
+  rubrics: defineTable({
+    tradeSlug: v.string(),
+    taskSlug: v.string(),
+    taskName: v.string(),
+    version: v.number(),
+    items: v.array(rubricItemValidator),
+    status: rubricStatusValidator,
+  }).index("by_tradeSlug_and_taskSlug_and_version", ["tradeSlug", "taskSlug", "version"]),
+
+  // One attempt to prove one Task with one in-app video. V1 fields (spec §5).
+  assessments: defineTable({
+    // Who and what
+    fundiUserId: v.id("users"),
+    tradeSlug: v.string(),
+    rubricId: v.id("rubrics"),
+    previousAssessmentId: v.optional(v.id("assessments")),
+    // Consent (verification only)
+    consentVersion: v.string(),
+    consentAt: v.number(),
+    // Video: absent once deleted, and for demo rows
+    videoStorageId: v.optional(v.id("_storage")),
+    videoDeletedAt: v.optional(v.number()),
+    // Liveness
+    livenessCode: v.string(),
+    livenessRead: v.optional(v.string()),
+    livenessCheck: v.optional(livenessCheckValidator),
+    // Pipeline
+    status: assessmentStatusValidator,
+    attempts: v.number(),
+    claimedAt: v.optional(v.number()),
+    reshootReason: v.optional(reshootReasonValidator),
+    // AI result (a recommendation, never a decision)
+    observations: v.optional(v.array(observationValidator)),
+    verdict: v.optional(verdictValidator),
+    confidence: v.optional(v.number()),
+    strengths: v.optional(v.array(v.string())),
+    gaps: v.optional(v.array(v.string())),
+    safetyFlags: v.optional(v.array(v.string())),
+    feedbackEn: v.optional(v.string()),
+    feedbackSw: v.optional(v.string()),
+    model: v.optional(v.string()),
+    latencyMs: v.optional(v.number()),
+    fallbackModel: v.optional(v.string()),
+    // Appeal
+    appealReason: v.optional(v.string()),
+    // Kept for later: always "none" until the Pilot
+    licenseStatus: v.literal("none"),
+  })
+    .index("by_fundiUserId", ["fundiUserId"])
+    // Convex appends _creationTime, so each status reads oldest first.
+    .index("by_status", ["status"])
+    .index("by_status_and_tradeSlug", ["status", "tradeSlug"])
+    .index("by_status_and_claimedAt", ["status", "claimedAt"]),
+
+  // Every Expert decision (review, appeal, Admin override).
+  reviews: defineTable({
+    assessmentId: v.id("assessments"),
+    deciderUserId: v.id("users"),
+    kind: reviewKindValidator,
+    decision: reviewDecisionValidator,
+    note: v.optional(v.string()),
+    at: v.number(),
+  })
+    .index("by_assessmentId", ["assessmentId"])
+    .index("by_deciderUserId", ["deciderUserId"]),
+
+  // Admin, override, approve and reject actions.
+  auditLog: defineTable({
+    actorUserId: v.id("users"),
+    action: v.string(),
+    targetTable: v.string(),
+    targetId: v.string(),
+    reason: v.optional(v.string()),
+    at: v.number(),
+  }).index("by_targetTable_and_targetId", ["targetTable", "targetId"]),
 
   // Messages from the /contact form (#29). Written only by contact.send; there
   // is no public read path. Admins read them in the Convex dashboard until V4.
