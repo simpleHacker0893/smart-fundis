@@ -1,5 +1,5 @@
 {
-  "_note": "DRAFT, not wired (#37). Kiswahili for the en.json keys Onboarding.*, DashboardPage.* and Landing.trades.names.*, for the native-speaker check (R-20). D-29 puts every string in messages/sw.json once Kiswahili is wired (V2); until then the UI stays English only (i18n/config.ts), so merge this into sw.json then and delete this file.",
+  "_note": "DRAFT, not wired (#37). Kiswahili for the en.json keys Onboarding.*, DashboardPage.*, FundiPage.* and Landing.trades.names.*, for the native-speaker check (R-20). D-29 puts every string in messages/sw.json once Kiswahili is wired (V2); until then the UI stays English only (i18n/config.ts), so merge this into sw.json then and delete this file.",
   "DashboardPage": {
     "title": "Dashibodi",
     "signedInAs": "Umeingia kama {email}",
@@ -32,6 +32,16 @@
       "noUser": "Akaunti yako bado inaandaliwa. Subiri kidogo, kisha ujaribu tena.",
       "failed": "Hatukuweza kuhifadhi wasifu wako. Angalia mtandao wako na ujaribu tena."
     }
+  },
+  "FundiPage": {
+    "meta": {
+      "title": "Ukurasa wako wa fundi · Smart Fundis"
+    },
+    "title": "Ukurasa wako wa fundi",
+    "loading": "Tunafungua ukurasa wako wa fundi…",
+    "unavailable": "Ukurasa wako wa fundi haupatikani kwa sasa. Tafadhali jaribu tena baadaye.",
+    "name": "Jina",
+    "county": "Kaunti"
   },
   "Landing": {
     "trades": {

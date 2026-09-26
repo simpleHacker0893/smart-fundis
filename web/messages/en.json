@@ -40,6 +40,16 @@
       "failed": "We couldn't save your profile. Check your connection and try again."
     }
   },
+  "FundiPage": {
+    "meta": {
+      "title": "Your Fundi page · Smart Fundis"
+    },
+    "title": "Your Fundi page",
+    "loading": "Opening your Fundi page…",
+    "unavailable": "Your Fundi page is not available right now. Please try again later.",
+    "name": "Name",
+    "county": "County"
+  },
   "Shell": {
     "brand": "Smart Fundis",
     "skipToContent": "Skip to content",

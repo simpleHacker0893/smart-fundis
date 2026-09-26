@@ -19,11 +19,12 @@ function get(obj: unknown, path: string): unknown {
   return path.split(".").reduce<unknown>((o, k) => (o as Record<string, unknown> | undefined)?.[k], obj);
 }
 
-describe("Kiswahili draft for onboarding and /dashboard (#37, D-29, R-20)", () => {
+describe("Kiswahili draft for onboarding, /dashboard and /fundi (#37, D-29, R-20)", () => {
   const draft = existsSync(DRAFT) ? JSON.parse(readFileSync(DRAFT, "utf8")) : {};
   const scope = {
     Onboarding: en.Onboarding,
     DashboardPage: en.DashboardPage,
+    FundiPage: en.FundiPage,
     Landing: { trades: { names: en.Landing.trades.names } },
   };
 

@@ -77,5 +77,12 @@ test.describe("onboarding at 360 px", () => {
       if (await submit.isEnabled()) await submit.tap();
       await expect(page).toHaveURL(/\/fundi$/, { timeout: 5_000 });
     }).toPass({ timeout: 30_000 });
+
+    // /fundi lets the new Fundi in (spec §4 page guard) and shows what they typed.
+    await expect(page.getByRole("heading", { level: 1, name: en.FundiPage.title })).toBeVisible();
+    await expect(page.getByText("E2E Fundi", { exact: true })).toBeVisible();
+    await expect(page.getByText("Nairobi", { exact: true })).toBeVisible();
+    await expect(page).toHaveURL(/\/fundi$/);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
   });
 });
