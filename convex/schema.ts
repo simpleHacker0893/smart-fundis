@@ -31,7 +31,10 @@ export default defineSchema({
     phone: v.optional(v.string()),
     county: v.optional(v.string()),
     isDemo: v.optional(v.boolean()),
-  }).index("by_clerkId", ["clerkId"]),
+  })
+    .index("by_clerkId", ["clerkId"])
+    // For internal lookups only (seed.expert). Never an authorization key.
+    .index("by_email", ["email"]),
 
   // A Fundi profile. Its existence makes the User a Fundi (spec §4). V1 fills
   // only userId, trades (one), county and publicListing; the rest is the V3/V6

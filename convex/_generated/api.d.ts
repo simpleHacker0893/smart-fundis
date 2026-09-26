@@ -11,7 +11,10 @@
 import type * as contact from "../contact.js";
 import type * as lib_auth from "../lib/auth.js";
 import type * as lib_contact from "../lib/contact.js";
+import type * as lib_counties from "../lib/counties.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
+import type * as lib_validators from "../lib/validators.js";
+import type * as seed from "../seed.js";
 import type * as users from "../users.js";
 
 import type {
@@ -24,7 +27,10 @@ declare const fullApi: ApiFromModules<{
   contact: typeof contact;
   "lib/auth": typeof lib_auth;
   "lib/contact": typeof lib_contact;
+  "lib/counties": typeof lib_counties;
   "lib/rateLimiter": typeof lib_rateLimiter;
+  "lib/validators": typeof lib_validators;
+  seed: typeof seed;
   users: typeof users;
 }>;
 
