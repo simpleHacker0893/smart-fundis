@@ -14,7 +14,7 @@ type Messages = typeof messages;
  * one of those pages, add its route to BUILT_ROUTES (and to the allow-list in
  * test/site-shell.test.tsx) and the link appears.
  */
-export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", SIGNED_OUT_PATH, "/join"] as const;
+export const BUILT_ROUTES = ["/", SIGN_IN_PATH, SIGN_UP_PATH, AFTER_AUTH_PATH, "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", SIGNED_OUT_PATH, "/join", "/pricing"] as const;
 
 /** Join links carry the role; /join redirects fundis to sign-up (#27). */
 export const JOIN_FUNDI_PATH = "/join?role=fundi";
@@ -40,10 +40,11 @@ export const SECTION_NAV = [
   { key: "telemetry", href: "/telemetry" },
 ] as const satisfies readonly NavLink[];
 
-/** COMPANY ▾ opens About and Contact us (#24). */
+/** COMPANY ▾ opens About, Contact us and Pricing (#24, #30). */
 export const COMPANY_NAV = [
   { key: "about", href: "/about" },
   { key: "contact", href: "/contact" },
+  { key: "pricing", href: "/pricing" },
 ] as const satisfies readonly NavLink[];
 
 /** "Show your work." CTAs: the primary pill, then the secondary. */
@@ -79,6 +80,7 @@ export const FOOTER_GROUPS = [
     links: [
       { key: "about", href: "/about" },
       { key: "contact", href: "/contact" },
+      { key: "pricing", href: "/pricing" },
       { key: "responsibleAi", href: "/responsible-ai" },
       { key: "roadmap", href: "/#roadmap" },
     ],

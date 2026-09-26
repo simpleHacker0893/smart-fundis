@@ -39,7 +39,7 @@ async function render() {
 }
 
 describe("COMPANY menu (#24)", () => {
-  it("opens About and Contact us from a button with aria-expanded", async () => {
+  it("opens About, Contact us and Pricing from a button with aria-expanded", async () => {
     const { button, panel } = await render();
     expect(button.textContent).toContain(links("company"));
     expect(panel.hidden).toBe(true);
@@ -50,6 +50,7 @@ describe("COMPANY menu (#24)", () => {
     expect([...panel.querySelectorAll("a")].map((a) => [a.textContent, a.getAttribute("href")])).toEqual([
       [links("about"), "/about"],
       [links("contact"), "/contact"],
+      [links("pricing"), "/pricing"],
     ]);
   });
 

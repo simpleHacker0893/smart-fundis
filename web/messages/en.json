@@ -42,6 +42,7 @@
     "telemetry": "Telemetry",
     "about": "About",
     "contact": "Contact us",
+    "pricing": "Pricing",
     "howVerificationWorks": "How verification works",
     "privacy": "Your privacy",
     "verifiedMeans": "What 'verified' means",
@@ -957,6 +958,62 @@
       "body": "Skilled in your trade? Experts watch fundis' videos and make the final decision on every badge. Applications aren't open yet.",
       "evidence": "Read how verification works",
       "home": "Back to home"
+    }
+  },
+  "Pricing": {
+    "meta": {
+      "title": "Pricing · Smart Fundis",
+      "description": "Verifying a skill is free. There are no payments in Smart Fundis today."
+    },
+    "hero": {
+      "label": "Smart Fundis / Company — Pricing",
+      "title": "Free today.",
+      "body": "Verifying a skill costs nothing, and so does finding a fundi. There are no payments in Smart Fundis yet.",
+      "readout": "Today",
+      "priceLabel": "To verify a skill",
+      "price": "KSh 0",
+      "note": "No card, no M-Pesa, no subscription."
+    },
+    "free": {
+      "label": "01 — Free today",
+      "tag": "Free",
+      "items": {
+        "verify": {
+          "title": "Verify a skill",
+          "body": "Record one short video, get it checked by AI and decided by an Expert in your trade."
+        },
+        "profile": {
+          "title": "Your profile and Badges",
+          "body": "A public profile with every Badge an Expert approves, to share with any client."
+        },
+        "find": {
+          "title": "Find fundis",
+          "body": "Clients browse verified fundis by trade, free, with no account needed."
+        },
+        "payments": {
+          "title": "No payments in the app",
+          "body": "Nothing in Smart Fundis asks you to pay today."
+        }
+      }
+    },
+    "planned": {
+      "label": "02 — Planned",
+      "title": "What may cost money later.",
+      "tag": "Planned · may change",
+      "body": "These are plans, not offers. Nothing here is for sale yet, and the prices may change before anything launches.",
+      "items": {
+        "pro": {
+          "title": "Fundi Pro",
+          "price": "From KSh 300 a month",
+          "body": "Tools for busy fundis. Verifying a skill stays free."
+        },
+        "bookings": {
+          "title": "Bookings & M-Pesa payments",
+          "price": "2.5% + 2.5% commission on each booking",
+          "body": "Get hired and paid through your profile, with M-Pesa."
+        }
+      },
+      "roadmap": "See the roadmap"
     }
   }
 }

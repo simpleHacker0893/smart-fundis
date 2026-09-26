@@ -21,7 +21,7 @@ vi.mock("next-intl/server", async () => {
   };
 });
 
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join", "/pricing"];
 
 const common = createTranslator({ locale: defaultLocale, messages: en, namespace: "Common" });
 const isFromMessages = makeIsFromMessages(en);
@@ -39,6 +39,7 @@ const PAGES: Record<string, { load: () => Promise<PageModule>; namespace: keyof 
   "/contact": { load: () => import("@/app/(site)/contact/page"), namespace: "Contact" },
   "/privacy": { load: () => import("@/app/(site)/privacy/page"), namespace: "Privacy" },
   "/responsible-ai": { load: () => import("@/app/(site)/responsible-ai/page"), namespace: "ResponsibleAi" },
+  "/pricing": { load: () => import("@/app/(site)/pricing/page"), namespace: "Pricing" },
 };
 
 async function render(route: string) {
@@ -363,5 +364,48 @@ describe("/responsible-ai (#26)", () => {
     const contact = section(await render("/responsible-ai"), "contact");
     expect([...contact.matchAll(/\shref="([^"]*)"/g)].map((m) => m[1])).toEqual(["mailto:info@smartfundis.com", "/evidence"]);
     expect(visibleStrings(contact)).toContain(t("contact.email"));
+  });
+});
+
+describe("/pricing (#30)", () => {
+  const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "Pricing" });
+
+  it("has a hero, what's free today, and what's planned", async () => {
+    const markup = await render("/pricing");
+    const at = ["top", "free", "planned"].map((id) => markup.indexOf(`id="${id}"`));
+    for (const p of at) expect(p).toBeGreaterThan(-1);
+    expect([...at].sort((a, b) => a - b)).toEqual(at);
+    expect(visibleStrings(markup)).toContain(t("hero.title"));
+  });
+
+  it("lists verifying, the profile and Badges, and finding fundis as free today, with no payments", async () => {
+    const free = visibleStrings(section(await render("/pricing"), "free"));
+    for (const item of ["verify", "profile", "find", "payments"] as const) {
+      expect(free).toContain(t(`free.items.${item}.title`));
+    }
+  });
+
+  it("tags every planned price 'Planned · may change', as readouts with no buy button", async () => {
+    const planned = section(await render("/pricing"), "planned");
+    const cards = [...planned.matchAll(/<li[\s\S]*?<\/li>/g)].map((m) => m[0]);
+    expect(cards).toHaveLength(2);
+    for (const card of cards) {
+      expect(visibleStrings(card)).toContain(t("planned.tag"));
+      expect(card).not.toMatch(/<a\s|<button/);
+    }
+    expect(visibleStrings(planned)).toContain(t("planned.items.pro.price"));
+    expect(visibleStrings(planned)).toContain(t("planned.items.bookings.price"));
+    expect(t("planned.items.pro.price")).toMatch(/KSh 300/);
+    expect(t("planned.items.bookings.price")).toMatch(/2\.5% \+ 2\.5%/);
+  });
+
+  it("invents no tiers, discounts, countdowns or purchase buttons", async () => {
+    const markup = await render("/pricing");
+    expect(markup).not.toMatch(/<button|<form/);
+    const text = visibleStrings(markup).join(" ");
+    expect(text).not.toMatch(/most popular|best value|discount|save \d|limited time|buy|subscribe now|per year|enterprise|premium/i);
+    // The only prices on the page: KSh 0 today, and the two planned ones.
+    const prices = text.match(/KSh\s?\d[\d,]*|\d+(\.\d+)?%/g) ?? [];
+    expect(new Set(prices)).toEqual(new Set(["KSh 0", "KSh 300", "2.5%"]));
   });
 });

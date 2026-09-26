@@ -48,6 +48,7 @@ const REAL_ROUTES = [
   "/responsible-ai",
   "/signed-out",
   "/join",
+  "/pricing",
 ];
 
 const PAGES = {

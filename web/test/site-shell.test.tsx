@@ -12,7 +12,7 @@ import { makeIsFromMessages, visibleStrings } from "./copy-helpers";
 // The shell may only link to pages that exist today, or to sections of the
 // landing page ("/#id") that exist ("nothing looks live that isn't"). This
 // list is the test's own, not imported from the app.
-const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join"];
+const REAL_ROUTES = ["/", "/sign-in", "/sign-up", "/dashboard", "/evidence", "/trades", "/telemetry", "/about", "/contact", "/privacy", "/responsible-ai", "/signed-out", "/join", "/pricing"];
 
 vi.mock("next-intl/server", async () => {
   const { createTranslator } = await import("next-intl");
@@ -148,7 +148,7 @@ describe("site header", () => {
     const navs = [...markup.matchAll(/<nav\s[^>]*>[\s\S]*?<\/nav>/g)].map((m) => m[0]);
     expect(navs).toHaveLength(2);
     for (const navMarkup of navs) {
-      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/telemetry", "/about", "/contact"]);
+      expect(hrefs(navMarkup)).toEqual(["/evidence", "/trades", "/telemetry", "/about", "/contact", "/pricing"]);
       expect(visibleStrings(navMarkup)).toContain(links("company"));
     }
     // One nav row for mobile, one inline nav for desktop: every width sees one.
@@ -221,7 +221,7 @@ describe("site footer (#27)", () => {
     expect(linksOf(0)).toEqual(["/join?role=fundi", "/evidence", "/privacy"]);
     expect(linksOf(1)).toEqual(["/trades", "/evidence#scope"]);
     expect(linksOf(2)).toEqual(["/join?role=expert"]);
-    expect(linksOf(3)).toEqual(["/about", "/contact", "/responsible-ai", "/#roadmap"]);
+    expect(linksOf(3)).toEqual(["/about", "/contact", "/pricing", "/responsible-ai", "/#roadmap"]);
   });
 
   it("offers 'Find fundis' to clients, pointing at the real /trades page (operator)", async () => {
