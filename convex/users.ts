@@ -1,6 +1,6 @@
 import { v } from "convex/values";
 import { mutation, query } from "./_generated/server";
-import { getRoles, requireUser, rolesValidator } from "./lib/auth";
+import { getFundiProfile, getRoles, requireUser, rolesValidator } from "./lib/auth";
 import schema from "./schema";
 
 /**
@@ -23,8 +23,15 @@ export const store = mutation({
     const name = identity.name?.trim() ?? "";
 
     if (user !== null) {
-      if (user.email !== email || user.name !== name) {
-        await ctx.db.patch("users", user._id, { email, name });
+      // Once a Fundi profile exists, the name is the one the Fundi typed in
+      // the profile form (fundiProfiles.create), so the token no longer sets it.
+      const ownsName = (await getFundiProfile(ctx, user._id)) === null;
+      const patch = {
+        ...(user.email !== email ? { email } : {}),
+        ...(ownsName && user.name !== name ? { name } : {}),
+      };
+      if (Object.keys(patch).length > 0) {
+        await ctx.db.patch("users", user._id, patch);
       }
       return user._id;
     }
@@ -39,14 +46,21 @@ export const store = mutation({
 /**
  * The caller's own row (null before `store` has run) and their derived roles
  * (spec §4). It never takes a user id, so it can only ever describe the caller.
+ * Returns null when signed out (no identity) rather than throwing, so a client
+ * whose token lapses mid-session sees "loading/signed out" instead of an
+ * error. Mutations still go through requireUser, which throws.
  */
 export const me = query({
   args: {},
-  returns: v.object({
-    user: v.union(schema.doc("users"), v.null()),
-    roles: rolesValidator,
-  }),
+  returns: v.union(
+    v.object({
+      user: v.union(schema.doc("users"), v.null()),
+      roles: rolesValidator,
+    }),
+    v.null(),
+  ),
   handler: async (ctx) => {
+    if ((await ctx.auth.getUserIdentity()) === null) return null;
     const caller = await requireUser(ctx);
     const roles = await getRoles(ctx, caller);
     return { user: caller.user, roles };

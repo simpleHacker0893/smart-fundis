@@ -12,7 +12,7 @@ import { api } from "@convex/_generated/api";
 export function SignedInAs({ fallbackEmail }: { fallbackEmail: string | null }) {
   const t = useTranslations("DashboardPage");
   const { isAuthenticated } = useConvexAuth();
-  // `me` requires a signed-in caller, so it waits for Convex auth.
+  // `me` needs a signed-in caller, so it waits for Convex auth (null when signed out).
   const me = useQuery(api.users.me, isAuthenticated ? {} : "skip");
   const email = me?.user?.email ?? fallbackEmail;
 

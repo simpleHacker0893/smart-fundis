@@ -10,7 +10,313 @@
   "DashboardPage": {
     "title": "Dashboard",
     "signedInAs": "Signed in as {email}",
-    "signedIn": "You are signed in."
+    "signedIn": "You are signed in.",
+    "loading": "Opening your dashboard…"
+  },
+  "Onboarding": {
+    "meta": {
+      "title": "Set up your Fundi profile · Smart Fundis"
+    },
+    "title": "Set up your Fundi profile",
+    "body": "Four details, then you can record your first verification video.",
+    "loading": "Loading the form…",
+    "unavailable": "The profile form is not available right now. Please try again later.",
+    "noTrades": "No trades are open yet. Please try again later.",
+    "name": "Your name",
+    "phone": "Phone number",
+    "phoneHint": "A Kenyan mobile number, like 0712 345 678.",
+    "trade": "Your trades",
+    "county": "County",
+    "countyPlaceholder": "Choose your county",
+    "submit": "Save and continue",
+    "submitting": "Saving…",
+    "errors": {
+      "nameRequired": "Enter your name.",
+      "nameTooLong": "Use {max} characters or fewer.",
+      "phoneInvalid": "Enter a Kenyan mobile number, like 0712 345 678.",
+      "tradeRequired": "Choose at least one trade.",
+      "countyRequired": "Choose your county from the list.",
+      "noUser": "Your account is still being set up. Wait a moment, then try again.",
+      "failed": "We couldn't save your profile. Check your connection and try again."
+    }
+  },
+  "TradePicker": {
+    "hint": "Choose every trade you do. You can pick more than one.",
+    "type": "Type of work",
+    "types": {
+      "skilled": "Skilled trades",
+      "semi_skilled": "Semi-skilled",
+      "odd_job": "Odd jobs"
+    },
+    "search": "Search all trades",
+    "searchPlaceholder": "For example, plumbing",
+    "selected": "{count} selected",
+    "remove": "Remove {trade}",
+    "matches": "Matches: {count}",
+    "noMatches": "No trade matches your search. Try another word, or clear the search.",
+    "verifyNow": "Verify now",
+    "verifyLater": "Verification coming soon",
+    "licence": "Licence may be needed ({regulator})"
+  },
+  "TradeCatalogue": {
+    "electrical": {
+      "name": "Electrical",
+      "description": "Installs and repairs wiring, sockets, lights and switches in homes and shops."
+    },
+    "hairdressing": {
+      "name": "Hairdressing",
+      "description": "Braids, weaves, relaxes, styles and treats hair."
+    },
+    "plumbing": {
+      "name": "Plumbing",
+      "description": "Fits and fixes pipes, taps, toilets, sinks, water tanks and drainage."
+    },
+    "masonry": {
+      "name": "Masonry",
+      "description": "Builds walls, foundations and floors with stone, blocks and cement; plasters walls."
+    },
+    "carpentry": {
+      "name": "Carpentry",
+      "description": "Makes and fits doors, windows, roof trusses, shelves and other woodwork."
+    },
+    "welding": {
+      "name": "Welding",
+      "description": "Welds and fabricates gates, grills, window frames and metal repairs."
+    },
+    "mechanic": {
+      "name": "Mechanic",
+      "description": "Services and repairs car engines, brakes, clutches and suspension."
+    },
+    "tailoring": {
+      "name": "Tailoring",
+      "description": "Sews, alters and repairs clothes, including suits, dresses and uniforms."
+    },
+    "beauty": {
+      "name": "Beauty",
+      "description": "Gives facials, waxing, massage, henna and other beauty treatments."
+    },
+    "solar": {
+      "name": "Solar installation",
+      "description": "Installs and maintains solar panels, batteries, inverters and solar water heaters."
+    },
+    "mamaFua": {
+      "name": "Mama fua (laundry)",
+      "description": "Washes, dries, irons and folds clothes and bedding at your home."
+    },
+    "movers": {
+      "name": "Movers",
+      "description": "Packs, loads, carries and moves household goods and furniture."
+    },
+    "painting": {
+      "name": "Painting & decorating",
+      "description": "Paints walls, ceilings, doors and gates, and applies decorative finishes."
+    },
+    "tiling": {
+      "name": "Tiling & terrazzo",
+      "description": "Lays floor and wall tiles, terrazzo and granite, and grouts and seals them."
+    },
+    "roofing": {
+      "name": "Roofing",
+      "description": "Fits and repairs iron sheets, tiles, gutters and fascia boards."
+    },
+    "steelFixing": {
+      "name": "Steel fixing",
+      "description": "Cuts, bends and ties steel bars for columns, beams and slabs."
+    },
+    "glazing": {
+      "name": "Glass & aluminium",
+      "description": "Cuts and fits glass, mirrors, and aluminium windows, doors and partitions."
+    },
+    "gypsum": {
+      "name": "Gypsum & ceilings",
+      "description": "Installs gypsum ceilings, partitions, cornices and bulkheads."
+    },
+    "constructionHelper": {
+      "name": "Site helper (mjengo)",
+      "description": "Mixes concrete, carries materials and helps fundis on building sites."
+    },
+    "paving": {
+      "name": "Cabro & paving",
+      "description": "Lays cabro blocks, paving slabs and kerbs for driveways and paths."
+    },
+    "signWriting": {
+      "name": "Sign writing",
+      "description": "Paints and makes shop signs, boards, wall adverts and vehicle lettering."
+    },
+    "furnitureMaking": {
+      "name": "Furniture making",
+      "description": "Makes and repairs beds, tables, cabinets, wardrobes and kitchen units."
+    },
+    "upholstery": {
+      "name": "Upholstery",
+      "description": "Makes and re-covers sofas, chairs and car seats, and fits foam and fabric."
+    },
+    "woodCarving": {
+      "name": "Wood carving",
+      "description": "Carves wooden sculptures, ornaments, utensils and decor pieces."
+    },
+    "interiorDecor": {
+      "name": "Curtains & interior decor",
+      "description": "Makes and hangs curtains, blinds and rails, and dresses rooms."
+    },
+    "landscaping": {
+      "name": "Landscaping & gardening",
+      "description": "Plants and trims lawns, hedges, flowers and trees, and lays out gardens."
+    },
+    "cleaning": {
+      "name": "Cleaning",
+      "description": "Cleans houses, offices, carpets, sofas and move-in or move-out spaces."
+    },
+    "cooking": {
+      "name": "Cooking & catering",
+      "description": "Cooks meals at home and caters for parties, weddings and events."
+    },
+    "baking": {
+      "name": "Baking & cakes",
+      "description": "Bakes and decorates cakes, bread and pastries to order."
+    },
+    "shoeRepair": {
+      "name": "Shoe repair & making",
+      "description": "Repairs, re-soles, stitches and polishes shoes and bags; makes sandals."
+    },
+    "leatherwork": {
+      "name": "Leatherwork",
+      "description": "Makes belts, bags, wallets, sandals and other leather goods."
+    },
+    "motorcycleRepair": {
+      "name": "Motorcycle (boda) repair",
+      "description": "Services and repairs motorcycles and tuk-tuks: engines, chains, brakes and wiring."
+    },
+    "autoElectrical": {
+      "name": "Auto electrical",
+      "description": "Fixes vehicle wiring, batteries, alternators, starters, lights and alarms."
+    },
+    "panelBeating": {
+      "name": "Panel beating",
+      "description": "Straightens and repairs dented or damaged car bodies after accidents."
+    },
+    "sprayPainting": {
+      "name": "Spray painting",
+      "description": "Sprays and touches up paint on cars, motorbikes and metal items."
+    },
+    "tyreRepair": {
+      "name": "Tyre repair",
+      "description": "Fixes punctures, changes and balances tyres, and pumps air."
+    },
+    "carWash": {
+      "name": "Car wash & detailing",
+      "description": "Washes, vacuums and polishes cars at your home or office."
+    },
+    "refrigerationAc": {
+      "name": "Fridge & AC repair",
+      "description": "Installs and repairs fridges, freezers, cold rooms and air conditioners."
+    },
+    "phoneRepair": {
+      "name": "Phone repair",
+      "description": "Replaces screens, batteries and charging ports, and fixes phone software."
+    },
+    "electronicsRepair": {
+      "name": "Electronics & appliance repair",
+      "description": "Repairs TVs, radios, speakers, microwaves, cookers and other appliances."
+    },
+    "computerRepair": {
+      "name": "Computer repair",
+      "description": "Repairs laptops, desktops and printers, and installs software and networks."
+    },
+    "cctvSecurity": {
+      "name": "CCTV & security systems",
+      "description": "Installs CCTV cameras, alarms, electric fences, intercoms and access control."
+    },
+    "satelliteTv": {
+      "name": "TV dish & internet installation",
+      "description": "Installs TV dishes, aerials, decoders and home Wi-Fi routers."
+    },
+    "pumpRepair": {
+      "name": "Water pump & borehole repair",
+      "description": "Installs and repairs water pumps, borehole pumps, pressure tanks and float switches."
+    },
+    "motorRewinding": {
+      "name": "Motor rewinding",
+      "description": "Rewinds and repairs electric motors, pumps, fans and grinding machines."
+    },
+    "generatorRepair": {
+      "name": "Generator repair",
+      "description": "Services and repairs petrol and diesel generators and changeover switches."
+    },
+    "pestControl": {
+      "name": "Fumigation & pest control",
+      "description": "Gets rid of bedbugs, cockroaches, termites, rats and mosquitoes."
+    },
+    "barbering": {
+      "name": "Barbering",
+      "description": "Cuts, shaves, shapes and dyes hair and beards."
+    },
+    "nails": {
+      "name": "Nail technician",
+      "description": "Does manicures, pedicures, gel and acrylic nails."
+    },
+    "makeup": {
+      "name": "Make-up artist",
+      "description": "Does make-up for weddings, events, photo shoots and everyday looks."
+    },
+    "knitting": {
+      "name": "Knitting & crochet",
+      "description": "Knits and crochets sweaters, school jumpers, hats and baby clothes."
+    },
+    "weaving": {
+      "name": "Weaving & basketry",
+      "description": "Weaves baskets, kiondos, mats and woven fabric by hand."
+    },
+    "beadwork": {
+      "name": "Jewellery & beadwork",
+      "description": "Makes beaded jewellery, bangles, belts and fashion accessories."
+    },
+    "metalwork": {
+      "name": "Jua kali metalwork",
+      "description": "Makes jikos, boxes, buckets, gutters and tools from sheet metal; does blacksmithing."
+    },
+    "textileDecoration": {
+      "name": "Embroidery, batik & tie-dye",
+      "description": "Embroiders and decorates fabric with batik, tie-dye and hand designs."
+    },
+    "printing": {
+      "name": "Printing & branding",
+      "description": "Screen-prints and brands T-shirts, caps, bags and banners."
+    },
+    "photography": {
+      "name": "Photography & video",
+      "description": "Shoots and edits photos and video for weddings, events and businesses."
+    },
+    "eventDecor": {
+      "name": "Event decor & tents",
+      "description": "Sets up tents, chairs, flowers and decor for weddings, parties and funerals."
+    },
+    "driving": {
+      "name": "Driver",
+      "description": "Drives cars, vans or lorries for trips, deliveries and moving jobs."
+    },
+    "locksmith": {
+      "name": "Locksmith & key cutting",
+      "description": "Cuts keys, opens locked doors and fits or repairs locks and safes."
+    },
+    "farmHand": {
+      "name": "Farm work (shamba)",
+      "description": "Digs, plants, weeds, sprays and harvests crops, and tends animals."
+    },
+    "bicycleRepair": {
+      "name": "Bicycle repair",
+      "description": "Fixes punctures, chains, brakes, gears and wheels on bicycles."
+    }
+  },
+  "FundiPage": {
+    "meta": {
+      "title": "Your Fundi page · Smart Fundis"
+    },
+    "title": "Your Fundi page",
+    "loading": "Opening your Fundi page…",
+    "unavailable": "Your Fundi page is not available right now. Please try again later.",
+    "name": "Name",
+    "county": "County"
   },
   "Shell": {
     "brand": "Smart Fundis",

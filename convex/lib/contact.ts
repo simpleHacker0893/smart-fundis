@@ -1,4 +1,5 @@
 import { v, type Infer } from "convex/values";
+import { normalizeKenyanPhone } from "./phone";
 
 // Rules for the /contact form (#29). contact.send enforces them on the server,
 // and the web form imports the same functions for its inline errors, so the
@@ -53,8 +54,6 @@ export type ContactErrors = Partial<{
 
 const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const PRINTABLE_ASCII = /^[\x21-\x7E]+$/;
-// Kenyan mobile numbers: 07XX / 01XX locally, or +254 / 254 with the leading 0 dropped.
-const KENYAN_PHONE = /^(?:\+254|254|0)([17]\d{8})$/;
 // Format characters (Cf): zero-width space/joiners, BOM, word joiner, bidi marks.
 const FORMAT_CHARS = /\p{Cf}/gu;
 const CONTROL_CHARS = /\p{Cc}/gu;
@@ -97,9 +96,7 @@ export function normalizeContact(raw: string): string | null {
     const ok = email.length <= CONTACT_LIMITS.emailMax && PRINTABLE_ASCII.test(email) && EMAIL.test(email);
     return ok ? email : null;
   }
-  const digits = value.replace(/[\s\-()]/g, "");
-  const match = KENYAN_PHONE.exec(digits);
-  return match ? `+254${match[1]}` : null;
+  return normalizeKenyanPhone(value);
 }
 
 /**
