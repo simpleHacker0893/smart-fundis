@@ -89,11 +89,12 @@ test.describe("onboarding at 360 px", () => {
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 
     // users.store may still be in flight on a very fast run; the form then asks
-    // to retry (no_user), so retry the tap until the profile is saved.
+    // to retry (no_user), so retry the tap until the profile is saved. The wait
+    // is long because a cold `next dev` compiles /dashboard and /fundi on first visit.
     await expect(async () => {
       if (await submit.isEnabled()) await submit.tap();
-      await expect(page).toHaveURL(/\/fundi$/, { timeout: 5_000 });
-    }).toPass({ timeout: 30_000 });
+      await expect(page).toHaveURL(/\/fundi$/, { timeout: 20_000 });
+    }).toPass({ timeout: 60_000 });
 
     // /fundi lets the new Fundi in (spec §4 page guard) and shows what they typed.
     await expect(page.getByRole("heading", { level: 1, name: en.FundiPage.title })).toBeVisible();
