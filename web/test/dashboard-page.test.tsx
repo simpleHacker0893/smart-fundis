@@ -39,6 +39,10 @@ const convex = vi.hoisted(() => ({
 
 const ROLES = { base: "none", expert: false, admin: false };
 
+vi.mock("next/navigation", () => ({
+  useRouter: () => ({ replace: vi.fn(), push: vi.fn() }),
+}));
+
 vi.mock("convex/react", () => ({
   useConvexAuth: () => ({ isLoading: !convex.isAuthenticated, isAuthenticated: convex.isAuthenticated }),
   useMutation: (ref: unknown) => {
@@ -65,13 +69,14 @@ beforeEach(() => {
   convex.useMutation.mockClear();
 });
 
-async function renderDashboard() {
+async function renderDashboard({ convexAvailable = false } = {}) {
   const { default: DashboardPage } = await import("@/app/(site)/dashboard/page");
+  const { ConvexAvailableContext } = await import("@/components/convex-available");
   const page = await DashboardPage();
   return visibleStrings(
     renderToStaticMarkup(
       <NextIntlClientProvider locale={defaultLocale} messages={en}>
-        {page}
+        <ConvexAvailableContext value={convexAvailable}>{page}</ConvexAvailableContext>
       </NextIntlClientProvider>,
     ),
   );
@@ -130,6 +135,15 @@ describe("dashboard page", () => {
     await renderDashboard();
     expect(convex.useMutation).not.toHaveBeenCalled();
     expect(convex.store).not.toHaveBeenCalled();
+  });
+
+  it("shows the loading line while it waits to route by role (spec §4)", async () => {
+    convex.isAuthenticated = true;
+    const strings = await renderDashboard({ convexAvailable: true });
+    expect(strings).toContain(t("loading"));
+    for (const s of strings) {
+      expect(new Set([...leafStrings(en), t("signedInAs", { email: CLERK_EMAIL })]), s).toContain(s);
+    }
   });
 
   it("protects itself on the server, not only in the proxy", async () => {

@@ -9,7 +9,15 @@ describe("proxy route protection", () => {
     },
   );
 
-  it.each(["/", "/sign-in", "/sign-in/factor-one", "/sign-up", "/dashboards", "/roadmap"])(
+  // Spec §4: sign-in is required for /onboarding and every role dashboard.
+  it.each(["/onboarding", "/application-pending", "/fundi", "/fundi/x", "/expert", "/admin/y"])(
+    "requires sign-in for %s (spec §4)",
+    (path) => {
+      expect(isProtectedPath(path)).toBe(true);
+    },
+  );
+
+  it.each(["/", "/sign-in", "/sign-in/factor-one", "/sign-up", "/dashboards", "/roadmap", "/fundis", "/f/abc", "/experts"])(
     "keeps %s public",
     (path) => {
       expect(isProtectedPath(path)).toBe(false);

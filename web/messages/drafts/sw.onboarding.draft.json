@@ -1,0 +1,54 @@
+{
+  "_note": "DRAFT, not wired (#37). Kiswahili for the en.json keys Onboarding.*, DashboardPage.* and Landing.trades.names.*, for the native-speaker check (R-20). D-29 puts every string in messages/sw.json once Kiswahili is wired (V2); until then the UI stays English only (i18n/config.ts), so merge this into sw.json then and delete this file.",
+  "DashboardPage": {
+    "title": "Dashibodi",
+    "signedInAs": "Umeingia kama {email}",
+    "signedIn": "Umeingia.",
+    "loading": "Tunafungua dashibodi yako…"
+  },
+  "Onboarding": {
+    "meta": {
+      "title": "Weka wasifu wako wa fundi · Smart Fundis"
+    },
+    "title": "Weka wasifu wako wa fundi",
+    "body": "Maelezo manne, kisha unaweza kurekodi video yako ya kwanza ya uthibitishaji.",
+    "loading": "Tunapakia fomu…",
+    "unavailable": "Fomu ya wasifu haipatikani kwa sasa. Tafadhali jaribu tena baadaye.",
+    "noTrades": "Bado hakuna fani zilizo wazi. Tafadhali jaribu tena baadaye.",
+    "name": "Jina lako",
+    "phone": "Nambari ya simu",
+    "phoneHint": "Nambari ya simu ya Kenya, kama 0712 345 678.",
+    "trade": "Fani yako",
+    "county": "Kaunti",
+    "countyPlaceholder": "Chagua kaunti yako",
+    "submit": "Hifadhi na uendelee",
+    "submitting": "Tunahifadhi…",
+    "errors": {
+      "nameRequired": "Andika jina lako.",
+      "nameTooLong": "Tumia herufi {max} au chache zaidi.",
+      "phoneInvalid": "Andika nambari ya simu ya Kenya, kama 0712 345 678.",
+      "tradeRequired": "Chagua fani yako.",
+      "countyRequired": "Chagua kaunti yako kutoka kwenye orodha.",
+      "noUser": "Akaunti yako bado inaandaliwa. Subiri kidogo, kisha ujaribu tena.",
+      "failed": "Hatukuweza kuhifadhi wasifu wako. Angalia mtandao wako na ujaribu tena."
+    }
+  },
+  "Landing": {
+    "trades": {
+      "names": {
+        "electrical": "Umeme",
+        "hairdressing": "Ususi wa nywele",
+        "plumbing": "Mabomba",
+        "masonry": "Uashi",
+        "carpentry": "Useremala",
+        "welding": "Uchomeleaji",
+        "mechanic": "Ufundi wa magari",
+        "tailoring": "Ushonaji",
+        "beauty": "Urembo",
+        "solar": "Uwekaji wa sola",
+        "mamaFua": "Mama fua (kufua nguo)",
+        "movers": "Wahamishaji"
+      }
+    }
+  }
+}

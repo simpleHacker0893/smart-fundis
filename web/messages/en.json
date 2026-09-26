@@ -10,7 +10,35 @@
   "DashboardPage": {
     "title": "Dashboard",
     "signedInAs": "Signed in as {email}",
-    "signedIn": "You are signed in."
+    "signedIn": "You are signed in.",
+    "loading": "Opening your dashboard…"
+  },
+  "Onboarding": {
+    "meta": {
+      "title": "Set up your Fundi profile · Smart Fundis"
+    },
+    "title": "Set up your Fundi profile",
+    "body": "Four details, then you can record your first verification video.",
+    "loading": "Loading the form…",
+    "unavailable": "The profile form is not available right now. Please try again later.",
+    "noTrades": "No trades are open yet. Please try again later.",
+    "name": "Your name",
+    "phone": "Phone number",
+    "phoneHint": "A Kenyan mobile number, like 0712 345 678.",
+    "trade": "Your trade",
+    "county": "County",
+    "countyPlaceholder": "Choose your county",
+    "submit": "Save and continue",
+    "submitting": "Saving…",
+    "errors": {
+      "nameRequired": "Enter your name.",
+      "nameTooLong": "Use {max} characters or fewer.",
+      "phoneInvalid": "Enter a Kenyan mobile number, like 0712 345 678.",
+      "tradeRequired": "Choose your trade.",
+      "countyRequired": "Choose your county from the list.",
+      "noUser": "Your account is still being set up. Wait a moment, then try again.",
+      "failed": "We couldn't save your profile. Check your connection and try again."
+    }
   },
   "Shell": {
     "brand": "Smart Fundis",
