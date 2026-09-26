@@ -191,6 +191,22 @@ describe("/fundi page (spec §4 page guard)", () => {
     expect(container.textContent).toContain(t("trades"));
   });
 
+  it("shows a Fundi their Assessments and the upload flow, and reads neither for anyone else", async () => {
+    state.me = { user: USER, roles: roles({ base: "fundi" }) };
+    await render();
+    const h2s = [...container.querySelectorAll("h2")].map((h) => h.textContent);
+    expect(h2s).toContain(en.AssessmentList.title);
+    expect(h2s).toContain(en.UploadFlow.title);
+
+    act(() => root.unmount());
+    root = createRoot(container);
+    state.calls = [];
+    state.me = { user: USER, roles: roles() };
+    await render();
+    const fundiOnly = ["assessments:listMine", "trades:uploadPicker", "assessments:currentLivenessCode"];
+    expect(state.calls.filter((c) => fundiOnly.includes(c.name) && c.args !== "skip")).toEqual([]);
+  });
+
   it("does not read fundiProfiles.mine until the caller is known to be a Fundi", async () => {
     state.me = { user: USER, roles: roles() };
     await render();

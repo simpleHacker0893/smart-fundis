@@ -10,6 +10,8 @@ import { useConvexAvailable } from "@/components/convex-available";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
 import { LABEL } from "@/components/ui/field-label";
 import { isFundi, pageGuard } from "@/lib/page-guard";
+import { AssessmentList } from "./assessment-list";
+import { UploadFlow } from "./upload-flow";
 
 /**
  * The /fundi body behind the spec §4 page guard: a skeleton until `users.me`
@@ -18,7 +20,8 @@ import { isFundi, pageGuard } from "@/lib/page-guard";
  *
  * `users.me` carries the name and county from the users row; the declared
  * Trades come from `fundiProfiles.mine`, read only once the guard allows
- * (it throws for a non-Fundi).
+ * (it throws for a non-Fundi). So do the Assessment list and the upload
+ * flow (#38), which likewise mount only for a Fundi.
  */
 export function FundiHome() {
   const t = useTranslations("FundiPage");
@@ -63,6 +66,8 @@ function GuardedHome() {
         </dl>
       ) : null}
       <ProfileTrades />
+      <AssessmentList />
+      <UploadFlow />
     </>
   );
 }

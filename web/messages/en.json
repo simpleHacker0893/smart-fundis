@@ -1406,5 +1406,101 @@
     },
     "reshootByExpert": "An expert asked for a new video of this Task.",
     "rejectedNote": "An expert reviewed this video and did not approve it."
+  },
+  "UploadFlow": {
+    "title": "Verify a skill",
+    "loading": "Loading the Tasks you can film…",
+    "empty": "No Trade can be verified yet.",
+    "back": "Back",
+    "pick": {
+      "intro": "Pick the Task you will film. The checklist shows what the expert and the AI look for.",
+      "onProfile": "On your profile",
+      "task": "Task: {task}",
+      "checklist": "Checklist",
+      "safety": "Safety",
+      "safetyNote": "Safety items must be clearly shown on camera.",
+      "choose": "Film {task}"
+    },
+    "tips": {
+      "title": "Recording tips",
+      "intro": "Follow these so your video can be checked.",
+      "common": {
+        "light": "Film in good light. Face the light, with no bright window behind the work.",
+        "length": "Record 10 to 90 seconds.",
+        "frame": "Keep your hands and the work in the frame the whole time.",
+        "steady": "Hold the phone steady, or lean it on something.",
+        "code": "Write your Liveness code on paper. At the start, show the paper to the camera and say the code out loud.",
+        "safety": "Show every safety step clearly on camera."
+      },
+      "task": {
+        "13a-socket": {
+          "people": "Keep other people out of the frame.",
+          "close": "Film the breaker and the tester close enough to read."
+        },
+        "cornrows": {
+          "face": "Film the head from the back or top. Keep the client's face out of the frame.",
+          "ask": "Ask the client before you film, and film only if they agree."
+        }
+      },
+      "next": "Next: get my code"
+    },
+    "code": {
+      "title": "Your Liveness code",
+      "instructions": "Write this code on paper. At the start of your video, show the paper to the camera and say the code out loud.",
+      "label": "Liveness code {code}",
+      "loading": "Getting your code…",
+      "error": "We could not get a code. Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "consent": {
+      "title": "Verification consent",
+      "intro": "Before you upload, read how Smart Fundis uses your video.",
+      "points": {
+        "who": "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on Smart Fundis' own GPU server.",
+        "review": "The AI only recommends. An expert decides, and only an expert's approval earns a Badge verified by Smart Fundis.",
+        "public": "Only your Badge becomes public. Your video and the review notes stay private.",
+        "delete": "You can ask us to delete the video once the review is finished.",
+        "training": "Your video is not used to train AI, and it is not part of the Data Co-op."
+      },
+      "agree": "I have read this and agree to Smart Fundis reviewing my video.",
+      "client": "The client agreed to be filmed.",
+      "clientHint": "Tick this only if the person in the video said yes to being filmed."
+    },
+    "video": {
+      "title": "Your video",
+      "record": "Record a video",
+      "choose": "Choose a saved video",
+      "hint": "One video, up to 100 MB.",
+      "chosen": "Chosen: {name}",
+      "needConsent": "Tick the consent above to upload.",
+      "needVideo": "Record or choose a video to upload."
+    },
+    "upload": "Upload video",
+    "progress": "Upload progress",
+    "uploading": "Uploading… {percent}%",
+    "saving": "Saving your Assessment…",
+    "retry": "Try again",
+    "newCode": "Get a new code",
+    "done": "Uploaded. Your video is waiting in line.",
+    "errors": {
+      "not_signed_in": "You are signed out. Sign in again, then upload.",
+      "no_user": "Your account is still being set up. Wait a moment, then try again.",
+      "not_fundi": "Only a Fundi can upload a video. Create your Fundi profile first.",
+      "file_missing": "The video did not arrive. Try again.",
+      "file_in_use": "That upload was already used. Try again.",
+      "too_large": "This video is over 100 MB. Record a shorter one.",
+      "wrong_type": "This file is not a video. Record or choose a video.",
+      "consent_missing": "Tick the verification consent before you upload.",
+      "consent_outdated": "The consent text has changed. Reload the page and read it again.",
+      "client_consent_missing": "Tick that the client agreed to be filmed.",
+      "unknown_task": "This Task cannot be verified right now. Pick another Task.",
+      "liveness_missing": "Your Liveness code is no longer valid. Get a new code, then record again showing it.",
+      "liveness_mismatch": "Your Liveness code has changed. Get a new code, then record again showing it.",
+      "liveness_expired": "Your Liveness code has expired. Get a new code, then record again showing it.",
+      "invalid_previous": "This video cannot replace that Assessment. Start a new one.",
+      "network": "The upload stopped. Check your connection and try again.",
+      "upload_failed": "The upload did not finish. Try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
   }
 }

@@ -11,7 +11,7 @@ export async function generateMetadata(): Promise<Metadata> {
 /**
  * /fundi (#37): the Fundi's page. Guarded here as well as in the proxy
  * (D-15); FundiHome checks the Fundi role once `users.me` loads (spec §4).
- * Unstyled for V1; #38 adds the Assessment list, Stitch styling comes in V3.
+ * Unstyled for V1 (#37, #38); Stitch styling comes in V3.
  */
 export default async function FundiPage() {
   await auth.protect();
