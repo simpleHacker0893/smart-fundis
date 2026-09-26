@@ -1497,5 +1497,24 @@
       "upload_failed": "The upload did not finish. Try again.",
       "unexpected": "Something went wrong. Try again."
     }
+  },
+  "Showcase": {
+    "note": "Shared by the Fundi. Smart Fundis has not checked this video, and it does not earn a Badge.",
+    "label": "Showcase — not verified",
+    "youtubeTitle": "YouTube video shared by the Fundi",
+    "tiktokTitle": "TikTok video shared by the Fundi",
+    "linkLabel": "YouTube or TikTok link",
+    "linkHint": "Paste a link to one video, for example https://www.youtube.com/watch?v=…",
+    "errors": {
+      "empty": "Paste a YouTube or TikTok link.",
+      "unsupported": "Use a link to one YouTube or TikTok video.",
+      "tiktok_short": "Open the video in TikTok, tap Share, then Copy link, and paste the full tiktok.com link.",
+      "duplicate": "That video is already in your list.",
+      "save": "We could not save your links. Check your connection and try again."
+    },
+    "title": "Your work videos",
+    "intro": "Share links to your own YouTube or TikTok videos. They show as a showcase; only a video recorded here can earn a Badge.",
+    "add": "Add link",
+    "remove": "Remove link {n}"
   }
 }
