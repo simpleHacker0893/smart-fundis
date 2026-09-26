@@ -48,7 +48,7 @@ export const MVP_TRADES: readonly TradeSeed[] = [
         },
         {
           id: "earth",
-          text: "Connects the green-and-yellow earth wire to the earth terminal (E) (on older installs, the bare earth wire is covered in green-and-yellow sleeving).",
+          text: "Connects the green-and-yellow earth wire to the earth terminal (E). On older installs, the bare earth wire is covered in green-and-yellow sleeving.",
           safety: true,
         },
         {
