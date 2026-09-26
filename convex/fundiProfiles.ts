@@ -1,10 +1,13 @@
 import { ConvexError, v } from "convex/values";
+import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { getFundiProfile, requireFundi, requireStoredUser } from "./lib/auth";
 import { cleanTradeSlugs, parseFundiProfile, type FundiProfileErrors } from "./lib/fundiProfile";
 import {
   parseShowcaseLink,
   parseShowcaseLinkFor,
+  SHOWCASE_KINDS,
+  type SavedShowcaseLink,
   type ShowcaseKind,
   type ShowcaseSlotError,
 } from "./lib/showcaseLinks";
@@ -71,8 +74,6 @@ export const create = mutation({
   },
 });
 
-const SHOWCASE_KINDS: readonly ShowcaseKind[] = ["youtube", "tiktok"];
-
 /** A slot's new value: omitted leaves it, null or blank clears it. */
 const showcaseSlotArg = v.optional(v.union(v.string(), v.null()));
 
@@ -100,7 +101,7 @@ export const setShowcaseLinks = mutation({
   handler: async (ctx, args) => {
     const { profile } = await requireFundi(ctx);
 
-    const links = { ...profile.links };
+    const links: NonNullable<Doc<"fundiProfiles">["links"]> = { ...profile.links };
     const fields: Partial<Record<ShowcaseKind, ShowcaseSlotError>> = {};
     for (const kind of SHOWCASE_KINDS) {
       const input = args[kind];
@@ -117,9 +118,8 @@ export const setShowcaseLinks = mutation({
       throw new ConvexError({ code: "invalid", fields });
     }
 
-    const kept = Object.fromEntries(Object.entries(links).filter(([, value]) => value !== undefined));
     await ctx.db.patch("fundiProfiles", profile._id, {
-      links: Object.keys(kept).length > 0 ? kept : undefined,
+      links: Object.keys(links).length > 0 ? links : undefined,
     });
     return null;
   },
@@ -140,7 +140,7 @@ export const myShowcaseLinks = query({
   returns: v.object({ youtube: showcaseLinkValidator, tiktok: showcaseLinkValidator }),
   handler: async (ctx) => {
     const { profile } = await requireFundi(ctx);
-    const read = (kind: ShowcaseKind) => {
+    const read = (kind: ShowcaseKind): SavedShowcaseLink | null => {
       const stored = profile.links?.[kind];
       if (stored === undefined) return null;
       // Stored links were checked on write; re-parse so the embed URL is only
