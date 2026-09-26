@@ -316,7 +316,10 @@
     "loading": "Opening your Fundi page…",
     "unavailable": "Your Fundi page is not available right now. Please try again later.",
     "name": "Name",
-    "county": "County"
+    "county": "County",
+    "trades": "Your Trades",
+    "tradeVerifyNow": "Can be verified now",
+    "tradeVerifyLater": "Verification coming soon"
   },
   "Shell": {
     "brand": "Smart Fundis",
@@ -1353,5 +1356,55 @@
       },
       "roadmap": "See the roadmap"
     }
+  },
+  "Rubrics": {
+    "13a-socket": {
+      "name": "Install a 13A socket",
+      "items": {
+        "isolate": "Shows the breaker being switched off on camera before touching any wires.",
+        "test_dead": "Holds the voltage tester to each wire on camera so its reading or light shows the power is off.",
+        "terminals": "Holds each wire to the camera and connects it to the right terminal: brown (or old red) to L, blue (or old black) to N.",
+        "earth": "Connects the green-and-yellow earth wire to the earth terminal (E). On older installs, the bare earth wire is covered in green-and-yellow sleeving.",
+        "no_bare_copper": "Tightens every terminal screw and gives each wire a light pull to show it is firm. No bare copper shows outside the terminals.",
+        "faceplate": "Fixes the faceplate to the box straight and level, with no wires trapped.",
+        "function_test": "Switches the power back on and shows the socket works, with a socket tester or a plugged-in device."
+      }
+    },
+    "cornrows": {
+      "name": "Cornrows",
+      "items": {
+        "prep": "Detangles and sections the hair before braiding.",
+        "tool_hygiene": "Shows the comb and clips are clean before starting, and does not reuse a tool dropped on the floor.",
+        "parting": "Makes clean, even parts that follow the planned pattern (straight or curved).",
+        "tension": "Braids firmly but not too tight: the skin at the hairline and roots is not pulled up or stretched, and no raised bumps appear.",
+        "even_braids": "Keeps each braid the size planned for the style, neat from root to end.",
+        "neat_ends": "Finishes the ends neatly so the braids do not come loose."
+      }
+    }
+  },
+  "AssessmentList": {
+    "title": "Your Assessments",
+    "loading": "Loading your Assessments…",
+    "empty": "You have no Assessments yet. Verify a skill below to start one.",
+    "taskLine": "{trade}: {task}",
+    "sent": "Sent {date}",
+    "status": {
+      "queued": "Waiting in line",
+      "analyzing": "The AI is watching your video",
+      "awaiting_review": "Awaiting expert review",
+      "approved": "Approved — Verified by Smart Fundis",
+      "reshoot": "Record again",
+      "rejected": "Not approved",
+      "appealed": "Your appeal is being reviewed",
+      "failed": "Something went wrong — record again"
+    },
+    "reshootReasons": {
+      "too_short": "The video is too short. Record 10 to 90 seconds.",
+      "too_long": "The video is too long. Record 10 to 90 seconds.",
+      "low_res": "The picture is not sharp enough. Use your phone's main camera.",
+      "too_dark": "The video is too dark. Film in good light."
+    },
+    "reshootByExpert": "An expert asked for a new video of this Task.",
+    "rejectedNote": "An expert reviewed this video and did not approve it."
   }
 }

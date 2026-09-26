@@ -25,25 +25,51 @@ const state = vi.hoisted(() => ({
   protect: vi.fn(async () => ({ userId: "user_123" })),
   isAuthenticated: true,
   me: undefined as unknown,
+  mine: undefined as unknown,
   queryArgs: [] as unknown[],
+  calls: [] as { name: string; args: unknown }[],
   replace: vi.fn(),
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: Object.assign(vi.fn(), { protect: state.protect }) }));
 
-vi.mock("convex/react", () => ({
-  useConvexAuth: () => ({ isLoading: !state.isAuthenticated, isAuthenticated: state.isAuthenticated }),
-  useQuery: (_ref: unknown, args: unknown) => {
-    state.queryArgs.push(args);
-    return args === "skip" ? undefined : state.me;
-  },
-}));
+vi.mock("convex/react", async () => {
+  const { getFunctionName } = await import("convex/server");
+  // Queries the page reads besides users.me return an empty, loaded result;
+  // the upload flow and the Assessment list have their own tests.
+  const others: Record<string, unknown> = {
+    "trades:uploadPicker": [],
+    "assessments:listMine": [],
+    "assessments:currentLivenessCode": null,
+  };
+  return {
+    useConvexAuth: () => ({ isLoading: !state.isAuthenticated, isAuthenticated: state.isAuthenticated }),
+    useQuery: (ref: Parameters<typeof getFunctionName>[0], args: unknown) => {
+      const name = getFunctionName(ref);
+      state.calls.push({ name, args });
+      if (name === "users:me") state.queryArgs.push(args);
+      if (args === "skip") return undefined;
+      if (name === "users:me") return state.me;
+      if (name === "fundiProfiles:mine") return state.mine;
+      return others[name];
+    },
+    useMutation: () => vi.fn(),
+  };
+});
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ replace: state.replace, push: vi.fn() }),
 }));
 
 const USER = { _id: "users_1", email: "w@example.com", name: "Wanjiru Kamau", phone: "+254712345678", county: "Kiambu" };
+const MINE = {
+  name: USER.name,
+  county: USER.county,
+  trades: [
+    { slug: "electrical", name: "Electrical", verifyNow: true },
+    { slug: "mamaFua", name: "Mama fua (laundry)", verifyNow: false },
+  ],
+};
 const roles = (r: object = {}) => ({ base: "none", expert: false, admin: false, ...r });
 
 let container: HTMLDivElement;
@@ -53,7 +79,9 @@ beforeEach(() => {
   state.protect.mockClear();
   state.isAuthenticated = true;
   state.me = undefined;
+  state.mine = MINE;
   state.queryArgs = [];
+  state.calls = [];
   state.replace.mockReset();
   container = document.createElement("div");
   document.body.appendChild(container);
@@ -150,6 +178,24 @@ describe("/fundi page (spec §4 page guard)", () => {
     await render();
     expect(heading()).toBe(t("title"));
     expect(container.textContent).not.toContain(t("county"));
+  });
+
+  it("lists the profile's Trades, saying which can be verified now (fundiProfiles.mine)", async () => {
+    state.me = { user: USER, roles: roles({ base: "fundi" }) };
+    await render();
+    const items = [...container.querySelectorAll('[data-testid="profile-trade"]')].map((li) => li.textContent);
+    expect(items).toEqual([
+      `${en.TradeCatalogue.electrical.name}${t("tradeVerifyNow")}`,
+      `${en.TradeCatalogue.mamaFua.name}${t("tradeVerifyLater")}`,
+    ]);
+    expect(container.textContent).toContain(t("trades"));
+  });
+
+  it("does not read fundiProfiles.mine until the caller is known to be a Fundi", async () => {
+    state.me = { user: USER, roles: roles() };
+    await render();
+    const mineCalls = state.calls.filter((c) => c.name === "fundiProfiles:mine");
+    expect(mineCalls.every((c) => c.args === "skip")).toBe(true);
   });
 
   it("renders only strings from messages/en.json apart from the Fundi's own data", async () => {
