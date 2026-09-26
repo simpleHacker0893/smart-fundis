@@ -2,7 +2,7 @@
 
 This is a short snapshot, updated in place at the end of every slice. It is not a log.
 
-- **Phase:** V2 planning. The slice cut (V2-30) is done; the dashboard design (V2-40) is next.
+- **Phase:** build. **Current slice: V1** (spec #36, tickets #37–#43). Then **V7** (spec #44, tickets #45–#55), whose code tickets are blocked on V1's Expert-decide ticket #41.
 - **Current branch for planning:** `docs/v2-spec`.
 - **Done in code (evidence: git history, 2026-09-26):**
   - **V0 scaffold:** #2 monorepo, #3 Clerk sign-in, #4 Convex users, #7 ai-service and LangSmith tracing are merged to `main`. #5 branded shell is merged into the `v3/landing-page` line (PR #18). #9 Nemotron smoke is on `v0/9-nemotron-smoke`, not merged to `main`.
@@ -26,4 +26,4 @@ This is a short snapshot, updated in place at the end of every slice. It is not 
 - **Gates before V8 production:** the DPIA update and processor agreements (D-49), the native-speaker sign-off on consent strings (R-20), and the IEBC ward-name import (D-56, V2-Q11).
 - **Blockers:** none. Open operator questions V2-Q3, V2-Q11 and V2-Q35 block single slices, not the slice cut. V2-Q42 is answered (KSh 200 a month).
 - **Waiting on the operator:** the `AGENTS.md` changes in the marketplace spec §23 and review §5 (the mpesa agent must be listed before V11-1); the IEBC ward-name source (V8-1); the NCA "building Trades" list in `convex/lib/trades.ts` (before V8-20).
-- **Next action:** in a fresh session, run `planning/prompts/v2/V2-40-dashboard-design.md`. It can run in parallel with V7's prompt 10 (grill), once the MVP V1 prerequisite is on track.
+- **Next action:** merge `v3/landing-page` and `docs/v2-spec` into `main` (ticket branches start from `main`), then `/clear` and run `/next-task` for V1 (frontier: #37). In parallel, run `planning/prompts/v2/V2-40-dashboard-design.md` in its own session; its approval unblocks #45 (V7 Stitch screens). When V1 closes, set the current slice here to V7.
