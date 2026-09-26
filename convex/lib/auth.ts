@@ -1,5 +1,5 @@
 import type { UserIdentity } from "convex/server";
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "../_generated/dataModel";
 import type { MutationCtx, QueryCtx } from "../_generated/server";
 
@@ -56,6 +56,58 @@ export async function getRoles(ctx: Ctx, caller: Caller): Promise<Roles> {
     expert: expert !== null,
     admin: isAdminIdentity(identity),
   };
+}
+
+/** A signed-in caller whose users row exists. */
+export type StoredCaller = { identity: UserIdentity; user: Doc<"users"> };
+
+/**
+ * requireUser, plus the users row. Throws `no_user` when users.store has not
+ * run yet for this identity.
+ */
+export async function requireStoredUser(ctx: Ctx): Promise<StoredCaller> {
+  const { identity, user } = await requireUser(ctx);
+  if (user === null) {
+    throw new ConvexError({
+      code: "no_user",
+      message: "No user row yet. Call users.store after sign-in.",
+    });
+  }
+  return { identity, user };
+}
+
+/** The caller, who must be a Fundi (has a Fundi profile). */
+export async function requireFundi(
+  ctx: Ctx,
+): Promise<StoredCaller & { profile: Doc<"fundiProfiles"> }> {
+  const caller = await requireStoredUser(ctx);
+  const profile = await getFundiProfile(ctx, caller.user._id);
+  if (profile === null) {
+    throw new ConvexError({ code: "forbidden", message: "A Fundi profile is required." });
+  }
+  return { ...caller, profile };
+}
+
+/**
+ * The caller, who must be an Expert (active, with approved Trades). With
+ * `tradeSlug`, the Expert must also be approved for that Trade.
+ */
+export async function requireExpert(
+  ctx: Ctx,
+  tradeSlug?: string,
+): Promise<StoredCaller & { expert: Doc<"experts"> }> {
+  const caller = await requireStoredUser(ctx);
+  const expert = await getActiveExpert(ctx, caller.user._id);
+  if (expert === null) {
+    throw new ConvexError({ code: "forbidden", message: "An active Expert is required." });
+  }
+  if (tradeSlug !== undefined && !expert.approvedTrades.includes(tradeSlug)) {
+    throw new ConvexError({
+      code: "forbidden",
+      message: `The Expert is not approved for the Trade "${tradeSlug}".`,
+    });
+  }
+  return { ...caller, expert };
 }
 
 /** The user's Fundi profile, or null. */
