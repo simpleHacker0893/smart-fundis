@@ -11,7 +11,7 @@ It is a uv project on Python 3.12 (`.python-version`) with FastAPI, pytest and r
   - `nemotron.py`: the hosted Nemotron structured-output smoke (see below)
   - `prompts/`: versioned prompt files
 - `eval/`: eval clips list and results (qa owns it)
-- `scripts/`: vLLM serving and smoke scripts (gpu-devops owns it)
+- `scripts/`: vLLM serving, smoke scripts and the V1 stub worker (gpu-devops owns it)
 - `tests/`: pytest tests, with fixtures in `tests/fixtures/`
 
 ## Run
@@ -69,6 +69,49 @@ uv run python -m app.nemotron
 It exits 0 on success. A missing key or model, an HTTP error, or a reply that doesn't fit the schema prints `Nemotron smoke failed: ...` to stderr and exits 1. If LangSmith tracing is on, the run goes through `app/tracing.py` and is masked (ADR-13).
 
 The tests (`tests/test_nemotron.py`) make no network call. They fake only `requests.Session.get`/`post` and replay `tests/fixtures/nemotron_smoke_response.json`, so the real `ChatNVIDIA` request and parsing code runs.
+
+## Stub worker (V1, #40)
+
+`scripts/stub_worker.py` stands in for the AI pipeline until V2. It speaks the real pull-model contract (spec §6, ADR-9; `convex/lib/aiContract.ts` is the source of truth) but runs no AI and needs no GPU. It loops:
+
+1. `POST {CONVEX_SITE_URL}/ai/claim` with `{"workerId": "stub-<hostname>"}` and the header `Authorization: Bearer <AI_SHARED_SECRET>`.
+2. On a job, it posts a **canned** result to `/ai/callback`, so the Fundi's upload goes `queued → analyzing → awaiting_review` (or `reshoot`) on its own.
+
+**It is for dev and tests only, never for real users.** Its evidence and feedback text all start with "Stub result: no AI ran."
+
+**The clip-name rule.** The outcome comes from the job's `clipName`, the uploaded file's name, matched case-insensitively:
+
+| `clipName` | Callback |
+| --- | --- |
+| contains `reshoot` | `reshoot` with reason `too_dark` |
+| else contains `review` | `result`, Verdict `needs_review`: the first safety Rubric item is `unclear` and in `safetyFlags` (the first item, unflagged, if the Rubric has no safety item), and liveness is `{read: null, check: "unclear"}` |
+| anything else, or no `clipName` | `result`, Verdict `pass`: every item `yes`, liveness `{read: <livenessCode>, check: "yes"}`, no flags |
+
+`reshoot` wins when both words appear (`review-reshoot.mp4` is a reshoot). Every result sends each Rubric item exactly once, `model: "stub-v1"`, `fallbackModel: false`, and English only (D-64): `feedbackSw` and `reason.sw` are omitted.
+
+**How it handles responses.**
+- `/ai/claim` 204: sleep for the poll interval, then poll again. After a job it polls again at once.
+- 401 from either endpoint: exit 1 with a message naming `AI_SHARED_SECRET`.
+- `/ai/callback` 200: log the new status. 409: log "stale" and carry on. 400: log the `error` field as a worker bug and carry on.
+- Network errors: log the error type and back off (1×, 2×, 4× the interval, up to 60 s). A callback lost this way leaves the Assessment `analyzing` until the requeue cron picks it up after 10 minutes.
+
+It never logs the video URL, the secret or the job body; it logs the Assessment id, the attempt and the canned outcome.
+
+**Prerequisites.**
+- `AI_SHARED_SECRET` is set on the **dev** Convex deployment, from the repo root: `pnpm exec convex env set AI_SHARED_SECRET <value>`.
+- The same value, and `CONVEX_SITE_URL` (the dev deployment's `https://<name>.convex.site` URL), are in the **repo-root `.env`** (D-13), or in your shell env, which wins. Never commit the secret.
+
+**Run** from `ai-service/`:
+
+```bash
+uv run python scripts/stub_worker.py                    # poll every 5 s until Ctrl-C
+uv run python scripts/stub_worker.py --once             # wait for one job, process it, exit 0
+uv run python scripts/stub_worker.py --poll-interval 2 --worker-id stub-alice
+```
+
+Then upload a clip in the app (named e.g. `socket-review.mp4` for the review path) and watch its status chip change. Exit codes: 0 on Ctrl-C or after `--once`, 1 on a 401 or missing or invalid settings.
+
+The tests (`tests/test_stub_worker.py`) run the worker against a fake Convex site (stdlib `http.server` in a thread), so the real `urllib` request code runs. They check each canned payload against the contract rules, the Bearer header, the 204/401/409/400 handling, back-off, and that the video URL never reaches the logs.
 
 ## Tracing (LangSmith)
 
