@@ -1,7 +1,8 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
-import { CLAIM_SCAN, jobValidator, type Job } from "./lib/aiContract";
+import { applyHardRules, callbackBodyValidator, CLAIM_SCAN, jobValidator, MAX_ATTEMPTS, type Job } from "./lib/aiContract";
+import { assessmentStatusValidator } from "./lib/validators";
 
 // The state changes behind /ai/claim and /ai/callback, and the stuck-job cron
 // (spec §3, §5 status table, §6). Each is one transaction. convex/http.ts does
@@ -36,6 +37,83 @@ export const claim = internalMutation({
       return job;
     }
     return null;
+  },
+});
+
+const callbackResultValidator = v.union(
+  v.object({ ok: v.literal(true), status: assessmentStatusValidator }),
+  v.object({ ok: v.literal(false), reason: v.union(v.literal("stale"), v.literal("unknown_item")) }),
+);
+
+/**
+ * Applies a worker's outcome. Accepted only while the Assessment is
+ * `analyzing` with the same `attempt`; anything else is `stale` (HTTP 409)
+ * and writes nothing: two pollers, a callback after a requeue, a deleted
+ * Assessment, or an id that isn't an Assessment.
+ * - result  → awaiting_review, after the ADR-11 hard rules (applyHardRules);
+ * - reshoot → reshoot, with the guard's reason; the next video is a new Assessment;
+ * - error   → queued while attempts < MAX_ATTEMPTS, else failed.
+ */
+export const callback = internalMutation({
+  args: { body: callbackBodyValidator },
+  returns: callbackResultValidator,
+  handler: async (ctx, { body }) => {
+    const id = ctx.db.normalizeId("assessments", body.assessmentId);
+    const row = id === null ? null : await ctx.db.get("assessments", id);
+    if (row === null || row.status !== "analyzing" || row.attempts !== body.attempt) {
+      return { ok: false as const, reason: "stale" as const };
+    }
+
+    switch (body.outcome) {
+      case "result": {
+        const rubric = await ctx.db.get("rubrics", row.rubricId);
+        if (rubric === null) {
+          throw new Error(`Assessment ${row._id} points at a missing Rubric`);
+        }
+        const known = new Set(rubric.items.map((item) => item.id));
+        if (body.observations.some((o) => !known.has(o.itemId))) {
+          return { ok: false as const, reason: "unknown_item" as const };
+        }
+        const ruled = applyHardRules({
+          items: rubric.items,
+          livenessCode: row.livenessCode,
+          observations: body.observations,
+          liveness: body.liveness,
+          verdict: body.verdict.verdict,
+          safetyFlags: body.safetyFlags,
+        });
+        await ctx.db.patch("assessments", row._id, {
+          status: "awaiting_review",
+          observations: body.observations,
+          livenessRead: body.liveness.read ?? undefined,
+          livenessCheck: ruled.livenessCheck,
+          verdict: ruled.verdict,
+          confidence: body.verdict.confidence,
+          strengths: body.verdict.strengths,
+          gaps: body.verdict.gaps,
+          safetyFlags: ruled.safetyFlags,
+          feedbackEn: body.verdict.feedbackEn,
+          feedbackSw: body.verdict.feedbackSw,
+          model: body.model,
+          latencyMs: body.latencyMs,
+          fallbackModel: body.fallbackModel,
+        });
+        return { ok: true as const, status: "awaiting_review" as const };
+      }
+      case "reshoot": {
+        await ctx.db.patch("assessments", row._id, { status: "reshoot", reshootReason: body.reason });
+        return { ok: true as const, status: "reshoot" as const };
+      }
+      case "error": {
+        const status = row.attempts < MAX_ATTEMPTS ? ("queued" as const) : ("failed" as const);
+        await ctx.db.patch("assessments", row._id, {
+          status,
+          ...(status === "queued" ? { claimedAt: undefined, claimedBy: undefined } : {}),
+        });
+        console.warn(`ai callback: Assessment ${row._id} attempt ${row.attempts} error "${body.errorCode.slice(0, 64)}" → ${status}`);
+        return { ok: true as const, status };
+      }
+    }
   },
 });
 

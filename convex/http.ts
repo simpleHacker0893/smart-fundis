@@ -1,7 +1,7 @@
 import { httpRouter } from "convex/server";
 import { internal } from "./_generated/api";
 import { httpAction } from "./_generated/server";
-import { claimBodyValidator, MAX_WORKER_ID_LENGTH } from "./lib/aiContract";
+import { callbackBodyValidator, claimBodyValidator, MAX_WORKER_ID_LENGTH } from "./lib/aiContract";
 import { isWorkerAuthorized } from "./lib/aiSecret";
 import { conforms } from "./lib/conforms";
 
@@ -47,6 +47,25 @@ http.route({
     }
     const job = await ctx.runMutation(internal.aiJobs.claim, { workerId: body.workerId });
     return job === null ? new Response(null, { status: 204 }) : json(200, job);
+  }),
+});
+
+http.route({
+  path: "/ai/callback",
+  method: "POST",
+  handler: httpAction(async (ctx, req) => {
+    if (!(await authorized(req))) {
+      return json(401, { error: "unauthorized" });
+    }
+    const body = await readJson(req);
+    if (!conforms(callbackBodyValidator, body)) {
+      return json(400, { error: "bad_request" });
+    }
+    const result = await ctx.runMutation(internal.aiJobs.callback, { body });
+    if (!result.ok) {
+      return json(result.reason === "stale" ? 409 : 400, { error: result.reason });
+    }
+    return json(200, { status: result.status });
   }),
 });
 

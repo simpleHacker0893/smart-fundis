@@ -149,3 +149,157 @@ describe("POST /ai/claim (spec §6, US-4.1)", () => {
     expect(logged).not.toContain(job.videoUrl);
   });
 });
+
+/** Claims the one queued Assessment and returns its job. */
+async function claimed(t: T, overrides: Partial<Doc<"assessments">> = {}) {
+  const id = await queued(t, overrides);
+  const job = await (await post(t, "/ai/claim", { workerId: "w1" })).json();
+  expect(job.assessmentId).toBe(id);
+  return job as { assessmentId: Id<"assessments">; attempt: number; rubric: { items: { id: string; safety: boolean }[] } };
+}
+
+function resultBody(job: Awaited<ReturnType<typeof claimed>>, patch: Record<string, unknown> = {}) {
+  return {
+    assessmentId: job.assessmentId,
+    attempt: job.attempt,
+    outcome: "result",
+    observations: job.rubric.items.map((i) => ({ itemId: i.id, result: "yes", evidence: "seen", timestampS: 3 })),
+    liveness: { read: "482", check: "yes" },
+    verdict: { verdict: "pass", confidence: 0.9, strengths: ["neat"], gaps: [], feedbackEn: "Good work." },
+    safetyFlags: [],
+    model: "stub@v1",
+    fallbackModel: false,
+    latencyMs: 1200,
+    ...patch,
+  };
+}
+
+describe("POST /ai/callback (spec §6, US-4.1)", () => {
+  it("returns 401 without the secret and changes nothing", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    expect((await post(t, "/ai/callback", resultBody(job), "Bearer wrong")).status).toBe(401);
+    expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+  });
+
+  it("result → awaiting_review, storing the AI result", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    const res = await post(t, "/ai/callback", resultBody(job));
+    expect(res.status).toBe(200);
+    expect(await res.json()).toEqual({ status: "awaiting_review" });
+    expect(await get(t, job.assessmentId)).toMatchObject({
+      status: "awaiting_review",
+      verdict: "pass",
+      confidence: 0.9,
+      strengths: ["neat"],
+      gaps: [],
+      feedbackEn: "Good work.",
+      livenessRead: "482",
+      livenessCheck: "yes",
+      safetyFlags: [],
+      model: "stub@v1",
+      fallbackModel: false,
+      latencyMs: 1200,
+    });
+  });
+
+  it("caps a pass with an unclear safety item at needs_review (ADR-11)", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    const safety = job.rubric.items.find((i) => i.safety)!;
+    const body = resultBody(job);
+    body.observations = body.observations.map((o) => (o.itemId === safety.id ? { ...o, result: "unclear" } : o));
+    await post(t, "/ai/callback", body);
+    expect(await get(t, job.assessmentId)).toMatchObject({ verdict: "needs_review", safetyFlags: [safety.id] });
+  });
+
+  it("caps a pass whose Liveness digits don't match at needs_review", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    await post(t, "/ai/callback", resultBody(job, { liveness: { read: "999", check: "yes" } }));
+    expect(await get(t, job.assessmentId)).toMatchObject({ verdict: "needs_review", livenessCheck: "unclear", livenessRead: "999" });
+  });
+
+  it("reshoot → reshoot with the reason", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    const reason = { code: "too_dark", en: "The video is too dark." };
+    const res = await post(t, "/ai/callback", { assessmentId: job.assessmentId, attempt: 1, outcome: "reshoot", reason });
+    expect(res.status).toBe(200);
+    expect(await get(t, job.assessmentId)).toMatchObject({ status: "reshoot", reshootReason: reason });
+  });
+
+  it("error on attempt 1 → queued again; error on attempt 2 → failed", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    const error = (attempt: number) => ({ assessmentId: job.assessmentId, attempt, outcome: "error", errorCode: "vllm_down" });
+    expect(await (await post(t, "/ai/callback", error(1))).json()).toEqual({ status: "queued" });
+    const requeued = (await get(t, job.assessmentId))!;
+    expect(requeued).toMatchObject({ status: "queued", attempts: 1 });
+    expect(requeued.claimedAt).toBeUndefined();
+
+    const again = await (await post(t, "/ai/claim", { workerId: "w2" })).json();
+    expect(again.attempt).toBe(2);
+    expect(await (await post(t, "/ai/callback", error(2))).json()).toEqual({ status: "failed" });
+    expect(await get(t, job.assessmentId)).toMatchObject({ status: "failed", attempts: 2 });
+  });
+
+  describe("stale callbacks return 409 and change nothing", () => {
+    it("when the Assessment is not analyzing (a second callback)", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      await post(t, "/ai/callback", resultBody(job));
+      const before = await get(t, job.assessmentId);
+      const res = await post(t, "/ai/callback", resultBody(job, { verdict: { verdict: "fail", confidence: 0.1, strengths: [], gaps: [], feedbackEn: "x" } }));
+      expect(res.status).toBe(409);
+      expect(await get(t, job.assessmentId)).toEqual(before);
+    });
+
+    it("when the attempt differs (a callback after a requeue and re-claim)", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      await post(t, "/ai/callback", { assessmentId: job.assessmentId, attempt: 1, outcome: "error", errorCode: "x" });
+      await post(t, "/ai/claim", { workerId: "w2" });
+      const before = await get(t, job.assessmentId);
+      expect((await post(t, "/ai/callback", resultBody(job))).status).toBe(409); // still attempt 1
+      expect(await get(t, job.assessmentId)).toEqual(before);
+    });
+
+    it("when the Assessment was deleted", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      await t.run((ctx) => ctx.db.delete("assessments", job.assessmentId));
+      expect((await post(t, "/ai/callback", resultBody(job))).status).toBe(409);
+    });
+
+    it.each([["garbage", "not-an-id"]])("when the assessmentId is %s", async (_label, assessmentId) => {
+      const t = setup();
+      const job = await claimed(t);
+      expect((await post(t, "/ai/callback", resultBody(job, { assessmentId }))).status).toBe(409);
+    });
+
+    it("when the assessmentId belongs to another table", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      const row = (await get(t, job.assessmentId))!;
+      const res = await post(t, "/ai/callback", resultBody(job, { assessmentId: row.rubricId }));
+      expect(res.status).toBe(409);
+      expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+    });
+  });
+
+  it.each([
+    ["a non-JSON body", () => "nope"],
+    ["an unknown outcome", (j: Awaited<ReturnType<typeof claimed>>) => ({ assessmentId: j.assessmentId, attempt: 1, outcome: "maybe" })],
+    ["a result missing fields", (j: Awaited<ReturnType<typeof claimed>>) => ({ assessmentId: j.assessmentId, attempt: 1, outcome: "result" })],
+    ["a bad reshoot code", (j: Awaited<ReturnType<typeof claimed>>) => ({ assessmentId: j.assessmentId, attempt: 1, outcome: "reshoot", reason: { code: "blurry", en: "x" } })],
+    ["an Observation for an item not in the Rubric", (j: Awaited<ReturnType<typeof claimed>>) =>
+      resultBody(j, { observations: [{ itemId: "made-up", result: "yes", evidence: "e", timestampS: 1 }] })],
+  ])("returns 400 for %s and leaves the Assessment analyzing", async (_label, make) => {
+    const t = setup();
+    const job = await claimed(t);
+    expect((await post(t, "/ai/callback", make(job))).status).toBe(400);
+    expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+  });
+});
