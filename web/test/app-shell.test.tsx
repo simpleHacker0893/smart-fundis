@@ -42,8 +42,10 @@ vi.mock("convex/react", async () => {
       const name = getFunctionName(ref);
       if (name === "users:me") return state.me;
       if (name === "fundiProfiles:myProfileId") return state.profile;
+      if (name === "fundiProfiles:myShowcaseLinks") return { youtube: null, tiktok: null };
       throw new Error(`unexpected query ${name}`);
     },
+    useMutation: () => vi.fn(),
   };
 });
 
@@ -84,14 +86,14 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
+/** The real (app) layout: the shell, its Fundi primary action and the one Add video sheet. */
 async function renderShell(children: ReactNode = <p>page</p>) {
-  const { AppShell } = await import("@/components/app-shell/app-shell");
-  const { AddVideoLink } = await import("@/components/app-shell/primary-action");
+  const { default: AppLayout } = await import("@/app/(app)/layout");
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en} timeZone="Africa/Nairobi">
         <ConvexAvailableContext.Provider value={true}>
-          <AppShell primaryAction={{ fundi: <AddVideoLink /> }}>{children}</AppShell>
+          <AppLayout>{children}</AppLayout>
         </ConvexAvailableContext.Provider>
       </NextIntlClientProvider>,
     );
@@ -103,6 +105,7 @@ const bottomNav = () => container.querySelector<HTMLElement>(`nav[aria-label="${
 const dialogs = () => [...container.querySelectorAll("dialog")];
 const menuSheet = () => dialogs().find((d) => d.getAttribute("aria-label") === t("sheet.menuTitle"))!;
 const accountSheet = () => dialogs().find((d) => d.getAttribute("aria-label") === t("sheet.accountTitle"))!;
+const addVideoSheets = () => dialogs().filter((d) => d.getAttribute("aria-label") === en.AddVideo.title);
 const text = (el: Element) => (el.textContent ?? "").replace(/\s+/g, " ");
 const categories = (el: Element) => [...el.querySelectorAll("[data-category]")].map((c) => c.textContent);
 const rows = (el: Element) =>
@@ -114,10 +117,10 @@ const byText = (el: Element, selector: string, words: string) =>
   [...el.querySelectorAll<HTMLElement>(selector)].find((b) => text(b).includes(words) || b.getAttribute("aria-label") === words);
 
 describe("AppShell, Fundi (D2, D-65)", () => {
-  it("groups the sidebar menu under OVERVIEW, VERIFICATION, PROFILE and SMART FUNDIS, with Help and Sign out in the footer", async () => {
+  it("groups the sidebar menu under OVERVIEW, VERIFICATION, PROFILE and SMART FUNDIS, with ACCOUNT → Help, Sign out in the footer", async () => {
     await renderShell();
     expect(categories(sidebar())).toEqual(
-      (["overview", "verification", "profile", "smartFundis"] as const).map((k) => t(`categories.${k}`)),
+      (["overview", "verification", "profile", "smartFundis", "account"] as const).map((k) => t(`categories.${k}`)),
     );
     expect(rows(sidebar())).toEqual([
       { label: t("items.home"), href: "/fundi" },
@@ -132,12 +135,38 @@ describe("AppShell, Fundi (D2, D-65)", () => {
     ]);
   });
 
-  it("puts the Add video pill at the top of the sidebar, glow-free, linking to /fundi/record", async () => {
+  it("puts the Add video pill at the top of the sidebar, glow-free, opening the Add video sheet", async () => {
     await renderShell();
-    const pill = byText(sidebar().parentElement!, "a", t("addVideo"))!;
-    expect(pill.getAttribute("href")).toBe("/fundi/record");
+    const pill = byText(sidebar().parentElement!, "button", t("addVideo"))!;
+    expect(pill.getAttribute("aria-haspopup")).toBe("dialog");
     expect(pill.className).toContain("bg-primary");
     expect(pill.className).not.toContain("shadow");
+    await act(async () => pill.click());
+    expect(addVideoSheets()[0].hasAttribute("open")).toBe(true);
+  });
+
+  it("renders the Add video sheet once, outside the desktop-only sidebar, for every trigger", async () => {
+    const { AddVideoButton } = await import("@/components/add-video-sheet");
+    await renderShell(<AddVideoButton className="lg:hidden" />);
+    // One sheet, not inside the aside that is display:none below 1024 px: a
+    // resize from 1024 to 768 px while it is open never leaves the page inert.
+    expect(addVideoSheets()).toHaveLength(1);
+    const sheet = addVideoSheets()[0];
+    expect(sheet.closest("aside")).toBeNull();
+    const mobile = [...container.querySelectorAll<HTMLButtonElement>("main button, #main-content button")].find(
+      (b) => text(b) === t("addVideo"),
+    )!;
+    await act(async () => mobile.click());
+    expect(sheet.hasAttribute("open")).toBe(true);
+    await act(async () => byText(sheet, "button", t("sheet.close"))!.click());
+    expect(sheet.hasAttribute("open")).toBe(false);
+    // The collapsed rail's icon opens the same sheet.
+    await act(async () => container.querySelector<HTMLButtonElement>("button[aria-controls]")!.click());
+    const rail = byText(container.querySelector("aside")!, "button", t("addVideo"))!;
+    expect(rail.getAttribute("title")).toBe(t("addVideo"));
+    await act(async () => rail.click());
+    expect(sheet.hasAttribute("open")).toBe(true);
+    expect(addVideoSheets()).toHaveLength(1);
   });
 
   it("marks only the current item with aria-current, a white label and the amber bar", async () => {
@@ -200,6 +229,15 @@ describe("AppShell, Fundi (D2, D-65)", () => {
     await act(async () => byText(sidebar(), "button", t("items.signOut"))!.click());
     expect(state.signOut).toHaveBeenCalledTimes(1);
   });
+
+  it("styles the skip link white on graphite when focused, never an amber fill", async () => {
+    await renderShell();
+    const skip = container.querySelector<HTMLAnchorElement>('a[href="#main-content"]')!;
+    expect(text(skip)).toBe(t("skipToContent"));
+    expect(skip.className).not.toMatch(/primary/);
+    expect(skip.className).toMatch(/focus:bg-foreground/);
+    expect(skip.className).toMatch(/focus:text-background/);
+  });
 });
 
 describe("AppShell, Expert", () => {
@@ -208,14 +246,19 @@ describe("AppShell, Expert", () => {
     state.me = EXPERT;
   });
 
-  it("groups REVIEW and ACCOUNT, marks Queue current on a review page and has no primary pill", async () => {
+  it("groups REVIEW, SMART FUNDIS, then ACCOUNT → Profile, Help, Sign out; marks Queue current on a review page; has no primary pill", async () => {
     await renderShell();
     expect(categories(sidebar())).toEqual(
-      (["review", "account", "smartFundis"] as const).map((k) => t(`categories.${k}`)),
+      (["review", "smartFundis", "account"] as const).map((k) => t(`categories.${k}`)),
     );
-    expect(rows(sidebar()).slice(0, 2)).toEqual([
+    expect(rows(sidebar())).toEqual([
       { label: t("items.queue"), href: "/expert" },
+      { label: t("items.trades"), href: "/trades" },
+      { label: t("items.evidence"), href: "/evidence" },
+      { label: t("items.company"), href: "/about" },
       { label: t("items.profile"), href: null },
+      { label: t("items.help"), href: "/contact" },
+      { label: t("items.signOut"), href: null },
     ]);
     expect(sidebar().querySelector('[aria-current="page"]')?.getAttribute("href")).toBe("/expert");
     expect(container.innerHTML).not.toContain(t("addVideo"));
@@ -247,23 +290,61 @@ describe("avatar sheet and role switch", () => {
     expect(text(sheet)).toContain("Wanjiku Kamau");
     expect(text(sheet)).toContain("w@example.com");
     expect(sheet.querySelector("img")).toBeNull();
-    expect(sheet.querySelectorAll('input[type="radio"]')).toHaveLength(0);
+    expect(sheet.querySelectorAll("[aria-pressed]")).toHaveLength(0);
+    expect(text(sheet)).not.toContain(t("switcher.legend"));
     await act(async () => byText(sheet, "button", t("avatar.manage"))!.click());
     expect(state.openUserProfile).toHaveBeenCalledTimes(1);
   });
 
-  it("shows the DASHBOARD radio group to a Fundi who is also an Expert, and switching goes to that home", async () => {
+  const roleButtons = (el: Element) => [...el.querySelectorAll<HTMLButtonElement>("button[aria-pressed]")];
+
+  it("shows the DASHBOARD switch to a Fundi who is also an Expert, and choosing a role goes to that home", async () => {
     state.me = BOTH;
     await renderShell();
     const sheet = await openAccount();
-    const radios = [...sheet.querySelectorAll<HTMLInputElement>('input[type="radio"]')];
-    expect(radios).toHaveLength(2);
-    const fundi = radios.find((r) => r.value === "fundi")!;
-    const expert = radios.find((r) => r.value === "expert")!;
-    expect(fundi.checked).toBe(true);
-    expect(text(fundi.closest("label")!)).toContain(t("switcher.current"));
-    expect(text(expert.closest("label")!)).not.toContain(t("switcher.current"));
+    const [fundi, expert] = roleButtons(sheet);
+    expect(roleButtons(sheet)).toHaveLength(2);
+    expect(text(fundi)).toContain(t("switcher.fundi"));
+    expect(fundi.getAttribute("aria-pressed")).toBe("true");
+    expect(text(fundi)).toContain(t("switcher.current"));
+    expect(expert.getAttribute("aria-pressed")).toBe("false");
+    expect(text(expert)).not.toContain(t("switcher.current"));
+    await act(async () => fundi.click());
+    expect(state.push).not.toHaveBeenCalled();
     await act(async () => expert.click());
+    expect(state.push).toHaveBeenCalledWith("/expert");
+  });
+
+  it("never navigates on arrow keys: only an explicit click or Enter switches (WCAG 3.2.2)", async () => {
+    state.me = BOTH;
+    await renderShell();
+    const sheet = await openAccount();
+    expect(sheet.querySelectorAll('input[type="radio"]')).toHaveLength(0);
+    const [fundi] = roleButtons(sheet);
+    fundi.focus();
+    for (const key of ["ArrowDown", "ArrowRight", "ArrowUp", "ArrowLeft"]) {
+      await act(async () => {
+        fundi.dispatchEvent(new KeyboardEvent("keydown", { key, bubbles: true }));
+      });
+    }
+    expect(state.push).not.toHaveBeenCalled();
+    // Every row is a real button, so Enter and Space activate it natively.
+    for (const button of roleButtons(sheet)) expect(button.type).toBe("button");
+  });
+
+  it("also puts the DASHBOARD switch in the desktop sidebar footer, only for a dual-role User", async () => {
+    await renderShell();
+    const aside = () => container.querySelector("aside")!;
+    expect(roleButtons(aside())).toHaveLength(0);
+
+    state.me = BOTH;
+    await renderShell();
+    const buttons = roleButtons(aside());
+    expect(buttons).toHaveLength(2);
+    // It sits in the footer, just above the ACCOUNT group.
+    const account = [...aside().querySelectorAll("[data-category]")].find((c) => c.textContent === t("categories.account"))!;
+    expect(buttons[1].compareDocumentPosition(account) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    await act(async () => buttons[1].click());
     expect(state.push).toHaveBeenCalledWith("/expert");
   });
 });

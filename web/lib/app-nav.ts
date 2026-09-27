@@ -75,11 +75,8 @@ export function roleMenu(role: ShellRole | null, { publicProfileHref }: { public
     ];
   }
   if (role === "expert") {
-    return [
-      // The review page (/expert/<id>) belongs to the queue.
-      { key: "review", items: [{ key: "queue", icon: "queue", href: "/expert", match: within("/expert") }] },
-      { key: "account", items: [{ key: "profile", icon: "profile", action: "manageAccount" }] },
-    ];
+    // The review page (/expert/<id>) belongs to the queue.
+    return [{ key: "review", items: [{ key: "queue", icon: "queue", href: "/expert", match: within("/expert") }] }];
   }
   return [];
 }
@@ -94,11 +91,18 @@ export const SITE_GROUP: NavGroup = {
   ],
 };
 
-/** The footer, pinned at the bottom: Help sits in the same place on every role (WCAG 3.2.6). */
-export const FOOTER_ITEMS: readonly NavItem[] = [
-  { key: "help", icon: "help", href: "/contact" },
-  { key: "signOut", icon: "signOut", action: "signOut" },
-];
+const HELP: NavItem = { key: "help", icon: "help", href: "/contact" };
+const SIGN_OUT: NavItem = { key: "signOut", icon: "signOut", action: "signOut" };
+
+/**
+ * The footer group, pinned at the bottom and labelled ACCOUNT on every role
+ * (D2): Help and Sign out sit in the same place everywhere (WCAG 3.2.6). The
+ * Expert's Profile (Clerk's account page) leads the same group.
+ */
+export function accountGroup(role: ShellRole | null): NavGroup {
+  const profile: NavItem[] = role === "expert" ? [{ key: "profile", icon: "profile", action: "manageAccount" }] : [];
+  return { key: "account", items: [...profile, HELP, SIGN_OUT] };
+}
 
 /** Up to 3 of the role's most-used items; the shell adds More (D2). */
 export function bottomNav(role: ShellRole | null): BottomItem[] {

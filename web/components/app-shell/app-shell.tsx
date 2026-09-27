@@ -9,8 +9,8 @@ import { api } from "@convex/_generated/api";
 import { useConvexAvailable } from "@/components/convex-available";
 import { SIGNED_OUT_PATH } from "@/lib/auth-routes";
 import {
+  accountGroup,
   bottomNav,
-  FOOTER_ITEMS,
   initialsOf,
   roleFromPath,
   roleMenu,
@@ -23,6 +23,7 @@ import { AvatarSheet } from "./avatar-sheet";
 import { BottomNav } from "./bottom-nav";
 import { ConnectionStrip } from "./connection-strip";
 import { NavMenu } from "./nav-menu";
+import { RoleSwitch } from "./role-switch";
 import { Sheet, useSheet } from "./sheet";
 import { ShellSidebarContext } from "./shell-context";
 import { Sidebar } from "./sidebar";
@@ -32,8 +33,8 @@ export type AppShellProps = {
   children: ReactNode;
   /**
    * The primary action at the top of the sidebar, per role (D2). Fundi:
-   * <AddVideoLink /> in phase A; phase B passes its Add video sheet trigger
-   * (built on PrimaryActionButton). Roles without one get none.
+   * the Add video sheet trigger (built on PrimaryActionButton). Roles
+   * without one get none.
    */
   primaryAction?: Partial<Record<ShellRole, ReactNode>>;
 };
@@ -98,7 +99,7 @@ function ShellFrame({ children, primaryAction, data }: AppShellProps & { data: S
   const menu = {
     groups: roleMenu(role, { publicProfileHref: data.publicProfileHref }),
     site: SITE_GROUP,
-    footer: FOOTER_ITEMS,
+    footer: accountGroup(role),
     pathname,
     onAction: run,
   };
@@ -116,7 +117,13 @@ function ShellFrame({ children, primaryAction, data }: AppShellProps & { data: S
         />
         <ConnectionStrip />
         <div className="flex flex-1">
-          <Sidebar id={sidebarId} collapsed={collapsed} primaryAction={role ? primaryAction?.[role] : null} menu={menu} />
+          <Sidebar
+            id={sidebarId}
+            collapsed={collapsed}
+            primaryAction={role ? primaryAction?.[role] : null}
+            roleSwitch={data.dualRole ? <RoleSwitch current={role} /> : null}
+            menu={menu}
+          />
           {/* The skip link's target. Bottom padding keeps content clear of the fixed bottom nav. */}
           <div
             id="main-content"

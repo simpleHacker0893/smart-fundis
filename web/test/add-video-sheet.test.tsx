@@ -13,6 +13,8 @@ import { makeIsFromMessages } from "./copy-helpers";
 (globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean }).IS_REACT_ACT_ENVIRONMENT = true;
 
 const t = createTranslator({ locale: defaultLocale, messages: en, namespace: "AddVideo" });
+
+vi.mock("next/navigation", () => ({ usePathname: () => "/fundi", useRouter: () => ({ push: vi.fn(), replace: vi.fn() }) }));
 const YOUTUBE = "https://youtu.be/2tdN85reWN0";
 
 function saved(url: string) {
@@ -78,7 +80,7 @@ describe("the Add video sheet (prompt 26)", () => {
     expect(groups.map((g) => g.getAttribute("data-group"))).toEqual(["record", "link"]);
     const [record, link] = groups;
     expect(record.textContent).toContain("Record or upload");
-    expect(record.textContent).toContain("Earns a badge once an Expert approves it.");
+    expect(record.textContent).toContain("Earns a Badge once an Expert approves it.");
     expect(record.textContent).toContain("You'll film one task with a code we give you.");
     expect(record.querySelector("a")?.getAttribute("href")).toBe("/fundi/record");
     expect(record.querySelector("a")?.className).toMatch(/\bmin-h-12\b/);
@@ -91,7 +93,7 @@ describe("the Add video sheet (prompt 26)", () => {
 
     expect(link.textContent).toContain("Add a YouTube or TikTok link");
     expect(link.textContent).toContain("Showcase — not verified");
-    expect(link.textContent).toContain("Links never earn a badge. They show on your profile as examples of your work.");
+    expect(link.textContent).toContain("Links never earn a Badge. They show on your profile as examples of your work.");
     expect(link.textContent).toContain("Only link to videos of your own work.");
     expect(input().placeholder).toBe(t("link.placeholder"));
     expect(submit().textContent).toBe("Add link");
@@ -173,6 +175,26 @@ describe("the Add video sheet (prompt 26)", () => {
     expect(text()).toContain("https://www.youtube.com/watch?v=2tdN85reWN0");
   });
 
+  it("warns before saving that a link replaces the saved one of the same site", async () => {
+    const TIKTOK = "https://www.tiktok.com/@fundi.wanjiru/video/7212345678901234567";
+    await render({ youtube: saved(YOUTUBE), tiktok: null });
+    expect(text()).not.toContain(t("link.replaces.youtube"));
+    await type("https://youtu.be/dQw4w9WgXcQ");
+    expect(text()).toContain(t("link.replaces.youtube"));
+    expect(onSave).not.toHaveBeenCalled();
+    // A TikTok link fills the empty TikTok slot: nothing is replaced.
+    await type(TIKTOK);
+    expect(text()).not.toContain(t("link.replaces.youtube"));
+    expect(text()).not.toContain(t("link.replaces.tiktok"));
+
+    await render({ youtube: null, tiktok: saved(TIKTOK) });
+    await type(TIKTOK);
+    expect(text()).toContain(t("link.replaces.tiktok"));
+    // The warning is tied to the field, so a screen reader hears it there.
+    const warning = [...container.querySelectorAll("p")].find((p) => p.textContent === t("link.replaces.tiktok"))!;
+    expect(input().getAttribute("aria-describedby")).toContain(warning.id);
+  });
+
   it("disables Add link offline with 'Needs a connection', and re-enables it when back", async () => {
     online = false;
     await render();
@@ -201,13 +223,15 @@ describe("the Add video sheet (prompt 26)", () => {
 
 describe("the Add video trigger (shell slot and mobile Home button)", () => {
   it("opens the sheet as an anchored dialog titled Add video", async () => {
-    const { AddVideoButton } = await import("@/components/add-video-sheet");
+    const { AddVideoButton, AddVideoProvider } = await import("@/components/add-video-sheet");
     const { ConvexAvailableContext } = await import("@/components/convex-available");
     await act(async () => {
       root.render(
         <NextIntlClientProvider locale={defaultLocale} messages={en}>
           <ConvexAvailableContext value={false}>
-            <AddVideoButton />
+            <AddVideoProvider>
+              <AddVideoButton />
+            </AddVideoProvider>
           </ConvexAvailableContext>
         </NextIntlClientProvider>,
       );

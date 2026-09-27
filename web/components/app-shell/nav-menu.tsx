@@ -2,7 +2,7 @@
 
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { useId } from "react";
+import { type ReactNode, useId } from "react";
 import { cn } from "cn";
 import type { NavGroup, NavItem, ShellAction } from "@/lib/app-nav";
 import { NAV_ICONS } from "./icons";
@@ -10,7 +10,10 @@ import { NAV_ICONS } from "./icons";
 export type NavMenuProps = {
   groups: readonly NavGroup[];
   site: NavGroup;
-  footer: readonly NavItem[];
+  /** The ACCOUNT group, pinned at the bottom above a hairline. */
+  footer: NavGroup;
+  /** Drawn in the footer above ACCOUNT: the desktop sidebar's DASHBOARD switch. */
+  footerStart?: ReactNode;
   pathname: string;
   /** The desktop 64 px rail: labels become accessible names plus a title tooltip. */
   collapsed?: boolean;
@@ -22,9 +25,9 @@ export type NavMenuProps = {
 /**
  * The grouped menu (D2, D-65): the same in the desktop sidebar and the More
  * sheet. Role groups on top, the SMART FUNDIS group pushed down, then the
- * footer (Help, Sign out) above a hairline.
+ * footer above a hairline: the role switch when given, and ACCOUNT.
  */
-export function NavMenu({ groups, site, footer, pathname, collapsed = false, onAction, onNavigate }: NavMenuProps) {
+export function NavMenu({ groups, site, footer, footerStart, pathname, collapsed = false, onAction, onNavigate }: NavMenuProps) {
   const row = { pathname, collapsed, onAction, onNavigate };
   return (
     <div className="flex min-h-full flex-1 flex-col">
@@ -36,18 +39,17 @@ export function NavMenu({ groups, site, footer, pathname, collapsed = false, onA
       <div className="mt-auto flex flex-col gap-6 pt-8 pb-4">
         <Group group={site} {...row} />
       </div>
-      <ul className="border-t border-line py-2">
-        {footer.map((item) => (
-          <li key={item.key}>
-            <Row item={item} {...row} />
-          </li>
-        ))}
-      </ul>
+      <div className="border-t border-line">
+        {footerStart}
+        <div className="pt-4 pb-2">
+          <Group group={footer} {...row} />
+        </div>
+      </div>
     </div>
   );
 }
 
-type RowContext = Omit<NavMenuProps, "groups" | "site" | "footer">;
+type RowContext = Omit<NavMenuProps, "groups" | "site" | "footer" | "footerStart">;
 
 function Group({ group, ...row }: { group: NavGroup } & RowContext) {
   const t = useTranslations("AppShell");

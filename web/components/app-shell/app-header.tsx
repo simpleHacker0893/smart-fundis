@@ -38,7 +38,7 @@ export function AppHeader({
     <header className="sticky top-0 z-40 flex h-14 items-center justify-between gap-2 border-b border-line bg-background px-2 lg:h-16 lg:px-4">
       <a
         href="#main-content"
-        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:z-50 focus:rounded-full focus:bg-primary focus:px-4 focus:py-3 focus:text-sm focus:font-bold focus:text-primary-foreground"
+        className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-4 focus:z-50 focus:rounded-full focus:bg-foreground focus:px-4 focus:py-3 focus:text-base focus:font-semibold focus:text-background"
       >
         {t("skipToContent")}
       </a>

@@ -3,53 +3,56 @@
 import { useTranslations } from "next-intl";
 import { useRouter } from "next/navigation";
 import { useId, useTransition } from "react";
+import { cn } from "cn";
 import { ROLE_HOME, type ShellRole } from "@/lib/app-nav";
 
 const ROLES: readonly ShellRole[] = ["fundi", "expert"];
 
 /**
- * The DASHBOARD radio group (D2, US-8.18), shown only to a User who holds
- * two or more roles. Choosing a role opens its home. Roles are derived
+ * The DASHBOARD switch (D2, US-8.18), shown only to a User who holds two or
+ * more roles: in the avatar sheet, and in the desktop sidebar's footer. Each
+ * role is a 56 px button with aria-pressed, the current one marked ● and
+ * "Current". A switch happens only on an explicit click, Enter or Space,
+ * never on arrow keys as a radio group would (WCAG 3.2.2). Roles are derived
  * (ADR-18): this never offers a role the User doesn't hold.
  * Not yet saved on the server: users.setDashboardPref arrives with V7-1 (#46).
  */
-export function RoleSwitch({ current }: { current: ShellRole | null }) {
+export function RoleSwitch({ current, className }: { current: ShellRole | null; className?: string }) {
   const t = useTranslations("AppShell");
   const router = useRouter();
-  const name = useId();
+  const legend = useId();
   const [pending, startTransition] = useTransition();
 
   return (
-    <fieldset className="border-t border-line px-4 py-4">
-      <legend className="float-left mb-2 w-full font-mono text-xs tracking-[0.26em] text-dim uppercase">{t("switcher.legend")}</legend>
-      <div className="clear-left flex flex-col">
+    <div role="group" aria-labelledby={legend} className={cn("px-4 py-4", className)}>
+      <p id={legend} className="mb-2 font-mono text-xs tracking-[0.26em] text-dim uppercase">
+        {t("switcher.legend")}
+      </p>
+      <div className="flex flex-col">
         {ROLES.map((role) => {
           const selected = role === current;
           return (
-            <label
+            <button
               key={role}
-              className="flex min-h-14 cursor-pointer items-center gap-3 border-b border-line text-base last:border-b-0 has-[:focus-visible]:outline-2 has-[:focus-visible]:-outline-offset-2 has-[:focus-visible]:outline-ring"
+              type="button"
+              aria-pressed={selected}
+              onClick={() => {
+                if (!selected) startTransition(() => router.push(ROLE_HOME[role]));
+              }}
+              className="flex min-h-14 w-full items-center gap-3 border-b border-line text-left text-base text-foreground last:border-b-0 focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-ring"
             >
-              <input
-                type="radio"
-                name={name}
-                value={role}
-                checked={selected}
-                className="sr-only"
-                onChange={() => startTransition(() => router.push(ROLE_HOME[role]))}
-              />
               <span aria-hidden="true" className="w-4 text-center">
                 {selected ? "●" : "○"}
               </span>
               <span className="flex-1">{t(`switcher.${role}`)}</span>
               {selected ? <span className="font-mono text-xs tracking-[0.08em] text-dim uppercase">{t("switcher.current")}</span> : null}
-            </label>
+            </button>
           );
         })}
       </div>
       <p role="status" className="min-h-6 pt-2 font-mono text-xs text-dim">
         {pending ? t("switcher.switching") : null}
       </p>
-    </fieldset>
+    </div>
   );
 }

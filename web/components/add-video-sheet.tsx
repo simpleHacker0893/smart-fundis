@@ -4,7 +4,8 @@ import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { ChevronRight, Link2, Video } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
-import { type FormEvent, type Ref, useId, useState } from "react";
+import { usePathname } from "next/navigation";
+import { createContext, type FormEvent, type ReactNode, type Ref, use, useId, useMemo, useState } from "react";
 import { cn } from "cn";
 import { api } from "@convex/_generated/api";
 import { parseShowcaseLink, SHOWCASE_KINDS, type ShowcaseKind, type ShowcaseSlotError } from "@convex/lib/showcaseLinks";
@@ -17,6 +18,7 @@ import { useConvexAvailable } from "@/components/convex-available";
 import type { SavedShowcaseLinks, ShowcaseLinksUpdate } from "@/components/showcase-links-editor";
 import { FIELD, LABEL } from "@/components/ui/field-label";
 import { APP_PRIMARY_PILL, SECONDARY_PILL } from "@/components/ui/pill";
+import { roleFromPath } from "@/lib/app-nav";
 import { isFundi } from "@/lib/page-guard";
 import { isShowcaseHost, showcaseSaveErrorKey } from "@/lib/showcase-errors";
 
@@ -38,7 +40,9 @@ function linkErrorFor(error: ShowcaseSlotError, text: string): LinkError {
  * TikTok link as "Showcase — not verified". Both actions are outlined: the
  * sheet has no amber fill. The link is checked by the shared parser, saved
  * into its site's slot through fundiProfiles.setShowcaseLinks (`onSave`),
- * and never fetched. Offline, Add link is disabled with the reason in words.
+ * and never fetched; a link for a site that already has one says it
+ * replaces it before saving. Offline, Add link is disabled with the reason
+ * in words.
  */
 export function AddVideoPanel({
   links,
@@ -82,6 +86,9 @@ export function AddVideoPanel({
   }
 
   const fieldError = error !== null && error !== "save";
+  // Saving fills the link's site slot: say so first when that slot already holds a link.
+  const typed = parseShowcaseLink(value);
+  const replaces: ShowcaseKind | null = typed.ok && links?.[typed.link.kind] ? typed.link.kind : null;
   const savedLinks = links ? SHOWCASE_KINDS.flatMap((kind) => (links[kind] ? [{ kind, url: links[kind].url }] : [])) : [];
 
   return (
@@ -132,12 +139,19 @@ export function AddVideoPanel({
             value={value}
             onChange={(event) => setValue(event.currentTarget.value)}
             aria-invalid={fieldError ? true : undefined}
-            aria-describedby={[`${id}-helper`, error ? `${id}-error` : null].filter(Boolean).join(" ")}
+            aria-describedby={[`${id}-helper`, replaces ? `${id}-replaces` : null, error ? `${id}-error` : null]
+              .filter(Boolean)
+              .join(" ")}
             className={LINK_FIELD}
           />
           <p id={`${id}-helper`} className="text-base text-dim">
             {t("link.helper")}
           </p>
+          {replaces ? (
+            <p id={`${id}-replaces`} className="text-base text-foreground">
+              {t(`link.replaces.${replaces}`)}
+            </p>
+          ) : null}
           {error ? <ErrorLine id={`${id}-error`}>{t(`errors.${error}`)}</ErrorLine> : null}
           {added ? (
             <p role="status" className="text-base">
@@ -200,19 +214,42 @@ function AddVideoSheet({ sheetRef, onNavigate }: { sheetRef: Ref<HTMLDialogEleme
   );
 }
 
+const AddVideoContext = createContext<{ open: () => void } | null>(null);
+
+/**
+ * Renders the one Add video sheet for every role page, outside the shell's
+ * sidebar (#67). The sidebar is display:none below 1024 px, so a modal
+ * <dialog> inside it would hide on a resize while the page stays inert.
+ * The triggers (the sidebar pill, the rail icon, the mobile pill) only call
+ * `open`. Set up once by app/(app)/layout.tsx; only Fundi routes draw the
+ * sheet (nothing looks live that isn't).
+ */
+export function AddVideoProvider({ children }: { children: ReactNode }) {
+  const { ref, open, close } = useSheet();
+  const fundi = roleFromPath(usePathname() ?? "") === "fundi";
+  const value = useMemo(() => ({ open }), [open]);
+  return (
+    <AddVideoContext value={value}>
+      {children}
+      {fundi ? <AddVideoSheet sheetRef={ref} onNavigate={close} /> : null}
+    </AddVideoContext>
+  );
+}
+
+function useAddVideo(): { open: () => void } {
+  const context = use(AddVideoContext);
+  if (context === null) throw new Error("Add video triggers must sit inside <AddVideoProvider>.");
+  return context;
+}
+
 /**
  * The Fundi's primary action in the shell's sidebar slot (D2): the amber
  * "Add video" pill (or the rail's icon button) that opens the sheet.
  */
 export function AddVideoAction() {
   const t = useTranslations("AppShell");
-  const { ref, open, close } = useSheet();
-  return (
-    <>
-      <PrimaryActionButton label={t("addVideo")} aria-haspopup="dialog" onClick={open} />
-      <AddVideoSheet sheetRef={ref} onNavigate={close} />
-    </>
-  );
+  const { open } = useAddVideo();
+  return <PrimaryActionButton label={t("addVideo")} aria-haspopup="dialog" onClick={open} />;
 }
 
 /**
@@ -222,18 +259,15 @@ export function AddVideoAction() {
  */
 export function AddVideoButton({ className }: { className?: string }) {
   const t = useTranslations("AppShell");
-  const { ref, open, close } = useSheet();
+  const { open } = useAddVideo();
   return (
-    <>
-      <button
-        type="button"
-        aria-haspopup="dialog"
-        onClick={open}
-        className={cn(APP_PRIMARY_PILL, "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring", className)}
-      >
-        {t("addVideo")}
-      </button>
-      <AddVideoSheet sheetRef={ref} onNavigate={close} />
-    </>
+    <button
+      type="button"
+      aria-haspopup="dialog"
+      onClick={open}
+      className={cn(APP_PRIMARY_PILL, "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring", className)}
+    >
+      {t("addVideo")}
+    </button>
   );
 }

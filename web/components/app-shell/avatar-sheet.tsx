@@ -42,7 +42,7 @@ export function AvatarSheet({
           {user.email ? <p className="font-mono text-xs text-dim [overflow-wrap:anywhere]">{user.email}</p> : null}
         </div>
       </div>
-      {dualRole ? <RoleSwitch current={role} /> : null}
+      {dualRole ? <RoleSwitch current={role} className="border-t border-line" /> : null}
       <div className="flex flex-col border-t border-line py-2">
         <button type="button" className={ACTION} onClick={onManage}>
           {t("avatar.manage")}

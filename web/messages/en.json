@@ -1516,7 +1516,9 @@
       "code": "2 Your code",
       "record": "3 Record",
       "consent": "4 Consent and upload"
-    }
+    },
+    "seeVerifications": "See my verifications",
+    "offline": "Needs a connection"
   },
   "Showcase": {
     "title": "Show your past work",
@@ -1573,14 +1575,15 @@
     "noteCount": "{count} / {max}",
     "submit": "Submit decision",
     "submitting": "Submitting…",
-    "choiceRequired": "Choose Approve, Ask for a new video or Reject.",
     "errors": {
       "forbidden": "You can't decide this video. It may be your own, or not in one of your Trades.",
       "invalid_status": "This video has already been decided, so there is nothing to do here.",
       "note_required": "Add a note for the Fundi.",
       "note_too_long": "Keep the note under {max} characters.",
       "unexpected": "We couldn't save your decision. Try again."
-    }
+    },
+    "chooseFirst": "Choose a decision first.",
+    "offline": "Needs a connection"
   },
   "ExpertPage": {
     "meta": {
@@ -1669,9 +1672,10 @@
       },
       "strengths": "Strengths",
       "gaps": "Gaps",
-      "feedback": "Feedback the AI wrote for the Fundi",
+      "feedback": "Feedback the AI drafted (not shown to the Fundi yet)",
       "none": "None",
-      "fallback": "Checked with the backup model"
+      "fallback": "Checked with the backup model",
+      "locked": "Watch the whole video to see the AI suggestion."
     }
   },
   "PublicProfile": {
@@ -1819,25 +1823,26 @@
       "queued": "Waiting in line for the AI check.",
       "analyzing": "The AI is watching your video.",
       "awaiting_review": "An Expert will review your video.",
-      "appealed": "A different Expert will review your appeal.",
+      "appealed": "A different Expert or a Smart Fundis admin will review your appeal.",
       "failed": "Something went wrong on our side — please record again."
     },
     "expertNote": "Expert's note",
-    "recordAgain": "Record again"
+    "recordAgain": "Record again",
+    "statusChanged": "{task}: {status}"
   },
   "AddVideo": {
     "title": "Add video",
     "intro": "Choose how to add it.",
     "record": {
       "title": "Record or upload",
-      "line": "Earns a badge once an Expert approves it.",
+      "line": "Earns a Badge once an Expert approves it.",
       "note": "You'll film one task with a code we give you."
     },
     "or": "Or",
     "link": {
       "title": "Add a YouTube or TikTok link",
       "tag": "Showcase — not verified",
-      "line": "Links never earn a badge. They show on your profile as examples of your work.",
+      "line": "Links never earn a Badge. They show on your profile as examples of your work.",
       "label": "Link",
       "placeholder": "https://youtube.com/…",
       "helper": "Only link to videos of your own work.",
@@ -1845,7 +1850,11 @@
       "adding": "Adding…",
       "added": "Added to Showcase — not verified.",
       "offline": "Needs a connection",
-      "savedTitle": "Showcase links"
+      "savedTitle": "Showcase links",
+      "replaces": {
+        "youtube": "This replaces your saved YouTube link.",
+        "tiktok": "This replaces your saved TikTok link."
+      }
     },
     "errors": {
       "host": "Only YouTube or TikTok links can be added.",
@@ -1860,7 +1869,7 @@
       "title": "Record a video · Smart Fundis"
     },
     "title": "Record or upload",
-    "intro": "Earns a badge once an Expert approves it."
+    "intro": "Earns a Badge once an Expert approves it."
   },
   "ShowcasePage": {
     "meta": {
