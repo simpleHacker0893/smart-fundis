@@ -42,14 +42,13 @@ function AssessmentItem({ assessment }: { assessment: Assessment }) {
   const format = useFormatter();
   const names = useCatalogueNames();
   const detail = statusDetail(assessment, t);
+  const trade = names.trade(assessment.tradeSlug, assessment.tradeName);
+  const task = names.task(assessment.taskSlug, assessment.taskName);
 
   return (
     <li data-testid="assessment" className="flex flex-col gap-2 rounded border border-line p-4">
       <span className="text-base break-words">
-        {t("taskLine", {
-          trade: names.trade(assessment.tradeSlug, assessment.tradeName),
-          task: names.task(assessment.taskSlug, assessment.taskName),
-        })}
+        {t("taskLine", { trade, task })}
       </span>
       <span className={LABEL}>
         {t("sent", { date: format.dateTime(assessment._creationTime, { dateStyle: "medium" }) })}
@@ -57,7 +56,24 @@ function AssessmentItem({ assessment }: { assessment: Assessment }) {
       <span data-testid="status-chip" data-status={assessment.status} className={CHIP}>
         {t(`status.${assessment.status}`)}
       </span>
+      {assessment.status === "approved" && assessment.decidedAt !== undefined ? (
+        // US-5.4: the Badge line. An Expert's approval is the Badge (nothing stores one).
+        <span data-testid="badge-line" className="text-base font-medium break-words">
+          {t("badgeLine", {
+            trade,
+            task,
+            date: format.dateTime(assessment.decidedAt, { dateStyle: "medium" }),
+          })}
+        </span>
+      ) : null}
       {detail ? <span className="text-sm text-foreground/75">{detail}</span> : null}
+      {assessment.expertNote ? (
+        // Only on reshoot or rejected (listMine); the decider is never shown.
+        <span data-testid="expert-note" className="flex flex-col gap-1">
+          <span className={LABEL}>{t("expertNoteLabel")}</span>
+          <span className="text-sm break-words">{assessment.expertNote}</span>
+        </span>
+      ) : null}
     </li>
   );
 }
@@ -68,7 +84,6 @@ function statusDetail(assessment: Assessment, t: ReturnType<typeof useTranslatio
     // The reason's own text is the AI's; the web shows its en.json copy by code (D-64).
     return assessment.reshootReason ? t(`reshootReasons.${assessment.reshootReason.code}`) : t("reshootByExpert");
   }
-  // listMine does not carry the Expert's note yet (reviews come with #41).
   if (assessment.status === "rejected") return t("rejectedNote");
   return null;
 }

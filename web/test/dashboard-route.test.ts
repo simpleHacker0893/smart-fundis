@@ -39,8 +39,10 @@ describe("dashboardPath (spec §4 routing)", () => {
     expect(dashboardPath(me({}, null), ALL_BUILT)).toBe("/onboarding");
   });
 
-  it("defaults to the dashboards built so far: /fundi, not /admin or /expert (#37; /expert is #41)", () => {
-    expect(BUILT_ROLE_ROUTES).toEqual({ admin: false, expert: false, fundi: true });
-    expect(dashboardPath(me({ base: "fundi", expert: true, admin: true }))).toBe("/fundi");
+  it("defaults to the dashboards built so far: /expert and /fundi, not /admin (#41 built /expert)", () => {
+    expect(BUILT_ROLE_ROUTES).toEqual({ admin: false, expert: true, fundi: true });
+    expect(dashboardPath(me({ base: "fundi", expert: true, admin: true }))).toBe("/expert");
+    expect(dashboardPath(me({ base: "fundi", expert: true }))).toBe("/expert");
+    expect(dashboardPath(me({ base: "fundi" }))).toBe("/fundi");
   });
 });

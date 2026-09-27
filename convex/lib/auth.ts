@@ -197,3 +197,49 @@ function adminEmails(): Set<string> {
       .filter((e) => e.length > 0),
   );
 }
+
+/** Why canDecide refused a decider. */
+export type DecideRefusal =
+  | "own_assessment"
+  | "demo_assessment"
+  | "not_expert"
+  | "not_approved_for_trade"
+  | "original_decider";
+
+/**
+ * Whether this User may decide this Assessment (spec §4 canDecide; CONTEXT
+ * "Expert", "Appeal"). All of these must hold:
+ * - the decider is not the Assessment's own Fundi. This applies to Admins
+ *   too: being an Admin never lifts it;
+ * - the Assessment is not a Demo Fundi's (`users.isDemo`; CONTEXT "Demo
+ *   profile": Demo Assessments never reach an Expert);
+ * - the decider is an active Expert approved for the Assessment's Trade;
+ * - for an `appealed` Assessment, the decider did not make the original
+ *   decision (any `review` row on it by this decider).
+ * The User is always the verified caller (ADR-18), never an argument. It does
+ * not check the status: each caller checks the status change it makes.
+ */
+export async function canDecide(
+  ctx: Ctx,
+  userId: Id<"users">,
+  assessment: Doc<"assessments">,
+): Promise<{ ok: true; expert: Doc<"experts"> } | { ok: false; code: DecideRefusal }> {
+  if (assessment.fundiUserId === userId) return { ok: false, code: "own_assessment" };
+  const fundi = await ctx.db.get("users", assessment.fundiUserId);
+  if (fundi?.isDemo === true) return { ok: false, code: "demo_assessment" };
+  const expert = await getActiveExpert(ctx, userId);
+  if (expert === null) return { ok: false, code: "not_expert" };
+  if (!expert.approvedTrades.includes(assessment.tradeSlug)) {
+    return { ok: false, code: "not_approved_for_trade" };
+  }
+  if (assessment.status === "appealed") {
+    for await (const review of ctx.db
+      .query("reviews")
+      .withIndex("by_assessmentId", (q) => q.eq("assessmentId", assessment._id))) {
+      if (review.kind === "review" && review.deciderUserId === userId) {
+        return { ok: false, code: "original_decider" };
+      }
+    }
+  }
+  return { ok: true, expert };
+}

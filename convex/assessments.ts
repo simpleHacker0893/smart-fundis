@@ -10,10 +10,11 @@ import {
   type UploadRejection,
   uploadRejectionValidator,
 } from "./lib/assessmentUpload";
+import { nameLookup, namesFields } from "./lib/assessmentNames";
 import { getActiveRubric } from "./lib/rubrics";
 import { isStorageReferenced } from "./lib/storage";
 import { taskNeedsClientConsent } from "./lib/trades";
-import { assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
+import { type AssessmentStatus, assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
 
 // The Fundi's upload flow (#38). Architecture spec §5 (status table: (new) ->
 // queued) and §7 (consent, video access).
@@ -250,41 +251,6 @@ export const create = mutation({
 /** Far above what one Fundi records in the MVP; keeps listMine bounded. */
 const LIST_MINE_LIMIT = 100;
 
-/** The Trade and Task names of an Assessment (English; the web translates by slug). */
-type Names = { tradeSlug: string; tradeName: string; taskSlug: string; taskName: string };
-
-/** Looks up names once per Trade and Rubric, however many Assessments share them. */
-function nameLookup(ctx: QueryCtx) {
-  const trades = new Map<string, Promise<string>>();
-  const rubrics = new Map<Id<"rubrics">, Promise<{ taskSlug: string; taskName: string }>>();
-  return async (row: Doc<"assessments">): Promise<Names> => {
-    let tradeName = trades.get(row.tradeSlug);
-    if (tradeName === undefined) {
-      tradeName = ctx.db
-        .query("trades")
-        .withIndex("by_slug", (q) => q.eq("slug", row.tradeSlug))
-        .unique()
-        .then((trade) => trade?.name ?? row.tradeSlug);
-      trades.set(row.tradeSlug, tradeName);
-    }
-    let task = rubrics.get(row.rubricId);
-    if (task === undefined) {
-      task = ctx.db
-        .get("rubrics", row.rubricId)
-        .then((rubric) => ({ taskSlug: rubric?.taskSlug ?? "", taskName: rubric?.taskName ?? "" }));
-      rubrics.set(row.rubricId, task);
-    }
-    return { tradeSlug: row.tradeSlug, tradeName: await tradeName, ...(await task) };
-  };
-}
-
-const namesFields = {
-  tradeSlug: v.string(),
-  tradeName: v.string(),
-  taskSlug: v.string(),
-  taskName: v.string(),
-};
-
 const listItemValidator = v.object({
   _id: v.id("assessments"),
   _creationTime: v.number(),
@@ -292,12 +258,36 @@ const listItemValidator = v.object({
   ...namesFields,
   reshootReason: v.optional(reshootReasonValidator),
   previousAssessmentId: v.optional(v.id("assessments")),
+  // US-5.4: when an Expert decided it (approved, reshoot or rejected). On an
+  // approved row this is the Badge's decision date.
+  decidedAt: v.optional(v.number()),
+  // The Expert's note on a reshoot or a rejection. Never who decided.
+  expertNote: v.optional(v.string()),
 });
+
+/** The statuses an Expert decision leaves, with its reviews row. */
+const DECIDED: ReadonlySet<AssessmentStatus> = new Set(["approved", "reshoot", "rejected"]);
+
+/**
+ * The decision that set a decided Assessment's status: its latest reviews
+ * row. Null when nothing decided it (an AI guard reshoot has no row).
+ */
+async function latestDecision(ctx: QueryCtx, row: Doc<"assessments">): Promise<Doc<"reviews"> | null> {
+  if (!DECIDED.has(row.status)) return null;
+  return await ctx.db
+    .query("reviews")
+    .withIndex("by_assessmentId", (q) => q.eq("assessmentId", row._id))
+    .order("desc")
+    .first();
+}
 
 /**
  * The caller's Assessments, newest first (at most 100), for the live status
  * chip (US-3.1, US-4.1): a Convex query, so the chip updates without a
- * refresh. Never returns the video (spec §7). Guard: requireFundi.
+ * refresh. After an Expert decision it carries `decidedAt` (the Badge line
+ * on an approved row) and, on a reshoot or a rejection, the Expert's note
+ * (US-5.4). Never returns the video (spec §7) or the decider.
+ * Guard: requireFundi.
  */
 export const listMine = query({
   args: {},
@@ -311,24 +301,31 @@ export const listMine = query({
       .take(LIST_MINE_LIMIT);
     const names = nameLookup(ctx);
     return await Promise.all(
-      rows.map(async (row) => ({
-        _id: row._id,
-        _creationTime: row._creationTime,
-        status: row.status,
-        ...(await names(row)),
-        ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
-        ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
-      })),
+      rows.map(async (row) => {
+        const decision = await latestDecision(ctx, row);
+        const expertNote = row.status !== "approved" ? decision?.note : undefined;
+        return {
+          _id: row._id,
+          _creationTime: row._creationTime,
+          status: row.status,
+          ...(await names(row)),
+          ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
+          ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
+          ...(decision !== null ? { decidedAt: decision.at } : {}),
+          ...(expertNote !== undefined ? { expertNote } : {}),
+        };
+      }),
     );
   },
 });
 
 /**
- * One Assessment for its owning Fundi, with the video URL (spec §7: only the
- * single-Assessment detail query and /ai/claim return getUrl). `videoUrl` is
- * null once the video is deleted. Returns null when the Assessment does not
- * exist or is not the caller's, so its existence does not leak. The Expert
- * and Admin cases come with #41 (canDecide).
+ * One Assessment for its owning Fundi. No video URL: reviews.detail (for an
+ * Expert who canDecide) is the only query that returns one, and /ai/claim
+ * the only other getUrl (#41; the web never plays the Fundi's own video).
+ * `videoDeletedAt` says whether the video is gone. Returns null when the
+ * Assessment does not exist or is not the caller's, so its existence does
+ * not leak. Experts read Assessments through reviews.detail.
  * Guard: requireStoredUser, then ownership (only a Fundi owns Assessments).
  */
 export const get = query({
@@ -345,7 +342,6 @@ export const get = query({
       clientConsent: v.optional(v.boolean()),
       reshootReason: v.optional(reshootReasonValidator),
       previousAssessmentId: v.optional(v.id("assessments")),
-      videoUrl: v.union(v.string(), v.null()),
       videoDeletedAt: v.optional(v.number()),
     }),
     v.null(),
@@ -354,7 +350,6 @@ export const get = query({
     const { user } = await requireStoredUser(ctx);
     const row = await ctx.db.get("assessments", args.assessmentId);
     if (row === null || row.fundiUserId !== user._id) return null;
-    const videoUrl = row.videoStorageId === undefined ? null : await ctx.storage.getUrl(row.videoStorageId);
     return {
       _id: row._id,
       _creationTime: row._creationTime,
@@ -366,7 +361,6 @@ export const get = query({
       ...(row.clientConsent !== undefined ? { clientConsent: row.clientConsent } : {}),
       ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
       ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
-      videoUrl,
       ...(row.videoDeletedAt !== undefined ? { videoDeletedAt: row.videoDeletedAt } : {}),
     };
   },

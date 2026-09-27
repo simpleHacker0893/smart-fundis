@@ -276,6 +276,8 @@ describe("no read path for contact messages", () => {
       "./assessments.ts:get",
       "./assessments.ts:listMine",
       "./fundiProfiles.ts:myShowcaseLinks",
+      "./reviews.ts:detail",
+      "./reviews.ts:queue",
       "./trades.ts:list",
       "./trades.ts:uploadPicker",
       "./users.ts:me",

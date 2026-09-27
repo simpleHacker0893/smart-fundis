@@ -94,10 +94,16 @@ describe("DashboardRouter (spec §4)", () => {
     expect(state.replace).toHaveBeenCalledWith("/fundi");
   });
 
-  it("sends an Expert who is also a Fundi to /fundi until /expert is built (#41)", async () => {
+  it("sends an Expert, even one who is also a Fundi, to /expert (#41)", async () => {
+    state.me = { user: USER, roles: roles({ base: "fundi", expert: true }) };
+    await render();
+    expect(state.replace).toHaveBeenCalledWith("/expert");
+  });
+
+  it("sends an Admin who is also an Expert to /expert until /admin is built", async () => {
     state.me = { user: USER, roles: roles({ base: "fundi", expert: true, admin: true }) };
     await render();
-    expect(state.replace).toHaveBeenCalledWith("/fundi");
+    expect(state.replace).toHaveBeenCalledWith("/expert");
   });
 
   it("renders nothing and never routes without Convex", async () => {
