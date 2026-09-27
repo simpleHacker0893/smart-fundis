@@ -11,6 +11,12 @@ import {
   type Verdict,
 } from "./validators";
 
+/** F4 caps on a worker's `result` and `error` callback, so no field can grow past what a legitimate worker sends. */
+export const MAX_LIST_ITEMS = 20;
+export const MAX_TEXT_LENGTH = 2000;
+export const MAX_MODEL_LENGTH = 200;
+export const MAX_ERROR_CODE_LENGTH = 200;
+
 // The pull-model AI contract (spec §6, ADR-9): shapes, limits and the hard
 // rules Convex re-applies to every result.
 
@@ -65,13 +71,16 @@ export const callbackBodyValidator = v.union(
   v.object({ ...target, outcome: v.literal("error"), errorCode: v.string() }),
 );
 export type CallbackBody = Infer<typeof callbackBodyValidator>;
+/** The `result` branch of a callback body, before it is stored (aiJobs.callback). */
+export type ResultCallbackBody = Extract<CallbackBody, { outcome: "result" }>;
 
 /**
  * ADR-11, re-applied on the server so a worker bug can't publish a clean pass.
  * It can lower a Verdict, never raise it:
  * - liveness is `yes` only when the worker says so AND the digits it read are
  *   the stored Liveness code;
- * - a safety item whose Observation is `no`, `unclear` or missing is flagged;
+ * - a safety item is flagged unless it has at least one Observation AND every
+ *   Observation for it is `yes` (F1: a duplicate itemId can't hide a `no`);
  * - a `pass` with liveness not `yes` or any flag becomes `needs_review`.
  */
 export function applyHardRules(input: {
@@ -84,14 +93,88 @@ export function applyHardRules(input: {
 }): { verdict: Verdict; livenessCheck: LivenessCheck; safetyFlags: string[] } {
   const livenessCheck: LivenessCheck =
     input.liveness.check === "yes" && input.liveness.read === input.livenessCode ? "yes" : "unclear";
-  const results = new Map(input.observations.map((o) => [o.itemId, o.result]));
   const flags = new Set(input.safetyFlags);
   for (const item of input.items) {
-    if (item.safety && results.get(item.id) !== "yes") {
+    if (!item.safety) {
+      continue;
+    }
+    const own = input.observations.filter((o) => o.itemId === item.id);
+    if (own.length === 0 || own.some((o) => o.result !== "yes")) {
       flags.add(item.id);
     }
   }
   const safetyFlags = [...flags];
   const capped = input.verdict === "pass" && (livenessCheck !== "yes" || safetyFlags.length > 0);
   return { verdict: capped ? "needs_review" : input.verdict, livenessCheck, safetyFlags };
+}
+
+/** F1: true when the same Rubric item id appears more than once in a worker's Observations. */
+export function hasDuplicateItemId(observations: Observation[]): boolean {
+  const seen = new Set<string>();
+  for (const observation of observations) {
+    if (seen.has(observation.itemId)) {
+      return true;
+    }
+    seen.add(observation.itemId);
+  }
+  return false;
+}
+
+/**
+ * §6 rule 2: "A Rubric item with no Observation is set to unclear". Adds one
+ * for every Rubric item the worker's Observations don't cover, so
+ * applyHardRules and the stored result always have one row per item. Called
+ * only after `observations` is known to hold no unknown or duplicate itemId.
+ */
+export function fillMissingObservations(items: RubricItem[], observations: Observation[]): Observation[] {
+  const present = new Set(observations.map((o) => o.itemId));
+  const missing: Observation[] = items
+    .filter((item) => !present.has(item.id))
+    .map((item) => ({ itemId: item.id, result: "unclear" as const, evidence: "", timestampS: 0 }));
+  return [...observations, ...missing];
+}
+
+/**
+ * F4: the size and range caps on a `result` callback that Convex's validators
+ * don't express (a finite number's range, an array's length, a string's
+ * length, a safetyFlags id being one of the Rubric's). timestampS vs the
+ * video's length is not checkable here (Convex stores no duration); that stays
+ * rules.py's job.
+ */
+export function resultInBounds(body: ResultCallbackBody, knownItemIds: Set<string>): boolean {
+  const { verdict, observations, safetyFlags, model, latencyMs } = body;
+  if (verdict.confidence < 0 || verdict.confidence > 1) {
+    return false;
+  }
+  if (latencyMs < 0) {
+    return false;
+  }
+  if (observations.some((o) => o.timestampS < 0 || o.evidence.length > MAX_TEXT_LENGTH)) {
+    return false;
+  }
+  if (
+    verdict.strengths.length > MAX_LIST_ITEMS ||
+    verdict.gaps.length > MAX_LIST_ITEMS ||
+    safetyFlags.length > MAX_LIST_ITEMS
+  ) {
+    return false;
+  }
+  if (verdict.feedbackEn.length > MAX_TEXT_LENGTH) {
+    return false;
+  }
+  if (verdict.feedbackSw !== undefined && verdict.feedbackSw.length > MAX_TEXT_LENGTH) {
+    return false;
+  }
+  if (model.length > MAX_MODEL_LENGTH) {
+    return false;
+  }
+  if (safetyFlags.some((itemId) => !knownItemIds.has(itemId))) {
+    return false;
+  }
+  return true;
+}
+
+/** F4: the errorCode cap on an `error` callback. */
+export function errorCodeInBounds(errorCode: string): boolean {
+  return errorCode.length <= MAX_ERROR_CODE_LENGTH;
 }
