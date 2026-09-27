@@ -168,6 +168,8 @@ One `AppShell` serves every role. Only its nav config changes per role (V7-2).
 - **≥ 1024 px: sidebar.** 248 px wide on the left, full height under the header, `--panel` background with a 1 px right hairline.
   - **Top:** the role's one primary action as a full-width flat amber pill (Fundi: **"Add video"**). Roles without a primary action have none. This pill counts as the viewport's single amber fill, so content screens on desktop use outlined pills for their own actions.
   - **Groups:** each group has a **category label** (mono 12 px, UPPERCASE, 0.26em, `--dim`, 32 px above the first item, 24 px between groups). Items are 48 px rows: a 20 px line icon, then a 16 px sentence-case label (Inter 500). **Active:** `--text` label and icon, a 2 px amber bar on the left edge and a 4% `--text` fill. **Inactive:** `--dim`, and hover goes to `--text`. No count badges or dots on items.
+  - **SMART FUNDIS group:** Trades, Evidence, Company (the public site), above the footer, on every role.
+  - **Role routes show no marketing header or footer.** The shell's header replaces them.
   - **Footer:** pinned to the bottom, above a hairline: the role switch (only for users with two or more roles), Help, and Sign out.
   - Content sits in a max-width 1040 px column to the right, on a 12-column grid with 32 px padding.
 - **< 1024 px: bottom nav plus "More".** Fixed, 64 px plus `env(safe-area-inset-bottom)`, with a 1 px top hairline. **At most 4 slots**: up to 3 of the role's most-used items, then **More** (the ≡ icon). Each slot has a 24 px line icon above a 12 px sentence-case label (Inter, not tracked mono, so long labels fit). **Active:** `--text`, with a 2 px amber bar on the slot's top edge. **Inactive:** `--dim`.
@@ -180,8 +182,8 @@ One `AppShell` serves every role. Only its nav config changes per role (V7-2).
 
 | Role | Sidebar and menu sheet: CATEGORY → items | Bottom nav (< 1024 px) |
 | --- | --- | --- |
-| Fundi | primary pill **Add video** · OVERVIEW → Home · VERIFICATION → My verifications · PROFILE → Public profile, Showcase links · ACCOUNT → Help, Sign out | Home · Verifications · Profile · More |
-| Expert | REVIEW → Queue, History · ACCOUNT → Profile, Help, Sign out | Queue · History · Profile · More |
+| Fundi | primary pill **Add video** · OVERVIEW → Home · VERIFICATION → My verifications · PROFILE → Public profile, Showcase links · SMART FUNDIS → Trades, Evidence, Company · ACCOUNT → Help, Sign out | Home · Verifications · Profile · More |
+| Expert | REVIEW → Queue · ACCOUNT → Profile, Help, Sign out | Queue · Profile · More |
 | Admin | OPERATIONS → Ops · ACCOUNT → Help, Sign out (plain shadcn, no Stitch screen) | Ops · More |
 
 From V8 the Fundi gets JOBS → Near you, My responses, and the Client role gets its own menu. Both are added in the V8 prompts, not drawn now.
