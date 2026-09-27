@@ -1637,5 +1637,23 @@
       "none": "None",
       "fallback": "Checked with the backup model"
     }
+  },
+  "PublicProfile": {
+    "meta": {
+      "title": "Fundi profile · Smart Fundis"
+    },
+    "county": "County",
+    "tradesTitle": "Trades",
+    "badgesTitle": "Badges",
+    "badgeLine": "Verified by Smart Fundis — {trade}: {task} · {date}",
+    "notYetVerified": "Not yet verified",
+    "demoTag": "Demo: not a real verification",
+    "notAvailable": "This profile is not available.",
+    "unavailable": "Profiles are not available right now. Please try again later.",
+    "notFound": {
+      "title": "No profile here",
+      "body": "The link may be wrong, or the Fundi no longer shows their profile.",
+      "home": "Go to the home page"
+    }
   }
 }
