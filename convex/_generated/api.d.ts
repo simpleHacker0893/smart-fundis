@@ -8,11 +8,17 @@
  * @module
  */
 
+import type * as aiJobs from "../aiJobs.js";
 import type * as assessments from "../assessments.js";
 import type * as contact from "../contact.js";
+import type * as crons from "../crons.js";
 import type * as fundiProfiles from "../fundiProfiles.js";
+import type * as http from "../http.js";
+import type * as lib_aiContract from "../lib/aiContract.js";
+import type * as lib_aiSecret from "../lib/aiSecret.js";
 import type * as lib_assessmentUpload from "../lib/assessmentUpload.js";
 import type * as lib_auth from "../lib/auth.js";
+import type * as lib_conforms from "../lib/conforms.js";
 import type * as lib_contact from "../lib/contact.js";
 import type * as lib_counties from "../lib/counties.js";
 import type * as lib_fundiProfile from "../lib/fundiProfile.js";
@@ -35,11 +41,17 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
+  aiJobs: typeof aiJobs;
   assessments: typeof assessments;
   contact: typeof contact;
+  crons: typeof crons;
   fundiProfiles: typeof fundiProfiles;
+  http: typeof http;
+  "lib/aiContract": typeof lib_aiContract;
+  "lib/aiSecret": typeof lib_aiSecret;
   "lib/assessmentUpload": typeof lib_assessmentUpload;
   "lib/auth": typeof lib_auth;
+  "lib/conforms": typeof lib_conforms;
   "lib/contact": typeof lib_contact;
   "lib/counties": typeof lib_counties;
   "lib/fundiProfile": typeof lib_fundiProfile;
