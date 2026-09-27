@@ -2,8 +2,9 @@
 
 import { type Preloaded, usePreloadedQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { useFormatter, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import { api } from "@convex/_generated/api";
+import { useBadgeLine } from "@/components/badge-line";
 import { CHIP } from "@/components/ui/chip";
 import { LABEL } from "@/components/ui/field-label";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
@@ -88,18 +89,13 @@ function ProfileView({ profile }: { profile: Profile }) {
 
 function BadgeItem({ badge, isDemo }: { badge: Badge; isDemo: boolean }) {
   const t = useTranslations("PublicProfile");
-  const format = useFormatter();
-  const names = useCatalogueNames();
+  const badgeLine = useBadgeLine();
 
   return (
     <li data-testid="badge" className="flex flex-col gap-2 rounded border border-line p-4">
-      {/* The same line as the Fundi's own list (AssessmentList.badgeLine), dated in Africa/Nairobi. */}
+      {/* The same line as the Fundi's own pages (components/badge-line.tsx), dated in Africa/Nairobi. */}
       <span data-testid="badge-line" className="text-base font-medium break-words">
-        {t("badgeLine", {
-          trade: names.trade(badge.tradeSlug, badge.tradeName),
-          task: names.task(badge.taskSlug, badge.taskName),
-          date: format.dateTime(badge.decidedAt, { dateStyle: "medium" }),
-        })}
+        {badgeLine(badge)}
       </span>
       {isDemo ? <span className={CHIP}>{t("demoTag")}</span> : null}
     </li>

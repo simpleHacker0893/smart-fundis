@@ -5,9 +5,11 @@ import { useTranslations } from "next-intl";
 import { useId, useState, type FormEvent } from "react";
 import type { api } from "@convex/_generated/api";
 import { parseShowcaseLinkFor, SHOWCASE_KINDS, type SavedShowcaseLink, type ShowcaseKind } from "@convex/lib/showcaseLinks";
+import { cn } from "cn";
+import { ErrorLine } from "@/components/app-states";
 import { ShowcaseEmbed } from "@/components/showcase-embed";
 import { FIELD, LABEL } from "@/components/ui/field-label";
-import { PRIMARY_PILL, SECONDARY_PILL } from "@/components/ui/pill";
+import { SECONDARY_PILL } from "@/components/ui/pill";
 import { showcaseSaveErrorKey, type ShowcaseErrorKey } from "@/lib/showcase-errors";
 
 /** Both saved slots, as fundiProfiles.myShowcaseLinks returns them; null when empty. */
@@ -33,13 +35,13 @@ export function ShowcaseLinksEditor({
   const t = useTranslations("Showcase");
   const id = useId();
   return (
-    <section className="flex flex-col gap-4 border-t border-line pt-8" aria-labelledby={`${id}-title`}>
-      <h2 id={`${id}-title`} className="text-xl font-semibold">
+    <section className="flex flex-col gap-4" aria-labelledby={`${id}-title`}>
+      <h2 id={`${id}-title`} className="text-base font-semibold">
         {t("title")}
       </h2>
-      <p className="text-base text-foreground/75">{t("intro")}</p>
+      <p className="text-base text-dim">{t("intro")}</p>
       {links === undefined ? (
-        <p className="text-base text-foreground/75">{t("loading")}</p>
+        <p className="text-base text-dim">{t("loading")}</p>
       ) : (
         SHOWCASE_KINDS.map((kind) => <ShowcaseSlot key={kind} kind={kind} saved={links[kind]} onSave={onSave} />)
       )}
@@ -126,22 +128,20 @@ function ShowcaseSlot({
           onChange={(event) => setValue(event.currentTarget.value)}
           aria-invalid={fieldError ? true : undefined}
           aria-describedby={[`${id}-hint`, message ? `${id}-error` : null].filter(Boolean).join(" ")}
-          className={FIELD}
+          className={cn(FIELD, "aria-invalid:border-foreground")}
         />
-        <p id={`${id}-hint`} className="text-sm break-words text-foreground/75">
+        <p id={`${id}-hint`} className="text-base break-words text-dim">
           {t(`slots.${kind}.hint`)}
         </p>
         {message ? (
-          <p id={`${id}-error`} role="alert" className="text-sm text-primary">
-            {message}
-          </p>
+          <ErrorLine id={`${id}-error`}>{message}</ErrorLine>
         ) : null}
         {done ? (
-          <p role="status" className="text-sm">
+          <p role="status" className="text-base">
             {t(`slots.${kind}.saved`)}
           </p>
         ) : null}
-        <button type="submit" disabled={saving} className={PRIMARY_PILL}>
+        <button type="submit" disabled={saving} className={SECONDARY_PILL}>
           {t(`slots.${kind}.save`)}
         </button>
       </form>
