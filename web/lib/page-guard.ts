@@ -10,6 +10,9 @@ export type PageGuard<M extends Me = Me> =
 /** The Fundi role (ADR-18): a Fundi profile exists. */
 export const isFundi = (roles: Roles): boolean => roles.base === "fundi";
 
+/** The Expert role (ADR-18): an active experts row with approved Trades. */
+export const isExpert = (roles: Roles): boolean => roles.expert;
+
 /**
  * A role page's guard (spec §4): loading until `users.me` resolves, then the
  * page if the caller holds the role, else back to /dashboard. `null` (signed
