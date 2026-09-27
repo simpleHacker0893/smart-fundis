@@ -18,9 +18,20 @@ export async function clerkApi(method: "POST" | "DELETE", path: string, body?: o
   return (await response.json()) as { id?: string };
 }
 
-/** Creates a throwaway Clerk User and signs the page in as them. Returns the Clerk user id. */
-export async function signInAsNewUser(page: Page, label: string): Promise<string | undefined> {
-  const email = `e2e-${label}-${Date.now()}+clerk_test@example.com`;
+/** A unique throwaway address for a Clerk test User (lowercase, as Clerk stores it). */
+export function newTestEmail(label: string): string {
+  return `e2e-${label}-${Date.now()}+clerk_test@example.com`.toLowerCase();
+}
+
+/**
+ * Creates a throwaway Clerk User and signs the page in as them. Returns the
+ * Clerk user id. Pass `email` (from newTestEmail) when the test needs it later.
+ */
+export async function signInAsNewUser(
+  page: Page,
+  label: string,
+  email: string = newTestEmail(label),
+): Promise<string | undefined> {
   const userId = (await clerkApi("POST", "/users", { email_address: [email], skip_password_requirement: true })).id;
   // clerk.signIn needs a public page that loads Clerk first (Clerk testing docs).
   await page.goto("/");

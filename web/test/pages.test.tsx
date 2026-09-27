@@ -297,14 +297,16 @@ describe("/privacy (#25)", () => {
     expect(visibleStrings(markup)).toContain(t("hero.title"));
   });
 
-  it("shows the access matrix as a table: only the badge and showcase links are public", async () => {
+  it("shows the access matrix as a table: only the profile basics, the badge and showcase links are public", async () => {
     const who = section(await render("/privacy"), "who");
     expect(who).toMatch(/<table/);
     const rows = [...who.matchAll(/<tr[\s\S]*?<\/tr>/g)].map((m) => visibleStrings(m[0]));
     const body = rows.slice(1);
-    expect(body).toHaveLength(5);
+    expect(body).toHaveLength(6);
     const publicRows = body.filter((cells) => cells.includes(t("who.yes"))).map((cells) => cells[0]);
-    expect(publicRows).toEqual([t("who.rows.badge.item"), t("who.rows.showcase.item")]);
+    // #42 RAI: the public profile shows the name, county and Trades.
+    expect(t("who.rows.profile.item")).toBe("Name, county, trades");
+    expect(publicRows).toEqual([t("who.rows.profile.item"), t("who.rows.badge.item"), t("who.rows.showcase.item")]);
   });
 
   it("describes consent in English only: no Kiswahili consent text is printed", async () => {
@@ -321,6 +323,24 @@ describe("/privacy (#25)", () => {
     expect(byLabel("delete")).toContain(common("comingSoon"));
     expect(byLabel("visibility")).toContain(common("comingSoon"));
     expect(byLabel("training")).not.toContain(common("comingSoon"));
+  });
+
+  it("#42 RAI: visibility says how to hide the profile today, through the Contact page", async () => {
+    const controls = section(await render("/privacy"), "controls");
+    const card = [...controls.matchAll(/<li[\s\S]*?<\/li>/g)]
+      .map((m) => m[0])
+      .find((c) => visibleStrings(c).includes(t("controls.visibility.label")))!;
+    expect(card).toMatch(/<a[^>]*href="\/contact"/);
+    expect(visibleStrings(card).join(" ")).toContain("A toggle is coming soon.");
+    expect(visibleStrings(card).join(" ")).not.toContain("Hide or show");
+  });
+
+  it("#42 RAI: the consent summary says the name, county and trades are public too", async () => {
+    const consent = visibleStrings(section(await render("/privacy"), "consent"));
+    expect(consent).toContain(t("consent.points.badge"));
+    expect(t("consent.points.badge")).toBe(
+      "Your Badges, name, county and trades are on your public profile. Your video and the review notes stay private.",
+    );
   });
 
   it("drops the export's invented readouts", async () => {

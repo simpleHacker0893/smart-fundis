@@ -127,13 +127,22 @@ class FakeSleep:
             raise StopLoop
 
 
-def config(url: str, *, once: bool = True, poll_interval: float = 2.0) -> WorkerConfig:
+def config(
+    url: str,
+    *,
+    once: bool = True,
+    poll_interval: float = 2.0,
+    hold_seconds: float = 0.0,
+    max_jobs: int | None = None,
+) -> WorkerConfig:
     return WorkerConfig(
         site_url=url,
         secret=SECRET,
         worker_id="stub-test",
         poll_interval=poll_interval,
         once=once,
+        hold_seconds=hold_seconds,
+        max_jobs=max_jobs,
     )
 
 
@@ -580,3 +589,104 @@ def test_load_env_reads_convex_deployment_from_the_settings(
     monkeypatch.setenv("CONVEX_DEPLOYMENT", DEV_DEPLOYMENT)
 
     assert stub_worker.load_env() == ("https://x.convex.site", SECRET, DEV_DEPLOYMENT)
+
+
+# --- --hold-seconds: keep a job analyzing for the #42 e2e -----------------------------
+
+
+class OrderedSleep(FakeSleep):
+    """Records each sleep with how many requests the fake Convex had seen by then."""
+
+    def __init__(self, fake: FakeConvex) -> None:
+        super().__init__()
+        self.fake = fake
+        self.seen: list[list[str]] = []
+
+    def __call__(self, seconds: float) -> None:
+        self.seen.append([r.path for r in self.fake.requests])
+        super().__call__(seconds)
+
+
+def test_hold_zero_adds_no_sleep(fake: FakeConvex) -> None:
+    fake.script("/ai/claim", Reply(200, make_job()))
+    fake.script("/ai/callback", Reply(200, {"status": "awaiting_review"}))
+    sleep = FakeSleep()
+
+    assert stub_worker.run(config(fake.url, hold_seconds=0), sleep=sleep) == 0
+
+    assert sleep.calls == []
+    assert len(fake.calls("/ai/callback")) == 1
+
+
+def test_hold_sleeps_once_between_claim_and_callback(
+    fake: FakeConvex, caplog: pytest.LogCaptureFixture
+) -> None:
+    fake.script("/ai/claim", Reply(200, make_job()))
+    fake.script("/ai/callback", Reply(200, {"status": "awaiting_review"}))
+    sleep = OrderedSleep(fake)
+
+    with caplog.at_level(logging.INFO):
+        assert stub_worker.run(config(fake.url, hold_seconds=2), sleep=sleep) == 0
+
+    assert sleep.calls == [2]
+    assert sleep.seen == [["/ai/claim"]]  # claimed, not yet called back
+    assert [r.path for r in fake.requests] == ["/ai/claim", "/ai/callback"]
+    assert "holding k17assessment0001 for 2 s" in caplog.text
+
+
+@pytest.mark.parametrize("hold", ["-1", "-0.5", "301", "1e9", "nan", "inf"])
+def test_main_refuses_a_negative_or_too_long_hold(
+    fake: FakeConvex,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    hold: str,
+) -> None:
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url, SECRET, DEV_DEPLOYMENT))
+
+    assert stub_worker.main(["--once", "--hold-seconds", hold]) == 1
+    err = capsys.readouterr().err
+    assert "--hold-seconds" in err
+    assert "300" in err
+    assert fake.requests == []
+
+
+def test_main_accepts_the_300_second_cap(fake: FakeConvex, monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url, SECRET, DEV_DEPLOYMENT))
+    seen: list[WorkerConfig] = []
+    monkeypatch.setattr(stub_worker, "run", lambda cfg: seen.append(cfg) or 0)
+
+    assert stub_worker.main(["--once", "--hold-seconds", "300"]) == 0
+    assert seen[0].hold_seconds == 300
+
+
+# --- --max-jobs -----------------------------------------------------------------------
+
+
+def test_max_jobs_exits_after_n_jobs(fake: FakeConvex) -> None:
+    fake.script("/ai/claim", Reply(200, make_job()), Reply(204), Reply(200, make_job("b.mp4")))
+    fake.script(
+        "/ai/callback",
+        Reply(200, {"status": "awaiting_review"}),
+        Reply(200, {"status": "awaiting_review"}),
+    )
+    sleep = FakeSleep()
+
+    assert stub_worker.run(config(fake.url, once=False, max_jobs=2), sleep=sleep) == 0
+
+    assert len(fake.calls("/ai/claim")) == 3
+    assert len(fake.calls("/ai/callback")) == 2
+    assert sleep.calls == [2.0]  # the one 204
+
+
+@pytest.mark.parametrize("n", ["0", "-3"])
+def test_main_refuses_max_jobs_below_one(
+    fake: FakeConvex,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    n: str,
+) -> None:
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url, SECRET, DEV_DEPLOYMENT))
+
+    assert stub_worker.main(["--max-jobs", n]) == 1
+    assert "--max-jobs" in capsys.readouterr().err
+    assert fake.requests == []

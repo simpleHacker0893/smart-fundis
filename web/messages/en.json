@@ -23,6 +23,7 @@
     "unavailable": "The profile form is not available right now. Please try again later.",
     "noTrades": "No trades are open yet. Please try again later.",
     "name": "Your name",
+    "publicHint": "Shown on your public profile.",
     "phone": "Phone number",
     "phoneHint": "A Kenyan mobile number, like 0712 345 678.",
     "trade": "Your trades",
@@ -314,7 +315,11 @@
     },
     "title": "Your Fundi page",
     "loading": "Opening your Fundi page…",
-    "unavailable": "Your Fundi page is not available right now. Please try again later."
+    "unavailable": "Your Fundi page is not available right now. Please try again later.",
+    "publicProfile": {
+      "link": "View my public profile",
+      "hidden": "Your public profile is hidden, so it has no page others can see."
+    }
   },
   "Shell": {
     "brand": "Smart Fundis",
@@ -947,6 +952,10 @@
           "item": "Phone & email",
           "who": "You and Admins"
         },
+        "profile": {
+          "item": "Name, county, trades",
+          "who": "Everyone, on your public profile"
+        },
         "badge": {
           "item": "Badge",
           "who": "Everyone, once an Expert approves"
@@ -962,7 +971,7 @@
       "what": "What you agree to",
       "points": {
         "who": "Who sees the video: you, eligible Experts, Admins, and our AI on Smart Fundis' GPU.",
-        "badge": "Only your badge becomes public.",
+        "badge": "Your Badges, name, county and trades are on your public profile. Your video and the review notes stay private.",
         "training": "Your video is not used for the Data Co-op or for AI training."
       },
       "how": "How it's asked",
@@ -982,7 +991,7 @@
       },
       "visibility": {
         "label": "Visibility",
-        "body": "Hide or show your public profile."
+        "body": "To hide your public profile, ask us through the <contact>Contact page</contact>. A toggle is coming soon."
       }
     }
   },
@@ -1455,7 +1464,7 @@
       "points": {
         "who": "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on a GPU server that Smart Fundis rents and controls.",
         "review": "The AI only recommends. An expert decides, and only an expert's approval earns a Badge verified by Smart Fundis.",
-        "public": "Only your Badge becomes public. Your video and the review notes stay private.",
+        "public": "Your Badges, name, county and trades are on your public profile. Your video and the review notes stay private.",
         "delete": "Once the review is finished, you can ask us to delete the video through the <contact>Contact page</contact>. A delete button is coming soon.",
         "training": "Your video is not used to train AI, and it is not part of the Data Co-op."
       },
@@ -1636,6 +1645,24 @@
       "feedback": "Feedback the AI wrote for the Fundi",
       "none": "None",
       "fallback": "Checked with the backup model"
+    }
+  },
+  "PublicProfile": {
+    "meta": {
+      "title": "Fundi profile · Smart Fundis"
+    },
+    "county": "County",
+    "tradesTitle": "Trades (declared by the Fundi)",
+    "badgesTitle": "Badges",
+    "badgeLine": "Verified by Smart Fundis — {trade}: {task} · {date}",
+    "notYetVerified": "Not yet verified",
+    "demoTag": "Demo: not a real verification",
+    "notAvailable": "This profile is not available.",
+    "unavailable": "Profiles are not available right now. Please try again later.",
+    "notFound": {
+      "title": "No profile here",
+      "body": "The link may be wrong, or the Fundi no longer shows their profile.",
+      "home": "Go to the home page"
     }
   }
 }

@@ -1,7 +1,9 @@
 import { ConvexError, v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
-import { getFundiProfile, requireFundi, requireStoredUser } from "./lib/auth";
+import { nameLookup } from "./lib/assessmentNames";
+import { checkFundi, getFundiProfile, requireFundi, requireStoredUser } from "./lib/auth";
+import { latestDecision } from "./lib/decisions";
 import { cleanTradeSlugs, parseFundiProfile, type FundiProfileErrors } from "./lib/fundiProfile";
 import {
   parseShowcaseLink,
@@ -151,5 +153,126 @@ export const myShowcaseLinks = query({
       return { id, url, embedUrl };
     };
     return { youtube: read("youtube"), tiktok: read("tiktok") };
+  },
+});
+
+/**
+ * The caller's own Fundi profile id and whether it is Listed, so /fundi can
+ * link to the public /f/[id] page and say whether that link is live (#42).
+ *
+ * Guard: checkFundi, the non-throwing requireFundi. Returns null when the
+ * caller is signed out, has no users row yet, or is not a Fundi, so the page
+ * never errors. The profile comes only from the token; there is no id arg.
+ */
+export const myProfileId = query({
+  args: {},
+  returns: v.union(v.object({ id: v.id("fundiProfiles"), publicListing: v.boolean() }), v.null()),
+  handler: async (ctx) => {
+    const checked = await checkFundi(ctx);
+    if (!checked.ok) return null;
+    return { id: checked.profile._id, publicListing: checked.profile.publicListing };
+  },
+});
+
+/** Far above the Badges one Fundi earns in the MVP; keeps getPublic bounded. */
+const PUBLIC_BADGE_LIMIT = 200;
+
+const publicProfileValidator = v.object({
+  id: v.id("fundiProfiles"),
+  // users.name: the display name the Fundi typed on the onboarding form.
+  name: v.string(),
+  county: v.string(),
+  // A seeded Demo profile (CONTEXT: Demo profile), so the page can tag it.
+  isDemo: v.boolean(),
+  // The declared Trades, in the order the Fundi chose them.
+  trades: v.array(v.object({ slug: v.string(), name: v.string() })),
+  // Newest decision first.
+  badges: v.array(
+    v.object({
+      tradeSlug: v.string(),
+      tradeName: v.string(),
+      taskSlug: v.string(),
+      taskName: v.string(),
+      decidedAt: v.number(),
+    }),
+  ),
+});
+
+/**
+ * The public profile at /f/[id] (#42, US-5.7; spec §4 "What the public
+ * profile shows"): display name, county, declared Trades and Badges.
+ *
+ * Guard: none, by design. This is the reader for a public page a Client
+ * opens without signing in, so it reads no identity and trusts nothing but
+ * the profile id. It is on the public-reader allow-list in contact.test.ts.
+ *
+ * Returns null when `id` is not a fundiProfiles id (garbage, or another
+ * table's id: normalizeId, so it never throws), when the profile does not
+ * exist, or when the Fundi is not Listed (`publicListing` off; CONTEXT
+ * Listing. There is no Admin hide in V1).
+ *
+ * A Badge is an Assessment of this Fundi with status `approved` whose latest
+ * reviews row exists and is an `approve`; `decidedAt` is that row's `at`,
+ * the same derivation (lib/decisions.ts latestDecision) as listMine's
+ * `decidedAt`. An approved row with no reviews row is not a Badge: only an
+ * Expert approval creates one (AGENTS.md non-negotiables).
+ *
+ * Hides: phone, email, the users and Clerk ids, the video (URL, storage id,
+ * clip name), Observations, Verdict, confidence, strengths, gaps, feedback,
+ * safety flags, Liveness, the Expert and their note, the bio and Showcase
+ * links (a later ticket), and every Assessment that is not approved.
+ */
+export const getPublic = query({
+  args: { id: v.string() },
+  returns: v.union(publicProfileValidator, v.null()),
+  handler: async (ctx, args) => {
+    const profileId = ctx.db.normalizeId("fundiProfiles", args.id);
+    if (profileId === null) return null;
+    const profile = await ctx.db.get("fundiProfiles", profileId);
+    if (profile === null || !profile.publicListing) return null;
+    const user = await ctx.db.get("users", profile.userId);
+    if (user === null) return null;
+
+    const trades = await Promise.all(
+      profile.trades.map(async (slug) => {
+        const trade = await ctx.db
+          .query("trades")
+          .withIndex("by_slug", (q) => q.eq("slug", slug))
+          .unique();
+        return { slug, name: trade?.name ?? slug };
+      }),
+    );
+
+    const approved = await ctx.db
+      .query("assessments")
+      .withIndex("by_fundiUserId_and_status", (q) =>
+        q.eq("fundiUserId", profile.userId).eq("status", "approved"),
+      )
+      // Newest submissions first, so a cap (unreachable in the MVP) drops the
+      // oldest submissions; the Badges are then sorted by decision date below.
+      .order("desc")
+      .take(PUBLIC_BADGE_LIMIT);
+    const names = nameLookup(ctx);
+    const badges = (
+      await Promise.all(
+        approved.map(async (row) => {
+          const decision = await latestDecision(ctx, row);
+          if (decision === null || decision.decision !== "approve") return null;
+          const { tradeSlug, tradeName, taskSlug, taskName } = await names(row);
+          return { tradeSlug, tradeName, taskSlug, taskName, decidedAt: decision.at };
+        }),
+      )
+    )
+      .filter((badge) => badge !== null)
+      .sort((a, b) => b.decidedAt - a.decidedAt);
+
+    return {
+      id: profile._id,
+      name: user.name,
+      county: profile.county,
+      isDemo: user.isDemo === true,
+      trades,
+      badges,
+    };
   },
 });

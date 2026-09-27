@@ -13,10 +13,11 @@ import {
 } from "./lib/assessmentUpload";
 import { isStubEnabled } from "./lib/aiStub";
 import { nameLookup, namesFields } from "./lib/assessmentNames";
+import { latestDecision } from "./lib/decisions";
 import { getActiveRubric } from "./lib/rubrics";
 import { isStorageReferenced } from "./lib/storage";
 import { taskNeedsClientConsent } from "./lib/trades";
-import { type AssessmentStatus, assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
+import { assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
 
 // The Fundi's upload flow (#38). Architecture spec §5 (status table: (new) ->
 // queued) and §7 (consent, video access).
@@ -276,22 +277,6 @@ const listItemValidator = v.object({
   // The Expert's note on a reshoot or a rejection. Never who decided.
   expertNote: v.optional(v.string()),
 });
-
-/** The statuses an Expert decision leaves, with its reviews row. */
-const DECIDED: ReadonlySet<AssessmentStatus> = new Set(["approved", "reshoot", "rejected"]);
-
-/**
- * The decision that set a decided Assessment's status: its latest reviews
- * row. Null when nothing decided it (an AI guard reshoot has no row).
- */
-async function latestDecision(ctx: QueryCtx, row: Doc<"assessments">): Promise<Doc<"reviews"> | null> {
-  if (!DECIDED.has(row.status)) return null;
-  return await ctx.db
-    .query("reviews")
-    .withIndex("by_assessmentId", (q) => q.eq("assessmentId", row._id))
-    .order("desc")
-    .first();
-}
 
 /**
  * The caller's Assessments, newest first (at most 100), for the live status

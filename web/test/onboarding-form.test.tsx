@@ -348,6 +348,24 @@ describe("OnboardingForm (#37, minimal Fundi profile)", () => {
     });
   });
 
+  it("says under the name and the county that both are shown on the public profile (#42 RAI)", async () => {
+    await render();
+    expect(t("publicHint")).toBe("Shown on your public profile.");
+    for (const field of ["name", "county"]) {
+      const ids = input(field).getAttribute("aria-describedby")?.split(" ") ?? [];
+      const hints = ids.map((hid) => document.getElementById(hid)?.textContent);
+      expect(hints, field).toContain(t("publicHint"));
+    }
+  });
+
+  it("keeps the public-profile hint beside an inline error", async () => {
+    await render();
+    await submit();
+    const ids = input("name").getAttribute("aria-describedby")?.split(" ") ?? [];
+    expect(ids.some((hid) => hid.endsWith("-name-error"))).toBe(true);
+    expect(ids.map((hid) => document.getElementById(hid)?.textContent)).toContain(t("publicHint"));
+  });
+
   it("shows inline errors from the shared rules and does not call the server", async () => {
     await render();
     await submit();
