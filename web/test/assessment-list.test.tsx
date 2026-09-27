@@ -142,6 +142,42 @@ describe("the Fundi's Assessment list (US-3.1, US-4.1)", () => {
     expect(items()[0].textContent).toContain(t("rejectedNote"));
   });
 
+  it("shows the Badge line on an approved Assessment, dated in Nairobi time (US-5.4)", async () => {
+    // 22:30 UTC on 26 Sept is 01:30 on 27 Sept in Nairobi.
+    live.reset([row({ status: "approved", decidedAt: Date.UTC(2026, 8, 26, 22, 30) })]);
+    await render();
+    const badge = items()[0].querySelector('[data-testid="badge-line"]');
+    expect(badge?.textContent).toBe("Verified by Smart Fundis — Electrical: Install a 13A socket · Sep 27, 2026");
+    expect(badge?.textContent).toBe(
+      t("badgeLine", { trade: "Electrical", task: "Install a 13A socket", date: "Sep 27, 2026" }),
+    );
+  });
+
+  it("shows no Badge line on an approved row without a decision date, or on any other status", async () => {
+    live.reset([
+      row({ _id: "a1", status: "approved" }),
+      row({ _id: "a2", status: "rejected", decidedAt: Date.UTC(2026, 8, 26) }),
+      row({ _id: "a3", status: "awaiting_review" }),
+    ]);
+    await render();
+    expect(container.querySelectorAll('[data-testid="badge-line"]')).toHaveLength(0);
+  });
+
+  it("shows the Expert's note on a rejection or an Expert's reshoot, and nothing about who decided", async () => {
+    live.reset([
+      row({ _id: "a1", status: "rejected", expertNote: "The breaker is never shown off.", decidedAt: Date.UTC(2026, 8, 26) }),
+      row({ _id: "a2", status: "reshoot", expertNote: "Film the tester on each wire.", decidedAt: Date.UTC(2026, 8, 26) }),
+    ]);
+    await render();
+    const [rejected, reshoot] = items();
+    expect(rejected.textContent).toContain(t("rejectedNote"));
+    expect(rejected.querySelector('[data-testid="expert-note"]')?.textContent).toContain("The breaker is never shown off.");
+    expect(rejected.textContent).toContain(t("expertNoteLabel"));
+    expect(reshoot.textContent).toContain(t("reshootByExpert"));
+    expect(reshoot.querySelector('[data-testid="expert-note"]')?.textContent).toContain("Film the tester on each wire.");
+    expect(container.textContent).not.toMatch(/users_|deciderUserId/);
+  });
+
   it("changes the chip without a refresh when the status changes", async () => {
     live.reset([row({ status: "queued" })]);
     await render();

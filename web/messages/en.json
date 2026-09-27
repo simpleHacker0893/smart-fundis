@@ -1398,7 +1398,9 @@
       "too_dark": "The video is too dark. Film in good light."
     },
     "reshootByExpert": "An expert asked for a new video of this Task.",
-    "rejectedNote": "An expert reviewed this video and did not approve it."
+    "rejectedNote": "An expert reviewed this video and did not approve it.",
+    "badgeLine": "Verified by Smart Fundis — {trade}: {task} · {date}",
+    "expertNoteLabel": "The expert's note"
   },
   "UploadFlow": {
     "title": "Verify a skill",
