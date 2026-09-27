@@ -52,8 +52,9 @@ export const queue = query({
       return known;
     };
     // One index range per approved Trade, each already oldest first; merged below.
+    const approvedTrades = [...new Set(expert.approvedTrades)];
     const perTrade = await Promise.all(
-      expert.approvedTrades.map(async (tradeSlug) => {
+      approvedTrades.map(async (tradeSlug) => {
         const rows: Doc<"assessments">[] = [];
         const range = ctx.db
           .query("assessments")
@@ -104,15 +105,20 @@ const detailValidator = v.object({
   safetyFlags: v.array(v.string()),
   feedbackEn: v.optional(v.string()),
   fallbackModel: v.optional(v.boolean()),
-  // Signed URL; null once the video is deleted.
+  // Signed URL while awaiting_review or appealed; else null (also once deleted).
   videoUrl: v.union(v.string(), v.null()),
   videoDeletedAt: v.optional(v.number()),
 });
 
+/** The statuses in which reviews.detail signs the video URL. */
+const VIDEO_STATUSES: ReadonlySet<AssessmentStatus> = new Set(["awaiting_review", "appealed"]);
+
 /**
  * One Assessment for an Expert who canDecide on it (spec §4): its Trade,
  * Task and Rubric items, the AI Observations and Verdict, and the signed
- * video URL. The ONLY query in convex/ that returns a video URL (spec §7).
+ * video URL. The ONLY query in convex/ that returns a video URL (spec §7),
+ * and only while the Assessment is `awaiting_review` or `appealed`; in any
+ * other status `videoUrl` is null and getUrl is never called.
  * Returns null when the Assessment does not exist or the caller may not
  * decide it, so its existence does not leak. No Fundi identity or phone.
  * Guard: requireStoredUser, then canDecide.
@@ -127,7 +133,11 @@ export const detail = query({
     const allowed = await canDecide(ctx, user._id, row);
     if (!allowed.ok) return null;
     const rubric = await ctx.db.get("rubrics", row.rubricId);
-    const videoUrl = row.videoStorageId === undefined ? null : await ctx.storage.getUrl(row.videoStorageId);
+    // The video is signed only while a decision is open on it.
+    const videoUrl =
+      row.videoStorageId === undefined || !VIDEO_STATUSES.has(row.status)
+        ? null
+        : await ctx.storage.getUrl(row.videoStorageId);
     return {
       _id: row._id,
       _creationTime: row._creationTime,
@@ -173,9 +183,10 @@ const DECISION_STATUS = {
  * approve, and at most 1000 characters.
  *
  * Refusals throw a ConvexError `{ code, message }` and write nothing:
- * - `forbidden`: the caller is not an active Expert, or canDecide refuses
- *   (own Assessment, Admins included; Trade not approved; original decider);
- * - `not_found`: no such Assessment;
+ * - `forbidden`: the caller is not an active Expert, the Assessment does not
+ *   exist, or canDecide refuses (own Assessment, Admins included; Demo
+ *   Assessment; Trade not approved; original decider). One generic message
+ *   for all of them;
  * - `invalid_status`: the Assessment is not `awaiting_review` (this includes
  *   a second decision; appeals and Admin overrides are V4);
  * - `note_required`, `note_too_long`.
@@ -190,16 +201,12 @@ export const decide = mutation({
   returns: v.null(),
   handler: async (ctx, args) => {
     const { user } = await requireExpert(ctx);
+    // A missing Assessment and a canDecide refusal throw the same error, so
+    // existence does not leak and the internal reason stays on the server.
     const row = await ctx.db.get("assessments", args.assessmentId);
-    if (row === null) {
-      throw new ConvexError({ code: "not_found", message: "No such Assessment." });
-    }
-    const allowed = await canDecide(ctx, user._id, row);
-    if (!allowed.ok) {
-      throw new ConvexError({
-        code: "forbidden",
-        message: `You may not decide this Assessment (${allowed.code}).`,
-      });
+    const allowed = row === null ? null : await canDecide(ctx, user._id, row);
+    if (row === null || allowed === null || !allowed.ok) {
+      throw new ConvexError({ code: "forbidden", message: "You may not decide this Assessment." });
     }
     if (row.status !== "awaiting_review") {
       throw new ConvexError({

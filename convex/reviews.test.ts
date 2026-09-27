@@ -203,6 +203,15 @@ describe("reviews.queue", () => {
     expect(queue.map((row) => row.assessmentId)).toEqual([a, b, c]);
   });
 
+  it("lists each Assessment once when approvedTrades repeats a Trade", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA, ["electrical", "electrical"]);
+    const a = await awaiting(WANJIRU);
+    const b = await awaiting(WANJIRU);
+    const queue = await t.withIdentity(AMINA).query(api.reviews.queue, {});
+    expect(queue.map((row) => row.assessmentId)).toEqual([a, b]);
+  });
+
   it("never lists a Demo Fundi's Assessment", async () => {
     await makeFundi(WANJIRU);
     await makeFundi(OTIENO);
@@ -274,6 +283,32 @@ describe("reviews.detail", () => {
     expect(detail?.videoUrl).toBeNull();
   });
 
+  it.each([
+    ["approve", undefined],
+    ["reshoot", "Film the test step."],
+    ["reject", "Unsafe."],
+  ] as const)("gives no video URL once decided (%s): only awaiting_review and appealed get one", async (decision, note) => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    const as = t.withIdentity(AMINA);
+    await as.mutation(api.reviews.decide, { assessmentId: id, decision, ...(note ? { note } : {}) });
+    const detail = await as.query(api.reviews.detail, { assessmentId: id });
+    expect(detail?.status).not.toBe("awaiting_review");
+    expect(detail?.observations.length).toBeGreaterThan(0);
+    expect(detail?.videoUrl).toBeNull();
+  });
+
+  it.each(["queued", "analyzing", "failed"] as const)("gives no video URL while %s", async (status) => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await upload(WANJIRU);
+    await t.run((ctx) => ctx.db.patch("assessments", id, { status }));
+    const detail = await t.withIdentity(AMINA).query(api.reviews.detail, { assessmentId: id });
+    expect(detail?.status).toBe(status);
+    expect(detail?.videoUrl).toBeNull();
+  });
+
   it("returns null for a missing Assessment and refuses a signed-out caller", async () => {
     await makeFundi(WANJIRU);
     await makeExpert(AMINA);
@@ -301,11 +336,12 @@ describe("canDecide", () => {
     // decide refuses too, and writes nothing.
     const before = await statusOf(id);
     const reviewsBefore = (await decisionRows(id)).reviews.length;
-    expect(
-      await errorData(
-        t.withIdentity(who).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
-      ),
-    ).toMatchObject({ code: "forbidden" });
+    const data = (await errorData(
+      t.withIdentity(who).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
+    )) as { code: string; message: string };
+    expect(data.code).toBe("forbidden");
+    // The internal refusal reason never reaches the client.
+    expect(data.message).not.toContain(code);
     expect(await statusOf(id)).toBe(before);
     const rows = await decisionRows(id);
     expect(rows.reviews).toHaveLength(reviewsBefore);
@@ -351,6 +387,15 @@ describe("canDecide", () => {
     await refused(WANJIRU, id, "own_assessment");
   });
 
+  it("refuses a Demo Fundi's Assessment (CONTEXT: Demo Assessments never reach an Expert)", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    const wanjiru = await userId(WANJIRU);
+    await t.run((ctx) => ctx.db.patch("users", wanjiru, { isDemo: true }));
+    await refused(AMINA, id, "demo_assessment");
+  });
+
   it("refuses, on an appealed Assessment, the Expert who made the original decision", async () => {
     const BARAKA = identity("baraka");
     await makeFundi(WANJIRU);
@@ -373,6 +418,7 @@ describe("canDecide", () => {
     await refused(AMINA, id, "original_decider");
     const detail = await t.withIdentity(BARAKA).query(api.reviews.detail, { assessmentId: id });
     expect(detail?.status).toBe("appealed");
+    expect(detail?.videoUrl).toMatch(/^https:\/\//);
   });
 });
 
@@ -529,19 +575,27 @@ describe("reviews.decide", () => {
     expect((await decisionRows(id)).reviews).toHaveLength(1);
   });
 
-  it("reports a missing Assessment as not_found, and refuses a signed-out caller", async () => {
+  it("refuses a missing Assessment exactly like a canDecide refusal (forbidden), and a signed-out caller", async () => {
     await makeFundi(WANJIRU);
     await makeExpert(AMINA);
     const id = await awaiting(WANJIRU);
     await expect(
       t.mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
     ).rejects.toThrowError(/not authenticated/i);
+    const other = await awaiting(WANJIRU);
     await t.run((ctx) => ctx.db.delete("assessments", id));
-    expect(
-      await errorData(
-        t.withIdentity(AMINA).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
-      ),
-    ).toMatchObject({ code: "not_found" });
+    const missing = await errorData(
+      t.withIdentity(AMINA).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
+    );
+    // Same code and message as a refusal, so existence does not leak.
+    await makeExpert(identity("baraka"), ["hairdressing"]);
+    const refusedData = await errorData(
+      t
+        .withIdentity(identity("baraka"))
+        .mutation(api.reviews.decide, { assessmentId: other, decision: "approve" }),
+    );
+    expect(missing).toMatchObject({ code: "forbidden" });
+    expect(missing).toEqual(refusedData);
   });
 });
 
