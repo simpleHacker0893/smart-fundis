@@ -19,7 +19,7 @@ import { isExpert, pageGuard } from "@/lib/page-guard";
 export function ExpertGuard({ children }: { children: ReactNode }) {
   const t = useTranslations("ExpertPage");
   // Convex hooks throw outside a Convex provider (a build with no Convex URL).
-  if (!useConvexAvailable()) return <p className="text-base text-foreground/75">{t("unavailable")}</p>;
+  if (!useConvexAvailable()) return <p className="text-base text-dim">{t("unavailable")}</p>;
   return <Guarded>{children}</Guarded>;
 }
 
@@ -38,10 +38,6 @@ function Guarded({ children }: { children: ReactNode }) {
 
   if (guard.kind !== "allow") return <LoadingSkeleton label={t("loading")} />;
 
-  return (
-    <>
-      <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
-      {children}
-    </>
-  );
+  // Each page renders its own h1 (the queue title, or the Task on review).
+  return <>{children}</>;
 }

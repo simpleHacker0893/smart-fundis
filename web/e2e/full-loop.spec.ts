@@ -118,8 +118,8 @@ test.describe("the V1 demo loop at 360 px", () => {
     // awaiting_review rows from earlier runs pile up, so this run's row may
     // not be listed: the Expert opens this Assessment by its URL instead.
     await expertPage.goto("/expert");
-    await expect(expertPage.getByRole("heading", { level: 1, name: en.ExpertPage.title })).toBeVisible();
-    await expect(expertPage.getByRole("heading", { level: 2, name: en.ReviewQueue.title })).toBeVisible();
+    // #67: the queue title is the page's h1 (the shell has no "Expert review" heading any more).
+    await expect(expertPage.getByRole("heading", { level: 1, name: en.ReviewQueue.title })).toBeVisible();
     await expectNoSideScroll(expertPage);
     await expertPage.goto(`/expert/${ids.assessmentId}`);
 
