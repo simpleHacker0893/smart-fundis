@@ -215,5 +215,6 @@ async function buildJob(ctx: MutationCtx, row: Doc<"assessments">, attempt: numb
     task: { slug: rubric.taskSlug, name: rubric.taskName },
     rubric: { id: rubric._id, version: rubric.version, items: rubric.items },
     livenessCode: row.livenessCode,
+    ...(row.clipName !== undefined ? { clipName: row.clipName } : {}),
   };
 }

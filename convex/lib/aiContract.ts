@@ -31,7 +31,12 @@ export const CLAIM_SCAN = 5;
 export const claimBodyValidator = v.object({ workerId: v.string() });
 export type ClaimBody = Infer<typeof claimBodyValidator>;
 
-/** The 200 body of /ai/claim. `livenessCode` goes to the rules node only (ADR-19). */
+/**
+ * The 200 body of /ai/claim. `livenessCode` goes to the rules node only (ADR-19).
+ * `clipName` (#40) is the uploaded file's name, present only when the
+ * Assessment has one; the V1 stub worker picks its canned outcome from it and
+ * the V2 pipeline ignores it.
+ */
 export const jobValidator = v.object({
   assessmentId: v.id("assessments"),
   attempt: v.number(),
@@ -40,6 +45,7 @@ export const jobValidator = v.object({
   task: v.object({ slug: v.string(), name: v.string() }),
   rubric: v.object({ id: v.id("rubrics"), version: v.number(), items: v.array(rubricItemValidator) }),
   livenessCode: v.string(),
+  clipName: v.optional(v.string()),
 });
 export type Job = Infer<typeof jobValidator>;
 

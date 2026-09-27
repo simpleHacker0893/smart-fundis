@@ -111,6 +111,27 @@ describe("POST /ai/claim (spec §6, US-4.1)", () => {
     });
     expect(row).toMatchObject({ status: "analyzing", attempts: 1, claimedBy: "w1" });
     expect(row.claimedAt).toEqual(expect.any(Number));
+    // #40: no clipName on the Assessment, so no clipName key in the job.
+    expect(job).not.toHaveProperty("clipName");
+  });
+
+  it("adds the Assessment's clipName to the job when it has one (#40, the stub worker)", async () => {
+    const t = setup();
+    const id = await queued(t, { clipName: "review-socket.mp4" });
+    const res = await post(t, "/ai/claim", { workerId: "w1" });
+    expect(res.status).toBe(200);
+    const job = await res.json();
+    const rubric = await t.run(async (ctx) => ctx.db.get("rubrics", (await ctx.db.get("assessments", id))!.rubricId));
+    expect(job).toEqual({
+      assessmentId: id,
+      attempt: 1,
+      videoUrl: expect.any(String),
+      trade: { slug: "electrical", name: "Electrical" },
+      task: { slug: rubric!.taskSlug, name: rubric!.taskName },
+      rubric: { id: rubric!._id, version: rubric!.version, items: rubric!.items },
+      livenessCode: "482",
+      clipName: "review-socket.mp4",
+    });
   });
 
   it("claims oldest first, never the same Assessment twice (two pollers)", async () => {
@@ -138,16 +159,18 @@ describe("POST /ai/claim (spec §6, US-4.1)", () => {
     expect(await get(t, broken)).toMatchObject({ status: "failed", attempts: 1 });
   });
 
-  it("never logs the video URL", async () => {
+  it("never logs the video URL or the clip name", async () => {
     const t = setup();
-    await queued(t, { videoStorageId: undefined });
-    await queued(t);
+    await queued(t, { videoStorageId: undefined, clipName: "broken-clip.mp4" });
+    await queued(t, { clipName: "fundi-clip.mp4" });
     const spies = (["log", "info", "warn", "error", "debug"] as const).map((m) =>
       vi.spyOn(console, m).mockImplementation(() => {}),
     );
     const job = await (await post(t, "/ai/claim", { workerId: "w1" })).json();
     const logged = spies.flatMap((s) => s.mock.calls.flat().map(String)).join("\n");
     expect(logged).not.toContain(job.videoUrl);
+    expect(job.clipName).toBe("fundi-clip.mp4");
+    expect(logged).not.toContain("clip.mp4");
   });
 });
 
