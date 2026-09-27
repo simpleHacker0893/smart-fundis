@@ -31,7 +31,14 @@ export const CLAIM_SCAN = 5;
 export const claimBodyValidator = v.object({ workerId: v.string() });
 export type ClaimBody = Infer<typeof claimBodyValidator>;
 
-/** The 200 body of /ai/claim. `livenessCode` goes to the rules node only (ADR-19). */
+/**
+ * The 200 body of /ai/claim. `livenessCode` goes to the rules node only (ADR-19).
+ * `clipName` (#40) is the uploaded file's name, present only when the
+ * Assessment has one AND the dev-only AI_STUB_ENABLED flag is "1"
+ * (lib/aiStub.ts, RAI S1); the V1 stub worker picks its canned outcome from it
+ * and the V2 pipeline ignores it. Without the flag a stub worker (workerId
+ * starting with "stub") gets 403 `{ error: "stub_disabled" }` instead of a job.
+ */
 export const jobValidator = v.object({
   assessmentId: v.id("assessments"),
   attempt: v.number(),
@@ -40,6 +47,7 @@ export const jobValidator = v.object({
   task: v.object({ slug: v.string(), name: v.string() }),
   rubric: v.object({ id: v.id("rubrics"), version: v.number(), items: v.array(rubricItemValidator) }),
   livenessCode: v.string(),
+  clipName: v.optional(v.string()),
 });
 export type Job = Infer<typeof jobValidator>;
 
@@ -47,6 +55,11 @@ export type Job = Infer<typeof jobValidator>;
 // foreign id is a 409 (no such Assessment), not a validation 400.
 const target = { assessmentId: v.string(), attempt: v.number() };
 
+/**
+ * The /ai/callback body. Without AI_STUB_ENABLED, a `result` whose `model`
+ * starts with "stub", or any outcome for an Assessment claimed by a stub
+ * worker, gets 403 `{ error: "stub_disabled" }` and writes nothing (RAI S2).
+ */
 export const callbackBodyValidator = v.union(
   v.object({
     ...target,

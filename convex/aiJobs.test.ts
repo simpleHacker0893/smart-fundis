@@ -111,6 +111,28 @@ describe("POST /ai/claim (spec §6, US-4.1)", () => {
     });
     expect(row).toMatchObject({ status: "analyzing", attempts: 1, claimedBy: "w1" });
     expect(row.claimedAt).toEqual(expect.any(Number));
+    // #40: no clipName on the Assessment, so no clipName key in the job.
+    expect(job).not.toHaveProperty("clipName");
+  });
+
+  it("adds the Assessment's clipName to the job when it has one and AI_STUB_ENABLED is 1 (#40, the stub worker)", async () => {
+    vi.stubEnv("AI_STUB_ENABLED", "1");
+    const t = setup();
+    const id = await queued(t, { clipName: "review-socket.mp4" });
+    const res = await post(t, "/ai/claim", { workerId: "w1" });
+    expect(res.status).toBe(200);
+    const job = await res.json();
+    const rubric = await t.run(async (ctx) => ctx.db.get("rubrics", (await ctx.db.get("assessments", id))!.rubricId));
+    expect(job).toEqual({
+      assessmentId: id,
+      attempt: 1,
+      videoUrl: expect.any(String),
+      trade: { slug: "electrical", name: "Electrical" },
+      task: { slug: rubric!.taskSlug, name: rubric!.taskName },
+      rubric: { id: rubric!._id, version: rubric!.version, items: rubric!.items },
+      livenessCode: "482",
+      clipName: "review-socket.mp4",
+    });
   });
 
   it("claims oldest first, never the same Assessment twice (two pollers)", async () => {
@@ -138,23 +160,84 @@ describe("POST /ai/claim (spec §6, US-4.1)", () => {
     expect(await get(t, broken)).toMatchObject({ status: "failed", attempts: 1 });
   });
 
-  it("never logs the video URL", async () => {
+  it.each([
+    ["unset", undefined],
+    ["\"0\"", "0"],
+    ["\"true\"", "true"],
+  ])("sends no clipName key when AI_STUB_ENABLED is %s, even for a row with one (S1)", async (_label, flag) => {
+    vi.stubEnv("AI_STUB_ENABLED", flag);
     const t = setup();
-    await queued(t, { videoStorageId: undefined });
-    await queued(t);
+    await queued(t, { clipName: "review-socket.mp4" });
+    const res = await post(t, "/ai/claim", { workerId: "w1" });
+    expect(res.status).toBe(200);
+    expect(await res.json()).not.toHaveProperty("clipName");
+  });
+
+  describe("a stub worker without AI_STUB_ENABLED (S2)", () => {
+    it.each(["stub-laptop", "STUB", "Stub-box"])("returns 403 stub_disabled for workerId %j and leaves the row queued", async (workerId) => {
+      const t = setup();
+      const id = await queued(t);
+      const res = await post(t, "/ai/claim", { workerId });
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({ error: "stub_disabled" });
+      const row = (await get(t, id))!;
+      expect(row).toMatchObject({ status: "queued", attempts: 0 });
+      expect(row.claimedAt).toBeUndefined();
+      expect(row.claimedBy).toBeUndefined();
+    });
+
+    it("returns 403 even when nothing is queued", async () => {
+      const t = setup();
+      expect((await post(t, "/ai/claim", { workerId: "stub-laptop" })).status).toBe(403);
+    });
+
+    it("still returns 401 first for a bad secret", async () => {
+      const t = setup();
+      expect((await post(t, "/ai/claim", { workerId: "stub-laptop" }, "Bearer wrong")).status).toBe(401);
+    });
+
+    it("claims for the stub when AI_STUB_ENABLED is 1", async () => {
+      vi.stubEnv("AI_STUB_ENABLED", "1");
+      const t = setup();
+      const id = await queued(t);
+      const res = await post(t, "/ai/claim", { workerId: "stub-laptop" });
+      expect(res.status).toBe(200);
+      expect(await get(t, id)).toMatchObject({ status: "analyzing", claimedBy: "stub-laptop" });
+    });
+
+    it.each([
+      ["unset", undefined],
+      ["1", "1"],
+    ])("never affects a non-stub worker (flag %s)", async (_label, flag) => {
+      vi.stubEnv("AI_STUB_ENABLED", flag);
+      const t = setup();
+      const id = await queued(t);
+      const res = await post(t, "/ai/claim", { workerId: "brev-a100-stubborn" });
+      expect(res.status).toBe(200);
+      expect((await get(t, id))!.status).toBe("analyzing");
+    });
+  });
+
+  it("never logs the video URL or the clip name", async () => {
+    vi.stubEnv("AI_STUB_ENABLED", "1");
+    const t = setup();
+    await queued(t, { videoStorageId: undefined, clipName: "broken-clip.mp4" });
+    await queued(t, { clipName: "fundi-clip.mp4" });
     const spies = (["log", "info", "warn", "error", "debug"] as const).map((m) =>
       vi.spyOn(console, m).mockImplementation(() => {}),
     );
     const job = await (await post(t, "/ai/claim", { workerId: "w1" })).json();
     const logged = spies.flatMap((s) => s.mock.calls.flat().map(String)).join("\n");
     expect(logged).not.toContain(job.videoUrl);
+    expect(job.clipName).toBe("fundi-clip.mp4");
+    expect(logged).not.toContain("clip.mp4");
   });
 });
 
 /** Claims the one queued Assessment and returns its job. */
-async function claimed(t: T, overrides: Partial<Doc<"assessments">> = {}) {
+async function claimed(t: T, overrides: Partial<Doc<"assessments">> = {}, workerId = "w1") {
   const id = await queued(t, overrides);
-  const job = await (await post(t, "/ai/claim", { workerId: "w1" })).json();
+  const job = await (await post(t, "/ai/claim", { workerId })).json();
   expect(job.assessmentId).toBe(id);
   return job as { assessmentId: Id<"assessments">; attempt: number; rubric: { items: { id: string; safety: boolean }[] } };
 }
@@ -168,7 +251,7 @@ function resultBody(job: Awaited<ReturnType<typeof claimed>>, patch: Record<stri
     liveness: { read: "482", check: "yes" },
     verdict: { verdict: "pass", confidence: 0.9, strengths: ["neat"], gaps: [], feedbackEn: "Good work." },
     safetyFlags: [],
-    model: "stub@v1",
+    model: "cosmos-test@v1",
     fallbackModel: false,
     latencyMs: 1200,
     ...patch,
@@ -199,7 +282,7 @@ describe("POST /ai/callback (spec §6, US-4.1)", () => {
       livenessRead: "482",
       livenessCheck: "yes",
       safetyFlags: [],
-      model: "stub@v1",
+      model: "cosmos-test@v1",
       fallbackModel: false,
       latencyMs: 1200,
     });
@@ -244,6 +327,89 @@ describe("POST /ai/callback (spec §6, US-4.1)", () => {
     expect(again.attempt).toBe(2);
     expect(await (await post(t, "/ai/callback", error(2))).json()).toEqual({ status: "failed" });
     expect(await get(t, job.assessmentId)).toMatchObject({ status: "failed", attempts: 2 });
+  });
+
+  describe("a stub callback without AI_STUB_ENABLED returns 403 stub_disabled and writes nothing (S2)", () => {
+    /** A row claimed by a stub worker while the flag was on; then the flag is turned off. */
+    async function stubClaimed(t: T) {
+      vi.stubEnv("AI_STUB_ENABLED", "1");
+      const job = await claimed(t, {}, "stub-laptop");
+      vi.stubEnv("AI_STUB_ENABLED", undefined);
+      return job;
+    }
+
+    async function expectForbidden(t: T, body: unknown, id: Id<"assessments">) {
+      const before = (await get(t, id))!;
+      const res = await post(t, "/ai/callback", body);
+      expect(res.status).toBe(403);
+      expect(await res.json()).toEqual({ error: "stub_disabled" });
+      expect(await get(t, id)).toEqual(before);
+    }
+
+    it.each(["stub-v1", "STUB@v1"])("for a result with model %j from a non-stub worker", async (model) => {
+      const t = setup();
+      const job = await claimed(t);
+      await expectForbidden(t, resultBody(job, { model }), job.assessmentId);
+    });
+
+    it("for a result on a stub-claimed row, whatever the model", async () => {
+      const t = setup();
+      const job = await stubClaimed(t);
+      await expectForbidden(t, resultBody(job), job.assessmentId);
+    });
+
+    it("for a reshoot on a stub-claimed row (a reshoot carries no model)", async () => {
+      const t = setup();
+      const job = await stubClaimed(t);
+      const reason = { code: "too_dark", en: "The video is too dark." };
+      await expectForbidden(t, { assessmentId: job.assessmentId, attempt: 1, outcome: "reshoot", reason }, job.assessmentId);
+    });
+
+    it("for an error on a stub-claimed row", async () => {
+      const t = setup();
+      const job = await stubClaimed(t);
+      await expectForbidden(t, { assessmentId: job.assessmentId, attempt: 1, outcome: "error", errorCode: "x" }, job.assessmentId);
+    });
+
+    it("before the stale check: a stale stub result is 403, not 409", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      await expectForbidden(t, resultBody(job, { model: "stub-v1", attempt: 7 }), job.assessmentId);
+    });
+
+    it("still returns 401 first for a bad secret", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      expect((await post(t, "/ai/callback", resultBody(job, { model: "stub-v1" }), "Bearer wrong")).status).toBe(401);
+    });
+
+    it("accepts the same stub result, reshoot and error when AI_STUB_ENABLED is 1", async () => {
+      vi.stubEnv("AI_STUB_ENABLED", "1");
+      const t = setup();
+      const a = await claimed(t, {}, "stub-laptop");
+      const res = await post(t, "/ai/callback", resultBody(a, { model: "stub-v1" }));
+      expect(res.status).toBe(200);
+      expect(await get(t, a.assessmentId)).toMatchObject({ status: "awaiting_review", model: "stub-v1" });
+
+      const b = await claimed(t, {}, "stub-laptop");
+      const reason = { code: "too_dark", en: "The video is too dark." };
+      expect((await post(t, "/ai/callback", { assessmentId: b.assessmentId, attempt: 1, outcome: "reshoot", reason })).status).toBe(200);
+
+      const c = await claimed(t, {}, "stub-laptop");
+      const err = await post(t, "/ai/callback", { assessmentId: c.assessmentId, attempt: 1, outcome: "error", errorCode: "x" });
+      expect(await err.json()).toEqual({ status: "queued" });
+    });
+
+    it.each([
+      ["unset", undefined],
+      ["1", "1"],
+    ])("never affects a non-stub worker and model (flag %s)", async (_label, flag) => {
+      vi.stubEnv("AI_STUB_ENABLED", flag);
+      const t = setup();
+      const job = await claimed(t, {}, "brev-a100");
+      const res = await post(t, "/ai/callback", resultBody(job, { model: "nvidia/Cosmos-Reason2-8B-stubby" }));
+      expect(res.status).toBe(200);
+    });
   });
 
   describe("stale callbacks return 409 and change nothing", () => {
