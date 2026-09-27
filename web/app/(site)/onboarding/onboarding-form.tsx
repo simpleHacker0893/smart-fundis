@@ -167,9 +167,13 @@ function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
           autoComplete="name"
           maxLength={FUNDI_PROFILE_LIMITS.rawMax}
           aria-invalid={invalid("name")}
-          aria-describedby={describe("name")}
+          aria-describedby={describe("name", true)}
           className={FIELD}
         />
+        {/* #42 RAI: the name goes on the public profile at /f/[id]. */}
+        <p id={`${id}-name-hint`} className="text-sm text-foreground/75">
+          {t("publicHint")}
+        </p>
         {fieldError("name")}
       </div>
 
@@ -211,7 +215,7 @@ function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
           name="county"
           defaultValue=""
           aria-invalid={invalid("county")}
-          aria-describedby={describe("county")}
+          aria-describedby={describe("county", true)}
           className={FIELD}
         >
           <option value="" disabled>
@@ -223,6 +227,9 @@ function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
             </option>
           ))}
         </select>
+        <p id={`${id}-county-hint`} className="text-sm text-foreground/75">
+          {t("publicHint")}
+        </p>
         {fieldError("county")}
       </div>
 

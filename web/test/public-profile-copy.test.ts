@@ -23,4 +23,15 @@ describe("#42 public profile copy (AGENTS.md non-negotiables, CONTEXT)", () => {
   it("never uses the CONTEXT aliases for Not yet verified", () => {
     for (const s of leafStrings(en.PublicProfile)) expect(s, s).not.toMatch(/unverified|unapproved|pending|failed/i);
   });
+
+  it("RAI: the upload consent says what the public profile shows (consent-v1, never shipped)", () => {
+    const text =
+      "Your Badges, name, county and trades are on your public profile. Your video and the review notes stay private.";
+    expect(en.UploadFlow.consent.points.public).toBe(text);
+    expect(en.Privacy.consent.points.badge).toBe(text);
+  });
+
+  it("RAI nit: the declared Trades never read as verified", () => {
+    expect(en.PublicProfile.tradesTitle).toBe("Trades (declared by the Fundi)");
+  });
 });

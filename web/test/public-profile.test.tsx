@@ -133,6 +133,11 @@ describe("/f/[id] loading (#42)", () => {
     expect((await generateMetadata()).title).toBe(t("meta.title"));
   });
 
+  it("asks search engines not to index or follow it until the V3 visibility toggle ships (RAI)", async () => {
+    const { generateMetadata } = await import("@/app/(site)/f/[id]/page");
+    expect((await generateMetadata()).robots).toEqual({ index: false, follow: false });
+  });
+
   it("says the profile is gone if it stops being public while open", async () => {
     state.profile = profile();
     state.live = null;

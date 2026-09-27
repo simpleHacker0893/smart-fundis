@@ -7,7 +7,12 @@ import { PublicProfile } from "./public-profile";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("PublicProfile");
-  return { title: t("meta.title") };
+  return {
+    title: t("meta.title"),
+    // RAI (#42): profiles are public by default and there is no visibility
+    // toggle until V3, so keep them out of search engines until it ships.
+    robots: { index: false, follow: false },
+  };
 }
 
 const MAIN = "mx-auto flex w-full max-w-xl flex-1 flex-col gap-6 px-6 py-12";
