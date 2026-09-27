@@ -298,7 +298,7 @@ describe("/expert/[assessmentId] error boundary", () => {
     await act(async () => {
       root.render(
         <NextIntlClientProvider locale={defaultLocale} messages={en}>
-          <ReviewError error={new Error("ArgumentValidationError")} retry={() => {}} />
+          <ReviewError error={new Error("ArgumentValidationError")} reset={() => {}} />
         </NextIntlClientProvider>,
       );
     });
