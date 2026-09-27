@@ -28,7 +28,7 @@ You are continuing the Smart Fundis V1 slice (spec issue #36, "Tracer bullet") f
 | --- | --- | --- |
 | #37, #38 | merged | — |
 | #39 claim/callback contract | **done, PR #59 open**, awaiting operator review/merge | `v1/39-ai-claim-callback` (tip `cba0a01`) |
-| #41 Expert queue + decision | **in progress**, see below | `v1/41-expert-queue`, pushed at `324a287`, stacked on #39 |
+| #41 Expert queue + decision | **in progress**, see below | `v1/41-expert-queue`, pushed, stacked on #39 |
 | #40 stub worker | not started, see below | — |
 | #42 public `/f/[id]` + full-loop Playwright | blocked by #40 and #41 | — |
 | #43 real phone + native-speaker check | `ready-for-human`, the operator's own step | — |
@@ -43,9 +43,9 @@ You are continuing the Smart Fundis V1 slice (spec issue #36, "Tracer bullet") f
   - `decide` throws one generic `forbidden` for a missing Assessment and for any refusal. Its error codes are `forbidden`, `invalid_status`, `note_required` and `note_too_long`.
   - Reviewed by convex-reviewer and a spec/quality reviewer. Fix round 1 was re-reviewed clean.
 - **Frontend (web):** `/expert` (the guard and the queue), `/expert/[assessmentId]` (the video, the Liveness code, the Observations, the "AI suggestion — you decide" panel and the decision form), `BUILT_ROLE_ROUTES.expert = true`, and the Badge line and Expert note on `/fundi`. The spec/quality review approved it. rai-reviewer found 2 majors.
-- **Checks at `324a287`:** typecheck 0, lint 0 errors and 2 warnings, Convex 351 passed, web 460 passed.
+- **Checks at `324a287`:** typecheck 0, lint 0 errors and 2 warnings (both cleared by W7), Convex 351 passed, web 460 passed.
 
-**In flight when the session ended:** a frontend fix round, items W1–W7 below. Its edits may be uncommitted in the working tree or in new commits. Run `git status` and `git log origin/v1/41-expert-queue..HEAD`. If the previous machine is available, read `.superpowers/sdd/v1-41/frontend-fix-report.md`, which is git-ignored. Otherwise, check each item against the code yourself.
+**Committed after the first push:** the frontend fix round W1–W7, in commits `fd93b7a`, `4aae970`, `4e96b2c` and `11ee173`. At `11ee173` the checks passed: typecheck 0, lint with 0 errors and 0 warnings, Convex 351 passed, web 464 passed (with `--maxWorkers=4`; vitest workers sometimes crash on this Windows machine at the default count). The fix diff has **not** had its scoped re-review yet. The items were:
 - **W1:** the approval note's label and hint say it is kept for the record and **not** shown to the Fundi. `reshoot` and `reject` keep "Note to the Fundi".
 - **W2:** remove the AI verdict word from the queue row (automation bias), and keep the safety-flag count.
 - **W3:** no decision is pre-selected. Submit stays disabled until the Expert picks one.
@@ -55,7 +55,7 @@ You are continuing the Smart Fundis V1 slice (spec issue #36, "Tracer bullet") f
 - **W7:** `pnpm lint` shows 0 warnings. Prefer `argsIgnorePattern: "^_"` in `web/eslint.config.mjs`.
 
 **Left for #41:**
-1. Finish or verify W1–W7, commit, then run a scoped re-review of the fix diff.
+1. Run a scoped re-review of the W1–W7 fix diff (`git diff 0d34cde..11ee173`, ignoring the handoff doc) against the list above.
 2. Run mattpocock-skills:code-review (Standards + Spec) on the whole #41 branch against `v1/39-ai-claim-callback`, and fix what holds up.
 3. Run verification-before-completion: `pnpm -r typecheck`, `pnpm typecheck:convex`, `pnpm lint` and `pnpm test`. Put the real output against each #41 acceptance criterion.
 4. Write `docs/handoff/41.md`. List these deferred items for the Architect:
