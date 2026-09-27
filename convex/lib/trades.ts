@@ -5,7 +5,20 @@ import type { RubricItem } from "./validators";
 // the web and lib/fundiProfile.ts import lib/tradeCatalogue.ts instead, so the
 // Rubric item text never reaches the client bundle.
 
-export type TaskSeed = { slug: string; name: string; version: number; items: RubricItem[] };
+export type TaskSeed = {
+  slug: string;
+  name: string;
+  version: number;
+  items: RubricItem[];
+  /**
+   * Third-party privacy (#38, rai-reviewer on #37): true when a client is
+   * normally on camera for this Task, so the Fundi must tick "The client
+   * agreed to be filmed" before uploading (taskNeedsClientConsent). Policy, not Rubric content: it is
+   * not stored on the Rubric and not sent to the AI, so changing it needs no
+   * new Rubric version.
+   */
+  needsClientConsent: boolean;
+};
 
 export type TradeSeed = TradeCatalogueEntry & {
   /** Only a Trade with a Task has a Rubric, and so "Verify now". */
@@ -29,6 +42,10 @@ export const TRADE_TASKS: Readonly<Record<string, TaskSeed>> = {
     slug: "13a-socket",
     name: "Install a 13A socket",
     version: 1,
+    // Filmed at the socket, usually on a practice board or with nobody else
+    // in frame. The recording tips ask the Fundi to keep other people out of
+    // the frame instead (web/messages/en.json).
+    needsClientConsent: false,
     items: [
       {
         id: "isolate",
@@ -71,6 +88,8 @@ export const TRADE_TASKS: Readonly<Record<string, TaskSeed>> = {
     slug: "cornrows",
     name: "Cornrows",
     version: 1,
+    // The client's head is always in frame.
+    needsClientConsent: true,
     items: [
       {
         id: "prep",
@@ -115,3 +134,13 @@ export const TRADE_CATALOGUE: readonly TradeSeed[] = TRADE_ROWS.map((row) => {
   const task = TRADE_TASKS[row.slug];
   return task === undefined ? row : { ...row, task };
 });
+
+/**
+ * Whether a Fundi must confirm "The client agreed to be filmed" for this
+ * Task. A Task this file does not know (for example one an Admin adds in
+ * V4) requires it, so the privacy check fails safe.
+ */
+export function taskNeedsClientConsent(tradeSlug: string, taskSlug: string): boolean {
+  const task = TRADE_TASKS[tradeSlug];
+  return task === undefined || task.slug !== taskSlug ? true : task.needsClientConsent;
+}

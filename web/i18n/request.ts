@@ -6,6 +6,8 @@ export default getRequestConfig(async () => {
   const locale = defaultLocale;
   return {
     locale,
+    // Kenya only; a fixed zone keeps server and client dates the same.
+    timeZone: "Africa/Nairobi",
     messages: (await import(`../messages/${locale}.json`)).default,
   };
 });

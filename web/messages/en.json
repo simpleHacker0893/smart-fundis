@@ -314,9 +314,7 @@
     },
     "title": "Your Fundi page",
     "loading": "Opening your Fundi page…",
-    "unavailable": "Your Fundi page is not available right now. Please try again later.",
-    "name": "Name",
-    "county": "County"
+    "unavailable": "Your Fundi page is not available right now. Please try again later."
   },
   "Shell": {
     "brand": "Smart Fundis",
@@ -1352,6 +1350,194 @@
         }
       },
       "roadmap": "See the roadmap"
+    }
+  },
+  "Rubrics": {
+    "13a-socket": {
+      "name": "Install a 13A socket",
+      "items": {
+        "isolate": "Shows the breaker being switched off on camera before touching any wires.",
+        "test_dead": "Holds the voltage tester to each wire on camera so its reading or light shows the power is off.",
+        "terminals": "Holds each wire to the camera and connects it to the right terminal: brown (or old red) to L, blue (or old black) to N.",
+        "earth": "Connects the green-and-yellow earth wire to the earth terminal (E). On older installs, the bare earth wire is covered in green-and-yellow sleeving.",
+        "no_bare_copper": "Tightens every terminal screw and gives each wire a light pull to show it is firm. No bare copper shows outside the terminals.",
+        "faceplate": "Fixes the faceplate to the box straight and level, with no wires trapped.",
+        "function_test": "Switches the power back on and shows the socket works, with a socket tester or a plugged-in device."
+      }
+    },
+    "cornrows": {
+      "name": "Cornrows",
+      "items": {
+        "prep": "Detangles and sections the hair before braiding.",
+        "tool_hygiene": "Shows the comb and clips are clean before starting, and does not reuse a tool dropped on the floor.",
+        "parting": "Makes clean, even parts that follow the planned pattern (straight or curved).",
+        "tension": "Braids firmly but not too tight: the skin at the hairline and roots is not pulled up or stretched, and no raised bumps appear.",
+        "even_braids": "Keeps each braid the size planned for the style, neat from root to end.",
+        "neat_ends": "Finishes the ends neatly so the braids do not come loose."
+      }
+    }
+  },
+  "AssessmentList": {
+    "title": "Your Assessments",
+    "taskLine": "{trade}: {task}",
+    "sent": "Sent {date}",
+    "status": {
+      "queued": "Waiting in line",
+      "analyzing": "The AI is watching your video",
+      "awaiting_review": "Awaiting expert review",
+      "approved": "Approved — Verified by Smart Fundis",
+      "reshoot": "Record again",
+      "rejected": "Not approved",
+      "appealed": "Your appeal is being reviewed",
+      "failed": "Something went wrong — record again"
+    },
+    "reshootReasons": {
+      "too_short": "The video is too short. Record 10 to 90 seconds.",
+      "too_long": "The video is too long. Record 10 to 90 seconds.",
+      "low_res": "The picture is not sharp enough. Use your phone's main camera.",
+      "too_dark": "The video is too dark. Film in good light."
+    },
+    "reshootByExpert": "An expert asked for a new video of this Task.",
+    "rejectedNote": "An expert reviewed this video and did not approve it."
+  },
+  "UploadFlow": {
+    "title": "Verify a skill",
+    "loading": "Loading the Tasks you can film…",
+    "empty": "No Trade can be verified yet.",
+    "back": "Back",
+    "pick": {
+      "intro": "Pick the Task you will film. The checklist shows what the expert and the AI look for.",
+      "onProfile": "On your profile",
+      "task": "Task: {task}",
+      "checklist": "Checklist",
+      "safety": "Safety",
+      "safetyNote": "Safety items must be clearly shown on camera.",
+      "choose": "Film {task}"
+    },
+    "tips": {
+      "title": "Recording tips",
+      "intro": "Follow these so your video can be checked.",
+      "common": {
+        "light": "Film in good light. Face the light, with no bright window behind the work.",
+        "length": "Record 10 to 90 seconds.",
+        "frame": "Keep your hands and the work in the frame the whole time.",
+        "steady": "Hold the phone steady, or lean it on something.",
+        "code": "Write your Liveness code on paper. At the start, show the paper to the camera and say the code out loud.",
+        "safety": "Show every safety step clearly on camera."
+      },
+      "task": {
+        "13a-socket": {
+          "people": "Keep other people, and anything that shows your client's address, out of the frame.",
+          "close": "Film the breaker and the tester close enough to read."
+        },
+        "cornrows": {
+          "face": "Film the head from the back or top. When you show the hairline, film close so the client's eyes and face stay out of the frame.",
+          "ask": "Ask the client before you film, and film only if they agree. For a child, ask their parent or guardian."
+        }
+      },
+      "next": "Next: get my code"
+    },
+    "code": {
+      "title": "Your Liveness code",
+      "instructions": "Write this code on paper. At the start of your video, show the paper to the camera and say the code out loud.",
+      "label": "Liveness code {code}",
+      "loading": "Getting your code…",
+      "error": "We could not get a code. Check your connection and try again.",
+      "retry": "Try again"
+    },
+    "consent": {
+      "title": "Verification consent",
+      "before": "Before you upload, read the",
+      "open": "Verification consent",
+      "intro": "How Smart Fundis uses your video:",
+      "points": {
+        "who": "Your video is seen only by you, the Smart Fundis experts approved for this Trade, Smart Fundis admins, and our AI, which runs on a GPU server that Smart Fundis rents and controls.",
+        "review": "The AI only recommends. An expert decides, and only an expert's approval earns a Badge verified by Smart Fundis.",
+        "public": "Only your Badge becomes public. Your video and the review notes stay private.",
+        "delete": "Once the review is finished, you can ask us to delete the video through the <contact>Contact page</contact>. A delete button is coming soon.",
+        "training": "Your video is not used to train AI, and it is not part of the Data Co-op."
+      },
+      "newTab": "Opens in a new tab",
+      "close": "Close",
+      "agree": "I have read and agree to the verification consent",
+      "client": "The client agreed to be filmed, and knows Smart Fundis experts and our AI will see the video.",
+      "clientHint": "Tick this only if the person in the video said yes to being filmed. If they are under 18, their parent or guardian must say yes."
+    },
+    "video": {
+      "title": "Your video",
+      "record": "Record a video",
+      "choose": "Choose a saved video",
+      "hint": "One video, up to 100 MB.",
+      "chosen": "Chosen: {name}",
+      "needConsent": "Tick the consent above to upload.",
+      "needBothTicks": "Tick both boxes above to upload.",
+      "needVideo": "Record or choose a video to upload."
+    },
+    "upload": "Upload video",
+    "progress": "Upload progress",
+    "uploading": "Uploading… {percent}%",
+    "saving": "Saving your Assessment…",
+    "retry": "Try again",
+    "newCode": "Get a new code",
+    "done": "Uploaded. Your video is waiting in line.",
+    "errors": {
+      "not_signed_in": "You are signed out. Sign in again, then upload.",
+      "no_user": "Your account is still being set up. Wait a moment, then try again.",
+      "not_fundi": "Only a Fundi can upload a video. Create your Fundi profile first.",
+      "file_missing": "The video did not arrive. Try again.",
+      "file_in_use": "That upload was already used. Try again.",
+      "too_large": "This video is over 100 MB. Record a shorter one.",
+      "wrong_type": "This file is not a video. Record or choose a video.",
+      "consent_missing": "Tick the verification consent before you upload.",
+      "consent_outdated": "The consent text has changed. Reload the page and read it again.",
+      "client_consent_missing": "Tick that the client agreed to be filmed.",
+      "unknown_task": "This Task cannot be verified right now. Pick another Task.",
+      "liveness_missing": "Your Liveness code is no longer valid. Get a new code, then record again showing it.",
+      "liveness_mismatch": "Your Liveness code has changed. Get a new code, then record again showing it.",
+      "liveness_expired": "Your Liveness code has expired. Get a new code, then record again showing it.",
+      "invalid_previous": "This video cannot replace that Assessment. Start a new one.",
+      "network": "The upload stopped. Check your connection and try again.",
+      "upload_failed": "The upload did not finish. Try again.",
+      "unexpected": "Something went wrong. Try again."
+    }
+  },
+  "Showcase": {
+    "title": "Show your past work",
+    "intro": "Share a YouTube or TikTok video of work you have done. These links never earn a Badge: only a video recorded here can be verified by Smart Fundis.",
+    "loading": "Loading your links…",
+    "label": "Showcase — not verified",
+    "note": "Shared by the Fundi. Smart Fundis has not checked this video, and it does not earn a Badge.",
+    "youtubeTitle": "YouTube video shared by the Fundi",
+    "tiktokTitle": "TikTok video shared by the Fundi",
+    "slots": {
+      "youtube": {
+        "label": "YouTube link",
+        "hint": "A link to one video, for example https://www.youtube.com/watch?v=…",
+        "save": "Save YouTube link",
+        "remove": "Remove YouTube link",
+        "saved": "Your YouTube link is saved."
+      },
+      "tiktok": {
+        "label": "TikTok link",
+        "hint": "A link to one video, for example https://www.tiktok.com/@name/video/…",
+        "save": "Save TikTok link",
+        "remove": "Remove TikTok link",
+        "saved": "Your TikTok link is saved."
+      }
+    },
+    "errors": {
+      "youtube": {
+        "empty": "Paste a YouTube link first.",
+        "unsupported": "Use a link to one YouTube video.",
+        "wrong_site": "That is a TikTok link. Paste it in the TikTok box."
+      },
+      "tiktok": {
+        "empty": "Paste a TikTok link first.",
+        "unsupported": "Use a link to one TikTok video.",
+        "wrong_site": "That is a YouTube link. Paste it in the YouTube box.",
+        "tiktok_short": "Open the video in TikTok, tap Share, then Copy link, and paste the full tiktok.com link."
+      },
+      "save": "We could not save your links. Check your connection and try again."
     }
   }
 }

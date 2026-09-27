@@ -49,3 +49,13 @@ export function pillClass({
 }): string {
   return cn(BASE, VARIANTS[variant], SIZES[size], inHitArea && FOCUS_IN_HIT_AREA, className);
 }
+
+// The in-app action pills (upload flow, Showcase links): 48 px, full width on
+// mobile and auto from sm, dimmed and inert while disabled.
+const ACTION = "sm:w-auto disabled:pointer-events-none disabled:opacity-50";
+
+/** The primary action button of an in-app step. */
+export const PRIMARY_PILL = pillClass({ variant: "primary", size: "full", className: ACTION });
+
+/** The secondary action button of an in-app step (Back, Try again, Remove). */
+export const SECONDARY_PILL = pillClass({ variant: "secondary", size: "full", className: ACTION });

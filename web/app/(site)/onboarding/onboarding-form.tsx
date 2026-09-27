@@ -62,6 +62,7 @@ function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
   const id = useId();
   const router = useRouter();
   const create = useMutation(api.fundiProfiles.create);
+  const store = useMutation(api.users.store);
   const [errors, setErrors] = useState<FieldErrorKeys>({});
   const [formError, setFormError] = useState<FormErrorKey | null>(null);
   const [saving, setSaving] = useState(false);
@@ -74,6 +75,28 @@ function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
       form.querySelector<HTMLElement>(`[data-error-focus="${first}"]`) ??
       form.querySelector<HTMLElement>(`[name="${first}"]`);
     target?.focus();
+  }
+
+  /**
+   * fundiProfiles.create, storing the caller's `users` row first if the
+   * server has none (`no_user`). StoreUserOnAuth writes it once per session;
+   * if that call failed, or the row went missing since, the form would
+   * otherwise fail the same way on every try. users.store is idempotent.
+   */
+  async function createProfile(input: Parameters<typeof create>[0]) {
+    try {
+      await create(input);
+    } catch (error) {
+      const outcome = submitErrorOutcome(error);
+      if (outcome.kind !== "form" || outcome.key !== "noUser") throw error;
+      try {
+        await store({});
+      } catch (storeError) {
+        console.error("users.store failed", storeError);
+        throw error;
+      }
+      await create(input);
+    }
   }
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -99,7 +122,7 @@ function ProfileForm({ trades }: { trades: readonly PickerTrade[] }) {
     setErrors({});
     setSaving(true);
     try {
-      await create(input);
+      await createProfile(input);
       router.replace(AFTER_AUTH_PATH);
     } catch (error) {
       const outcome = submitErrorOutcome(error);
