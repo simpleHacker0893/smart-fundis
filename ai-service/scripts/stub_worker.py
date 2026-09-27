@@ -20,7 +20,9 @@ Run from ``ai-service/``::
 
 It reads ``CONVEX_SITE_URL`` and ``AI_SHARED_SECRET`` from the environment or
 the repo-root ``.env`` (D-13, through ``app.settings``). It never logs the
-video URL, the secret or the job body.
+video URL, the secret, the job body or the clip name.
+
+Every result it posts has ``model`` "stub-v1" and ``confidence`` 0.
 """
 
 from __future__ import annotations
@@ -47,6 +49,9 @@ HTTP_TIMEOUT_S = 30.0
 DEFAULT_POLL_INTERVAL_S = 5.0
 
 STUB_NOTE = "Stub result: no AI ran."
+# Always 0: a made-up number must never look like model confidence. Any metric
+# must drop rows whose ``model`` starts with "stub".
+STUB_CONFIDENCE = 0
 
 Outcome = Literal["pass", "review", "reshoot"]
 Sleep = Callable[[float], None]
@@ -116,7 +121,7 @@ def canned_callback(job: dict[str, Any], outcome: Outcome, latency_ms: int) -> d
         liveness: dict[str, Any] = {"read": None, "check": "unclear"}
         verdict = {
             "verdict": "needs_review",
-            "confidence": 0.5,
+            "confidence": STUB_CONFIDENCE,
             "strengths": [STUB_NOTE],
             "gaps": [f"{STUB_NOTE} One Rubric item and the Liveness code are canned 'unclear'."],
             "feedbackEn": f"{STUB_NOTE} This canned needs_review result tests the review path.",
@@ -126,7 +131,7 @@ def canned_callback(job: dict[str, Any], outcome: Outcome, latency_ms: int) -> d
         liveness = {"read": job["livenessCode"], "check": "yes"}
         verdict = {
             "verdict": "pass",
-            "confidence": 0.9,
+            "confidence": STUB_CONFIDENCE,
             "strengths": [STUB_NOTE],
             "gaps": [],
             "feedbackEn": f"{STUB_NOTE} This canned pass tests the pipeline only.",

@@ -218,6 +218,8 @@ def test_pass_result(fake: FakeConvex) -> None:
     assert all(o["result"] == "yes" for o in body["observations"])
     assert body["liveness"] == {"read": "472", "check": "yes"}
     assert body["safetyFlags"] == []
+    # Canned numbers must not look like model confidence.
+    assert body["verdict"]["confidence"] == 0
 
 
 def test_pass_when_the_job_has_no_clip_name(fake: FakeConvex) -> None:
@@ -226,6 +228,7 @@ def test_pass_when_the_job_has_no_clip_name(fake: FakeConvex) -> None:
 
     assert_result_shape(body, job)
     assert body["verdict"]["verdict"] == "pass"
+    assert body["verdict"]["confidence"] == 0
 
 
 def test_needs_review_result(fake: FakeConvex) -> None:
@@ -238,6 +241,7 @@ def test_needs_review_result(fake: FakeConvex) -> None:
     unclear = [o for o in body["observations"] if o["result"] == "unclear"]
     assert [o["itemId"] for o in unclear] == ["isolate"]  # the first safety item
     assert body["safetyFlags"] == ["isolate"]
+    assert body["verdict"]["confidence"] == 0
 
 
 def test_needs_review_with_no_safety_item_flags_nothing(fake: FakeConvex) -> None:
@@ -250,6 +254,7 @@ def test_needs_review_with_no_safety_item_flags_nothing(fake: FakeConvex) -> Non
     assert body["verdict"]["verdict"] == "needs_review"
     assert body["safetyFlags"] == []
     assert [o["result"] for o in body["observations"]].count("unclear") == 1
+    assert body["verdict"]["confidence"] == 0
 
 
 def test_reshoot(fake: FakeConvex) -> None:
@@ -370,10 +375,12 @@ def test_backoff_is_capped() -> None:
     assert stub_worker.backoff_seconds(1.0, failures=20) == stub_worker.MAX_BACKOFF_S
 
 
-def test_never_logs_the_video_url(
+def test_never_logs_the_video_url_secret_or_clip_name(
     fake: FakeConvex, caplog: pytest.LogCaptureFixture, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    fake.script("/ai/claim", Reply(200, make_job("review.mp4")), Reply(200, make_job()))
+    # A clip name can carry personal data: a name and a phone number.
+    personal_clip = "Wanjiru 0722000000 review.mp4"
+    fake.script("/ai/claim", Reply(200, make_job(personal_clip)), Reply(200, make_job()))
     fake.script("/ai/callback", Reply(409, {"error": "stale"}), Reply(400, {"error": "x"}))
 
     with caplog.at_level(logging.DEBUG), pytest.raises(StopLoop):
@@ -384,7 +391,11 @@ def test_never_logs_the_video_url(
         assert "SIGNED-VIDEO-URL" not in text
         assert "fake.convex.cloud" not in text
         assert SECRET not in text
+        assert personal_clip not in text
+        assert "0722000000" not in text
+        assert "Wanjiru" not in text
     assert "k17assessment0001" in caplog.text  # it does log the id
+    assert "review" in caplog.text  # and the canned outcome
 
 
 # --- settings and the CLI --------------------------------------------------------

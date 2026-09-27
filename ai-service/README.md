@@ -87,7 +87,7 @@ The tests (`tests/test_nemotron.py`) make no network call. They fake only `reque
 | else contains `review` | `result`, Verdict `needs_review`: the first safety Rubric item is `unclear` and in `safetyFlags` (the first item, unflagged, if the Rubric has no safety item), and liveness is `{read: null, check: "unclear"}` |
 | anything else, or no `clipName` | `result`, Verdict `pass`: every item `yes`, liveness `{read: <livenessCode>, check: "yes"}`, no flags |
 
-`reshoot` wins when both words appear (`review-reshoot.mp4` is a reshoot). Every result sends each Rubric item exactly once, `model: "stub-v1"`, `fallbackModel: false`, and English only (D-64): `feedbackSw` and `reason.sw` are omitted.
+`reshoot` wins when both words appear (`review-reshoot.mp4` is a reshoot). Every result sends each Rubric item exactly once, `model: "stub-v1"`, `confidence: 0` (for pass and review alike, so a made-up number never looks like model confidence), `fallbackModel: false`, and English only (D-64): `feedbackSw` and `reason.sw` are omitted. Any metric (accuracy, agreement, confidence) must filter out rows whose `model` starts with `stub`.
 
 **How it handles responses.**
 - `/ai/claim` 204: sleep for the poll interval, then poll again. After a job it polls again at once.
@@ -95,7 +95,7 @@ The tests (`tests/test_nemotron.py`) make no network call. They fake only `reque
 - `/ai/callback` 200: log the new status. 409: log "stale" and carry on. 400: log the `error` field as a worker bug and carry on.
 - Network errors: log the error type and back off (1×, 2×, 4× the interval, up to 60 s). A callback lost this way leaves the Assessment `analyzing` until the requeue cron picks it up after 10 minutes.
 
-It never logs the video URL, the secret or the job body; it logs the Assessment id, the attempt and the canned outcome.
+It never logs the video URL, the secret, the job body or the clip name; it logs the Assessment id, the attempt and the canned outcome.
 
 **Prerequisites.**
 - `AI_SHARED_SECRET` is set on the **dev** Convex deployment, from the repo root: `pnpm exec convex env set AI_SHARED_SECRET <value>`.
