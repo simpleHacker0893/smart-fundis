@@ -53,6 +53,9 @@ class Settings(BaseModel):
     # Convex pull loop (ADR-9)
     convex_site_url: str | None = None
     ai_shared_secret: SecretStr | None = None
+    # Which Convex deployment `convex dev` targets ("dev:<name>" or "prod:<name>").
+    # Local only; the stub worker refuses to run unless it starts with "dev:" (#40).
+    convex_deployment: str | None = None
     # Queue (ADR-5)
     redis_url: str | None = None
     queue_mode: Literal["inline", "celery"] = "inline"

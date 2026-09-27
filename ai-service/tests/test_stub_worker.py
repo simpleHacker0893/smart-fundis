@@ -21,6 +21,7 @@ from scripts import stub_worker
 from scripts.stub_worker import WorkerConfig
 
 SECRET = "fake-shared-secret"
+DEV_DEPLOYMENT = "dev:happy-otter-123"
 VIDEO_URL = "https://fake.convex.cloud/api/storage/SIGNED-VIDEO-URL-abc123?token=zzz"
 MAX_LIST_ITEMS = 20
 MAX_TEXT_LENGTH = 2000
@@ -409,7 +410,7 @@ def test_worker_id_is_stub_hostname() -> None:
 def test_main_exits_when_settings_are_missing(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    monkeypatch.setattr(stub_worker, "load_env", lambda: (None, None))
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (None, None, DEV_DEPLOYMENT))
 
     code = stub_worker.main(["--once"])
 
@@ -422,7 +423,7 @@ def test_main_exits_when_settings_are_missing(
 def test_main_runs_against_the_configured_site(
     fake: FakeConvex, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url + "/", SECRET))
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url + "/", SECRET, DEV_DEPLOYMENT))
     fake.script("/ai/claim", Reply(200, make_job()))
     fake.script("/ai/callback", Reply(200, {"status": "awaiting_review"}))
 
@@ -436,7 +437,146 @@ def test_main_runs_against_the_configured_site(
 def test_main_rejects_a_non_http_site_url(
     monkeypatch: pytest.MonkeyPatch, capsys: pytest.CaptureFixture[str]
 ) -> None:
-    monkeypatch.setattr(stub_worker, "load_env", lambda: ("file:///etc/passwd", SECRET))
+    monkeypatch.setattr(
+        stub_worker, "load_env", lambda: ("file:///etc/passwd", SECRET, DEV_DEPLOYMENT)
+    )
 
     assert stub_worker.main(["--once"]) != 0
     assert "http" in capsys.readouterr().err
+
+
+# --- stub gating: dev deployments only, and only when Convex enables the stub ------
+
+
+@pytest.mark.parametrize(
+    ("given", "expected"),
+    [
+        ("alice", "stub-alice"),
+        ("worker-7", "stub-worker-7"),
+        ("stub-alice", "stub-alice"),
+        ("STUB-alice", "STUB-alice"),  # Convex matches "stub" case-insensitively
+        ("Stubby", "Stubby"),
+        ("  bob  ", "stub-bob"),
+    ],
+)
+def test_worker_id_always_starts_with_stub(given: str, expected: str) -> None:
+    assert stub_worker.stub_worker_id(given) == expected
+
+
+def test_forced_worker_id_is_capped_at_100_chars() -> None:
+    forced = stub_worker.stub_worker_id("x" * 300)
+    assert forced.startswith("stub-")
+    assert len(forced) == 100
+    assert len(stub_worker.stub_worker_id("stub-" + "y" * 300)) == 100
+
+
+def test_main_prefixes_a_worker_id_without_stub(
+    fake: FakeConvex, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url, SECRET, DEV_DEPLOYMENT))
+    fake.script("/ai/claim", Reply(200, make_job()))
+    fake.script("/ai/callback", Reply(200, {"status": "awaiting_review"}))
+
+    assert stub_worker.main(["--once", "--worker-id", "alice"]) == 0
+    [claim] = fake.calls("/ai/claim")
+    assert claim.body == {"workerId": "stub-alice"}
+
+
+def test_403_stub_disabled_on_claim_exits_with_the_env_flag_hint(
+    fake: FakeConvex, caplog: pytest.LogCaptureFixture
+) -> None:
+    fake.script("/ai/claim", Reply(403, {"error": "stub_disabled"}))
+
+    with caplog.at_level(logging.INFO):
+        code = stub_worker.run(config(fake.url, once=False), sleep=FakeSleep(stop_after=5))
+
+    assert code != 0
+    assert "AI_STUB_ENABLED" in caplog.text
+    assert "pnpm exec convex env set AI_STUB_ENABLED 1" in caplog.text
+    assert "never on prod" in caplog.text
+    assert fake.calls("/ai/callback") == []
+    assert len(fake.calls("/ai/claim")) == 1
+
+
+def test_403_stub_disabled_on_callback_exits_with_the_env_flag_hint(
+    fake: FakeConvex, caplog: pytest.LogCaptureFixture
+) -> None:
+    fake.script("/ai/claim", Reply(200, make_job()), Reply(200, make_job()))
+    fake.script("/ai/callback", Reply(403, {"error": "stub_disabled"}))
+
+    with caplog.at_level(logging.INFO):
+        code = stub_worker.run(config(fake.url, once=False), sleep=FakeSleep(stop_after=5))
+
+    assert code != 0
+    assert "AI_STUB_ENABLED" in caplog.text
+    assert "never on prod" in caplog.text
+    assert len(fake.calls("/ai/claim")) == 1  # it stopped, it did not poll again
+
+
+@pytest.mark.parametrize("path", ["/ai/claim", "/ai/callback"])
+def test_other_403_exits_with_a_generic_message(
+    fake: FakeConvex, caplog: pytest.LogCaptureFixture, path: str
+) -> None:
+    if path == "/ai/callback":
+        fake.script("/ai/claim", Reply(200, make_job()))
+    fake.script(path, Reply(403, {"error": "forbidden"}))
+
+    with caplog.at_level(logging.INFO):
+        code = stub_worker.run(config(fake.url, once=False), sleep=FakeSleep(stop_after=5))
+
+    assert code != 0
+    assert "403" in caplog.text
+    assert "forbidden" in caplog.text
+    assert "AI_STUB_ENABLED" not in caplog.text
+
+
+@pytest.mark.parametrize(
+    ("deployment", "allowed"),
+    [
+        ("dev:happy-otter-123", True),
+        ("prod:happy-otter-123", False),
+        ("PROD:x", False),
+        ("local:x", False),
+        ("happy-otter-123", False),
+        ("", False),
+        (None, False),
+    ],
+)
+def test_is_dev_deployment(deployment: str | None, allowed: bool) -> None:
+    assert stub_worker.is_dev_deployment(deployment) is allowed
+
+
+def test_main_runs_against_a_dev_deployment(
+    fake: FakeConvex, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url, SECRET, DEV_DEPLOYMENT))
+    fake.script("/ai/claim", Reply(200, make_job()))
+    fake.script("/ai/callback", Reply(200, {"status": "awaiting_review"}))
+
+    assert stub_worker.main(["--once"]) == 0
+
+
+@pytest.mark.parametrize("deployment", ["prod:happy-otter-123", None])
+def test_main_refuses_a_prod_or_missing_deployment(
+    fake: FakeConvex,
+    monkeypatch: pytest.MonkeyPatch,
+    capsys: pytest.CaptureFixture[str],
+    deployment: str | None,
+) -> None:
+    monkeypatch.setattr(stub_worker, "load_env", lambda: (fake.url, SECRET, deployment))
+
+    assert stub_worker.main(["--once"]) != 0
+    err = capsys.readouterr().err
+    assert "CONVEX_DEPLOYMENT" in err
+    assert "dev:" in err
+    assert fake.requests == []  # it never contacted Convex
+
+
+def test_load_env_reads_convex_deployment_from_the_settings(
+    monkeypatch: pytest.MonkeyPatch,
+) -> None:
+    monkeypatch.setenv("CONVEX_SITE_URL", "https://x.convex.site")
+    monkeypatch.setenv("AI_SHARED_SECRET", SECRET)
+    monkeypatch.setenv("CONVEX_DEPLOYMENT", DEV_DEPLOYMENT)
+
+    assert stub_worker.load_env() == ("https://x.convex.site", SECRET, DEV_DEPLOYMENT)

@@ -18,9 +18,16 @@ Run from ``ai-service/``::
 
     uv run python scripts/stub_worker.py [--once] [--poll-interval S] [--worker-id ID]
 
-It reads ``CONVEX_SITE_URL`` and ``AI_SHARED_SECRET`` from the environment or
-the repo-root ``.env`` (D-13, through ``app.settings``). It never logs the
-video URL, the secret, the job body or the clip name.
+It reads ``CONVEX_SITE_URL``, ``AI_SHARED_SECRET`` and ``CONVEX_DEPLOYMENT``
+from the environment or the repo-root ``.env`` (D-13, through ``app.settings``).
+It never logs the video URL, the secret, the job body or the clip name.
+
+It never runs against production (RAI S2):
+
+- it refuses to start unless ``CONVEX_DEPLOYMENT`` starts with ``dev:``;
+- its worker id always starts with ``stub`` (``stub-`` is prepended if not);
+- Convex answers 403 ``stub_disabled`` unless the deployment sets
+  ``AI_STUB_ENABLED=1`` (dev only), and the worker then exits 1.
 
 Every result it posts has ``model`` "stub-v1" and ``confidence`` 0.
 """
@@ -59,8 +66,23 @@ Sleep = Callable[[float], None]
 log = logging.getLogger("stub_worker")
 
 
+STUB_PREFIX = "stub-"
+DEV_DEPLOYMENT_PREFIX = "dev:"
+STUB_DISABLED = "stub_disabled"  # convex/lib/aiStub.ts
+
+
 class Unauthorized(Exception):
     """Convex answered 401: the secret is wrong, or not set on the deployment."""
+
+
+class Forbidden(Exception):
+    """Convex answered 403. ``error`` is the body's error field (``stub_disabled``
+    when the deployment hasn't set ``AI_STUB_ENABLED=1``)."""
+
+    def __init__(self, endpoint: str, error: str) -> None:
+        super().__init__(endpoint, error)
+        self.endpoint = endpoint
+        self.error = error
 
 
 @dataclass(frozen=True)
@@ -197,6 +219,8 @@ def claim(cfg: WorkerConfig) -> dict[str, Any] | None:
         return None
     if status == 401:
         raise Unauthorized
+    if status == 403:
+        raise Forbidden("/ai/claim", error_field(body))
     log.error("claim: unexpected HTTP %s (%s); treating it as no job", status, error_field(body))
     return None
 
@@ -218,6 +242,8 @@ def send_callback(cfg: WorkerConfig, body: dict[str, Any]) -> None:
         )
     elif status == 401:
         raise Unauthorized
+    elif status == 403:
+        raise Forbidden("/ai/callback", error_field(reply))
     else:
         log.error("callback %s: unexpected HTTP %s (%s)", assessment, status, error_field(reply))
 
@@ -265,6 +291,22 @@ def run(cfg: WorkerConfig, sleep: Sleep = time.sleep) -> int:
                 "(pnpm exec convex env set AI_SHARED_SECRET ...). Exiting."
             )
             return 1
+        except Forbidden as forbidden:
+            if forbidden.error == STUB_DISABLED:
+                log.error(
+                    "Convex answered 403 stub_disabled on %s: this deployment has not enabled "
+                    "the stub worker. On the DEV deployment only, run "
+                    "`pnpm exec convex env set AI_STUB_ENABLED 1` from the repo root; "
+                    "never on prod. Exiting.",
+                    forbidden.endpoint,
+                )
+            else:
+                log.error(
+                    "Convex answered 403 on %s (%s): the stub worker is not allowed here. Exiting.",
+                    forbidden.endpoint,
+                    forbidden.error,
+                )
+            return 1
         except OSError as error:
             failures += 1
             delay = backoff_seconds(cfg.poll_interval, failures)
@@ -282,18 +324,37 @@ def run(cfg: WorkerConfig, sleep: Sleep = time.sleep) -> int:
 
 
 def default_worker_id(hostname: str | None = None) -> str:
-    return f"stub-{hostname or socket.gethostname()}"[:MAX_WORKER_ID_LENGTH]
+    return f"{STUB_PREFIX}{hostname or socket.gethostname()}"[:MAX_WORKER_ID_LENGTH]
 
 
-def load_env() -> tuple[str | None, str | None]:
-    """(CONVEX_SITE_URL, AI_SHARED_SECRET) from the env or the repo-root .env (D-13)."""
+def stub_worker_id(worker_id: str) -> str:
+    """``worker_id``, prefixed with "stub-" unless it already starts with "stub"
+    (any case, as Convex matches it), capped at 100 chars."""
+    worker_id = worker_id.strip()
+    if not worker_id.lower().startswith("stub"):
+        worker_id = STUB_PREFIX + worker_id
+    return worker_id[:MAX_WORKER_ID_LENGTH]
+
+
+def is_dev_deployment(deployment: str | None) -> bool:
+    """True only for a ``CONVEX_DEPLOYMENT`` of the form "dev:<name>"."""
+    return deployment is not None and deployment.strip().startswith(DEV_DEPLOYMENT_PREFIX)
+
+
+def load_env() -> tuple[str | None, str | None, str | None]:
+    """(CONVEX_SITE_URL, AI_SHARED_SECRET, CONVEX_DEPLOYMENT) from the env or the
+    repo-root .env (D-13)."""
     if str(AI_SERVICE_DIR) not in sys.path:
         sys.path.insert(0, str(AI_SERVICE_DIR))  # `python scripts/stub_worker.py` from anywhere
     from app.settings import load_settings
 
     settings = load_settings()
     secret = settings.ai_shared_secret
-    return settings.convex_site_url, secret.get_secret_value() if secret else None
+    return (
+        settings.convex_site_url,
+        secret.get_secret_value() if secret else None,
+        settings.convex_deployment,
+    )
 
 
 def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
@@ -308,14 +369,18 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
         default=DEFAULT_POLL_INTERVAL_S,
         help=f"seconds between polls when nothing is queued (default {DEFAULT_POLL_INTERVAL_S})",
     )
-    parser.add_argument("--worker-id", default=None, help="default: stub-<hostname>")
+    parser.add_argument(
+        "--worker-id",
+        default=None,
+        help='default: stub-<hostname>; "stub-" is prepended if the id does not start with "stub"',
+    )
     parser.add_argument("-v", "--verbose", action="store_true", help="debug logging")
     return parser.parse_args(argv)
 
 
 def main(argv: Sequence[str] | None = None) -> int:
     args = parse_args(argv)
-    site_url, secret = load_env()
+    site_url, secret, deployment = load_env()
     missing = [
         name
         for name, value in (("CONVEX_SITE_URL", site_url), ("AI_SHARED_SECRET", secret))
@@ -323,6 +388,14 @@ def main(argv: Sequence[str] | None = None) -> int:
     ]
     if missing or site_url is None or secret is None:
         print(f"stub worker: set {' and '.join(missing)} in the root .env", file=sys.stderr)
+        return 1
+    if not is_dev_deployment(deployment):
+        print(
+            "stub worker: refusing to start: CONVEX_DEPLOYMENT must start with 'dev:' "
+            "(it is missing or not a dev deployment). The stub never runs against prod; "
+            "run `pnpm exec convex dev` against your dev deployment first.",
+            file=sys.stderr,
+        )
         return 1
     if not site_url.startswith(("http://", "https://")):
         print("stub worker: CONVEX_SITE_URL must start with http:// or https://", file=sys.stderr)
@@ -333,7 +406,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     cfg = WorkerConfig(
         site_url=site_url.rstrip("/"),
         secret=secret,
-        worker_id=(args.worker_id or default_worker_id())[:MAX_WORKER_ID_LENGTH],
+        worker_id=stub_worker_id(args.worker_id or default_worker_id()),
         poll_interval=args.poll_interval,
         once=args.once,
     )
