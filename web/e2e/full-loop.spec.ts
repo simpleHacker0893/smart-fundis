@@ -9,17 +9,26 @@ import {
   startStubWorker,
   type StubRun,
 } from "./dev-deployment";
-import { clerkApi, expectNoSideScroll, newTestEmail, onboardAsFundi, signInAsNewUser } from "./helpers";
+import {
+  clerkApi,
+  expectNoSideScroll,
+  newTestEmail,
+  noReload,
+  onboardAsFundi,
+  signInAsNewUser,
+  tapBottomNav,
+} from "./helpers";
 
 // #42 acceptance: the whole V1 demo (#36) at 360 px, on the stub AI.
-//   1. A new Fundi onboards with Electrical and uploads a 13A socket clip.
-//   2. The chip says "Waiting in line".
+//   1. A new Fundi onboards with Electrical and uploads a 13A socket clip at
+//      /fundi/record (#67), then taps Home in the bottom nav (no reload).
+//   2. The row's chip on /fundi says "In line" (en.StatusChip).
 //   3. The #40 stub worker, spawned from here, claims it: the chip goes to
-//      "The AI is watching your video", then "Awaiting expert review", with
-//      no page reload (this closes #38's partial live-chip criterion).
+//      "AI checking", then "Awaiting expert review", with no page reload
+//      (this closes #38's partial live-chip criterion).
 //   4. A second new User is seeded as the Expert, loads /expert, then opens
 //      this Assessment by its URL (the queue may not list it: see step 4)
-//      and approves it. The Fundi's own page shows the Badge live.
+//      and approves it. The Fundi's home shows the Badge live.
 //   5. /fundi links to /f/<id>. Signed out, that page shows "Verified by
 //      Smart Fundis — Electrical: Install a 13A socket · <date>", never
 //      "certified", and no side-scroll.
@@ -44,7 +53,8 @@ import { clerkApi, expectNoSideScroll, newTestEmail, onboardAsFundi, signInAsNew
 // claimed and given canned results first, one worker run each.
 
 const u = en.UploadFlow;
-const status = en.AssessmentList.status;
+// Chip words (#67). The chip's glyph is aria-hidden, so match with toContainText.
+const status = en.StatusChip;
 const electrical = en.TradeCatalogue.electrical.name;
 const socket = en.Rubrics["13a-socket"].name;
 // A plain name: no "review" or "reshoot", so the stub's outcome is `pass` (#36 decision 1).
@@ -82,23 +92,26 @@ test.describe("the V1 demo loop at 360 px", () => {
     await onboardAsFundi(page, { name: "E2E Loop Fundi", trade: electrical });
     await uploadSocketClip(page);
 
-    // 2. The new Assessment is queued.
-    const item = page.getByTestId("assessment").first();
-    const chip = item.getByTestId("status-chip");
-    await expect(item).toContainText(`${electrical}: ${socket}`);
+    // 2. The new Assessment is queued, on the home reached with no reload.
+    // A reload would clear this marker, so its survival proves every change
+    // below (the row appearing, then the chip changing) happened in place.
+    await noReload.mark(page);
+    await tapBottomNav(page, en.AppShell.bottom.home, /\/fundi$/);
+    const row = page.getByTestId("verification-row").first();
+    const chip = row.getByTestId("status-chip");
+    await expect(row).toContainText(socket);
+    await expect(row).toContainText(electrical);
     await expect(chip).toHaveAttribute("data-status", "queued");
-    await expect(chip).toHaveText(status.queued);
+    await expect(chip).toContainText(status.queued);
     await expectNoSideScroll(page);
 
-    // 3. The stub worker, until it takes this Assessment. A reload would
-    // clear this marker, so its survival proves the chip changed in place.
-    await noReload.mark(page);
+    // 3. The stub worker, until it takes this Assessment.
     const ourRun = await runStubUntilAnalyzing(page, chip, (run) => (worker = run));
-    await expect(chip).toHaveText(status.analyzing);
+    await expect(chip).toContainText(status.analyzing);
     const code = await ourRun.exited;
     expect(code, `stub worker failed:\n${ourRun.logTail()}`).toBe(0);
     await expect(chip).toHaveAttribute("data-status", "awaiting_review", { timeout: 30_000 });
-    await expect(chip).toHaveText(status.awaiting_review);
+    await expect(chip).toContainText(status.awaiting_review);
     expect(await noReload.held(page)).toBe(true);
 
     const ids = readNewestAssessment(fundiEmail);
@@ -134,13 +147,15 @@ test.describe("the V1 demo loop at 360 px", () => {
     await expect(expertPage.locator(`a[href="/expert/${ids.assessmentId}"]`)).toHaveCount(0);
     await expertContext.close();
 
-    // The Fundi's own page shows the approval and the Badge line, still without a reload.
+    // The Fundi's home shows the approval on the row and the Badge line under
+    // YOUR BADGES (#67), still without a reload.
     await expect(chip).toHaveAttribute("data-status", "approved");
+    await expect(chip).toContainText(status.approved);
     const badgeLine = badgeLinePattern(electrical, socket);
-    await expect(item.getByTestId("badge-line")).toHaveText(badgeLine);
+    await expect(page.getByTestId("badge-line")).toHaveText([badgeLine]);
     expect(await noReload.held(page)).toBe(true);
 
-    // /fundi links a Listed Fundi to their public profile (onboarding lists them).
+    // /fundi's LISTING STATUS card links a Listed Fundi to their public profile (onboarding lists them).
     const profileLink = page.getByRole("link", { name: en.FundiPage.publicProfile.link });
     expect((await profileLink.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
     const profileHref = await profileLink.getAttribute("href");
@@ -187,19 +202,12 @@ function badgeLinePattern(trade: string, task: string): RegExp {
 }
 
 /**
- * A marker on the page's window: a reload clears it, so while it holds,
- * every change the page showed came from the Convex subscription.
+ * The upload flow as in upload.spec.ts, with a plain clip name so the stub
+ * passes it. Starts on /fundi (no Assessment yet) and ends on /fundi/record.
  */
-const noReload = {
-  mark: (page: Page) =>
-    page.evaluate(() => {
-      (window as unknown as { __noReload?: boolean }).__noReload = true;
-    }),
-  held: (page: Page) => page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload === true),
-};
-
-/** The upload flow as in upload.spec.ts, with a plain clip name so the stub passes it. */
 async function uploadSocketClip(page: Page): Promise<void> {
+  await page.getByRole("link", { name: en.FundiHome.finish.items.firstVideo }).tap();
+  await expect(page).toHaveURL(/\/fundi\/record$/);
   await page.getByRole("button", { name: u.pick.choose.replace("{task}", socket) }).tap();
   await page.getByRole("button", { name: u.tips.next }).tap();
   await expect(page.getByTestId("liveness-code")).toHaveText(/^\d{3}$/);

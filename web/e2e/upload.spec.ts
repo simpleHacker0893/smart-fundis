@@ -1,18 +1,20 @@
 import { expect, test } from "@playwright/test";
 import en from "../messages/en.json";
 import { missingE2eEnv, skipMessage } from "./env";
-import { clerkApi, expectNoSideScroll, onboardAsFundi, signInAsNewUser } from "./helpers";
+import { clerkApi, expectNoSideScroll, noReload, onboardAsFundi, signInAsNewUser, tapBottomNav } from "./helpers";
 
-// #38 acceptance at 360 px: /fundi → Trade → Task picker with the Rubric
-// (US-3.2) → recording tips (US-3.3) → the Liveness code (US-3.4) → consent
-// link, dialog and tick (US-3.7) → upload with progress (US-3.5, US-3.6) →
-// the new Assessment shows `queued` (US-3.1) → Showcase links (US-3.8). The
-// list updates through the Convex subscription, with no reload.
+// #38 acceptance at 360 px, on the #67 app-mode pages: /fundi (the home, with
+// no verifications yet) → its "First video" link → /fundi/record → Trade →
+// Task picker with the Rubric (US-3.2) → recording tips (US-3.3) → the
+// Liveness code (US-3.4) → consent link, dialog and tick (US-3.7) → upload
+// with progress (US-3.5, US-3.6) → back to /fundi through the bottom nav,
+// where the new Assessment's row shows `queued` (US-3.1) with no reload →
+// /fundi/showcase for the Showcase links (US-3.8). The row comes from the
+// Convex subscription; the page is never reloaded.
 //
-// Not covered here: a later status change (queued → analyzing). Nothing can
-// change a status yet without an unguarded mutation; the claim action (#39)
-// adds that path. test/assessment-list.test.tsx covers the chip changing
-// in place from a pushed subscription update.
+// Not covered here: a later status change (queued → analyzing). The stub
+// worker drives that in full-loop.spec.ts, and test/fundi-page.test.tsx
+// covers the chip changing in place from a pushed subscription update.
 //
 // Needs: the root .env Clerk keys and CONVEX_URL, the Clerk `convex` JWT
 // template, the Trades seeded, and the #38 functions on the dev deployment
@@ -32,15 +34,26 @@ test.describe("upload at 360 px", () => {
     if (userId) await clerkApi("DELETE", `/users/${userId}`);
   });
 
-  test("picker → tips → Liveness code → consent → upload → queued", async ({ page }) => {
+  test("home → /fundi/record: picker → tips → Liveness code → consent → upload → queued on /fundi", async ({ page }) => {
     userId = await signInAsNewUser(page, "upload");
     await onboardAsFundi(page, { name: "E2E Upload Fundi", trade: en.TradeCatalogue.electrical.name });
 
-    // The page goes straight to the upload (operator, 2026-09-26): no profile
-    // block, and no Assessment list until there is an Assessment.
-    await expect(page.getByRole("heading", { level: 2, name: u.title })).toBeVisible();
+    // #67: /fundi is the home. With no Assessment yet, MY VERIFICATIONS is
+    // empty and FINISH YOUR PROFILE links to the recording; the upload flow
+    // itself lives at /fundi/record.
+    const home = en.FundiHome;
+    await expect(page.getByRole("heading", { level: 1, name: en.FundiPage.title })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: home.verificationsTitle })).toBeVisible();
+    await expect(page.getByText(en.Verifications.empty.body)).toBeVisible();
+    await expect(page.getByTestId("verification-row")).toHaveCount(0);
+    await expect(page.getByRole("heading", { level: 2, name: u.title })).toHaveCount(0);
+    await expectNoSideScroll(page);
+    await noReload.mark(page);
+    await page.getByRole("link", { name: home.finish.items.firstVideo }).tap();
+    await expect(page).toHaveURL(/\/fundi\/record$/);
+    await expect(page.getByRole("heading", { level: 1, name: en.RecordPage.title })).toBeVisible();
+    await expect(page.getByRole("region", { name: u.title })).toBeVisible();
     await expect(page.getByText("E2E Upload Fundi", { exact: true })).toHaveCount(0);
-    await expect(page.getByRole("heading", { level: 2, name: en.AssessmentList.title })).toHaveCount(0);
 
     // US-3.2: the picker shows the Task and its Rubric in plain words.
     await expect(page.getByText(u.pick.task.replace("{task}", socket.name))).toBeVisible();
@@ -103,26 +116,38 @@ test.describe("upload at 360 px", () => {
     await upload.tap();
     await expect(page.getByRole("status").filter({ hasText: u.done })).toBeVisible({ timeout: 60_000 });
 
-    // US-3.1: the new Assessment appears as `queued` without a reload.
-    const item = page.getByTestId("assessment").first();
-    await expect(item).toContainText(`${en.TradeCatalogue.electrical.name}: ${socket.name}`);
-    await expect(item.getByTestId("status-chip")).toHaveText(en.AssessmentList.status.queued);
-    await expect(item.getByTestId("status-chip")).toHaveAttribute("data-status", "queued");
-    await expect(page).toHaveURL(/\/fundi$/);
+    // The flow stays on /fundi/record, back at the picker for another Task.
+    await expect(page).toHaveURL(/\/fundi\/record$/);
+
+    // US-3.1: the new Assessment appears on /fundi as `queued`, reached by a
+    // client-side tap on the bottom nav, never a reload.
+    await tapBottomNav(page, en.AppShell.bottom.home, /\/fundi$/);
+    const row = page.getByTestId("verification-row").first();
+    await expect(row).toContainText(socket.name);
+    await expect(row).toContainText(en.TradeCatalogue.electrical.name);
+    const chip = row.getByTestId("status-chip");
+    await expect(chip).toHaveAttribute("data-status", "queued");
+    // The glyph before the words is aria-hidden; match the words only.
+    await expect(chip).toContainText(en.StatusChip.queued);
+    expect(await noReload.held(page)).toBe(true);
     await expectNoSideScroll(page);
 
-    // US-3.8: Showcase links sit last, in their own section, and never earn a Badge.
+    // US-3.8: Showcase links have their own page (#67), tagged "Showcase —
+    // not verified", and never earn a Badge.
     const sc = en.Showcase;
-    const h2s = await page.getByRole("main").getByRole("heading", { level: 2 }).allTextContents();
-    expect(h2s.at(-1)).toBe(sc.title);
+    await tapBottomNav(page, en.AppShell.bottom.profile, /\/fundi\/showcase$/);
+    await expect(page.getByRole("heading", { level: 1, name: en.ShowcasePage.title })).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: sc.title })).toBeVisible();
     await expect(page.getByText(sc.intro)).toBeVisible();
+    // The page's own tag; each saved embed adds its own below.
+    await expect(page.getByText(sc.label, { exact: true })).toHaveCount(1);
     const youtube = page.getByLabel(sc.slots.youtube.label, { exact: true });
     await youtube.fill("https://www.youtube.com/watch?v=2tdN85reWN0");
     await page.getByRole("button", { name: sc.slots.youtube.save }).tap();
     await expect(page.getByText(sc.slots.youtube.saved)).toBeVisible();
     const embed = page.getByTitle(sc.youtubeTitle);
     await expect(embed).toHaveAttribute("src", "https://www.youtube-nocookie.com/embed/2tdN85reWN0");
-    await expect(page.getByText(sc.label, { exact: true })).toBeVisible();
+    await expect(page.getByText(sc.label, { exact: true })).toHaveCount(2);
     await expect(page.getByText(sc.note)).toBeVisible();
     // The second sample replaces the first: one YouTube slot.
     await youtube.fill("https://www.youtube.com/watch?v=qSHhSnuUcXc");

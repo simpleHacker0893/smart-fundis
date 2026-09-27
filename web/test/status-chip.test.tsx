@@ -54,6 +54,13 @@ describe("StatusChip (DESIGN.md D4)", () => {
     expect(chip).not.toContain("rounded-full");
   });
 
+  it.each(Object.keys(EXPECTED))("%s carries a stable e2e hook: data-testid and data-status on the root", async (status) => {
+    const markup = await render(status as keyof typeof EXPECTED);
+    const root = markup.match(/^<span[^>]*>/)![0];
+    expect(root).toContain('data-testid="status-chip"');
+    expect(root).toContain(`data-status="${status}"`);
+  });
+
   it("covers every StatusChip message with a glyph", async () => {
     expect(Object.keys(en.StatusChip).sort()).toEqual(Object.keys(EXPECTED).sort());
   });

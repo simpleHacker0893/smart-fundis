@@ -34,7 +34,7 @@ export const STATUS_CHIP =
 export function StatusChip({ status, className }: { status: ChipStatus; className?: string }) {
   const t = useTranslations("StatusChip");
   return (
-    <span className={cn(STATUS_CHIP, className)}>
+    <span data-testid="status-chip" data-status={status} className={cn(STATUS_CHIP, className)}>
       <span aria-hidden="true">{STATUS_GLYPHS[status]}</span>
       <span>{t(status)}</span>
     </span>

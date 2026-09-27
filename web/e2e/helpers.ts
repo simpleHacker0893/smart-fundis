@@ -64,3 +64,26 @@ export async function onboardAsFundi(page: Page, { name, trade }: { name: string
 export async function expectNoSideScroll(page: Page): Promise<void> {
   expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
 }
+
+/**
+ * A marker on the page's window: a reload clears it, while a client-side
+ * navigation (a Next <Link>) keeps it. While it holds, every change the page
+ * showed came from the Convex subscription or client routing, not a reload.
+ */
+export const noReload = {
+  mark: (page: Page) =>
+    page.evaluate(() => {
+      (window as unknown as { __noReload?: boolean }).__noReload = true;
+    }),
+  held: (page: Page) => page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload === true),
+};
+
+/**
+ * Below 1024 px the AppShell draws a bottom nav (#67). Taps one of its links
+ * by its en.AppShell.bottom label: a client-side navigation, not a reload.
+ */
+export async function tapBottomNav(page: Page, label: string, url: RegExp): Promise<void> {
+  const nav = page.getByRole("navigation", { name: en.AppShell.bottomNavLabel });
+  await nav.getByRole("link", { name: label, exact: true }).tap();
+  await expect(page).toHaveURL(url);
+}
