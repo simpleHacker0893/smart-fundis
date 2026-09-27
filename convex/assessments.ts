@@ -14,7 +14,7 @@ import { nameLookup, namesFields } from "./lib/assessmentNames";
 import { getActiveRubric } from "./lib/rubrics";
 import { isStorageReferenced } from "./lib/storage";
 import { taskNeedsClientConsent } from "./lib/trades";
-import { assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
+import { type AssessmentStatus, assessmentStatusValidator, reshootReasonValidator } from "./lib/validators";
 
 // The Fundi's upload flow (#38). Architecture spec §5 (status table: (new) ->
 // queued) and §7 (consent, video access).
@@ -258,12 +258,36 @@ const listItemValidator = v.object({
   ...namesFields,
   reshootReason: v.optional(reshootReasonValidator),
   previousAssessmentId: v.optional(v.id("assessments")),
+  // US-5.4: when an Expert decided it (approved, reshoot or rejected). On an
+  // approved row this is the Badge's decision date.
+  decidedAt: v.optional(v.number()),
+  // The Expert's note on a reshoot or a rejection. Never who decided.
+  expertNote: v.optional(v.string()),
 });
+
+/** The statuses an Expert decision leaves, with its reviews row. */
+const DECIDED: ReadonlySet<AssessmentStatus> = new Set(["approved", "reshoot", "rejected"]);
+
+/**
+ * The decision that set a decided Assessment's status: its latest reviews
+ * row. Null when nothing decided it (an AI guard reshoot has no row).
+ */
+async function latestDecision(ctx: QueryCtx, row: Doc<"assessments">): Promise<Doc<"reviews"> | null> {
+  if (!DECIDED.has(row.status)) return null;
+  return await ctx.db
+    .query("reviews")
+    .withIndex("by_assessmentId", (q) => q.eq("assessmentId", row._id))
+    .order("desc")
+    .first();
+}
 
 /**
  * The caller's Assessments, newest first (at most 100), for the live status
  * chip (US-3.1, US-4.1): a Convex query, so the chip updates without a
- * refresh. Never returns the video (spec §7). Guard: requireFundi.
+ * refresh. After an Expert decision it carries `decidedAt` (the Badge line
+ * on an approved row) and, on a reshoot or a rejection, the Expert's note
+ * (US-5.4). Never returns the video (spec §7) or the decider.
+ * Guard: requireFundi.
  */
 export const listMine = query({
   args: {},
@@ -277,14 +301,20 @@ export const listMine = query({
       .take(LIST_MINE_LIMIT);
     const names = nameLookup(ctx);
     return await Promise.all(
-      rows.map(async (row) => ({
-        _id: row._id,
-        _creationTime: row._creationTime,
-        status: row.status,
-        ...(await names(row)),
-        ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
-        ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
-      })),
+      rows.map(async (row) => {
+        const decision = await latestDecision(ctx, row);
+        const expertNote = row.status !== "approved" ? decision?.note : undefined;
+        return {
+          _id: row._id,
+          _creationTime: row._creationTime,
+          status: row.status,
+          ...(await names(row)),
+          ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
+          ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
+          ...(decision !== null ? { decidedAt: decision.at } : {}),
+          ...(expertNote !== undefined ? { expertNote } : {}),
+        };
+      }),
     );
   },
 });

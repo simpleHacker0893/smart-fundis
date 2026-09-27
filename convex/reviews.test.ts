@@ -572,3 +572,61 @@ describe("video URL leak", () => {
     );
   });
 });
+
+// US-5.4: the Fundi's list shows the Badge line and the Expert's note.
+describe("assessments.listMine after a decision", () => {
+  it("shows decidedAt on an approved Assessment (the Badge), and nothing on an undecided one", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const approved = await awaiting(WANJIRU);
+    const pending = await awaiting(WANJIRU);
+    await t.withIdentity(AMINA).mutation(api.reviews.decide, {
+      assessmentId: approved,
+      decision: "approve",
+      note: "Clean work.",
+    });
+    const { reviews } = await decisionRows(approved);
+
+    const mine = await t.withIdentity(WANJIRU).query(api.assessments.listMine, {});
+    const byId = new Map(mine.map((row) => [row._id, row]));
+    expect(byId.get(approved)).toMatchObject({ status: "approved", decidedAt: reviews[0].at });
+    // An approval note is for the record; the Fundi's line is the Badge.
+    expect(byId.get(approved)).not.toHaveProperty("expertNote");
+    expect(byId.get(pending)).not.toHaveProperty("decidedAt");
+    expect(byId.get(pending)).not.toHaveProperty("expertNote");
+    // Never who decided.
+    expect(JSON.stringify(mine)).not.toContain(await userId(AMINA));
+  });
+
+  it.each([
+    ["reject", "rejected"],
+    ["reshoot", "reshoot"],
+  ] as const)("shows the Expert's note after %s", async (decision, status) => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    await t.withIdentity(AMINA).mutation(api.reviews.decide, {
+      assessmentId: id,
+      decision,
+      note: "Test the socket before closing it.",
+    });
+    const [row] = await t.withIdentity(WANJIRU).query(api.assessments.listMine, {});
+    expect(row).toMatchObject({
+      _id: id,
+      status,
+      expertNote: "Test the socket before closing it.",
+      decidedAt: expect.any(Number),
+    });
+  });
+
+  it("shows no Expert note on a reshoot the video-quality guard asked for", async () => {
+    await makeFundi(WANJIRU);
+    const id = await upload(WANJIRU);
+    const reshootReason = { code: "too_dark" as const, en: "The video is too dark." };
+    await t.run((ctx) => ctx.db.patch("assessments", id, { status: "reshoot", reshootReason }));
+    const [row] = await t.withIdentity(WANJIRU).query(api.assessments.listMine, {});
+    expect(row).toMatchObject({ status: "reshoot", reshootReason });
+    expect(row).not.toHaveProperty("expertNote");
+    expect(row).not.toHaveProperty("decidedAt");
+  });
+});
