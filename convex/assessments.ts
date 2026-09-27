@@ -11,6 +11,7 @@ import {
   type UploadRejection,
   uploadRejectionValidator,
 } from "./lib/assessmentUpload";
+import { isStubEnabled } from "./lib/aiStub";
 import { nameLookup, namesFields } from "./lib/assessmentNames";
 import { getActiveRubric } from "./lib/rubrics";
 import { isStorageReferenced } from "./lib/storage";
@@ -193,9 +194,11 @@ async function checkUpload(
  * - `previousAssessmentId`, when given, is the caller's own `reshoot` or
  *   `failed` Assessment for the same Trade.
  *
- * `clipName`, the picked file's name, is stored trimmed and truncated to 200
- * characters, and only when not blank (lib/assessmentUpload.ts
- * normalizeClipName). It never rejects an upload.
+ * `clipName`, the picked file's name, is stored only when the dev-only
+ * `AI_STUB_ENABLED` flag is "1" (lib/aiStub.ts, RAI S1: a file name can carry
+ * personal data), trimmed and truncated to 200 characters, and only when not
+ * blank (lib/assessmentUpload.ts normalizeClipName). Without the flag it is
+ * accepted and silently ignored. It never rejects an upload.
  *
  * Returns `{ ok: true, assessmentId }` or `{ ok: false, code }` instead of
  * throwing, on purpose: a throw rolls back every write of the mutation,
@@ -236,7 +239,7 @@ export const create = mutation({
       return { ok: false as const, code: checked.code };
     }
 
-    const clipName = normalizeClipName(args.clipName);
+    const clipName = isStubEnabled() ? normalizeClipName(args.clipName) : undefined;
     const assessmentId = await ctx.db.insert("assessments", {
       fundiUserId: caller.user._id,
       tradeSlug: checked.rubric.tradeSlug,

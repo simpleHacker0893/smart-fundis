@@ -1,5 +1,5 @@
 import { convexTest, type TestConvex } from "convex-test";
-import { beforeEach, describe, expect, it } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import schema from "./schema";
@@ -357,6 +357,14 @@ describe("assessments.create", () => {
   });
 
   describe("clipName (#40: the stub worker reads its canned outcome from it)", () => {
+    // S1: stored only on a deployment with the dev-only stub flag.
+    beforeEach(() => {
+      vi.stubEnv("AI_STUB_ENABLED", "1");
+    });
+    afterEach(() => {
+      vi.unstubAllEnvs();
+    });
+
     async function createWith(clipName: string | undefined) {
       const code = await readyFundi();
       const result = await t.withIdentity(WANJIRU).mutation(api.assessments.create, {
@@ -404,6 +412,15 @@ describe("assessments.create", () => {
       expect(result).toEqual({ ok: false, code: "wrong_type" });
       expect(await fileExists(storageId)).toBe(false);
       expect(await assessments()).toHaveLength(0);
+    });
+
+    it.each([
+      ["unset", undefined],
+      ["\"0\"", "0"],
+      ["\"yes\"", "yes"],
+    ])("stores no clipName, and still accepts the upload, when AI_STUB_ENABLED is %s (S1)", async (_label, flag) => {
+      vi.stubEnv("AI_STUB_ENABLED", flag);
+      expect("clipName" in (await createWith("review-socket.mp4"))).toBe(false);
     });
 
     it("is not returned by listMine or get", async () => {

@@ -14,6 +14,7 @@ import {
   resultInBounds,
   type Job,
 } from "./lib/aiContract";
+import { isStubEnabled, isStubName } from "./lib/aiStub";
 import { assessmentStatusValidator } from "./lib/validators";
 
 /** F6: the fields that release a claim, shared by the callback `error` branch and requeueStale. */
@@ -60,6 +61,7 @@ const callbackResultValidator = v.union(
   v.object({
     ok: v.literal(false),
     reason: v.union(
+      v.literal("stub_disabled"),
       v.literal("stale"),
       v.literal("unknown_item"),
       v.literal("duplicate_item"),
@@ -69,7 +71,14 @@ const callbackResultValidator = v.union(
 );
 
 /**
- * Applies a worker's outcome. Accepted only while the Assessment is
+ * Applies a worker's outcome. First, without the dev-only AI_STUB_ENABLED
+ * flag (lib/aiStub.ts, RAI S2), a stub's callback is `stub_disabled` (HTTP
+ * 403) and writes nothing: a `result` whose `model` starts with "stub", or
+ * any outcome for an Assessment whose `claimedBy` starts with "stub" (a
+ * reshoot or error carries no model). This runs before the stale check, so a
+ * disabled stub always gets 403, whether or not its row is current, and
+ * learns nothing about the row.
+ * Then it is accepted only while the Assessment is
  * `analyzing` with the same `attempt`; anything else is `stale` (HTTP 409)
  * and writes nothing: two pollers, a callback after a requeue, a deleted
  * Assessment, or an id that isn't an Assessment.
@@ -83,6 +92,13 @@ export const callback = internalMutation({
   handler: async (ctx, { body }) => {
     const id = ctx.db.normalizeId("assessments", body.assessmentId);
     const row = id === null ? null : await ctx.db.get("assessments", id);
+    if (
+      !isStubEnabled() &&
+      ((body.outcome === "result" && isStubName(body.model)) ||
+        (row?.claimedBy !== undefined && isStubName(row.claimedBy)))
+    ) {
+      return { ok: false as const, reason: "stub_disabled" as const };
+    }
     if (row === null || row.status !== "analyzing" || row.attempts !== body.attempt) {
       return { ok: false as const, reason: "stale" as const };
     }
@@ -193,7 +209,10 @@ export const requeueStale = internalMutation({
   },
 });
 
-/** The §6 job for a row, or null when something it needs is gone. Never logs the URL. */
+/**
+ * The §6 job for a row, or null when something it needs is gone. Never logs
+ * the URL. `clipName` is added only when AI_STUB_ENABLED is "1" (RAI S1).
+ */
 async function buildJob(ctx: MutationCtx, row: Doc<"assessments">, attempt: number): Promise<Job | null> {
   if (row.videoStorageId === undefined) {
     return null;
@@ -215,6 +234,6 @@ async function buildJob(ctx: MutationCtx, row: Doc<"assessments">, attempt: numb
     task: { slug: rubric.taskSlug, name: rubric.taskName },
     rubric: { id: rubric._id, version: rubric.version, items: rubric.items },
     livenessCode: row.livenessCode,
-    ...(row.clipName !== undefined ? { clipName: row.clipName } : {}),
+    ...(isStubEnabled() && row.clipName !== undefined ? { clipName: row.clipName } : {}),
   };
 }

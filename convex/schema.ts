@@ -116,7 +116,8 @@ export default defineSchema({
     // The uploaded clip's file name (#40), trimmed and at most 200 characters
     // (lib/assessmentUpload.ts normalizeClipName). Only the V1 stub worker
     // reads it, from the /ai/claim job, to pick its canned outcome; the V2
-    // pipeline ignores it. Never returned to the web.
+    // pipeline ignores it. Never returned to the web, never logged. A file
+    // name can carry personal data, so Video deletion (V4) must unset it too.
     clipName: v.optional(v.string()),
     // Liveness
     livenessCode: v.string(),
