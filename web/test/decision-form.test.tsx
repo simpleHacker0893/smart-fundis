@@ -97,7 +97,9 @@ describe("the decision form (US-5.3)", () => {
     expect(submitButton().textContent).toBe(t("submit"));
   });
 
-  it("asks for a choice before sending", async () => {
+  // Defence in depth: submit is disabled until a choice is made, so a user
+  // can't reach this path; a synthetic submit event still must not send.
+  it("still refuses to send without a choice if the form is submitted anyway", async () => {
     await render();
     await submit();
     expect(alert()).toBe(t("choiceRequired"));
@@ -152,8 +154,19 @@ describe("the decision form (US-5.3)", () => {
     await choose("reject");
     await type("x".repeat(1001));
     await submit();
-    expect(alert()).toBe(t("errors.note_too_long"));
+    expect(alert()).toBe(t("errors.note_too_long", { max: 1000 }));
+    expect(alert()).toContain("1000");
     expect(state.decide).not.toHaveBeenCalled();
+  });
+
+  it("links the note to its error with aria-describedby (DESIGN D9)", async () => {
+    await render();
+    await choose("reject");
+    await submit();
+    const error = container.querySelector('[role="alert"]')!;
+    expect(error.id).not.toBe("");
+    expect(note().getAttribute("aria-invalid")).toBe("true");
+    expect(note().getAttribute("aria-describedby")?.split(" ")).toContain(error.id);
   });
 
   it("approves with no note, then goes back to the queue", async () => {
@@ -209,7 +222,7 @@ describe("the decision form (US-5.3)", () => {
       await choose("reject");
       await type("A note.");
       await submit();
-      expect(alert()).toBe(t(`errors.${code}`));
+      expect(alert()).toBe(t(`errors.${code}`, { max: 1000 }));
       expect(container.textContent).not.toContain("server text");
       expect(state.push).not.toHaveBeenCalled();
       expect(submitButton().disabled).toBe(false);

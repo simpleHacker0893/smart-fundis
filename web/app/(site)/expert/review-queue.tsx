@@ -62,7 +62,7 @@ function QueueItem({ row }: { row: QueueRow }) {
         <span className={LABEL}>
           {t("uploaded", { date: format.dateTime(row._creationTime, { dateStyle: "medium" }) })}
         </span>
-        {/* W2 (rai major, automation bias): the queue row never names the AI's
+        {/* Automation bias: the queue row never names the AI's
             verdict, only the safety-flag count. The labelled "AI suggestion —
             you decide" panel lives on the detail view instead. */}
         <span className="text-sm">{t("safetyFlags", { count: row.safetyFlagCount })}</span>

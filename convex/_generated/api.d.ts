@@ -16,6 +16,7 @@ import type * as fundiProfiles from "../fundiProfiles.js";
 import type * as http from "../http.js";
 import type * as lib_aiContract from "../lib/aiContract.js";
 import type * as lib_aiSecret from "../lib/aiSecret.js";
+import type * as lib_aiStub from "../lib/aiStub.js";
 import type * as lib_assessmentNames from "../lib/assessmentNames.js";
 import type * as lib_assessmentUpload from "../lib/assessmentUpload.js";
 import type * as lib_auth from "../lib/auth.js";
@@ -51,6 +52,7 @@ declare const fullApi: ApiFromModules<{
   http: typeof http;
   "lib/aiContract": typeof lib_aiContract;
   "lib/aiSecret": typeof lib_aiSecret;
+  "lib/aiStub": typeof lib_aiStub;
   "lib/assessmentNames": typeof lib_assessmentNames;
   "lib/assessmentUpload": typeof lib_assessmentUpload;
   "lib/auth": typeof lib_auth;

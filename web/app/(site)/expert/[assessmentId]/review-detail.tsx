@@ -22,7 +22,7 @@ const BACK_LINK =
  * code, the AI's Observation per Rubric item and its suggestion, and the
  * decision form while it awaits review. reviews.detail is null when the
  * Assessment is missing or the caller may not decide it. The confidence
- * number is never shown. Mount it only for an Expert.
+ * number never reaches the client. Mount it only for an Expert.
  */
 export function ReviewDetail({ assessmentId }: { assessmentId: string }) {
   const t = useTranslations("ReviewDetail");
@@ -106,7 +106,7 @@ function VideoSection({ detail }: { detail: Detail }) {
           controls
           playsInline
           preload="metadata"
-          // W4 (rai minor): defence in depth against a casual download or
+          // Defence in depth against a casual download or
           // cast, not a guarantee — a determined viewer can still capture
           // the stream some other way.
           controlsList="nodownload noremoteplayback"

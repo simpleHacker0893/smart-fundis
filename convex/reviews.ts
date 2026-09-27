@@ -24,8 +24,8 @@ const queueRowValidator = v.object({
   assessmentId: v.id("assessments"),
   _creationTime: v.number(),
   ...namesFields,
-  // The AI's recommendation (never a decision). Present once the AI has run.
-  verdict: v.optional(verdictValidator),
+  // No AI Verdict here (automation bias): the Expert first meets it on the
+  // detail page, labelled a suggestion. Only the safety-flag count.
   safetyFlagCount: v.number(),
 });
 
@@ -79,7 +79,6 @@ export const queue = query({
         assessmentId: row._id,
         _creationTime: row._creationTime,
         ...(await names(row)),
-        ...(row.verdict !== undefined ? { verdict: row.verdict } : {}),
         safetyFlagCount: row.safetyFlags?.length ?? 0,
       })),
     );
@@ -98,8 +97,8 @@ const detailValidator = v.object({
   livenessCheck: v.optional(livenessCheckValidator),
   // The AI result: a recommendation, never a decision.
   observations: v.array(observationValidator),
+  // No confidence number: the Expert UI never shows it, so it stays on the server.
   verdict: v.optional(verdictValidator),
-  confidence: v.optional(v.number()),
   strengths: v.array(v.string()),
   gaps: v.array(v.string()),
   safetyFlags: v.array(v.string()),
@@ -149,7 +148,6 @@ export const detail = query({
       ...(row.livenessCheck !== undefined ? { livenessCheck: row.livenessCheck } : {}),
       observations: row.observations ?? [],
       ...(row.verdict !== undefined ? { verdict: row.verdict } : {}),
-      ...(row.confidence !== undefined ? { confidence: row.confidence } : {}),
       strengths: row.strengths ?? [],
       gaps: row.gaps ?? [],
       safetyFlags: row.safetyFlags ?? [],

@@ -79,7 +79,6 @@ const detail = (over: object = {}) => ({
     { itemId: "new_item", result: "unclear", evidence: "Out of frame.", timestampS: 3 },
   ],
   verdict: "needs_review",
-  confidence: 0.73,
   strengths: ["Neat terminations"],
   gaps: ["Isolation not shown"],
   safetyFlags: ["isolate"],
@@ -169,7 +168,7 @@ describe("the review detail (US-5.2)", () => {
     expect(video?.hasAttribute("controls")).toBe(true);
     expect(video?.hasAttribute("playsinline")).toBe(true);
     expect(video?.getAttribute("preload")).toBe("metadata");
-    // W4 (rai minor): defence in depth against casual download/cast, not a guarantee.
+    // Defence in depth against casual download/cast, not a guarantee.
     expect(video?.getAttribute("controlslist")).toBe("nodownload noremoteplayback");
     expect(video?.hasAttribute("disablepictureinpicture")).toBe(true);
     expect(backLink()?.textContent).toBe(t("backToQueue"));
@@ -238,7 +237,8 @@ describe("the review detail (US-5.2)", () => {
   });
 
   it("labels the AI result a suggestion for the Expert to decide, and never shows the confidence", async () => {
-    state.detail = detail({ confidence: 0.73 });
+    // reviews.detail never sends the confidence; make sure none leaks in if it did.
+    state.detail = { ...detail(), confidence: 0.73 } as ReturnType<typeof detail>;
     await render();
     const ai = container.querySelector('[data-testid="ai-suggestion"]');
     expect(ai?.querySelector("h3")?.textContent).toBe(t("ai.title"));
@@ -298,7 +298,7 @@ describe("/expert/[assessmentId] error boundary", () => {
     await act(async () => {
       root.render(
         <NextIntlClientProvider locale={defaultLocale} messages={en}>
-          <ReviewError error={new Error("ArgumentValidationError")} reset={() => {}} />
+          <ReviewError error={new Error("ArgumentValidationError")} retry={() => {}} reset={() => {}} />
         </NextIntlClientProvider>,
       );
     });
