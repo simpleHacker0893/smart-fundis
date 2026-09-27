@@ -290,11 +290,12 @@ export const listMine = query({
 });
 
 /**
- * One Assessment for its owning Fundi, with the video URL (spec §7: only the
- * single-Assessment detail query and /ai/claim return getUrl). `videoUrl` is
- * null once the video is deleted. Returns null when the Assessment does not
- * exist or is not the caller's, so its existence does not leak. The Expert
- * and Admin cases come with #41 (canDecide).
+ * One Assessment for its owning Fundi. No video URL: reviews.detail (for an
+ * Expert who canDecide) is the only query that returns one, and /ai/claim
+ * the only other getUrl (#41; the web never plays the Fundi's own video).
+ * `videoDeletedAt` says whether the video is gone. Returns null when the
+ * Assessment does not exist or is not the caller's, so its existence does
+ * not leak. Experts read Assessments through reviews.detail.
  * Guard: requireStoredUser, then ownership (only a Fundi owns Assessments).
  */
 export const get = query({
@@ -311,7 +312,6 @@ export const get = query({
       clientConsent: v.optional(v.boolean()),
       reshootReason: v.optional(reshootReasonValidator),
       previousAssessmentId: v.optional(v.id("assessments")),
-      videoUrl: v.union(v.string(), v.null()),
       videoDeletedAt: v.optional(v.number()),
     }),
     v.null(),
@@ -320,7 +320,6 @@ export const get = query({
     const { user } = await requireStoredUser(ctx);
     const row = await ctx.db.get("assessments", args.assessmentId);
     if (row === null || row.fundiUserId !== user._id) return null;
-    const videoUrl = row.videoStorageId === undefined ? null : await ctx.storage.getUrl(row.videoStorageId);
     return {
       _id: row._id,
       _creationTime: row._creationTime,
@@ -332,7 +331,6 @@ export const get = query({
       ...(row.clientConsent !== undefined ? { clientConsent: row.clientConsent } : {}),
       ...(row.reshootReason !== undefined ? { reshootReason: row.reshootReason } : {}),
       ...(row.previousAssessmentId !== undefined ? { previousAssessmentId: row.previousAssessmentId } : {}),
-      videoUrl,
       ...(row.videoDeletedAt !== undefined ? { videoDeletedAt: row.videoDeletedAt } : {}),
     };
   },

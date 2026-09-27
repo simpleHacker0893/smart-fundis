@@ -489,7 +489,7 @@ describe("assessments.listMine", () => {
 });
 
 describe("assessments.get", () => {
-  it("returns the owner's Assessment with its video URL", async () => {
+  it("returns the owner's Assessment, without a video URL (reviews.detail is the only one, #41)", async () => {
     await makeFundi(WANJIRU);
     const id = await upload(WANJIRU);
     const detail = await t.withIdentity(WANJIRU).query(api.assessments.get, { assessmentId: id });
@@ -501,10 +501,12 @@ describe("assessments.get", () => {
       consentVersion: "consent-v1",
     });
     expect(detail?.livenessCode).toMatch(/^[0-9]{3}$/);
-    expect(detail?.videoUrl).toMatch(/^https:\/\//);
+    expect(detail).not.toHaveProperty("videoUrl");
+    expect(detail).not.toHaveProperty("videoStorageId");
+    expect(detail).not.toHaveProperty("videoDeletedAt");
   });
 
-  it("returns a null video URL once the video is deleted", async () => {
+  it("says when the video is deleted", async () => {
     await makeFundi(WANJIRU);
     const id = await upload(WANJIRU);
     await t.run(async (ctx) => {
@@ -513,7 +515,8 @@ describe("assessments.get", () => {
       await ctx.db.patch("assessments", id, { videoStorageId: undefined, videoDeletedAt: Date.now() });
     });
     const detail = await t.withIdentity(WANJIRU).query(api.assessments.get, { assessmentId: id });
-    expect(detail?.videoUrl).toBeNull();
+    expect(detail?.videoDeletedAt).toEqual(expect.any(Number));
+    expect(detail).not.toHaveProperty("videoUrl");
   });
 
   it("shows another Fundi nothing, and refuses a signed-out caller", async () => {

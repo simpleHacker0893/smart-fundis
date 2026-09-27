@@ -544,3 +544,31 @@ describe("reviews.decide", () => {
     ).toMatchObject({ code: "not_found" });
   });
 });
+
+// Spec §7 and #41: reviews.detail is the only query that returns a video URL.
+describe("video URL leak", () => {
+  it("no other query returns a videoUrl key or any URL", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    await awaiting(WANJIRU);
+    const fundi = t.withIdentity(WANJIRU);
+    const expert = t.withIdentity(AMINA);
+
+    const results: Record<string, unknown> = {
+      "assessments.listMine": await fundi.query(api.assessments.listMine, {}),
+      "assessments.get": await fundi.query(api.assessments.get, { assessmentId: id }),
+      "reviews.queue": await expert.query(api.reviews.queue, {}),
+    };
+    for (const [name, result] of Object.entries(results)) {
+      const json = JSON.stringify(result);
+      expect(json, name).not.toContain("videoUrl");
+      expect(json, name).not.toContain("videoStorageId");
+      expect(json, name).not.toMatch(/https?:\/\//);
+    }
+    // The detail query does return it, to the eligible Expert.
+    expect((await expert.query(api.reviews.detail, { assessmentId: id }))?.videoUrl).toMatch(
+      /^https:\/\//,
+    );
+  });
+});
