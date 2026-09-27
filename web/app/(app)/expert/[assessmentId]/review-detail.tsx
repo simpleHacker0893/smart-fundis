@@ -2,18 +2,19 @@
 
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { ChevronLeft } from "lucide-react";
+import { ChevronLeft, Lock } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { EmptyPanel } from "@/components/app-states";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
+import { META, OUTLINE_TAG, PAGE_TITLE, SECTION_LABEL } from "@/components/ui/app-type";
 import { STATUS_GLYPHS } from "@/components/ui/status-chip";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
 import { cn } from "cn";
-import { META, OUTLINE_TAG, PAGE_TITLE, SECTION_LABEL } from "../expert-styles";
-import { ReadoutPanel, useWaitingAge } from "../expert-ui";
+import { useWaitingAge } from "../expert-ui";
 import { DecisionForm } from "./decision-form";
 
 type Detail = NonNullable<FunctionReturnType<typeof api.reviews.detail>>;
@@ -24,7 +25,8 @@ const BACK_LINK =
 /**
  * One Assessment for an Expert (US-5.2; #67 screen 29): the Fundi's video,
  * the Liveness readout, the AI's Observations (safety items first), #41's AI
- * suggestion panel, and the decision below it while it awaits review.
+ * suggestion panel (locked until the video has played through), and the
+ * decision below it while it awaits review.
  * reviews.detail is null when the Assessment is missing or the caller may
  * not decide it. The confidence number never reaches the client.
  *
@@ -40,22 +42,19 @@ export function ReviewDetail({ assessmentId }: { assessmentId: string }) {
 
   if (detail === undefined) return <LoadingSkeleton label={t("loading")} />;
   if (detail === null) return <NotAvailable />;
-  return <DetailBody detail={detail} />;
+  // Keyed by the Assessment, so the AI panel's lock starts over for each one.
+  return <DetailBody key={detail._id} detail={detail} />;
 }
 
 /** The "not available" readout with the way back to the queue. No player, no AI panel. */
 export function NotAvailable() {
   const t = useTranslations("ReviewDetail");
   return (
-    <ReadoutPanel
-      action={
-        <Link href="/expert" className={`${BACK_LINK} text-foreground underline underline-offset-4`}>
-          {t("backToQueue")}
-        </Link>
-      }
-    >
-      {t("notAvailable")}
-    </ReadoutPanel>
+    <EmptyPanel body={t("notAvailable")}>
+      <Link href="/expert" className={`${BACK_LINK} text-foreground underline underline-offset-4`}>
+        {t("backToQueue")}
+      </Link>
+    </EmptyPanel>
   );
 }
 
@@ -65,6 +64,13 @@ function DetailBody({ detail }: { detail: Detail }) {
   const names = useCatalogueNames();
   const age = useWaitingAge();
   const [videoFailed, setVideoFailed] = useState(false);
+  // UX only: the AI suggestion stays locked until the Expert has watched the
+  // whole video once (D-51, automation bias). A failed or deleted video never
+  // unlocks it; the decision form stays usable either way. The real gate is
+  // on the server: expert.markPlayedThrough, with reviews.detail returning
+  // aiSuggestion: null until the video has played through (#52). Until then
+  // the suggestion is in the client's data, only not drawn.
+  const [playedThrough, setPlayedThrough] = useState(false);
   const open = detail.status === "awaiting_review";
   const trade = names.trade(detail.tradeSlug, detail.tradeName);
   const playing = detail.videoUrl !== null && !videoFailed;
@@ -91,6 +97,7 @@ function DetailBody({ detail }: { detail: Detail }) {
           detail={detail}
           failed={videoFailed}
           onFail={() => setVideoFailed(true)}
+          onEnded={() => setPlayedThrough(true)}
           className={cn(
             "lg:col-span-7 lg:col-start-1 lg:row-start-1",
             playing && "sticky top-14 z-20 -mx-4 bg-background px-4 pb-2 lg:static lg:mx-0 lg:px-0 lg:pb-0",
@@ -99,7 +106,7 @@ function DetailBody({ detail }: { detail: Detail }) {
         <Liveness detail={detail} className="lg:col-span-7 lg:col-start-1 lg:row-start-2" />
         <div className="flex flex-col gap-8 lg:col-span-5 lg:col-start-8 lg:row-span-3 lg:row-start-1">
           <Observations detail={detail} />
-          <AiSuggestion detail={detail} />
+          <AiSuggestion detail={detail} locked={!playedThrough} />
         </div>
         <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3">
           {open ? <DecisionForm assessmentId={detail._id} /> : <p className="text-base">{t("decided")}</p>}
@@ -113,11 +120,13 @@ function VideoSection({
   detail,
   failed,
   onFail,
+  onEnded,
   className,
 }: {
   detail: Detail;
   failed: boolean;
   onFail: () => void;
+  onEnded: () => void;
   className?: string;
 }) {
   const t = useTranslations("ReviewDetail");
@@ -152,6 +161,7 @@ function VideoSection({
           controlsList="nodownload noremoteplayback"
           disablePictureInPicture
           onError={onFail}
+          onEnded={onEnded}
           className="aspect-video max-h-[40dvh] w-full rounded border border-line bg-panel lg:max-h-none"
         />
       ) : (
@@ -172,7 +182,7 @@ function Liveness({ detail, className }: { detail: Detail; className?: string })
       <h2 id="review-liveness" className={SECTION_LABEL}>
         {t("liveness.title")}
       </h2>
-      <ul className="flex flex-col gap-1 font-mono text-sm tracking-[0.08em] uppercase tabular-nums">
+      <ul className="flex flex-col gap-1 font-mono text-xs tracking-[0.08em] uppercase tabular-nums">
         <li>{t("liveness.shown", { code: detail.livenessCode })}</li>
         <li>
           {detail.livenessRead !== undefined
@@ -181,7 +191,7 @@ function Liveness({ detail, className }: { detail: Detail; className?: string })
         </li>
         <li>{t("liveness.check", { result })}</li>
       </ul>
-      <p className="text-sm text-dim">{t("liveness.note")}</p>
+      <p className="text-base text-dim">{t("liveness.note")}</p>
     </section>
   );
 }
@@ -259,16 +269,18 @@ function Observations({ detail }: { detail: Detail }) {
 }
 
 /**
- * #41's AI panel, unchanged in content (the play-through lock needs
- * expert.markPlayedThrough, #52): the Verdict in words only, strengths,
- * gaps, the feedback and the backup-model line. Restyled as a 1 px outlined
- * panel with the AI tag; no fill, no amber, no ✓ and no confidence (D5).
+ * #41's AI panel: the Verdict in words only, strengths, gaps, the feedback
+ * and the backup-model line, as a 1 px outlined panel with the AI tag; no
+ * fill, no amber, no ✓ and no confidence (D5). While `locked` it shows only
+ * a line lock icon and why: no blurred preview, nothing of the suggestion in
+ * the DOM (D-51; the server-side gate is #52).
  */
-function AiSuggestion({ detail }: { detail: Detail }) {
+function AiSuggestion({ detail, locked }: { detail: Detail; locked: boolean }) {
   const t = useTranslations("ReviewDetail");
   return (
     <section
       data-testid="ai-suggestion"
+      data-locked={locked ? "true" : "false"}
       className="flex flex-col gap-4 rounded border border-line p-4 lg:p-6"
       aria-labelledby="review-ai"
     >
@@ -279,8 +291,24 @@ function AiSuggestion({ detail }: { detail: Detail }) {
         <h2 id="review-ai" className="text-base font-semibold">
           {t("ai.title")}
         </h2>
-        <p className="text-sm text-dim">{t("ai.intro")}</p>
+        <p className="text-base text-dim">{t("ai.intro")}</p>
       </div>
+      {locked ? (
+        <p className="flex items-start gap-3 text-base">
+          <Lock aria-hidden="true" className="mt-0.5 size-5 shrink-0" strokeWidth={1.5} />
+          <span>{t("ai.locked")}</span>
+        </p>
+      ) : (
+        <AiSuggestionBody detail={detail} />
+      )}
+    </section>
+  );
+}
+
+function AiSuggestionBody({ detail }: { detail: Detail }) {
+  const t = useTranslations("ReviewDetail");
+  return (
+    <>
       <p className="text-base">{t("ai.verdict", { verdict: t(`ai.verdictWord.${detail.verdict ?? "none"}`) })}</p>
       {detail.fallbackModel ? <p className={META}>{t("ai.fallback")}</p> : null}
       <TextList title={t("ai.strengths")} items={detail.strengths} />
@@ -289,7 +317,7 @@ function AiSuggestion({ detail }: { detail: Detail }) {
         <h3 className={SECTION_LABEL}>{t("ai.feedback")}</h3>
         <p className="text-base break-words">{detail.feedbackEn ?? t("ai.none")}</p>
       </div>
-    </section>
+    </>
   );
 }
 

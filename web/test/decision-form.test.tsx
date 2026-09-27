@@ -120,13 +120,17 @@ describe("the decision form (US-5.3)", () => {
     expect(alert()).toBeNull();
   });
 
-  it("shows a neutral ✕ with every error, never amber", async () => {
+  it("shows a neutral ✕ with every error, outside the alert and hidden from screen readers, never amber", async () => {
     await render();
     await choose("reject");
     await submit();
     const el = alertEl()!;
-    expect(el.textContent?.startsWith("✕")).toBe(true);
-    expect(el.outerHTML).not.toMatch(/primary/);
+    // The shared ErrorLine (components/app-states): the alert reads only the words.
+    expect(el.textContent).toBe(t("errors.note_required"));
+    const line = el.closest("p")!;
+    expect(line.textContent).toBe(`✕${t("errors.note_required")}`);
+    expect(line.querySelector('[aria-hidden="true"]')?.textContent).toBe("✕");
+    expect(line.outerHTML).not.toMatch(/primary/);
     expect(note().className).not.toMatch(/border-primary/);
   });
 
@@ -161,18 +165,56 @@ describe("the decision form (US-5.3)", () => {
   it("still refuses to send without a choice if the form is submitted anyway", async () => {
     await render();
     await submit();
-    expect(alert()).toBe(t("choiceRequired"));
+    expect(alert()).toBeNull();
     expect(state.decide).not.toHaveBeenCalled();
   });
 
-  it("has no decision pre-selected, and keeps submit disabled until one is chosen", async () => {
+  it("has no decision pre-selected, and keeps submit disabled until one is chosen, saying so in a dim hint", async () => {
     await render();
     expect([...container.querySelectorAll('input[type="radio"]')].some((r) => (r as HTMLInputElement).checked)).toBe(
       false,
     );
     expect(submitButton().disabled).toBe(true);
+    const hint = [...container.querySelectorAll("p")].find((p) => p.textContent === t("chooseFirst"));
+    expect(hint?.className).toMatch(/\btext-dim\b/);
+    expect(submitButton().getAttribute("aria-describedby")).toBe(hint?.id);
     await choose("approve");
     expect(submitButton().disabled).toBe(false);
+    expect(container.textContent).not.toContain(t("chooseFirst"));
+  });
+
+  it("disables Submit decision offline with 'Needs a connection', keeping the choice and note (D9)", async () => {
+    let online = true;
+    const spy = vi.spyOn(navigator, "onLine", "get").mockImplementation(() => online);
+    try {
+      await render();
+      await choose("reshoot");
+      await type("Film the tester on each wire.");
+      expect(submitButton().disabled).toBe(false);
+
+      online = false;
+      await act(async () => window.dispatchEvent(new Event("offline")));
+      expect(submitButton().disabled).toBe(true);
+      expect(container.textContent).toContain(t("offline"));
+      await submit();
+      expect(state.decide).not.toHaveBeenCalled();
+      expect(radio("reshoot").checked).toBe(true);
+      expect(note().value).toBe("Film the tester on each wire.");
+
+      online = true;
+      await act(async () => window.dispatchEvent(new Event("online")));
+      expect(submitButton().disabled).toBe(false);
+      expect(container.textContent).not.toContain(t("offline"));
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("keeps to the D1 type ladder: no 14 px text", async () => {
+    await render();
+    await choose("reject");
+    await submit();
+    expect(container.innerHTML).not.toMatch(/\btext-sm\b/);
   });
 
   it("requires a note for a reshoot or a rejection, and says so under the note", async () => {

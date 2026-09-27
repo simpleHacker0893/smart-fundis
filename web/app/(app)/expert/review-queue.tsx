@@ -7,10 +7,12 @@ import { useTranslations } from "next-intl";
 import Link from "next/link";
 import { useState } from "react";
 import { api } from "@convex/_generated/api";
+import { EmptyPanel, SkeletonRows } from "@/components/app-states";
+import { META, OUTLINE_TAG, PAGE_TITLE } from "@/components/ui/app-type";
+import { SECONDARY_PILL } from "@/components/ui/pill";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
 import { cn } from "cn";
-import { META, OUTLINE_PILL, OUTLINE_TAG, PAGE_TITLE } from "./expert-styles";
-import { ReadoutPanel, useWaitingAge } from "./expert-ui";
+import { useWaitingAge } from "./expert-ui";
 
 type QueueRow = FunctionReturnType<typeof api.reviews.queue>[number];
 type Trade = { slug: string; name: string };
@@ -40,9 +42,9 @@ export function ReviewQueue() {
         <p className="text-base text-dim">{t("intro")}</p>
       </header>
       {queue === undefined ? (
-        <QueueSkeleton label={t("loading")} />
+        <SkeletonRows label={t("loading")} />
       ) : queue.length === 0 ? (
-        <ReadoutPanel tag={t("empty.tag")}>{t("empty.body")}</ReadoutPanel>
+        <EmptyPanel tag={t("empty.tag")} body={t("empty.body")} />
       ) : (
         <QueueBody queue={queue} />
       )}
@@ -96,15 +98,11 @@ function QueueBody({ queue }: { queue: QueueRow[] }) {
       </div>
 
       {shown.length === 0 && selected ? (
-        <ReadoutPanel
-          action={
-            <button type="button" className={OUTLINE_PILL} onClick={() => setSelected(null)}>
-              {t("showAll")}
-            </button>
-          }
-        >
-          {t("filteredEmpty", { trade: selected.name })}
-        </ReadoutPanel>
+        <EmptyPanel body={t("filteredEmpty", { trade: selected.name })}>
+          <button type="button" className={SECONDARY_PILL} onClick={() => setSelected(null)}>
+            {t("showAll")}
+          </button>
+        </EmptyPanel>
       ) : (
         <ul aria-live="polite" className="flex flex-col border-t border-line">
           {shown.map((row) => (
@@ -156,19 +154,5 @@ function QueueItem({ row, age }: { row: QueueRow; age: string }) {
         <ChevronRight aria-hidden="true" className="size-5 shrink-0 text-dim" />
       </Link>
     </li>
-  );
-}
-
-function QueueSkeleton({ label }: { label: string }) {
-  return (
-    <div role="status" aria-busy="true" className="flex flex-col border-t border-line">
-      <span className="sr-only">{label}</span>
-      {[0, 1, 2].map((i) => (
-        <span key={i} aria-hidden="true" className="flex min-h-14 flex-col justify-center gap-2 border-b border-line py-3">
-          <span className="h-4 w-2/3 animate-pulse rounded bg-panel motion-reduce:animate-none" />
-          <span className="h-3 w-1/3 animate-pulse rounded bg-panel motion-reduce:animate-none" />
-        </span>
-      ))}
-    </div>
   );
 }

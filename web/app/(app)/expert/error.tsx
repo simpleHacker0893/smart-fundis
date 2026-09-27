@@ -1,8 +1,8 @@
 "use client"; // Error boundaries must be Client Components
 
 import { useTranslations } from "next-intl";
-import { OUTLINE_PILL, PAGE, PAGE_TITLE } from "./expert-styles";
-import { ReadoutPanel } from "./expert-ui";
+import { ErrorPanel } from "@/components/app-states";
+import { PAGE_MAIN, PAGE_TITLE } from "@/components/ui/app-type";
 
 /**
  * The queue's error state (#67 screen 28, D9): a bordered readout with ✕
@@ -20,19 +20,9 @@ export default function QueueError({
 }) {
   const t = useTranslations("ReviewQueue");
   return (
-    <main className={PAGE}>
+    <main className={PAGE_MAIN}>
       <h1 className={PAGE_TITLE}>{t("title")}</h1>
-      <ReadoutPanel
-        tag={t("error.tag")}
-        error
-        action={
-          <button type="button" className={OUTLINE_PILL} onClick={() => retry()}>
-            {t("error.retry")}
-          </button>
-        }
-      >
-        {t("error.body")}
-      </ReadoutPanel>
+      <ErrorPanel body={t("error.body")} tag={t("error.tag")} retry={t("error.retry")} onRetry={() => retry()} />
     </main>
   );
 }

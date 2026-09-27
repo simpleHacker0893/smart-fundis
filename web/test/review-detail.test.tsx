@@ -161,6 +161,10 @@ describe("the review detail (US-5.2, #67 screen 29)", () => {
 
   const obs = () => [...container.querySelectorAll('[data-testid="observation"]')];
   const aiPanel = () => container.querySelector('[data-testid="ai-suggestion"]');
+  /** Plays the video to its end: the AI suggestion unlocks on the first `ended` (D-51). */
+  const watchToEnd = async () => {
+    await act(async () => container.querySelector("video")!.dispatchEvent(new Event("ended")));
+  };
 
   it("says the video is not available, with a way back, when detail is null: no player, no AI panel, no form", async () => {
     state.detail = null;
@@ -295,9 +299,56 @@ describe("the review detail (US-5.2, #67 screen 29)", () => {
     expect(first.querySelector("q")).toBeNull();
   });
 
+  it("locks the AI suggestion until the video has played to its end, with a lock icon and no preview (D-51)", async () => {
+    state.detail = detail();
+    await render();
+    const ai = aiPanel()!;
+    expect(ai.getAttribute("data-locked")).toBe("true");
+    expect(ai.textContent).toContain(t("ai.locked"));
+    expect(ai.querySelector("svg[aria-hidden='true']")).not.toBeNull();
+    // Nothing of the suggestion is in the DOM, blurred or otherwise.
+    for (const hidden of ["Neat terminations", "Isolation not shown", "Show the breaker off before touching wires."]) {
+      expect(ai.textContent).not.toContain(hidden);
+    }
+    expect(ai.textContent).not.toContain(t("ai.verdict", { verdict: t("ai.verdictWord.needs_review") }));
+    expect(ai.innerHTML).not.toMatch(/blur/);
+    // Observations stay visible (D-51 allows them), and the decision stays usable.
+    expect(obs()).toHaveLength(3);
+    expect(container.querySelector("form")).not.toBeNull();
+
+    // Pausing or seeking does not unlock it; only reaching the end does.
+    await act(async () => container.querySelector("video")!.dispatchEvent(new Event("pause")));
+    expect(aiPanel()!.getAttribute("data-locked")).toBe("true");
+    await watchToEnd();
+    expect(aiPanel()!.getAttribute("data-locked")).toBe("false");
+    expect(aiPanel()!.textContent).not.toContain(t("ai.locked"));
+    expect(aiPanel()!.textContent).toContain("Neat terminations");
+  });
+
+  it("keeps the AI suggestion locked when the video fails to load or is deleted, and the decision usable", async () => {
+    state.detail = detail();
+    await render();
+    await act(async () => container.querySelector("video")!.dispatchEvent(new Event("error")));
+    expect(aiPanel()!.getAttribute("data-locked")).toBe("true");
+    expect(aiPanel()!.textContent).toContain(t("ai.locked"));
+    expect(container.querySelector<HTMLButtonElement>('form button[type="submit"]')).not.toBeNull();
+    expect(container.querySelectorAll('form input[type="radio"]')).toHaveLength(3);
+
+    state.detail = detail({ videoUrl: null, videoDeletedAt: Date.UTC(2026, 8, 21) });
+    await render();
+    expect(aiPanel()!.getAttribute("data-locked")).toBe("true");
+    expect(aiPanel()!.textContent).not.toContain("Neat terminations");
+    expect(container.querySelector("form")).not.toBeNull();
+  });
+
+  it("labels the AI's feedback as a draft not shown to the Fundi yet", async () => {
+    expect(t("ai.feedback")).toBe("Feedback the AI drafted (not shown to the Fundi yet)");
+  });
+
   it("keeps #41's AI panel: outlined, AI-tagged, 'AI suggestion — you decide', the verdict in words, never a confidence", async () => {
     state.detail = { ...detail(), confidence: 0.73 } as ReturnType<typeof detail>;
     await render();
+    await watchToEnd();
     const ai = aiPanel()!;
     expect(ai.querySelector("h2")?.textContent).toBe("AI suggestion — you decide");
     expect(ai.querySelector('[data-testid="ai-tag"]')?.textContent).toBe(t("aiTag"));
@@ -313,6 +364,7 @@ describe("the review detail (US-5.2, #67 screen 29)", () => {
   it("notes when the backup model checked the video", async () => {
     state.detail = detail({ fallbackModel: true });
     await render();
+    await watchToEnd();
     expect(aiPanel()?.textContent).toContain(t("ai.fallback"));
   });
 
@@ -332,6 +384,7 @@ describe("the review detail (US-5.2, #67 screen 29)", () => {
   it("never shows a percentage, confidence, 'certif…', a named Expert, EPRA/KNOS, urgency or hotkeys", async () => {
     state.detail = { ...detail({ fallbackModel: true }), confidence: 0.73 } as ReturnType<typeof detail>;
     await render();
+    await watchToEnd();
     const all = text();
     expect(all).not.toMatch(/%|confiden|certif|EPRA|KNOS|urgen|priority|hotkey|issue verified badge/i);
     for (const shown of ["0.73", "73"]) expect(all).not.toContain(shown);
@@ -360,9 +413,17 @@ describe("the review detail (US-5.2, #67 screen 29)", () => {
     expect(amber[0].getAttribute("type")).toBe("submit");
   });
 
+  it("keeps to the D1 type ladder: no 14 px text", async () => {
+    state.detail = detail();
+    await render();
+    await watchToEnd();
+    expect(container.innerHTML).not.toMatch(/\btext-sm\b/);
+  });
+
   it("renders only copy from messages/en.json apart from the AI's own text", async () => {
     state.detail = detail({ fallbackModel: true });
     await render();
+    await watchToEnd();
     const d = detail();
     const data = new Set([
       ...d.strengths,

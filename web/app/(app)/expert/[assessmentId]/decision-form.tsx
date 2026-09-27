@@ -6,16 +6,16 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useRef, useState } from "react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
+import { useConnection } from "@/components/app-shell/use-connection";
+import { ErrorLine } from "@/components/app-states";
+import { META, SECTION_LABEL } from "@/components/ui/app-type";
 import { APP_PRIMARY_PILL } from "@/components/ui/pill";
 import { DECIDE_ERRORS, type DecideErrorKey, decideErrorKey, NOTE_MAX_LENGTH } from "@/lib/review-errors";
-import { META, SECTION_LABEL } from "../expert-styles";
-import { ErrorLine } from "../expert-ui";
 
 type Decision = "approve" | "reshoot" | "reject";
 
 const DECISIONS = ["approve", "reshoot", "reject"] as const satisfies readonly Decision[];
 
-type FormError = DecideErrorKey | "choice";
 
 /** The note field: 48 px min, a neutral (never amber) border when invalid (D9). */
 const NOTE_FIELD =
@@ -25,7 +25,9 @@ const NOTE_FIELD =
  * YOUR DECISION (US-5.3; #67 screen 29), outside and below the AI panel:
  * Approve, Ask for a new video (reshoot) or Reject as 56 px radio rows with
  * none pre-selected, and a note that is required for a reshoot or a
- * rejection and at most 1000 characters. The counter may pass 1000 so the
+ * rejection and at most 1000 characters. Submit stays disabled until a
+ * choice is made (#41 W3) and while offline (D9), with the reason in a dim
+ * hint beside it. The counter may pass 1000 so the
  * Expert sees why; checked here first, then by reviews.decide, whose error
  * codes map to en.json copy. A failed send keeps the choice and the note.
  * On success it goes back to the queue, where the row has already gone.
@@ -37,7 +39,8 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
   const id = useId();
   const [decision, setDecision] = useState<Decision | null>(null);
   const [note, setNote] = useState("");
-  const [error, setError] = useState<FormError | null>(null);
+  const [error, setError] = useState<DecideErrorKey | null>(null);
+  const offline = useConnection().kind === "offline";
   const [pending, setPending] = useState(false);
   // A ref as well as state, so a second submit in the same tick is ignored.
   const sending = useRef(false);
@@ -46,14 +49,16 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
   const isApprove = decision === "approve";
   // Too long shows as the Expert types, not only on submit.
   const tooLong = note.trim().length > NOTE_MAX_LENGTH;
-  const shown: FormError | null = error ?? (tooLong ? "note_too_long" : null);
+  const shown: DecideErrorKey | null = error ?? (tooLong ? "note_too_long" : null);
   const noteInvalid = shown === "note_required" || shown === "note_too_long";
+  // Why Submit is disabled, in words: offline first, then no choice yet.
+  const hint = offline ? t("offline") : decision === null ? t("chooseFirst") : null;
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (sending.current) return;
+    // Submit is disabled in both cases; a synthetic submit still must not send.
+    if (sending.current || decision === null || offline) return;
     const trimmed = note.trim();
-    if (decision === null) return setError("choice");
     if (noteRequired && trimmed === "") return setError("note_required");
     if (trimmed.length > NOTE_MAX_LENGTH) return setError("note_too_long");
 
@@ -74,7 +79,7 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
     <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
       <fieldset className="flex flex-col gap-3">
         <legend className={`${SECTION_LABEL} mb-3`}>{t("title")}</legend>
-        <p className="text-sm text-dim">{t("intro")}</p>
+        <p className="text-base text-dim">{t("intro")}</p>
         <div className="flex flex-col border-t border-line">
           {DECISIONS.map((value) => (
             <label
@@ -118,7 +123,7 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
           className={NOTE_FIELD}
         />
         <div className="flex items-start justify-between gap-4">
-          <span id={`${id}-note-hint`} className="text-sm text-dim">
+          <span id={`${id}-note-hint`} className="text-base text-dim">
             {noteRequired
               ? t("noteHintRequired", { max: NOTE_MAX_LENGTH })
               : isApprove
@@ -133,13 +138,26 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
 
       {shown ? (
         <ErrorLine id={`${id}-error`}>
-          {shown === "choice" ? t("choiceRequired") : t(DECIDE_ERRORS[shown], { max: NOTE_MAX_LENGTH })}
+          {t(DECIDE_ERRORS[shown], { max: NOTE_MAX_LENGTH })}
         </ErrorLine>
       ) : null}
 
-      <button type="submit" disabled={pending || decision === null} aria-busy={pending} className={APP_PRIMARY_PILL}>
-        {pending ? t("submitting") : t("submit")}
-      </button>
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <button
+          type="submit"
+          disabled={pending || decision === null || offline}
+          aria-busy={pending}
+          aria-describedby={hint ? `${id}-submit-hint` : undefined}
+          className={APP_PRIMARY_PILL}
+        >
+          {pending ? t("submitting") : t("submit")}
+        </button>
+        {hint ? (
+          <p id={`${id}-submit-hint`} className="text-base text-dim">
+            {hint}
+          </p>
+        ) : null}
+      </div>
     </form>
   );
 }

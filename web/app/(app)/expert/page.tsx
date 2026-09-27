@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ExpertGuard } from "./expert-guard";
-import { PAGE } from "./expert-styles";
+import { PAGE_MAIN } from "@/components/ui/app-type";
 import { ReviewQueue } from "./review-queue";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -20,7 +20,7 @@ export default async function ExpertPage() {
   await auth.protect();
 
   return (
-    <main className={PAGE}>
+    <main className={PAGE_MAIN}>
       <ExpertGuard>
         <ReviewQueue />
       </ExpertGuard>

@@ -2,7 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { ExpertGuard } from "../expert-guard";
-import { PAGE } from "../expert-styles";
+import { PAGE_MAIN } from "@/components/ui/app-type";
 import { ReviewDetail } from "./review-detail";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -21,7 +21,7 @@ export default async function ReviewPage({ params }: { params: Promise<{ assessm
   const { assessmentId } = await params;
 
   return (
-    <main className={PAGE}>
+    <main className={PAGE_MAIN}>
       <ExpertGuard>
         <ReviewDetail assessmentId={assessmentId} />
       </ExpertGuard>

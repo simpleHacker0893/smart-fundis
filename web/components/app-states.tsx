@@ -26,31 +26,48 @@ export function ErrorLine({ id, children, className }: { id?: string; children: 
   );
 }
 
-/** Empty state (D9): the mono tag, one plain sentence; the page carries the one action. */
-export function EmptyPanel({ tag, body, children }: { tag: string; body: string; children?: ReactNode }) {
+/**
+ * Empty or not-available state (D9): an optional mono tag, one plain
+ * sentence and at most one action (`children`). No image.
+ */
+export function EmptyPanel({ tag, body, children }: { tag?: string; body: string; children?: ReactNode }) {
   return (
     <div data-testid="empty-panel" className={cn(PANEL, "flex flex-col gap-2")}>
-      <p className={SECTION_LABEL}>{tag}</p>
+      {tag ? <p className={SECTION_LABEL}>{tag}</p> : null}
       <p className="text-base">{body}</p>
       {children}
     </div>
   );
 }
 
-/** Error panel (D9): ✕ "COULDN'T LOAD", the reason, and an outlined Try again. */
-export function ErrorPanel({ body, onRetry }: { body: string; onRetry: () => void }) {
+/**
+ * Error panel (D9): ✕ "COULDN'T LOAD", the reason, and an outlined Try
+ * again. `tag` and `retry` default to the Verifications copy; a page with its
+ * own namespace (the Expert queue) passes its own.
+ */
+export function ErrorPanel({
+  body,
+  onRetry,
+  tag,
+  retry,
+}: {
+  body: string;
+  onRetry: () => void;
+  tag?: string;
+  retry?: string;
+}) {
   const t = useTranslations("Verifications.error");
   return (
     <div data-testid="error-panel" className={cn(PANEL, "flex flex-col gap-3")}>
       <p className={cn(SECTION_LABEL, "flex items-center gap-2 text-foreground")}>
         <span aria-hidden="true">{STATUS_GLYPHS.failed}</span>
-        <span>{t("tag")}</span>
+        <span>{tag ?? t("tag")}</span>
       </p>
       <p role="alert" className="text-base">
         {body}
       </p>
       <button type="button" className={SECONDARY_PILL} onClick={onRetry}>
-        {t("retry")}
+        {retry ?? t("retry")}
       </button>
     </div>
   );

@@ -1,6 +1,6 @@
 "use client"; // Error boundaries must be Client Components
 
-import { PAGE } from "../expert-styles";
+import { PAGE_MAIN } from "@/components/ui/app-type";
 import { NotAvailable } from "./review-detail";
 
 /**
@@ -17,7 +17,7 @@ export default function ReviewError(_props: {
   reset: () => void;
 }) {
   return (
-    <main className={PAGE}>
+    <main className={PAGE_MAIN}>
       <NotAvailable />
     </main>
   );

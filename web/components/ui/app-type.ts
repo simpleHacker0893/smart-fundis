@@ -20,5 +20,9 @@ export const PANEL = "rounded border border-line bg-panel p-4 lg:p-6";
 export const MONO_TAG =
   "inline-flex self-start rounded-full border border-line px-3 py-1 font-mono text-xs tracking-[0.08em] text-foreground uppercase";
 
+/** A small outlined mono tag ("AI", "SAFETY", "SAFETY CHECK"), 4 px radius, never amber. */
+export const OUTLINE_TAG =
+  "inline-flex shrink-0 items-center self-start rounded border border-foreground/40 px-1.5 py-0.5 font-mono text-xs tracking-[0.08em] text-foreground uppercase";
+
 /** The page column: 16 / 24 / 32 px gutters, sections 32 px apart (48 px on desktop). */
 export const PAGE_MAIN = "flex w-full flex-1 flex-col gap-8 px-4 py-8 md:px-6 lg:gap-12 lg:px-8 lg:py-12";
