@@ -248,7 +248,8 @@ export const getPublic = query({
       .withIndex("by_fundiUserId_and_status", (q) =>
         q.eq("fundiUserId", profile.userId).eq("status", "approved"),
       )
-      // Newest first, so a cap (unreachable in the MVP) drops the oldest Badges.
+      // Newest submissions first, so a cap (unreachable in the MVP) drops the
+      // oldest submissions; the Badges are then sorted by decision date below.
       .order("desc")
       .take(PUBLIC_BADGE_LIMIT);
     const names = nameLookup(ctx);
