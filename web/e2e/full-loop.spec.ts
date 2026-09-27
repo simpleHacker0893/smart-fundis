@@ -17,8 +17,9 @@ import { clerkApi, expectNoSideScroll, newTestEmail, onboardAsFundi, signInAsNew
 //   3. The #40 stub worker, spawned from here, claims it: the chip goes to
 //      "The AI is watching your video", then "Awaiting expert review", with
 //      no page reload (this closes #38's partial live-chip criterion).
-//   4. A second new User is seeded as the Expert, opens /expert, opens this
-//      Assessment and approves it. The Fundi's own page shows the Badge live.
+//   4. A second new User is seeded as the Expert, loads /expert, then opens
+//      this Assessment by its URL (the queue may not list it: see step 4)
+//      and approves it. The Fundi's own page shows the Badge live.
 //   5. /fundi links to /f/<id>. Signed out, that page shows "Verified by
 //      Smart Fundis — Electrical: Install a 13A socket · <date>", never
 //      "certified", and no side-scroll.
@@ -42,7 +43,6 @@ import { clerkApi, expectNoSideScroll, newTestEmail, onboardAsFundi, signInAsNew
 // `queued` rows from older runs (upload.spec.ts leaves one each time) are
 // claimed and given canned results first, one worker run each.
 
-const missing = missingFullLoopEnv();
 const u = en.UploadFlow;
 const status = en.AssessmentList.status;
 const electrical = en.TradeCatalogue.electrical.name;
@@ -54,7 +54,12 @@ const MAX_WORKER_RUNS = 25;
 const HOLD_SECONDS = 5;
 
 test.describe("the V1 demo loop at 360 px", () => {
-  test.skip(missing.length > 0, fullLoopSkipMessage(missing));
+  // Checked in a hook, not at module load: it spawns `uv --version`, and
+  // `playwright test --list` should not.
+  test.beforeAll(() => {
+    const missing = missingFullLoopEnv();
+    test.skip(missing.length > 0, fullLoopSkipMessage(missing));
+  });
 
   const clerkUserIds: string[] = [];
   let worker: StubRun | undefined;
@@ -87,16 +92,14 @@ test.describe("the V1 demo loop at 360 px", () => {
 
     // 3. The stub worker, until it takes this Assessment. A reload would
     // clear this marker, so its survival proves the chip changed in place.
-    await page.evaluate(() => {
-      (window as unknown as { __noReload?: boolean }).__noReload = true;
-    });
+    await noReload.mark(page);
     const ourRun = await runStubUntilAnalyzing(page, chip, (run) => (worker = run));
     await expect(chip).toHaveText(status.analyzing);
     const code = await ourRun.exited;
     expect(code, `stub worker failed:\n${ourRun.logTail()}`).toBe(0);
     await expect(chip).toHaveAttribute("data-status", "awaiting_review", { timeout: 30_000 });
     await expect(chip).toHaveText(status.awaiting_review);
-    expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
+    expect(await noReload.held(page)).toBe(true);
 
     const ids = readNewestAssessment(fundiEmail);
     expect(ids.status).toBe("awaiting_review");
@@ -111,17 +114,14 @@ test.describe("the V1 demo loop at 360 px", () => {
     // users.store runs once the page is signed in; until then seed.expert says no_user.
     await expect(async () => seedExpert(expertEmail)).toPass({ timeout: 60_000, intervals: [1_000, 2_000] });
 
+    // The queue loads. It is oldest first and capped, and leftover
+    // awaiting_review rows from earlier runs pile up, so this run's row may
+    // not be listed: the Expert opens this Assessment by its URL instead.
     await expertPage.goto("/expert");
     await expect(expertPage.getByRole("heading", { level: 1, name: en.ExpertPage.title })).toBeVisible();
-    // The queue is oldest first, so this run's Assessment is the newest (last)
-    // Electrical: 13A socket row. Leftovers from older runs look the same, so
-    // the row is matched by its link to this Assessment's id, and must be last.
-    const rows = expertPage.getByTestId("queue-row").filter({ hasText: `${electrical}: ${socket}` });
-    const ours = rows.filter({ has: expertPage.locator(`a[href="/expert/${ids.assessmentId}"]`) });
-    await expect(ours).toHaveCount(1);
-    await expect(rows.last().locator(`a[href="/expert/${ids.assessmentId}"]`)).toHaveCount(1);
+    await expect(expertPage.getByRole("heading", { level: 2, name: en.ReviewQueue.title })).toBeVisible();
     await expectNoSideScroll(expertPage);
-    await ours.getByRole("link").tap();
+    await expertPage.goto(`/expert/${ids.assessmentId}`);
 
     await expect(expertPage).toHaveURL(new RegExp(`/expert/${ids.assessmentId}$`));
     // The Expert plays nothing: the decision does not depend on it in V1.
@@ -136,9 +136,9 @@ test.describe("the V1 demo loop at 360 px", () => {
 
     // The Fundi's own page shows the approval and the Badge line, still without a reload.
     await expect(chip).toHaveAttribute("data-status", "approved");
-    const badgeLine = new RegExp(`^Verified by Smart Fundis — ${escapeRegExp(electrical)}: ${escapeRegExp(socket)} · \\S+ \\d{1,2}, \\d{4}$`);
+    const badgeLine = badgeLinePattern(electrical, socket);
     await expect(item.getByTestId("badge-line")).toHaveText(badgeLine);
-    expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
+    expect(await noReload.held(page)).toBe(true);
 
     // /fundi links a Listed Fundi to their public profile (onboarding lists them).
     const profileLink = page.getByRole("link", { name: en.FundiPage.publicProfile.link });
@@ -176,6 +176,27 @@ test.describe("the V1 demo loop at 360 px", () => {
 function escapeRegExp(text: string): string {
   return text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
+
+/** The Badge line from en.json itself, with any medium date ("Sep 27, 2026"), so it can't drift. */
+function badgeLinePattern(trade: string, task: string): RegExp {
+  const pattern = escapeRegExp(en.PublicProfile.badgeLine)
+    .replace(escapeRegExp("{trade}"), () => escapeRegExp(trade))
+    .replace(escapeRegExp("{task}"), () => escapeRegExp(task))
+    .replace(escapeRegExp("{date}"), () => String.raw`\S+ \d{1,2}, \d{4}`);
+  return new RegExp(`^${pattern}$`);
+}
+
+/**
+ * A marker on the page's window: a reload clears it, so while it holds,
+ * every change the page showed came from the Convex subscription.
+ */
+const noReload = {
+  mark: (page: Page) =>
+    page.evaluate(() => {
+      (window as unknown as { __noReload?: boolean }).__noReload = true;
+    }),
+  held: (page: Page) => page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload === true),
+};
 
 /** The upload flow as in upload.spec.ts, with a plain clip name so the stub passes it. */
 async function uploadSocketClip(page: Page): Promise<void> {

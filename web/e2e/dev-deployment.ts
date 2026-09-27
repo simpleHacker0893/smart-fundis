@@ -1,5 +1,6 @@
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
 import path from "node:path";
+import type { Doc } from "@convex/_generated/dataModel";
 import { loadRootEnv, missingE2eEnv } from "./env";
 
 // Test-only access to the DEV Convex deployment and the #40 stub worker, for
@@ -9,16 +10,42 @@ import { loadRootEnv, missingE2eEnv } from "./env";
 const REPO_ROOT = path.resolve(__dirname, "..", "..");
 const AI_SERVICE_DIR = path.join(REPO_ROOT, "ai-service");
 
+/**
+ * An allow-listed copy of the environment for a child process: the named
+ * variables and those with the given prefixes, when set. Children never see
+ * the rest (never CLERK_SECRET_KEY).
+ */
+function childEnv(names: readonly string[], prefixes: readonly string[]): NodeJS.ProcessEnv {
+  // A cast: Next's types make NODE_ENV required on ProcessEnv, and a child needs none.
+  const env = {} as NodeJS.ProcessEnv;
+  for (const [key, value] of Object.entries(process.env)) {
+    if (value === undefined) continue;
+    if (names.includes(key) || prefixes.some((prefix) => key.startsWith(prefix))) env[key] = value;
+  }
+  return env;
+}
+
+// What each child needs: PATH and HOME to find its tools and caches (and
+// SYSTEMROOT/TMPDIR where set); uv reads UV_* and XDG_*; the convex CLI reads
+// CONVEX_* (the deployment) and XDG_* (its config dir).
+const BASE_ENV = ["PATH", "HOME", "SYSTEMROOT", "TMPDIR"] as const;
+const WORKER_ENV = [...BASE_ENV, "AI_SHARED_SECRET", "CONVEX_SITE_URL", "CONVEX_DEPLOYMENT"] as const;
+const CONVEX_CLI_ENV = [...BASE_ENV, "CONVEX_DEPLOYMENT"] as const;
+
 function hasUv(): boolean {
-  const result = spawnSync("uv", ["--version"], { stdio: "ignore" });
+  const result = spawnSync("uv", ["--version"], { stdio: "ignore", env: childEnv(BASE_ENV, ["UV_", "XDG_"]) });
   return result.error === undefined && result.status === 0;
 }
 
+let missingCache: string[] | undefined;
+
 /**
  * What the full-loop run needs on top of the Clerk e2e env, empty when ready.
- * Names only, never values.
+ * Names only, never values. Call it lazily (in a hook, not at module load),
+ * since it spawns `uv --version`; the result is cached for the run.
  */
 export function missingFullLoopEnv(): string[] {
+  if (missingCache) return missingCache;
   const missing = missingE2eEnv();
   loadRootEnv();
   if (!process.env.AI_SHARED_SECRET) missing.push("AI_SHARED_SECRET (the same value as on the dev deployment)");
@@ -27,6 +54,7 @@ export function missingFullLoopEnv(): string[] {
     missing.push("CONVEX_DEPLOYMENT=dev:… (the stub worker never runs against any other deployment)");
   }
   if (!hasUv()) missing.push("`uv` on PATH (it runs ai-service/scripts/stub_worker.py)");
+  missingCache = missing;
   return missing;
 }
 
@@ -39,7 +67,7 @@ function convexRun(args: string[]): unknown {
   const result = spawnSync("pnpm", ["exec", "convex", "run", ...args], {
     cwd: REPO_ROOT,
     encoding: "utf8",
-    env: process.env,
+    env: childEnv(CONVEX_CLI_ENV, ["CONVEX_", "XDG_"]),
     timeout: 60_000,
   });
   if (result.status !== 0) {
@@ -61,7 +89,7 @@ export function seedExpert(email: string): void {
 
 export type NewestAssessment = {
   assessmentId: string | null;
-  status: string | null;
+  status: Doc<"assessments">["status"] | null;
 };
 
 /**
@@ -99,7 +127,7 @@ export function startStubWorker(holdSeconds = 5): StubRun {
   const child: ChildProcess = spawn(
     "uv",
     ["run", "python", "scripts/stub_worker.py", "--once", "--poll-interval", "1", "--hold-seconds", String(holdSeconds)],
-    { cwd: AI_SERVICE_DIR, env: process.env, stdio: ["ignore", "pipe", "pipe"] },
+    { cwd: AI_SERVICE_DIR, env: childEnv(WORKER_ENV, ["UV_", "XDG_"]), stdio: ["ignore", "pipe", "pipe"] },
   );
   let log = "";
   const keep = (chunk: Buffer) => {
