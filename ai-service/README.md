@@ -11,7 +11,7 @@ It is a uv project on Python 3.12 (`.python-version`) with FastAPI, pytest and r
   - `nemotron.py`: the hosted Nemotron structured-output smoke (see below)
   - `prompts/`: versioned prompt files
 - `eval/`: eval clips list and results (qa owns it)
-- `scripts/`: vLLM serving, smoke scripts and the V1 stub worker (gpu-devops owns it)
+- `scripts/`: vLLM serving, smoke scripts and the V1 stub worker (gpu-devops owns it; see "Cosmos on Brev" below)
 - `tests/`: pytest tests, with fixtures in `tests/fixtures/`
 
 ## Run
@@ -121,6 +121,25 @@ uv run python scripts/stub_worker.py --max-jobs 3       # exit 0 after three job
 Then upload a clip in the app (named e.g. `socket-review.mp4` for the review path) and watch its status chip change. Exit codes: 0 on Ctrl-C or after `--once` / `--max-jobs`, 1 on a 401, a 403, a `CONVEX_DEPLOYMENT` that isn't `dev:`, or missing or invalid settings.
 
 The tests (`tests/test_stub_worker.py`) run the worker against a fake Convex site (stdlib `http.server` in a thread), so the real `urllib` request code runs. They check each canned payload against the contract rules, the Bearer header, the 204/401/409/400 handling, back-off, `--hold-seconds` and `--max-jobs`, and that the video URL never reaches the logs.
+
+## Cosmos on Brev (#8)
+
+Three gpu-devops scripts in `scripts/` run on the Brev box, not on a laptop. Full notes, measurements and the human steps are in `docs/handoff/8.md`.
+
+- `serve_cosmos.sh start [MODEL] [MAX_MODEL_LEN]` runs vLLM (`vllm/vllm-openai:v0.30.0`) in a detached Docker container named `cosmos`, published on **127.0.0.1:8000 only** (ADR-9). It also has `stop`, `status`, `logs` and `download MODEL`. It reads only `HF_TOKEN`, from `/home/ubuntu/workspace/.env.brev`.
+- `make_smoke_clip.sh [OUT] [SECONDS]` makes a synthetic ffmpeg test-pattern clip (default `/data/smoke.mp4`).
+- `smoke_cosmos.py --clip /data/smoke.mp4 [--fps 4]` sends one clip and prints `reasoning`, `content`, the prompt tokens and the latency. It uses the standard library only.
+
+```bash
+ssh smartfundi '~/workspace/scripts/serve_cosmos.sh start nvidia/Cosmos-Reason2-8B 8192'
+ssh smartfundi 'python3 ~/workspace/scripts/smoke_cosmos.py --clip /data/smoke.mp4 --fps 4'
+ssh smartfundi '~/workspace/scripts/serve_cosmos.sh stop'
+```
+
+The client contract measured on vLLM 0.30.0 (the V2 Cosmos client depends on it):
+- Send fps in `media_io_kwargs.video.fps`, and cap the video with `mm_processor_kwargs.size.longest_edge`.
+- Don't send `do_sample_frames`; it makes the processor fail with HTTP 400.
+- Always append NVIDIA's `<think>` format suffix. The answer is then in `content` and the trace in `reasoning`. Without it, the `qwen3` reasoning parser files the whole answer under `reasoning` and `content` is null.
 
 ## Tracing (LangSmith)
 
