@@ -77,7 +77,7 @@ afterEach(() => {
 });
 
 async function render() {
-  const { AssessmentList } = await import("@/app/(site)/fundi/assessment-list");
+  const { AssessmentList } = await import("@/app/(app)/fundi/assessment-list");
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en} timeZone="Africa/Nairobi">

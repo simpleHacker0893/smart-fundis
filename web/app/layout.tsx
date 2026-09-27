@@ -4,7 +4,6 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { NextIntlClientProvider } from "next-intl";
 import { getTranslations } from "next-intl/server";
 import { ConvexClientProvider } from "@/components/convex-client-provider";
-import { SiteHeader } from "@/components/site-header";
 import { defaultLocale } from "@/i18n/config";
 import { clerkAppearance } from "@/lib/clerk-appearance";
 import { AFTER_AUTH_PATH, SIGN_IN_PATH, SIGN_UP_PATH, SIGNED_OUT_PATH } from "@/lib/auth-routes";
@@ -58,15 +57,9 @@ export default function RootLayout({
         >
           <ConvexClientProvider>
             <NextIntlClientProvider>
-              <SiteHeader />
-              {/* The skip link's target; the scroll margin clears the sticky header (92 px mobile, 72 px desktop). */}
-              <div
-                id="main-content"
-                tabIndex={-1}
-                className="flex flex-1 scroll-mt-24 flex-col outline-none lg:scroll-mt-[72px]"
-              >
-                {children}
-              </div>
+              {/* Each route group adds its own chrome: (site) and (auth) the
+                  marketing header, (app) the app shell (#67). */}
+              {children}
             </NextIntlClientProvider>
           </ConvexClientProvider>
         </ClerkProvider>

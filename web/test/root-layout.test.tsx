@@ -22,30 +22,45 @@ vi.mock("@/components/convex-client-provider", () => ({
 vi.mock("@/components/site-header", () => ({ SiteHeader: () => <header data-shell="header" /> }));
 vi.mock("@/components/site-footer", () => ({ SiteFooter: () => <footer data-shell="footer" /> }));
 vi.mock("@/components/slim-footer", () => ({ SlimFooter: () => <footer data-shell="slim" /> }));
+vi.mock("@/components/app-shell/app-shell", () => ({
+  AppShell: ({ children }: { children: ReactNode }) => <div data-shell="app">{children}</div>,
+}));
 vi.mock("next/font/google", () => ({
   Inter: () => ({ variable: "font-inter-var", className: "font-inter" }),
   JetBrains_Mono: () => ({ variable: "font-mono-var", className: "font-mono" }),
 }));
 
 describe("root layout", () => {
-  it("puts the site header above every page", async () => {
+  it("adds no chrome of its own: each route group brings its header (#67)", async () => {
     const { default: RootLayout } = await import("@/app/layout");
     const markup = renderToStaticMarkup(RootLayout({ children: <p data-page="child" /> }));
-
-    const header = markup.indexOf('data-shell="header"');
-    const child = markup.indexOf('data-page="child"');
-    expect(header).toBeGreaterThan(-1);
-    expect(child).toBeGreaterThan(header);
+    expect(markup).toContain('data-page="child"');
+    expect(markup).not.toContain('data-shell="header"');
+    expect(markup).not.toContain('id="main-content"');
   });
 
-  it("ends site pages with the full footer and auth pages with the slim one (route groups, #27 review)", async () => {
+  it("puts the site header above site and auth pages, the full footer and the slim one after (route groups, #27 review)", async () => {
     const { default: SiteLayout } = await import("@/app/(site)/layout");
     const { default: AuthLayout } = await import("@/app/(auth)/layout");
     const site = renderToStaticMarkup(SiteLayout({ children: <p data-page="child" /> }));
     const auth = renderToStaticMarkup(AuthLayout({ children: <p data-page="child" /> }));
+    for (const markup of [site, auth]) {
+      const header = markup.indexOf('data-shell="header"');
+      expect(header).toBeGreaterThan(-1);
+      expect(markup.indexOf('data-page="child"')).toBeGreaterThan(header);
+    }
     expect(site.indexOf('data-shell="footer"')).toBeGreaterThan(site.indexOf('data-page="child"'));
     expect(auth.indexOf('data-shell="slim"')).toBeGreaterThan(auth.indexOf('data-page="child"'));
     expect(auth).not.toContain('data-shell="footer"');
+  });
+
+  it("wraps role routes in the app shell, with no marketing header or footer (#67)", async () => {
+    const { default: AppLayout } = await import("@/app/(app)/layout");
+    const markup = renderToStaticMarkup(AppLayout({ children: <p data-page="child" /> }));
+    expect(markup).toMatch(/data-shell="app"[^>]*><p data-page="child"/);
+    expect(markup).not.toContain('data-shell="header"');
+    expect(markup).not.toContain('data-shell="footer"');
+    expect(markup).not.toContain('data-shell="slim"');
   });
 
   it("is dark-only and carries both next/font variables on <html>", async () => {
@@ -58,9 +73,9 @@ describe("root layout", () => {
     expect(html).toContain("font-mono-var");
   });
 
-  it("gives the skip-link target a scroll margin for the 92 / 72 px sticky header", async () => {
-    const { default: RootLayout } = await import("@/app/layout");
-    const markup = renderToStaticMarkup(RootLayout({ children: null }));
+  it("gives the site pages' skip-link target a scroll margin for the 92 / 72 px sticky header", async () => {
+    const { default: SiteLayout } = await import("@/app/(site)/layout");
+    const markup = renderToStaticMarkup(SiteLayout({ children: null }));
     const target = markup.match(/<[a-z]+[^>]*id="main-content"[^>]*>/)![0];
 
     expect(target).toContain("scroll-mt-24");

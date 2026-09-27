@@ -88,7 +88,7 @@ afterEach(() => {
 });
 
 async function render({ convexAvailable = true } = {}) {
-  const { default: ExpertPage } = await import("@/app/(site)/expert/page");
+  const { default: ExpertPage } = await import("@/app/(app)/expert/page");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
   const page = await ExpertPage();
   await act(async () => {
@@ -111,7 +111,7 @@ describe("/expert page (spec §4 page guard)", () => {
   });
 
   it("has a page title from messages", async () => {
-    const { generateMetadata } = await import("@/app/(site)/expert/page");
+    const { generateMetadata } = await import("@/app/(app)/expert/page");
     expect((await generateMetadata()).title).toBe(t("meta.title"));
   });
 

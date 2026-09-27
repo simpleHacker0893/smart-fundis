@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 async function render() {
-  const { DecisionForm } = await import("@/app/(site)/expert/[assessmentId]/decision-form");
+  const { DecisionForm } = await import("@/app/(app)/expert/[assessmentId]/decision-form");
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en}>

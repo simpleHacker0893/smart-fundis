@@ -108,7 +108,7 @@ afterEach(() => {
 });
 
 async function render(assessmentId = "assessments_1") {
-  const { default: ReviewPage } = await import("@/app/(site)/expert/[assessmentId]/page");
+  const { default: ReviewPage } = await import("@/app/(app)/expert/[assessmentId]/page");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
   const page = await ReviewPage({ params: Promise.resolve({ assessmentId }) });
   await act(async () => {
@@ -128,7 +128,7 @@ describe("/expert/[assessmentId] guard", () => {
   it("protects itself on the server and has a page title", async () => {
     await render();
     expect(state.protect).toHaveBeenCalledTimes(1);
-    const { generateMetadata } = await import("@/app/(site)/expert/[assessmentId]/page");
+    const { generateMetadata } = await import("@/app/(app)/expert/[assessmentId]/page");
     expect((await generateMetadata()).title).toBe(t("meta.title"));
   });
 
@@ -294,7 +294,7 @@ describe("the review detail (US-5.2)", () => {
 
 describe("/expert/[assessmentId] error boundary", () => {
   it("shows the not-available message and the way back when the query throws (a malformed id)", async () => {
-    const { default: ReviewError } = await import("@/app/(site)/expert/[assessmentId]/error");
+    const { default: ReviewError } = await import("@/app/(app)/expert/[assessmentId]/error");
     await act(async () => {
       root.render(
         <NextIntlClientProvider locale={defaultLocale} messages={en}>

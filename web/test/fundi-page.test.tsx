@@ -89,7 +89,7 @@ afterEach(() => {
 });
 
 async function render({ convexAvailable = true } = {}) {
-  const { default: FundiPage } = await import("@/app/(site)/fundi/page");
+  const { default: FundiPage } = await import("@/app/(app)/fundi/page");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
   const page = await FundiPage();
   await act(async () => {
@@ -111,7 +111,7 @@ describe("/fundi page (spec §4 page guard)", () => {
   });
 
   it("has a page title from messages", async () => {
-    const { generateMetadata } = await import("@/app/(site)/fundi/page");
+    const { generateMetadata } = await import("@/app/(app)/fundi/page");
     expect((await generateMetadata()).title).toBe(t("meta.title"));
   });
 

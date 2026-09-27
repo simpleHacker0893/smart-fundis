@@ -133,7 +133,7 @@ afterEach(() => {
 });
 
 async function render() {
-  const { UploadFlow } = await import("@/app/(site)/fundi/upload-flow");
+  const { UploadFlow } = await import("@/app/(app)/fundi/upload-flow");
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en} timeZone="Africa/Nairobi">
