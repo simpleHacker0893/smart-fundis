@@ -11,6 +11,7 @@
 import type * as aiJobs from "../aiJobs.js";
 import type * as assessments from "../assessments.js";
 import type * as contact from "../contact.js";
+import type * as crons from "../crons.js";
 import type * as fundiProfiles from "../fundiProfiles.js";
 import type * as http from "../http.js";
 import type * as lib_aiContract from "../lib/aiContract.js";
@@ -43,6 +44,7 @@ declare const fullApi: ApiFromModules<{
   aiJobs: typeof aiJobs;
   assessments: typeof assessments;
   contact: typeof contact;
+  crons: typeof crons;
   fundiProfiles: typeof fundiProfiles;
   http: typeof http;
   "lib/aiContract": typeof lib_aiContract;
