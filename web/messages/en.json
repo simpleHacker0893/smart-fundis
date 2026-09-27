@@ -1585,5 +1585,52 @@
       "none": "None yet"
     },
     "safetyFlags": "{count, plural, =0 {No safety flags} one {# safety flag} other {# safety flags}}"
+  },
+  "ReviewDetail": {
+    "meta": {
+      "title": "Review an Assessment · Smart Fundis"
+    },
+    "loading": "Loading the Assessment…",
+    "notAvailable": "This Assessment is not available to you. It may have been decided already, or it is not in one of your Trades.",
+    "backToQueue": "Back to the queue",
+    "taskLine": "{trade}: {task}",
+    "uploaded": "Uploaded {date}",
+    "videoTitle": "The Fundi's video",
+    "videoDeleted": "The video has been deleted.",
+    "videoClosed": "The video is only shown while a decision is open.",
+    "decided": "This Assessment is not awaiting a decision any more.",
+    "liveness": {
+      "title": "Liveness code",
+      "shown": "Shown to the Fundi",
+      "read": "Read by the AI",
+      "notRead": "Not read",
+      "result": "Check",
+      "check": {
+        "yes": "Matches",
+        "unclear": "Unclear — check the video yourself",
+        "none": "Not checked"
+      }
+    },
+    "rubricTitle": "Rubric",
+    "safetyItem": "Safety item",
+    "flagged": "Flagged by the AI",
+    "observation": "AI observation: {result}",
+    "result": {
+      "yes": "Yes",
+      "no": "No",
+      "unclear": "Unclear",
+      "none": "No observation"
+    },
+    "at": "At {time} in the video",
+    "ai": {
+      "title": "AI suggestion — you decide",
+      "intro": "The AI recommends. Only your decision creates a Badge.",
+      "verdict": "Suggested verdict: {verdict}",
+      "strengths": "Strengths",
+      "gaps": "Gaps",
+      "feedback": "Feedback the AI wrote for the Fundi",
+      "none": "None",
+      "fallback": "Checked with the backup model"
+    }
   }
 }
