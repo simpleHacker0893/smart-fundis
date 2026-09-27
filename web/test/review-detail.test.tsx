@@ -168,7 +168,7 @@ describe("the review detail (US-5.2)", () => {
     expect(video?.hasAttribute("controls")).toBe(true);
     expect(video?.hasAttribute("playsinline")).toBe(true);
     expect(video?.getAttribute("preload")).toBe("metadata");
-    // W4 (rai minor): defence in depth against casual download/cast, not a guarantee.
+    // Defence in depth against casual download/cast, not a guarantee.
     expect(video?.getAttribute("controlslist")).toBe("nodownload noremoteplayback");
     expect(video?.hasAttribute("disablepictureinpicture")).toBe(true);
     expect(backLink()?.textContent).toBe(t("backToQueue"));
