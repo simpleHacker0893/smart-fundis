@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_standard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-secondary":"#191c1e","tertiary":"#e2e2e9","error":"#ffb4ab","surface-bright":"#38393d","outline-variant":"#474747","on-primary-container":"#000000","surface-dim":"#121317","on-surface":"#e3e2e7","primary-container":"#ffcaa4","secondary-container":"#44474a","surface-container-low":"#1a1b1f","secondary-fixed":"#c4c7ca","tertiary-container":"#8f9097","surface-tint":"#ffb782","on-background":"#e3e2e7","on-secondary-container":"#e0e3e6","on-tertiary-container":"#000000","on-primary-fixed":"#ffffff","tertiary-fixed-dim":"#45474d","inverse-surface":"#e3e2e7","on-primary":"#301400","on-tertiary-fixed-variant":"#e2e2e9","on-primary-fixed-variant":"#ffdcc5","on-surface-variant":"#c6c6c6","secondary-fixed-dim":"#a9abae","on-tertiary-fixed":"#ffffff","surface":"#121317","on-tertiary":"#1a1b21","outline":"#919191","error-container":"#93000a","secondary":"#c4c7ca","primary-fixed-dim":"#703800","inverse-on-surface":"#2f3034","background":"#121317","on-secondary-fixed":"#191c1e","on-error-container":"#ffdad6","surface-container-lowest":"#0d0e12","on-error":"#690005","surface-container":"#1e1f23","tertiary-fixed":"#5d5e64","surface-container-high":"#292a2e","primary-fixed":"#904d0e","primary":"#ffffff","on-secondary-fixed-variant":"#383c3e","inverse-primary":"#904d0e","surface-variant":"#343539","surface-container-highest":"#343539"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{},fontFamily:{headline:["Inter"],display:["Inter"],body:["Inter"],label:["Public Sans"]},fontSize:{}}}}</script></head><body class="bg-surface font-body text-on-surface antialiased"><header class="fixed top-0 w-full z-50 bg-surface-container-lowest border-b border-outline-variant/20"><div class="h-16 max-w-7xl mx-auto px-6 lg:px-12 flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded bg-surface-tint flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">build</span></div><span class="font-headline font-bold text-sm tracking-wider uppercase text-primary">Smart Fundis</span></div><nav class="hidden md:flex items-center gap-8" data-active-classes="text-primary font-bold"><a aria-current="page" class="transition-colors text-primary font-bold" data-path="public-fundi-showcase-profile" href="#">Profile</a><a class="text-sm text-on-surface-variant hover:text-on-surface transition-colors font-label" data-path="trades" href="#">Trades</a><a class="text-sm text-on-surface-variant hover:text-on-surface transition-colors font-label" data-path="company" href="#">Company</a></nav><div class="flex items-center gap-4"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="w-full bg-surface-container-lowest py-8 md:py-12">
+<div class="max-w-7xl mx-auto px-6 lg:px-12">
+<div class="flex flex-col lg:flex-row gap-8 lg:items-start justify-between">
+<div class="flex flex-col sm:flex-row items-start gap-6 max-w-3xl">
+<div class="relative shrink-0">
+<img class="w-28 h-28 sm:w-36 sm:h-36 object-cover rounded-xl shadow-xl" data-alt="Editorial portrait of Wanjiku K, an experienced Kenyan female electrician standing confidently in dark graphite technical overalls with insulated testing tools in Nairobi workshop, ambient studio lighting with warm amber rim light." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBK2Fr8tUEfTOJ67XMmAY5usCFEwVBDKGFrm2dXSBI7wcLRZT_RhPX08Xjfa5To6qvvaT9GNyk82TAdJm7l9oLA9Y99e_20DgH37af32Msdcb8OXJYSsCGtD-DzKxR24bFfgKIMq9Vz3eh29XwUwmDE4VDOnxuYRImZqjBty9aSwTk4b8qwAF6NWsMpEEjwBlaPY3wdp78V5scofQUm9mM7rZTmcQdbYjVYoGF9Oj8nkxCXHPBQVMf9"/>
+<div class="absolute -bottom-2 -right-2 bg-surface-tint text-on-primary rounded-full p-1.5 shadow-lg flex items-center justify-center" title="EPRA Registered Craftsman">
+<span class="material-symbols-outlined text-[18px]" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+</div>
+<div class="flex flex-col gap-2 min-w-0">
+<div class="flex items-center gap-3 flex-wrap">
+<span class="text-[11px] font-label font-bold tracking-[0.2em] uppercase px-2.5 py-1 bg-surface-container-high text-on-surface-variant rounded">ID: SF-77042-NRB</span>
+<span class="flex items-center gap-1 text-[11px] font-label tracking-wider uppercase text-surface-tint">
+<span class="inline-block w-2 h-2 rounded-full bg-surface-tint animate-pulse"></span>
+                Accepting Dispatch
+              </span>
+</div>
+<h1 class="font-headline font-bold text-3xl sm:text-4xl text-primary tracking-tight">Wanjiku K.</h1>
+<p class="font-label text-sm sm:text-base text-on-surface font-medium">Licensed Residential Electrician &amp; Trade Specialist</p>
+<div class="flex items-center gap-2 text-xs text-on-surface-variant font-label">
+<span class="material-symbols-outlined text-[16px] text-outline">location_on</span>
+<span>Nairobi, Kenya • Westlands, Parklands, Kilimani, Lavington</span>
+</div>
+<div class="mt-3 flex items-center gap-3 flex-wrap">
+<div class="flex items-center gap-2 bg-surface-container-high/80 px-3 py-1.5 rounded">
+<span class="material-symbols-outlined text-surface-tint text-[18px]">verified_user</span>
+<span class="text-xs font-label font-semibold text-primary">EPRA Class C1 Licensed</span>
+</div>
+<div class="flex items-center gap-2 bg-surface-container-high/80 px-3 py-1.5 rounded">
+<span class="material-symbols-outlined text-outline text-[18px]">schedule</span>
+<span class="text-xs font-label text-on-surface-variant">Avg. Response: &lt; 28 min</span>
+</div>
+</div>
+</div>
+</div>
+<div class="flex flex-col sm:flex-row lg:flex-col gap-3 shrink-0 sm:w-auto w-full">
+<button class="w-full sm:w-64 h-12 bg-surface-tint text-on-primary font-label font-bold uppercase tracking-wider text-xs rounded hover:opacity-95 transition-opacity flex items-center justify-center gap-2 shadow-lg" onclick="document.getElementById('contact-dialog').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">call</span>
+            Contact Wanjiku
+          </button>
+<button class="w-full sm:w-64 h-12 bg-surface-container-high hover:bg-surface-variant text-on-surface font-label font-medium uppercase tracking-wider text-xs rounded transition-colors flex items-center justify-center gap-2" onclick="document.getElementById('share-modal').classList.remove('hidden')">
+<span class="material-symbols-outlined text-[18px]">qr_code_2</span>
+            Share Profile / QR Card
+          </button>
+</div>
+</div>
+<div class="mt-8 bg-surface-container-high p-4 sm:p-5 rounded-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+<div class="flex items-center gap-4">
+<div class="w-10 h-10 rounded bg-surface-tint/15 flex items-center justify-center text-surface-tint shrink-0">
+<span class="material-symbols-outlined text-[24px]">shield_with_heart</span>
+</div>
+<div>
+<div class="font-headline font-bold text-xs uppercase tracking-widest text-surface-tint">Smart Fundis Precision Guarantee</div>
+<div class="text-xs sm:text-sm text-on-surface-variant mt-0.5">Skill authenticated via AI analysis &amp; peer review by Board Registered Electrical Engineers. EPRA safe work standard.</div>
+</div>
+</div>
+<div class="flex items-center gap-6 shrink-0 font-label text-xs">
+<div class="text-right">
+<div class="text-primary font-bold text-sm">48 / 48</div>
+<div class="text-outline uppercase text-[10px] tracking-wider">Audited Jobs</div>
+</div>
+<div class="text-right">
+<div class="text-primary font-bold text-sm">0 Incidents</div>
+<div class="text-outline uppercase text-[10px] tracking-wider">Safety Record</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<div class="max-w-7xl mx-auto px-6 lg:px-12 py-12 w-full flex flex-col gap-16">
+<section class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label text-xs uppercase tracking-[0.25em] text-outline font-bold">Verification Evidence</span>
+<h2 class="font-headline font-bold text-xl sm:text-2xl text-primary mt-1">Peer-Reviewed Field Credentials</h2>
+</div>
+<span class="text-xs font-label text-on-surface-variant hidden sm:inline-block">Tamper-evident operational register</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="bg-surface-container-lowest p-6 rounded-lg flex flex-col justify-between gap-6 shadow-md hover:bg-surface-container-low transition-colors">
+<div class="flex flex-col gap-4">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="p-2 rounded bg-surface-container text-surface-tint">
+<span class="material-symbols-outlined text-[22px]">electrical_services</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-base text-primary">13A Twin Switched Socket-Outlet Installation</h3>
+<p class="text-xs text-on-surface-variant font-label mt-0.5">BS 1363 Standard • Ring Final Circuit Termination</p>
+</div>
+</div>
+<span class="bg-surface-container-high text-surface-tint text-[10px] font-label font-bold px-2 py-1 rounded uppercase tracking-wider shrink-0">Audited</span>
+</div>
+<div class="bg-surface-container p-4 rounded text-xs font-label flex flex-col gap-2">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Field Reviewer:</span>
+<span class="text-primary font-medium">Eng. David Mwangi, PE</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Verification Timestamp:</span>
+<span class="text-primary">25 Sep 2026 • 14:32 EAT</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Earth Continuity &amp; Loop Impedance:</span>
+<span class="text-surface-tint font-bold">0.18 Ω (Within Limit)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">videocam</span>
+<span>4K Micro-Audit Timestamped Clip</span>
+</div>
+<button class="text-xs font-label uppercase tracking-wider text-surface-tint hover:underline flex items-center gap-1 font-bold" onclick="openAuditModal('socket')">
+              View Audit Record →
+            </button>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-6 rounded-lg flex flex-col justify-between gap-6 shadow-md hover:bg-surface-container-low transition-colors">
+<div class="flex flex-col gap-4">
+<div class="flex items-start justify-between gap-4">
+<div class="flex items-center gap-3">
+<div class="p-2 rounded bg-surface-container text-surface-tint">
+<span class="material-symbols-outlined text-[22px]">developer_board</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-base text-primary">Consumer Unit Breaker Replacement &amp; RCD Testing</h3>
+<p class="text-xs text-on-surface-variant font-label mt-0.5">IEC 61008-1 compliant 30mA Trip Calibration</p>
+</div>
+</div>
+<span class="bg-surface-container-high text-surface-tint text-[10px] font-label font-bold px-2 py-1 rounded uppercase tracking-wider shrink-0">Audited</span>
+</div>
+<div class="bg-surface-container p-4 rounded text-xs font-label flex flex-col gap-2">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Field Reviewer:</span>
+<span class="text-primary font-medium">Eng. Sarah O. (EPRA Inspector)</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Verification Timestamp:</span>
+<span class="text-primary">12 Aug 2026 • 09:14 EAT</span>
+</div>
+<div class="flex justify-between items-center text-on-surface-variant">
+<span>Residual Current Break Time:</span>
+<span class="text-surface-tint font-bold">24 ms (Spec: &lt; 40 ms)</span>
+</div>
+</div>
+</div>
+<div class="flex items-center justify-between pt-2">
+<div class="flex items-center gap-1.5 text-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[16px] text-surface-tint">videocam</span>
+<span>Busbar Torque Inspection Record</span>
+</div>
+<button class="text-xs font-label uppercase tracking-wider text-surface-tint hover:underline flex items-center gap-1 font-bold" onclick="openAuditModal('breaker')">
+              View Audit Record →
+            </button>
+</div>
+</div>
+</div>
+</section>
+<section class="flex flex-col gap-6">
+<div class="flex items-center justify-between">
+<div>
+<span class="font-label text-xs uppercase tracking-[0.25em] text-outline font-bold">Field Execution</span>
+<h2 class="font-headline font-bold text-xl sm:text-2xl text-primary mt-1">Recent Completed Work</h2>
+</div>
+<span class="text-xs font-label text-on-surface-variant">All sites verified on handover</span>
+</div>
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-md flex flex-col group">
+<div class="h-56 relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Close up photograph of a cleanly organized modern electrical consumer panel with labeled miniature circuit breakers and neatly bundled wires inside a luxury apartment in Westlands Nairobi." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDrWtxKDCg0XCTpxuI98SAfN-RYLuEQsfgoCaGv3iOG7ynmC6363INMkOiKZtdMKsUkW-yGDv05qq2kqrQYYFOmEyaxXp04vw0oKpO05dbHs1tf-QaNkuvjx-NS8ObqSUqty9EamcjMRszQxIKPZMX0YiqGSLP_dth-6hMU3_VEJDqZ90lIBykbIRx153jhvtMRZpCsHQ7SFw83sUWqRxHj3O3K7ZA7ky_bHJanDZ2F2mbENhIAHczA"/>
+<span class="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur text-primary text-[11px] font-label uppercase px-2.5 py-1 rounded">Westlands, Nairobi</span>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<h4 class="font-headline font-bold text-sm text-primary">3-Phase Distribution Board Clean-Up &amp; Rewiring</h4>
+<p class="text-xs text-on-surface-variant line-clamp-2">Complete replacement of degraded fuse-box with modern Schneider Electric MCBs and Type 2 surge arrester for a duplex penthouse.</p>
+<div class="mt-2 pt-3 border-t border-outline-variant/20 flex items-center justify-between text-[11px] font-label text-outline">
+<span>Completed Oct 2026</span>
+<span class="text-primary font-bold">KES 32,500</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-md flex flex-col group">
+<div class="h-56 relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Interior architectural photo showing flush-mounted matte black electrical switches and concealed LED cove lighting in a renovated modern living room in Kilimani." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBn9NFCM8OD28LmD1BL9aYtxKYtwBuxgRF3F5jWfnzOiEFDA11rvK5XiyNTMwrrCjpJWyHd7-IMlcLCBmuA3lpAT1YpuP-WFy1qfrR7QGQ-F421UR_O-i9WX3MK1VtczZEdpBI2PGJw-TFk0DPFvuuD99HAn_G-Z9EKeOmkvUDLXPhYluHuhYxG4RYlYzUYzhKahlYD903fKzDG3WJHPiAi6HqSLQZ0dXFkfhJwYr-_b__o6Hjir4bg"/>
+<span class="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur text-primary text-[11px] font-label uppercase px-2.5 py-1 rounded">Kilimani, Nairobi</span>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<h4 class="font-headline font-bold text-sm text-primary">Architectural Switchgear &amp; Dimmable Circuit Install</h4>
+<p class="text-xs text-on-surface-variant line-clamp-2">Chasing, trunking, and installing 18 decorative flush points with smart dimmers and dedicated high-draw AC circuits.</p>
+<div class="mt-2 pt-3 border-t border-outline-variant/20 flex items-center justify-between text-[11px] font-label text-outline">
+<span>Completed Sep 2026</span>
+<span class="text-primary font-bold">KES 24,000</span>
+</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest rounded-lg overflow-hidden shadow-md flex flex-col group">
+<div class="h-56 relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" data-alt="Technical setup photo of heavy duty inverter connection cables, copper grounding rod and automatic changeover switch in a utility room in Parklands Nairobi." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCLqv3ejc8Psfa_xWavA5tY21Lg6keu0ie3ofA0YXLTQ3NnmOOXEaS54TzDbSMlbiICdiKa54ZBFNU6-7svAzqDTWUVylaracebiUQwBpZwSsQCoTYvCfIleu6DKL2kQy2a30Bb9d-QQXjbY1kqA3IF1w5ehbQVrGV9Vn9onl4bRT3pNDMs3N6TbBaD-6sL42-5eLLwYnkgEvUHUn_Cy3bs8J20NFG4dAs1RuUV0KvnNnoAn3jwXkHw"/>
+<span class="absolute top-3 left-3 bg-surface-container-lowest/90 backdrop-blur text-primary text-[11px] font-label uppercase px-2.5 py-1 rounded">Parklands, Nairobi</span>
+</div>
+<div class="p-5 flex flex-col gap-2">
+<h4 class="font-headline font-bold text-sm text-primary">Inverter Backup &amp; Auto-Changeover Integration</h4>
+<p class="text-xs text-on-surface-variant line-clamp-2">Installation of 5kVA hybrid backup system with dedicated critical load busbar and earthing spike testing down to 4.2 ohms.</p>
+<div class="mt-2 pt-3 border-t border-outline-variant/20 flex items-center justify-between text-[11px] font-label text-outline">
+<span>Completed Aug 2026</span>
+<span class="text-primary font-bold">KES 48,000</span>
+</div>
+</div>
+</div>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<section class="lg:col-span-7 flex flex-col gap-6">
+<div>
+<span class="font-label text-xs uppercase tracking-[0.25em] text-outline font-bold">Scope &amp; Pricing</span>
+<h2 class="font-headline font-bold text-xl sm:text-2xl text-primary mt-1">Standard Rates &amp; Service Units</h2>
+<p class="text-xs text-on-surface-variant mt-1 font-label">Transparent baseline tariffs. Exact material costs quoted on-site prior to work commencement.</p>
+</div>
+<div class="flex flex-col gap-3">
+<div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between gap-4 shadow-sm hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-surface-tint mt-0.5">speed</span>
+<div>
+<h4 class="font-headline font-bold text-sm text-primary">Diagnostic &amp; Safety Inspection</h4>
+<p class="text-xs text-on-surface-variant font-label mt-0.5">Comprehensive insulation resistance test, thermal load scan, earth continuity check.</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<div class="font-bold text-primary text-base font-label">KES 3,500</div>
+<div class="text-[10px] text-outline uppercase font-label">Per Visit</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between gap-4 shadow-sm hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-surface-tint mt-0.5">power</span>
+<div>
+<h4 class="font-headline font-bold text-sm text-primary">Power Socket &amp; Switch Replacement</h4>
+<p class="text-xs text-on-surface-variant font-label mt-0.5">Labor for removing faulty unit, continuity verify, termination to standard.</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<div class="font-bold text-primary text-base font-label">KES 800</div>
+<div class="text-[10px] text-outline uppercase font-label">Per Point (Min 3)</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between gap-4 shadow-sm hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-surface-tint mt-0.5">bolt</span>
+<div>
+<h4 class="font-headline font-bold text-sm text-primary">Emergency Tripping Fault Isolation</h4>
+<p class="text-xs text-on-surface-variant font-label mt-0.5">Immediate dispatch for dead shorts, burnt breaker units, water ingress fault finding.</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<div class="font-bold text-primary text-base font-label">KES 4,500</div>
+<div class="text-[10px] text-outline uppercase font-label">First 2 Hours</div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg flex items-center justify-between gap-4 shadow-sm hover:bg-surface-container-low transition-colors">
+<div class="flex items-start gap-4">
+<span class="material-symbols-outlined text-surface-tint mt-0.5">lightbulb</span>
+<div>
+<h4 class="font-headline font-bold text-sm text-primary">Complete Cooker / Instant Shower Dedicated Line</h4>
+<p class="text-xs text-on-surface-variant font-label mt-0.5">Independent 4mm/6mm² run from consumer unit with 32A/45A double-pole isolator switch.</p>
+</div>
+</div>
+<div class="text-right shrink-0">
+<div class="font-bold text-primary text-base font-label">KES 6,500</div>
+<div class="text-[10px] text-outline uppercase font-label">Labor Only</div>
+</div>
+</div>
+</div>
+</section>
+<section class="lg:col-span-5 flex flex-col gap-6">
+<div>
+<span class="font-label text-xs uppercase tracking-[0.25em] text-outline font-bold">Client Verification</span>
+<h2 class="font-headline font-bold text-xl sm:text-2xl text-primary mt-1">Authenticated Reviews</h2>
+<p class="text-xs text-on-surface-variant mt-1 font-label">Only registered homeowners and property managers who paid via escrow.</p>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-surface-container-lowest p-5 rounded-lg flex flex-col gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-primary font-headline">Dr. Kamau N.</span>
+<span class="text-[10px] font-label uppercase px-2 py-0.5 bg-surface-container text-surface-tint rounded">Verified Property Owner</span>
+</div>
+<div class="flex text-surface-tint text-sm">
+                ★★★★★
+              </div>
+</div>
+<p class="text-xs text-on-surface leading-relaxed font-body">"Wanjiku resolved a persistent neutral wire ground fault that two previous electricians failed to diagnose. She arrived equipped with a calibrated Fluke multifunction tester and systematically showed me every reading."</p>
+<div class="text-[11px] font-label text-outline flex items-center justify-between">
+<span>Kilimani Residential Flat</span>
+<span>18 Oct 2026</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg flex flex-col gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-primary font-headline">Grace Muthoni</span>
+<span class="text-[10px] font-label uppercase px-2 py-0.5 bg-surface-container text-surface-tint rounded">Verified Property Owner</span>
+</div>
+<div class="flex text-surface-tint text-sm">
+                ★★★★★
+              </div>
+</div>
+<p class="text-xs text-on-surface leading-relaxed font-body">"Punctual, tidy, and extremely methodical. Replaced our entire 12-way consumer unit without disrupting remote work upstairs. Clean labels on every breaker."</p>
+<div class="text-[11px] font-label text-outline flex items-center justify-between">
+<span>Lavington Townhouse</span>
+<span>04 Sep 2026</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-5 rounded-lg flex flex-col gap-3 shadow-sm">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="font-bold text-sm text-primary font-headline">Hassan A.</span>
+<span class="text-[10px] font-label uppercase px-2 py-0.5 bg-surface-container text-surface-tint rounded">Building Supervisor</span>
+</div>
+<div class="flex text-surface-tint text-sm">
+                ★★★★★
+              </div>
+</div>
+<p class="text-xs text-on-surface leading-relaxed font-body">"Top tier standard. The peer audit report generated on the Smart Fundis platform gave our facility committee complete peace of mind."</p>
+<div class="text-[11px] font-label text-outline flex items-center justify-between">
+<span>Parklands Commercial Plaza</span>
+<span>29 Jul 2026</span>
+</div>
+</div>
+</div>
+</section>
+</div>
+</div>
+<div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4" id="audit-modal">
+<div class="bg-surface-container-lowest max-w-2xl w-full rounded-xl p-6 sm:p-8 flex flex-col gap-6 relative shadow-2xl">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded bg-surface-tint/20 text-surface-tint flex items-center justify-center">
+<span class="material-symbols-outlined text-[20px]">verified</span>
+</div>
+<div>
+<h3 class="font-headline font-bold text-lg text-primary" id="modal-title">Audit Record</h3>
+<p class="text-xs text-on-surface-variant font-label" id="modal-subtitle">Verified Record Timestamped by Smart Fundis Protocol</p>
+</div>
+</div>
+<button class="text-on-surface-variant hover:text-primary" onclick="document.getElementById('audit-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="bg-surface-container rounded-lg p-4 flex flex-col gap-3">
+<div class="aspect-video w-full bg-surface-container-high rounded flex items-center justify-center relative overflow-hidden group">
+<img class="w-full h-full object-cover" data-alt="First-person point-of-view macro video freeze-frame of an electrician in protective insulated gloves tightening a neutral screw terminal on an electrical socket with a calibrated torque screwdriver, digital multimeter visible in background." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA3a5XY2fhgWP9sUz-zUql48c_aVEqDknPjzUrtKQik6lN3AUA4hQ4Ex3eTAH4RLIi7vaxeRS7PcoIRTsHUM3d042YNUXRBWI947rU7AbscbDXxReLIDnUnJZeTcISmyWCOqxXzGuXJSJgusjiMcNATfKcbLca_TdsBPfqTrT5uO6at20CWI9qQT8DNfbCvGdOIgFDjraYep9lJonO8r5y5bZjjWS9O4zYc-spZNS2oZqlnOz3oifA1"/>
+<div class="absolute inset-0 bg-black/40 flex items-center justify-center">
+<div class="w-12 h-12 rounded-full bg-surface-tint text-on-primary flex items-center justify-center shadow-lg cursor-pointer">
+<span class="material-symbols-outlined text-[24px]">play_arrow</span>
+</div>
+</div>
+<span class="absolute bottom-3 left-3 bg-surface-container-lowest/80 text-[11px] font-label px-2 py-0.5 rounded text-primary">Audit Feed: 00:48 / 02:15 • 1080p 60fps</span>
+</div>
+<div class="grid grid-cols-2 gap-4 text-xs font-label mt-2">
+<div class="bg-surface-container-lowest p-3 rounded">
+<div class="text-outline uppercase text-[10px]">Verification Signature</div>
+<div class="font-mono text-primary truncate mt-1">0x8F9B2C4E1...A72</div>
+</div>
+<div class="bg-surface-container-lowest p-3 rounded">
+<div class="text-outline uppercase text-[10px]">EPRA Compliance Level</div>
+<div class="text-surface-tint font-bold mt-1">Class C1 Compliant</div>
+</div>
+</div>
+</div>
+<div class="flex justify-end">
+<button class="px-5 h-10 bg-surface-container-high hover:bg-surface-variant text-on-surface font-label uppercase tracking-wider text-xs rounded transition-colors" onclick="document.getElementById('audit-modal').classList.add('hidden')">
+          Close Evidence Viewer
+        </button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4" id="share-modal">
+<div class="bg-surface-container-lowest max-w-sm w-full rounded-xl p-6 flex flex-col items-center gap-6 relative shadow-2xl text-center">
+<div class="flex justify-between items-center w-full">
+<span class="text-xs font-label uppercase tracking-widest text-outline">Verified Profile Card</span>
+<button class="text-on-surface-variant hover:text-primary" onclick="document.getElementById('share-modal').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="bg-white p-4 rounded-lg shadow-inner">
+<svg class="w-44 h-44 text-black" fill="currentColor" viewbox="0 0 100 100">
+<path d="M0,0 h30 v30 h-30 z M10,10 h10 v10 h-10 z M70,0 h30 v30 h-30 z M80,10 h10 v10 h-10 z M0,70 h30 v30 h-30 z M10,80 h10 v10 h-10 z M40,10 h10 v10 h-10 z M50,30 h10 v10 h-10 z M30,50 h20 v10 h-20 z M60,60 h10 v20 h-10 z M70,70 h20 v10 h-20 z M80,40 h10 v20 h-10 z M40,80 h15 v15 h-15 z M60,40 h10 v10 h-10 z"></path>
+</svg>
+</div>
+<div class="flex flex-col gap-1">
+<div class="font-headline font-bold text-primary text-base">Wanjiku K.</div>
+<div class="text-xs text-on-surface-variant font-label">smartfundis.ke/p/wanjiku-k</div>
+<div class="text-[11px] text-surface-tint font-label font-bold mt-1">EPRA Class C1 Verified Craftsman</div>
+</div>
+<div class="w-full flex gap-3">
+<button class="flex-1 h-11 bg-surface-tint text-on-primary font-label text-xs uppercase font-bold tracking-wider rounded hover:opacity-90" onclick="navigator.clipboard?.writeText(window.location.href); alert('Profile URL copied to clipboard!');">
+          Copy Link
+        </button>
+<button class="flex-1 h-11 bg-surface-container-high text-on-surface font-label text-xs uppercase font-medium tracking-wider rounded" onclick="document.getElementById('share-modal').classList.add('hidden')">
+          Done
+        </button>
+</div>
+</div>
+</div>
+<div class="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm hidden flex items-center justify-center p-4" id="contact-dialog">
+<div class="bg-surface-container-lowest max-w-md w-full rounded-xl p-6 sm:p-8 flex flex-col gap-6 relative shadow-2xl">
+<div class="flex justify-between items-start">
+<div>
+<span class="text-[11px] font-label uppercase tracking-widest text-surface-tint font-bold">Instant Dispatch Call</span>
+<h3 class="font-headline font-bold text-xl text-primary mt-1">Connect with Wanjiku</h3>
+</div>
+<button class="text-on-surface-variant hover:text-primary" onclick="document.getElementById('contact-dialog').classList.add('hidden')">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<div class="flex flex-col gap-4">
+<div class="bg-surface-container p-4 rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-surface-tint text-[22px]">phone_in_talk</span>
+<div>
+<div class="text-xs font-label text-outline uppercase">Direct Phone Line</div>
+<div class="font-headline font-bold text-sm text-primary">+254 712 849 201</div>
+</div>
+</div>
+<a class="px-3 py-1.5 bg-surface-tint text-on-primary text-xs font-label font-bold uppercase rounded" href="tel:+254712849201">Call</a>
+</div>
+<div class="bg-surface-container p-4 rounded-lg flex items-center justify-between">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-surface-tint text-[22px]">chat</span>
+<div>
+<div class="text-xs font-label text-outline uppercase">WhatsApp Dispatch</div>
+<div class="font-headline font-bold text-sm text-primary">Direct Verified Chat</div>
+</div>
+</div>
+<a class="px-3 py-1.5 bg-surface-container-high text-primary hover:bg-surface-variant text-xs font-label font-bold uppercase rounded" href="https://wa.me/254712849201" rel="noopener noreferrer" target="_blank">Message</a>
+</div>
+<div class="bg-surface-container-high/50 p-3 rounded text-[11px] font-label text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-surface-tint text-[16px]">lock</span>
+<span>Calls placed via Smart Fundis are covered by our Service Quality Guarantee.</span>
+</div>
+</div>
+</div>
+</div>
+<script>
+    function openAuditModal(type) {
+      const modal = document.getElementById('audit-modal');
+      const title = document.getElementById('modal-title');
+      const subtitle = document.getElementById('modal-subtitle');
+      
+      if (type === 'socket') {
+        title.innerText = '13A Twin Socket-Outlet Installation Audit';
+        subtitle.innerText = 'Verified 25 Sep 2026 by Eng. David Mwangi, PE';
+      } else {
+        title.innerText = 'Consumer Unit Breaker Replacement Audit';
+        subtitle.innerText = 'Verified 12 Aug 2026 by Eng. Sarah O. (EPRA)';
+      }
+      
+      modal.classList.remove('hidden');
+    }
+  </script>
+</div></main><footer class="w-full bg-surface-container-lowest border-t border-outline-variant/20 py-8"><div class="max-w-7xl mx-auto px-6 lg:px-12 flex flex-col md:flex-row items-center justify-between gap-4 text-xs font-label text-outline"><div class="flex items-center gap-2"><span class="text-primary font-bold uppercase tracking-wider">Smart Fundis</span><span>— Precision Instrument Network</span></div><div>Tabular verification platform. Verified operational records.</div></div></footer></body></html>
