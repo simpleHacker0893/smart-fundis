@@ -26,6 +26,7 @@ const state = vi.hoisted(() => ({
   isAuthenticated: true,
   me: undefined as unknown,
   list: [] as unknown[],
+  myProfile: undefined as unknown,
   queryArgs: [] as unknown[],
   calls: [] as { name: string; args: unknown }[],
   replace: vi.fn(),
@@ -51,6 +52,7 @@ vi.mock("convex/react", async () => {
       if (args === "skip") return undefined;
       if (name === "users:me") return state.me;
       if (name === "assessments:listMine") return state.list;
+      if (name === "fundiProfiles:myProfileId") return state.myProfile;
       return others[name];
     },
     useMutation: () => vi.fn(),
@@ -72,6 +74,7 @@ beforeEach(() => {
   state.isAuthenticated = true;
   state.me = undefined;
   state.list = [];
+  state.myProfile = undefined;
   state.queryArgs = [];
   state.calls = [];
   state.replace.mockReset();
@@ -215,6 +218,7 @@ describe("/fundi page (spec §4 page guard)", () => {
       "trades:uploadPicker",
       "assessments:currentLivenessCode",
       "fundiProfiles:myShowcaseLinks",
+      "fundiProfiles:myProfileId",
     ];
     expect(state.calls.filter((c) => fundiOnly.includes(c.name) && c.args !== "skip")).toEqual([]);
   });
@@ -236,5 +240,42 @@ describe("/fundi page (spec §4 page guard)", () => {
     await render({ convexAvailable: false });
     expect(container.textContent).toContain(t("unavailable"));
     expect(state.replace).not.toHaveBeenCalled();
+  });
+});
+
+describe("/fundi link to the public profile (#42)", () => {
+  const FUNDI = () => ({ user: USER, roles: roles({ base: "fundi" }) });
+  const link = () => container.querySelector<HTMLAnchorElement>('a[href^="/f/"]');
+
+  it("links a Listed Fundi to /f/<their profile id> with a 48 px tap target, under the heading", async () => {
+    state.me = FUNDI();
+    state.myProfile = { id: "fundiProfiles_7", publicListing: true };
+    await render();
+    expect(state.calls).toContainEqual({ name: "fundiProfiles:myProfileId", args: {} });
+    expect(link()?.getAttribute("href")).toBe("/f/fundiProfiles_7");
+    expect(link()?.textContent).toBe(t("publicProfile.link"));
+    expect(link()?.className).toContain("min-h-12");
+    expect(container.querySelector("h1")?.nextElementSibling?.contains(link())).toBe(true);
+    expect(container.textContent).not.toContain(t("publicProfile.hidden"));
+  });
+
+  it("says the profile is hidden, with no link, when publicListing is off", async () => {
+    state.me = FUNDI();
+    state.myProfile = { id: "fundiProfiles_7", publicListing: false };
+    await render();
+    expect(link()).toBeNull();
+    expect(container.textContent).toContain(t("publicProfile.hidden"));
+  });
+
+  it.each([
+    ["loading", undefined],
+    ["null", null],
+  ])("renders neither the link nor the line while %s", async (_label, value) => {
+    state.me = FUNDI();
+    state.myProfile = value;
+    await render();
+    expect(link()).toBeNull();
+    expect(container.textContent).not.toContain(t("publicProfile.hidden"));
+    expect(container.textContent).not.toContain(t("publicProfile.link"));
   });
 });
