@@ -55,6 +55,23 @@ export const MAX_VIDEO_BYTES = 100 * 1024 * 1024;
  */
 export const LIVENESS_CODE_TTL_MS = 2 * 60 * 60 * 1000;
 
+/** The longest clip name assessments.create stores, in characters (#40). */
+export const MAX_CLIP_NAME_LENGTH = 200;
+
+/**
+ * The clip's file name as assessments.create stores it (#40), or undefined
+ * for none. Trimmed; a blank name is none. A name longer than
+ * MAX_CLIP_NAME_LENGTH is truncated, not rejected: the name is a hint for the
+ * stub worker, never a reason to refuse a video. Counts code points, not
+ * UTF-16 units, so truncation can't split a surrogate pair into an invalid
+ * string (Convex stores valid Unicode only).
+ */
+export function normalizeClipName(name: string | undefined): string | undefined {
+  if (name === undefined) return undefined;
+  const clipped = Array.from(name.trim()).slice(0, MAX_CLIP_NAME_LENGTH).join("").trimEnd();
+  return clipped === "" ? undefined : clipped;
+}
+
 /** The metadata assessments.create reads from the `_storage` system table. */
 export type StoredFileMetadata = { size: number; contentType?: string };
 

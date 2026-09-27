@@ -83,6 +83,8 @@ export function RecordStep({
         consentVersion: CONSENT_VERSION,
         livenessCode,
         ...(task.needsClientConsent ? { clientConsent: true } : {}),
+        // The clip's own name (#40): the V1 stub worker reads it; the server trims and caps it.
+        ...(file.name ? { clipName: file.name } : {}),
       });
       if (result.ok) {
         onDone();
