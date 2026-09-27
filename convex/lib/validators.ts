@@ -42,14 +42,17 @@ export const observationValidator = v.object({
   evidence: v.string(),
   timestampS: v.number(),
 });
+export type Observation = Infer<typeof observationValidator>;
 
 export const verdictValidator = v.union(
   v.literal("pass"),
   v.literal("needs_review"),
   v.literal("fail"),
 );
+export type Verdict = Infer<typeof verdictValidator>;
 
 export const livenessCheckValidator = v.union(v.literal("yes"), v.literal("unclear"));
+export type LivenessCheck = Infer<typeof livenessCheckValidator>;
 
 /** Why the video-quality guard asked for a new video (spec §6 `reshoot` callback). */
 export const reshootReasonValidator = v.object({
@@ -60,7 +63,8 @@ export const reshootReasonValidator = v.object({
     v.literal("too_dark"),
   ),
   en: v.string(),
-  sw: v.string(),
+  // Optional: English only for now (D-64). The V2 pipeline may send it.
+  sw: v.optional(v.string()),
 });
 
 export const reviewKindValidator = v.union(

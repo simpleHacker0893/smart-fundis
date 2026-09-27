@@ -135,7 +135,8 @@ export default defineSchema({
     feedbackSw: v.optional(v.string()),
     model: v.optional(v.string()),
     latencyMs: v.optional(v.number()),
-    fallbackModel: v.optional(v.string()),
+    // True when the worker used the 2B fallback model (spec §3, US-4.6).
+    fallbackModel: v.optional(v.boolean()),
     // Appeal
     appealReason: v.optional(v.string()),
     // Kept for later: always "none" until the Pilot
