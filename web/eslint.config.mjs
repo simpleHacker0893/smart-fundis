@@ -13,7 +13,7 @@ const eslintConfig = defineConfig([
     },
   },
   {
-    // W7 (quality minor 2): an underscore prefix marks a deliberately unused
+    // An underscore prefix marks a deliberately unused
     // arg or var (a required Next.js error-boundary prop, a test stub), so
     // it should not warn.
     rules: {

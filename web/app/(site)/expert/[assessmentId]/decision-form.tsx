@@ -102,7 +102,7 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
           maxLength={NOTE_MAX_LENGTH}
           required={noteRequired}
           aria-invalid={noteInvalid ? true : undefined}
-          aria-describedby={`${id}-note-hint`}
+          aria-describedby={noteInvalid ? `${id}-note-hint ${id}-error` : `${id}-note-hint`}
           rows={4}
           className={`${FIELD} py-3`}
         />
@@ -119,8 +119,8 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
       </div>
 
       {error ? (
-        <p role="alert" className="text-base text-primary">
-          {error === "choice" ? t("choiceRequired") : t(DECIDE_ERRORS[error])}
+        <p id={`${id}-error`} role="alert" className="text-base text-primary">
+          {error === "choice" ? t("choiceRequired") : t(DECIDE_ERRORS[error], { max: NOTE_MAX_LENGTH })}
         </p>
       ) : null}
 

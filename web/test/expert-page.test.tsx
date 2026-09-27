@@ -63,7 +63,6 @@ const row = (over: object = {}) => ({
   tradeName: "Electrical",
   taskSlug: "13a-socket",
   taskName: "Install a 13A socket",
-  verdict: "pass",
   safetyFlagCount: 0,
   ...over,
 });
@@ -177,11 +176,10 @@ describe("the Expert queue (US-5.1)", () => {
         tradeName: "Hairdressing",
         taskSlug: "cornrows",
         taskName: "Cornrows",
-        verdict: "needs_review",
         safetyFlagCount: 2,
       }),
-      row({ assessmentId: "a3", verdict: "fail", safetyFlagCount: 1 }),
-      row({ assessmentId: "a4", verdict: undefined }),
+      row({ assessmentId: "a3", safetyFlagCount: 1 }),
+      row({ assessmentId: "a4" }),
     ];
     await render();
     const r = rows();
@@ -195,9 +193,9 @@ describe("the Expert queue (US-5.1)", () => {
     expect(r[0].textContent).toContain(`${en.TradeCatalogue.electrical.name}: ${en.Rubrics["13a-socket"].name}`);
     expect(r[1].textContent).toContain(`${en.TradeCatalogue.hairdressing.name}: ${en.Rubrics.cornrows.name}`);
     expect(r[0].textContent).toContain("Sep 20, 2026");
-    // W2 (rai major, automation bias): the queue row never names the AI's
-    // recommendation, only the safety-flag count. The labelled AI suggestion
-    // panel lives on the detail view instead.
+    // Automation bias: the queue row never names the AI's recommendation,
+    // only the safety-flag count. The labelled AI suggestion panel lives on
+    // the detail view instead.
     for (const row of r) {
       expect(row.textContent).not.toMatch(/AI suggestion/i);
       for (const verdict of Object.values(en.ReviewQueue.verdict)) expect(row.textContent).not.toContain(verdict);

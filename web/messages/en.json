@@ -1563,7 +1563,7 @@
       "forbidden": "You can't decide this Assessment. It may be your own, or not in one of your Trades.",
       "invalid_status": "This Assessment has already been decided, so there is nothing to do here.",
       "note_required": "Write a note to the Fundi to request a reshoot or to reject.",
-      "note_too_long": "The note is too long. Keep it to 1000 characters.",
+      "note_too_long": "The note is too long. Keep it to {max} characters.",
       "unexpected": "Your decision was not saved. Check your connection and try again."
     }
   },
