@@ -161,7 +161,7 @@ async function statusOf(id: Id<"assessments">) {
 }
 
 describe("reviews.queue", () => {
-  it("lists awaiting_review Assessments in the Expert's approved Trades, oldest first, with the AI recommendation", async () => {
+  it("lists awaiting_review Assessments in the Expert's approved Trades, oldest first, without the AI recommendation", async () => {
     await makeFundi(WANJIRU);
     await makeFundi(OTIENO);
     await makeExpert(AMINA, ["electrical"]);
@@ -177,12 +177,13 @@ describe("reviews.queue", () => {
       tradeName: "Electrical",
       taskSlug: "13a-socket",
       taskName: "Install a 13A socket",
-      verdict: "needs_review",
       safetyFlagCount: 1,
     });
     expect(queue[0]._creationTime).toBeLessThan(queue[1]._creationTime);
-    // A list row carries no video and no phone.
+    // A list row carries no video, no phone and no AI Verdict (automation bias:
+    // the Verdict is shown only on the detail page, labelled a suggestion).
     for (const row of queue) {
+      expect(row).not.toHaveProperty("verdict");
       expect(row).not.toHaveProperty("videoUrl");
       expect(row).not.toHaveProperty("videoStorageId");
       expect(row).not.toHaveProperty("phone");
@@ -253,7 +254,6 @@ describe("reviews.detail", () => {
       taskSlug: "13a-socket",
       taskName: "Install a 13A socket",
       verdict: "needs_review",
-      confidence: 0.7,
       strengths: ["Neat wiring"],
       gaps: ["Test the socket"],
       livenessCheck: "yes",
@@ -268,6 +268,8 @@ describe("reviews.detail", () => {
     expect(detail?.livenessRead).toBe(detail?.livenessCode);
     expect(detail).not.toHaveProperty("phone");
     expect(detail).not.toHaveProperty("fundiUserId");
+    // The Expert never sees the AI's confidence number, so it never leaves the server.
+    expect(detail).not.toHaveProperty("confidence");
   });
 
   it("returns a null video URL once the video is deleted", async () => {
