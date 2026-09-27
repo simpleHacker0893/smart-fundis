@@ -414,3 +414,60 @@ describe("fundiProfiles.setShowcaseLinks and myShowcaseLinks", () => {
     expect(await otieno.query(api.fundiProfiles.myShowcaseLinks, {})).toMatchObject({ youtube: null });
   });
 });
+
+// The caller's own profile id, for the "your public profile" link on /fundi
+// (#42). Never throws, so the page renders for anyone.
+describe("fundiProfiles.myProfileId", () => {
+  const OTIENO = {
+    tokenIdentifier: "https://clerk.example|user_otieno",
+    subject: "user_otieno",
+    issuer: "https://clerk.example",
+    email: "otieno@example.com",
+    emailVerified: true,
+    name: "Otieno Ouma",
+  };
+
+  async function makeFundi(identity: typeof WANJIRU) {
+    await t.withIdentity(identity).mutation(api.users.store, {});
+    return await t.withIdentity(identity).mutation(api.fundiProfiles.create, VALID);
+  }
+
+  it("returns the caller's own profile id and Listing", async () => {
+    const id = await makeFundi(WANJIRU);
+    expect(await t.withIdentity(WANJIRU).query(api.fundiProfiles.myProfileId, {})).toEqual({
+      id,
+      publicListing: true,
+    });
+  });
+
+  it("returns each Fundi their own id, not another's", async () => {
+    const wanjiruId = await makeFundi(WANJIRU);
+    const otienoId = await makeFundi(OTIENO);
+    expect(wanjiruId).not.toEqual(otienoId);
+    expect(await t.withIdentity(OTIENO).query(api.fundiProfiles.myProfileId, {})).toEqual({
+      id: otienoId,
+      publicListing: true,
+    });
+    expect(await t.withIdentity(WANJIRU).query(api.fundiProfiles.myProfileId, {})).toEqual({
+      id: wanjiruId,
+      publicListing: true,
+    });
+  });
+
+  it("reports publicListing false when the Fundi is not Listed", async () => {
+    const id = await makeFundi(WANJIRU);
+    await t.run((ctx) => ctx.db.patch("fundiProfiles", id, { publicListing: false }));
+    expect(await t.withIdentity(WANJIRU).query(api.fundiProfiles.myProfileId, {})).toEqual({
+      id,
+      publicListing: false,
+    });
+  });
+
+  it("returns null for a signed-out caller, one with no users row, and a non-Fundi", async () => {
+    await makeFundi(WANJIRU);
+    expect(await t.query(api.fundiProfiles.myProfileId, {})).toBeNull();
+    expect(await t.withIdentity(OTIENO).query(api.fundiProfiles.myProfileId, {})).toBeNull();
+    await t.withIdentity(OTIENO).mutation(api.users.store, {});
+    expect(await t.withIdentity(OTIENO).query(api.fundiProfiles.myProfileId, {})).toBeNull();
+  });
+});

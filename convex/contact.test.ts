@@ -279,6 +279,7 @@ describe("no read path for contact messages", () => {
       // a Listed profile's name, county, Trades and Badges; its leak test is
       // in fundiProfiles.public.test.ts.
       "./fundiProfiles.ts:getPublic",
+      "./fundiProfiles.ts:myProfileId",
       "./fundiProfiles.ts:myShowcaseLinks",
       "./reviews.ts:detail",
       "./reviews.ts:queue",

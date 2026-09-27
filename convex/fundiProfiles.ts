@@ -2,7 +2,7 @@ import { ConvexError, v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { mutation, query } from "./_generated/server";
 import { nameLookup } from "./lib/assessmentNames";
-import { getFundiProfile, requireFundi, requireStoredUser } from "./lib/auth";
+import { checkFundi, getFundiProfile, requireFundi, requireStoredUser } from "./lib/auth";
 import { latestDecision } from "./lib/decisions";
 import { cleanTradeSlugs, parseFundiProfile, type FundiProfileErrors } from "./lib/fundiProfile";
 import {
@@ -153,6 +153,24 @@ export const myShowcaseLinks = query({
       return { id, url, embedUrl };
     };
     return { youtube: read("youtube"), tiktok: read("tiktok") };
+  },
+});
+
+/**
+ * The caller's own Fundi profile id and whether it is Listed, so /fundi can
+ * link to the public /f/[id] page and say whether that link is live (#42).
+ *
+ * Guard: checkFundi, the non-throwing requireFundi. Returns null when the
+ * caller is signed out, has no users row yet, or is not a Fundi, so the page
+ * never errors. The profile comes only from the token; there is no id arg.
+ */
+export const myProfileId = query({
+  args: {},
+  returns: v.union(v.object({ id: v.id("fundiProfiles"), publicListing: v.boolean() }), v.null()),
+  handler: async (ctx) => {
+    const checked = await checkFundi(ctx);
+    if (!checked.ok) return null;
+    return { id: checked.profile._id, publicListing: checked.profile.publicListing };
   },
 });
 
