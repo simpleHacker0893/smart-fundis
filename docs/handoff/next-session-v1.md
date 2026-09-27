@@ -27,8 +27,8 @@ You are continuing the Smart Fundis V1 slice (spec issue #36, "Tracer bullet") f
 | Ticket | State | Branch / PR |
 | --- | --- | --- |
 | #37, #38 | merged | — |
-| #39 claim/callback contract | **done, PR #59 open**, awaiting operator review/merge | `v1/39-ai-claim-callback` (tip `cba0a01`) |
-| #41 Expert queue + decision | **in progress**, see below | `v1/41-expert-queue`, pushed, stacked on #39 |
+| #39 claim/callback contract | **merged** (squash `66afaa9`, PR #59) | — |
+| #41 Expert queue + decision | **in progress**, see below | `v1/41-expert-queue`, pushed; main merged in at `d32c311` (the only conflict, `convex/_generated/api.d.ts`, was resolved by keeping `lib/assessmentNames`) |
 | #40 stub worker | not started, see below | — |
 | #42 public `/f/[id]` + full-loop Playwright | blocked by #40 and #41 | — |
 | #43 real phone + native-speaker check | `ready-for-human`, the operator's own step | — |
@@ -55,18 +55,18 @@ You are continuing the Smart Fundis V1 slice (spec issue #36, "Tracer bullet") f
 - **W7:** `pnpm lint` shows 0 warnings. Prefer `argsIgnorePattern: "^_"` in `web/eslint.config.mjs`.
 
 **Left for #41:**
-1. Run a scoped re-review of the W1–W7 fix diff (`git diff 0d34cde..11ee173`, ignoring the handoff doc) against the list above.
-2. Run mattpocock-skills:code-review (Standards + Spec) on the whole #41 branch against `v1/39-ai-claim-callback`, and fix what holds up.
+1. Run a scoped re-review of the W1–W7 fix diff (`git diff 0d34cde..11ee173`) against the list above.
+2. Run mattpocock-skills:code-review (Standards + Spec) on the whole #41 branch against `main`, and fix what holds up.
 3. Run verification-before-completion: `pnpm -r typecheck`, `pnpm typecheck:convex`, `pnpm lint` and `pnpm test`. Put the real output against each #41 acceptance criterion.
 4. Write `docs/handoff/41.md`. List these deferred items for the Architect:
    - the playback gate before deciding (V2 D-51);
    - tap-to-seek timestamps (US-5.2; DESIGN §D5 keeps them as plain text until the timestamp eval passes);
    - no scan ceiling on the queue (no Demo rows exist until the V5 seed);
    - `experts` is read twice in `decide`.
-5. After the operator merges #39, rebase `v1/41-expert-queue` onto main and open the PR with prompt 50.
+5. Open the PR against main with prompt 50. #39 is already merged and main is merged into the branch, so the PR diff is only #41's work.
 
 ### #40: the stub worker. The operator decided this on 2026-09-27; see the comment on issue #40.
-The upload never stored the clip's file name, so the operator chose to **store it**. Do the work in this order, on a branch `v1/40-stub-worker` stacked on #39, or on main once #39 is merged:
+The upload never stored the clip's file name, so the operator chose to **store it**. Do the work in this order, on a branch `v1/40-stub-worker` from main (#39 is merged):
 1. **convex:**
    - Add an optional `assessments.clipName`, trimmed and capped at 200 characters.
    - `assessments.create` accepts an optional `clipName`.
