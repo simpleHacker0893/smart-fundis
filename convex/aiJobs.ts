@@ -1,7 +1,7 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
-import { applyHardRules, callbackBodyValidator, CLAIM_SCAN, jobValidator, MAX_ATTEMPTS, type Job } from "./lib/aiContract";
+import { applyHardRules, callbackBodyValidator, CLAIM_SCAN, CLAIM_TIMEOUT_MS, jobValidator, MAX_ATTEMPTS, type Job } from "./lib/aiContract";
 import { assessmentStatusValidator } from "./lib/validators";
 
 // The state changes behind /ai/claim and /ai/callback, and the stuck-job cron
@@ -114,6 +114,41 @@ export const callback = internalMutation({
         return { ok: true as const, status };
       }
     }
+  },
+});
+
+/** Rows one cron run handles; the next minute's run takes the rest. */
+const REQUEUE_BATCH = 100;
+
+/**
+ * The stuck-job cron (spec §3): an Assessment `analyzing` for longer than
+ * CLAIM_TIMEOUT_MS goes back to `queued`, or to `failed` once its attempts
+ * reach MAX_ATTEMPTS. The worker's late callback then gets 409.
+ */
+export const requeueStale = internalMutation({
+  args: {},
+  returns: v.object({ requeued: v.number(), failed: v.number() }),
+  handler: async (ctx) => {
+    const cutoff = Date.now() - CLAIM_TIMEOUT_MS;
+    const stuck = await ctx.db
+      .query("assessments")
+      .withIndex("by_status_and_claimedAt", (q) => q.eq("status", "analyzing").lt("claimedAt", cutoff))
+      .take(REQUEUE_BATCH);
+    let requeued = 0;
+    let failed = 0;
+    for (const row of stuck) {
+      if (row.attempts >= MAX_ATTEMPTS) {
+        await ctx.db.patch("assessments", row._id, { status: "failed" });
+        failed++;
+      } else {
+        await ctx.db.patch("assessments", row._id, { status: "queued", claimedAt: undefined, claimedBy: undefined });
+        requeued++;
+      }
+    }
+    if (stuck.length > 0) {
+      console.warn(`ai requeueStale: ${requeued} requeued, ${failed} failed`);
+    }
+    return { requeued, failed };
   },
 });
 

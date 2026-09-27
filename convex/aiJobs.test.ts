@@ -303,3 +303,40 @@ describe("POST /ai/callback (spec §6, US-4.1)", () => {
     expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
   });
 });
+
+describe("requeueStale cron (spec §3 stuck job)", () => {
+  const MINUTE = 60 * 1000;
+
+  it("requeues a first-attempt claim older than 10 minutes and fails a second", async () => {
+    const t = setup();
+    const now = Date.now();
+    const first = await queued(t, { status: "analyzing", attempts: 1, claimedAt: now - 11 * MINUTE, claimedBy: "w1" });
+    const second = await queued(t, { status: "analyzing", attempts: 2, claimedAt: now - 11 * MINUTE, claimedBy: "w1" });
+    const fresh = await queued(t, { status: "analyzing", attempts: 1, claimedAt: now - 1 * MINUTE, claimedBy: "w1" });
+    const waiting = await queued(t);
+
+    expect(await t.mutation(internal.aiJobs.requeueStale, {})).toEqual({ requeued: 1, failed: 1 });
+
+    const requeued = (await get(t, first))!;
+    expect(requeued).toMatchObject({ status: "queued", attempts: 1 });
+    expect(requeued.claimedAt).toBeUndefined();
+    expect(requeued.claimedBy).toBeUndefined();
+    expect(await get(t, second)).toMatchObject({ status: "failed", attempts: 2 });
+    expect(await get(t, fresh)).toMatchObject({ status: "analyzing", attempts: 1 });
+    expect(await get(t, waiting)).toMatchObject({ status: "queued", attempts: 0 });
+  });
+
+  it("makes the late callback of a requeued job stale", async () => {
+    const t = setup();
+    const id = await queued(t, { status: "analyzing", attempts: 1, claimedAt: Date.now() - 11 * MINUTE });
+    await t.mutation(internal.aiJobs.requeueStale, {});
+    const res = await post(t, "/ai/callback", { assessmentId: id, attempt: 1, outcome: "error", errorCode: "late" });
+    expect(res.status).toBe(409);
+    expect((await get(t, id))!.status).toBe("queued");
+  });
+
+  it("is registered as a cron", async () => {
+    const crons = (await import("./crons")).default;
+    expect(Object.keys(crons.crons)).toContain("requeue stale AI claims");
+  });
+});
