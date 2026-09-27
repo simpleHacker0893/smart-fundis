@@ -90,7 +90,7 @@ The Convex contract is unchanged, so no convex-test work is expected.
 
 1. The **Brev org and credit budget** (QUESTIONS #3), and whether to **stop** (keep the disk, pay storage) or **delete** between sessions.
 2. Which **HF account** holds `HF_TOKEN`, and whether it has **accepted the Cosmos-Reason2 licence**.
-3. Whether `docs/demo_videos/electrical_video.mp4` may be used as an eval clip (who is in it; consent under ADR-14). Where the clips live (G10).
+3. Whether `docs/demo_videos/electrical_video.mp4` may be used as an eval clip (who is in it; consent under ADR-14). Where the clips live (G10). **Answered 2026-09-27:** the operator confirmed the clip is cleared for use (demo and eval). Where the clips live (G10) is still open.
 4. Whether to keep **V7's order** in `planning/STATE.md` (V7 next) or to run **MVP V2 first**. V2's real pipeline also makes the V7 "video analysis" dashboard meaningful.
 
 ## 6. V1 loose ends before starting

@@ -1,0 +1,205 @@
+{
+  "date": "2026-09-27",
+  "clip": "electrical_video.mp4",
+  "consent": "cleared for demo and eval by the operator, 2026-09-27",
+  "cosmosModel": "nvidia/Cosmos-Reason2-8B",
+  "promptVersion": "observe.v1",
+  "rubric": {
+    "trade": "electrical",
+    "task": "13a-socket",
+    "version": 1
+  },
+  "probe": {
+    "durationS": 17.63,
+    "width": 576,
+    "height": 1024,
+    "meanLuma": 112.7,
+    "guard": "ok"
+  },
+  "runs": [
+    {
+      "fps": 4,
+      "maxTokens": 2048,
+      "maxModelLen": 8192,
+      "pixelBudget": 5662310,
+      "promptTokens": 3110,
+      "completionTokens": 941,
+      "latencyS": 62.85,
+      "finishReason": "stop",
+      "observations": [
+        {
+          "itemId": "isolate",
+          "result": "unclear",
+          "evidence": "The video does not show the breaker being switched off; the focus is on manipulating wires within the panel without visible interaction with a breaker switch.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "test_dead",
+          "result": "unclear",
+          "evidence": "There is no visible use of a voltage tester to confirm wires are de-energized, only pliers being used to handle wires.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "terminals",
+          "result": "unclear",
+          "evidence": "While wires are being manipulated, the video does not explicitly show correct terminal connections (brown to L, blue to N) or hold wires to the camera for verification.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "earth",
+          "result": "unclear",
+          "evidence": "The video does not show connecting the green-and-yellow earth wire to the earth terminal, focusing instead on wire manipulation with pliers.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "no_bare_copper",
+          "result": "unclear",
+          "evidence": "There is no visible tightening of terminal screws or demonstration of secured connections, making it unclear if bare copper is properly contained.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "faceplate",
+          "result": "unclear",
+          "evidence": "The faceplate installation is not shown; the video focuses solely on internal wiring and components without addressing the faceplate's placement.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "function_test",
+          "result": "unclear",
+          "evidence": "The video concludes with the man still working on the panel, with no indication of power being restored or testing the installed socket.",
+          "timestampS": 0.0
+        }
+      ],
+      "livenessDigits": null,
+      "parseIssues": []
+    },
+    {
+      "fps": 2,
+      "maxTokens": 2048,
+      "maxModelLen": 8192,
+      "pixelBudget": 5662310,
+      "promptTokens": 3249,
+      "completionTokens": 811,
+      "latencyS": 52.93,
+      "finishReason": "stop",
+      "observations": [
+        {
+          "itemId": "isolate",
+          "result": "no",
+          "evidence": "The video does not show the electrician switching off the breaker or isolating the circuit before handling wires.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "test_dead",
+          "result": "no",
+          "evidence": "There is no visible use of a voltage tester or demonstration that the power is off before touching wires.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "terminals",
+          "result": "unclear",
+          "evidence": "The electrician connects wires to the panel, but it is unclear if he correctly identifies and attaches brown/red to L and blue/black to N terminals.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "earth",
+          "result": "no",
+          "evidence": "The video does not show connecting the green-and-yellow earth wire to the dedicated earth terminal.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "no_bare_copper",
+          "result": "yes",
+          "evidence": "The electrician tightens terminal screws and secures wires, ensuring no bare copper is exposed outside the terminals.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "faceplate",
+          "result": "no",
+          "evidence": "The video does not show installing or securing the faceplate over the socket.",
+          "timestampS": 0.0
+        },
+        {
+          "itemId": "function_test",
+          "result": "no",
+          "evidence": "There is no indication of switching power back on or testing the socket after installation.",
+          "timestampS": 0.0
+        }
+      ],
+      "livenessDigits": null,
+      "parseIssues": []
+    }
+  ],
+  "assess": {
+    "fromFps": 4,
+    "model": "nvidia/nemotron-3-super-120b-a12b",
+    "promptVersion": "assess.v1",
+    "attempts": 1,
+    "usedFallback": false,
+    "latencyS": 6.77,
+    "draft": {
+      "verdict": "needs_review",
+      "strengths": [],
+      "gaps": [
+        "Show the breaker being switched off on camera before touching any wires.",
+        "Use a voltage tester on each wire to confirm the power is off and show the reading.",
+        "Hold each wire to the camera and connect brown (or old red) to L and blue (or old black) to N.",
+        "Connect the green-and-yellow earth wire (or sleeved bare earth) to the earth terminal.",
+        "Tighten every terminal screw and give each wire a light pull to show no bare copper is exposed.",
+        "Fix the faceplate to the box straight and level, ensuring no wires are trapped.",
+        "Switch the power back on and test the socket with a socket tester or a plugged-in device to show it works."
+      ],
+      "feedbackEn": "You did not show any of the required steps on camera. Next time, make sure to record each safety check, such as turning off the breaker and testing for dead wires. Also show the correct wiring, secure connections, proper faceplate fitting, and a final function test.",
+      "safetyFlags": [
+        "isolate",
+        "test_dead",
+        "terminals",
+        "earth",
+        "no_bare_copper"
+      ]
+    },
+    "final": {
+      "verdict": "needs_review",
+      "liveness_check": "unclear",
+      "safety_flags": [
+        "isolate",
+        "test_dead",
+        "terminals",
+        "earth",
+        "no_bare_copper"
+      ],
+      "capped": false,
+      "reasons": [
+        "safety item not 'yes': isolate, test_dead, terminals, earth, no_bare_copper",
+        "Liveness code not matched"
+      ]
+    }
+  },
+  "workerPathRun": {
+    "note": "brev_worker.handle_job with a local job (no Convex), same clip, fps 4; evidence text omitted (all 'not shown')",
+    "promptTokens": 3110,
+    "completionTokens": 691,
+    "cosmosLatencyS": 45.4,
+    "nemotronLatencyS": 15.5,
+    "totalLatencyS": 62.9,
+    "results": {
+      "isolate": "no",
+      "test_dead": "no",
+      "terminals": "no",
+      "earth": "no",
+      "no_bare_copper": "no",
+      "faceplate": "no",
+      "function_test": "no"
+    },
+    "livenessDigits": null,
+    "nemotronDraft": "fail",
+    "final": "fail",
+    "safetyFlags": [
+      "isolate",
+      "test_dead",
+      "terminals",
+      "earth",
+      "no_bare_copper"
+    ]
+  }
+}

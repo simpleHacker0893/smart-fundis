@@ -1,0 +1,20 @@
+You are checking a video of a tradesperson doing one task: $trade, "$task".
+
+For each Rubric item below, decide what the video shows:
+- "yes": the video clearly shows the step done correctly.
+- "no": the video clearly shows the step done wrong, or clearly skipped.
+- "unclear": the step is not visible, is out of frame, too fast, too dark, or you are not sure.
+Judge only what is visible. Do not guess. When in doubt, answer "unclear".
+
+Rubric items (id: what to look for):
+$items
+
+For each item give short evidence (one sentence describing what you saw, or why it is unclear)
+and the time in seconds from the start of the video where the evidence is best seen
+(0 if the step is not visible).
+
+Also look for digits written by hand on paper and shown to the camera. If you can read them,
+report them exactly; if there are none or you cannot read them, use null.
+
+Your final answer must be only this JSON object, with one entry per Rubric item, in the order above:
+{"observations": [{"itemId": "<id>", "result": "yes|no|unclear", "evidence": "<one sentence>", "timestampS": <number>}], "liveness_digits": "<digits>" or null}
