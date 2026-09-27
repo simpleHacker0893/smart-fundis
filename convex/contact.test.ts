@@ -275,6 +275,10 @@ describe("no read path for contact messages", () => {
       "./assessments.ts:currentLivenessCode",
       "./assessments.ts:get",
       "./assessments.ts:listMine",
+      // Public by design (#42): the signed-out /f/[id] page. It returns only
+      // a Listed profile's name, county, Trades and Badges; its leak test is
+      // in fundiProfiles.public.test.ts.
+      "./fundiProfiles.ts:getPublic",
       "./fundiProfiles.ts:myShowcaseLinks",
       "./reviews.ts:detail",
       "./reviews.ts:queue",
