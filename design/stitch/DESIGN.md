@@ -127,7 +127,7 @@ Every section is an **inspection**: one frame of a fundi's video under measureme
 
 ## Dashboards (V2, "app mode")
 
-**Status:** draft for operator review (V2-40 step 1, 2026-09-26). It covers every signed-in role route (`/dashboard`, `/fundi/*`, `/client/*`, `/expert/*`) and the public `/jobs` board. `/admin/*` uses plain shadcn in the dark token theme and follows only the tokens, chips, states and honesty rules here. Sources: the V2 marketplace spec §5, §7, §8.4a, §9, §11, §13 (`docs/superpowers/specs/2026-09-26-v2-marketplace-design.md`); `docs/reviews/v2-architecture.md` §2.5; D-45 to D-58; the NVIDIA fit note §1.2 and §3. **Where this section and the spec disagree, the spec wins.** Open conflicts are listed at the end of this section, not resolved here.
+**Status:** draft for operator review (V2-40 step 1, 2026-09-26; revised 2026-09-27 for #45: the categorized sidebar (D-65, proposed) and English only (D-64)). It covers every signed-in role route (`/dashboard`, `/fundi/*`, `/client/*`, `/expert/*`) and the public `/jobs` board. `/admin/*` uses plain shadcn in the dark token theme and follows only the tokens, chips, states and honesty rules here. Sources: the V2 marketplace spec §5, §7, §8.4a, §9, §11, §13 (`docs/superpowers/specs/2026-09-26-v2-marketplace-design.md`); `docs/reviews/v2-architecture.md` §2.5; D-45 to D-58; the NVIDIA fit note §1.2 and §3. **Where this section and the spec disagree, the spec wins.** Open conflicts are listed at the end of this section, not resolved here.
 
 Every dashboard screen prompt (24 onwards) includes the **DESIGN SYSTEM (REQUIRED)** block above, then the **DASHBOARD RULES (REQUIRED)** block at the end of this section.
 
@@ -161,25 +161,32 @@ One `AppShell` serves every role. Only its nav config changes per role (V7-2).
   - the **bell** (from V8; the slot is **not drawn** in V7, because a bell with nothing to fill it would be a dead surface);
   - the **avatar** (initials, never a photo), which opens the avatar sheet;
   - the **menu** (≡), which opens the menu sheet.
-- **Desktop (≥ 1024 px), 64 px tall:** the logo lockup, then the EN | SW toggle, the bell and the avatar on the right. The menu items move into the side rail's footer.
+- **Desktop (≥ 1024 px), 64 px tall:** the logo lockup on the left, and the bell (from V8) and the avatar on the right. Navigation lives in the sidebar, not the header.
 
-**Role bar: at most 4 items per role (D-57).**
+**The categorized sidebar (D-65, proposed; amends D-57's "≤ 4 items" role bar).** The operator asked for a clean, professional dashboard where a user can see at once where to upload, check their verifications or edit their profile. Navigation is therefore **one grouped menu**, the same at every width. Only the container changes.
 
-- **< 1024 px: bottom nav.** Fixed, 64 px plus `env(safe-area-inset-bottom)`, with a 1 px top hairline. Each item has a 24 px line icon above a 12 px label (sentence case, Inter, **not** tracked mono, so Kiswahili labels fit). **Active:** white label and icon, with a 2 px amber bar on the item's top edge. **Inactive:** `--dim`. No count badges or dots on nav items; unread notices live on the bell only.
-- **≥ 1024 px: side rail.** 232 px wide on the left, full height under the header, with a 1 px right hairline. Items are 48 px rows with the icon and label side by side. **Active:** a white label and a 2 px amber bar on the left edge. The rail's footer holds the role switch (for dual-role users), EN | SW, Help and Sign out. Content sits in a max-width 1040 px column, on a 12-column grid with 32 px padding.
+- **≥ 1024 px: sidebar.** 248 px wide on the left, full height under the header, `--panel` background with a 1 px right hairline.
+  - **Top:** the role's one primary action as a full-width flat amber pill (Fundi: **"Add video"**). Roles without a primary action have none. This pill counts as the viewport's single amber fill, so content screens on desktop use outlined pills for their own actions.
+  - **Groups:** each group has a **category label** (mono 12 px, UPPERCASE, 0.26em, `--dim`, 32 px above the first item, 24 px between groups). Items are 48 px rows: a 20 px line icon, then a 16 px sentence-case label (Inter 500). **Active:** `--text` label and icon, a 2 px amber bar on the left edge and a 4% `--text` fill. **Inactive:** `--dim`, and hover goes to `--text`. No count badges or dots on items.
+  - **Footer:** pinned to the bottom, above a hairline: the role switch (only for users with two or more roles), Help, and Sign out.
+  - Content sits in a max-width 1040 px column to the right, on a 12-column grid with 32 px padding.
+- **< 1024 px: bottom nav plus "More".** Fixed, 64 px plus `env(safe-area-inset-bottom)`, with a 1 px top hairline. **At most 4 slots**: up to 3 of the role's most-used items, then **More** (the ≡ icon). Each slot has a 24 px line icon above a 12 px sentence-case label (Inter, not tracked mono, so long labels fit). **Active:** `--text`, with a 2 px amber bar on the slot's top edge. **Inactive:** `--dim`.
+  - **More** opens the **menu sheet**, which holds the **same grouped menu** as the desktop sidebar (the same category labels, items and footer), so a user who learns one width knows the other. The item for the current screen is marked active there too.
+  - On mobile the header has no ≡ button: More replaces it.
 - **768–1023 px:** keep the bottom nav, and use a 2-column content layout where it helps.
 - Focus must never be hidden under the sticky header or bottom nav (WCAG 2.4.11): set `scroll-padding-top` and `scroll-padding-bottom` to the bar heights.
 
-**Proposed items per role (confirmed in step 2's screen inventory):**
+**Menu per role (V7).** Category labels and item labels use plain verbs and nouns a first-time user understands. A menu never shows an item for a feature that isn't shipped ("Nothing looks live that isn't"), so V8 items such as Jobs, the Client role and the bell are not drawn in V7.
 
-| Role | Items (V7) | Items (from V8) |
+| Role | Sidebar and menu sheet: CATEGORY → items | Bottom nav (< 1024 px) |
 | --- | --- | --- |
-| Fundi | Home · Verifications · Profile | Home · Jobs · Verifications · Profile ("Jobs" holds "Near you" and "My responses" as two tabs; "Where I work" and Pay-to live under Profile) |
-| Client | — | Home (my Jobs) · Post a job · Find a fundi · Profile |
-| Expert | Queue · History · Profile | same |
-| Admin | plain shadcn: Ops · Reports · Jobs · Experts | same |
+| Fundi | primary pill **Add video** · OVERVIEW → Home · VERIFICATION → My verifications · PROFILE → Public profile, Showcase links · ACCOUNT → Help, Sign out | Home · Verifications · Profile · More |
+| Expert | REVIEW → Queue, History · ACCOUNT → Profile, Help, Sign out | Queue · History · Profile · More |
+| Admin | OPERATIONS → Ops · ACCOUNT → Help, Sign out (plain shadcn, no Stitch screen) | Ops · More |
 
-A role bar never shows an item for a feature that isn't shipped ("Nothing looks live that isn't").
+From V8 the Fundi gets JOBS → Near you, My responses, and the Client role gets its own menu. Both are added in the V8 prompts, not drawn now.
+
+On mobile, the Fundi's "Add video" amber pill lives on the Home screen (above the fold) and in the My verifications header, since the bottom nav has no room for it.
 
 **Role switch (users with two or more roles, US-8.18).**
 
@@ -187,9 +194,18 @@ A role bar never shows an item for a feature that isn't shipped ("Nothing looks 
 - It is a list of radio rows, each 56 px tall, showing only the roles held: "Fundi dashboard", "Client dashboard", "Expert dashboard", "Admin". The current role has a filled ● and the word "Current". Selecting another role calls `users.setDashboardPref`, closes the sheet and opens that role's home. A pending state reads "Switching…".
 - The header role label always names the current dashboard, so a dual-role User can tell where they are without opening the sheet.
 - The switch never implies a role can be *chosen*: roles are derived (ADR-18). Offers to add a role ("I also need a fundi") go to `/onboarding`, never into the switcher.
-- On desktop the same radio list sits in the rail footer.
+- On desktop the same radio list sits in the sidebar footer.
 
-**Sheets (avatar sheet, menu sheet, and the Add video sheet in step 2):** bottom sheets on mobile (a 4 px top radius, a drag handle **and** a 48 px "Close" button, because dragging needs a non-drag alternative under WCAG 2.5.7) and anchored popovers on desktop. The **menu sheet** holds EN | SW (a 2-segment 48 px control), Help, links to the public site (Jobs, Trades, Evidence, Company) and Sign out. **Help sits in the same place on every role** (WCAG 3.2.6).
+**Sheets (avatar sheet, menu sheet, and the Add video sheet in step 2):** bottom sheets on mobile (a 4 px top radius, a drag handle **and** a 48 px "Close" button, because dragging needs a non-drag alternative under WCAG 2.5.7) and anchored popovers on desktop. The **menu sheet** is the "More" sheet above: the grouped menu, then links to the public site (Trades, Evidence, Company) and the footer. **Help sits in the same place on every role** (WCAG 3.2.6). There is no language toggle (D-64).
+
+**Clean and professional (the operator's bar for every dashboard screen):**
+1. **One job per screen.** The page title says what the screen is for ("My verifications"), and the one primary action is obvious within the first 360 × 640 px.
+2. **One amber fill per viewport.** Everything else is outlined or text.
+3. **Hairline rows before cards** (D3), on an 8 px grid, with consistent 16 / 24 / 32 px gutters. No drop shadows, gradients or glows.
+4. **A strict type ladder:** page title 28 / 40 px, section label mono 12 px, row title 16 px/600, body 16 px, meta mono 12 px. No other sizes.
+5. **Plain labels:** verbs on buttons ("Upload a video", "Record again", "Save"), nouns in the menu. No jargon, marketing words or exclamation marks.
+6. **Empty states teach the next step** (D9): one sentence and one action, never a blank screen.
+7. **Quiet chrome:** the sidebar and headers recede (`--panel`, `--dim`) so the user's content reads first.
 
 ### D3. Density rules for data views
 
@@ -210,7 +226,7 @@ The target is **"daily app, balanced"**: denser than the landing pages, never a 
    There are no other totals, "N results", views, progress percentages, completeness percentages or streaks. **Profile completeness is a checklist of named missing fields, never a percentage or a ring** (V7 grill 4).
 7. **Tables:** below 768 px, a table becomes stacked readout rows (mono label, then value). From 1024 px, Admin tables may use shadcn tables with a sticky header. There is never horizontal scroll at 360 px.
 8. **Lists:** 24 items per page with a "Show more" pill (never infinite scroll). Near-me lists are **one-shot**, capped at 60, with "Showing the 60 nearest", an "Updated 14:05" readout and a **Refresh** button. They are not live subscriptions (review S11).
-9. **Kiswahili length:** allow about 30% more text. Chips and labels wrap to a second line rather than truncate, and no label is ever cut off with an ellipsis. Every step-3 prompt draws one Kiswahili frame at 360 px.
+9. **Long labels:** allow about 30% more text than the English, so Kiswahili can be added later without a redesign (D-64). Chips and labels wrap to a second line rather than truncate, and no label is ever cut off with an ellipsis. No Kiswahili frame is drawn for now.
 10. **Above the fold at 360 px** follows spec §5.3 per role.
 
 ### D4. Status chips (Assessment, Job, Interest, Listing)
@@ -232,7 +248,7 @@ The target is **"daily app, balanced"**: denser than the landing pages, never a 
 
 The existing `--review` rule (◐ in amber, `DESIGN.md` tokens) applies to the landing pages only. **On dashboards ◐ is neutral** (spec §13: only the Badge uses ✓ or amber).
 
-**Chip labels** (EN / SW draft, native-speaker check R-20). The copy keys are defined in step 2, in both `en.json` and `sw.json`.
+**Chip labels.** English only for now (D-64): the copy keys are defined in step 2, in `en.json` only. The SW column is kept as a draft for the future Kiswahili phase (R-20) and is **not** drawn or added to any messages file.
 
 | Entity | Status | EN | SW draft (R-20) |
 | --- | --- | --- | --- |
@@ -314,8 +330,8 @@ This pattern shows Cosmos Reason 2 Observations and Nemotron feedback **as evide
 - **The Fundi's view after the Expert decides** (D-59 as amended by D-61; the same on `approved`, `reshoot` and `rejected`), top to bottom:
   - On `approved`, the Badge line first.
   - The Expert's note.
-  - The **feedback panel**: the AI tag, "AI suggestion", **"An Expert decides."**, strengths, gaps, and the feedback paragraph in the UI language. If `feedbackSw` hasn't passed the R-20 check, the English feedback shows with "Kiswahili version coming".
-  - The **"The AI noticed…" panel**: the AI tag, **"An Expert decides."**, then one Observation row per Rubric item, each with the item text and the AI's answer in words ("AI: yes", "AI: no", "The AI couldn't tell") in the UI language, and the evidence text, which stays **English in both languages** under a small dim label **"AI note in English"** (SW draft "Maelezo ya AI kwa Kiingereza", R-20; a named D-29 exception). The Liveness code never appears in the evidence (redacted server-side). **No timestamps** until the timestamp-reliability eval passes (NF §1.1); after that, the whole-second timestamp as plain text (or "--:--", labelled "no timestamp"). There are **no Jump chips**, because the Fundi has no player of their own video yet (no `videoUrl`) until the Architect decides otherwise.
+  - The **feedback panel**: the AI tag, "AI suggestion", **"An Expert decides."**, strengths, gaps, and the feedback paragraph in English (D-64; `feedbackSw` isn't shown until the Kiswahili phase and its R-20 check).
+  - The **"The AI noticed…" panel**: the AI tag, **"An Expert decides."**, then one Observation row per Rubric item, each with the item text and the AI's answer in words ("AI: yes", "AI: no", "The AI couldn't tell") and the evidence text in English. (The dim label **"AI note in English"** is for the future Kiswahili UI only and is not drawn while the UI is English only, D-64.) The Liveness code never appears in the evidence (redacted server-side). **No timestamps** until the timestamp-reliability eval passes (NF §1.1); after that, the whole-second timestamp as plain text (or "--:--", labelled "no timestamp"). There are **no Jump chips**, because the Fundi has no player of their own video yet (no `videoUrl`) until the Architect decides otherwise.
   - Safety items are listed first and read "needs a closer look", never as an accusation.
   - **On `approved`, the copy is pending `rai-reviewer`** (D-61): framed as practice notes, never as doubt about the Badge. Mock it with placeholder copy marked "PENDING RAI".
   - Still never shown: a Verdict word, `confidence`, `videoUrl`, the `livenessRead` digits or a model name.
@@ -338,13 +354,11 @@ This pattern shows Cosmos Reason 2 Observations and Nemotron feedback **as evide
 - **Slow networks get a static image.** When `navigator.connection.saveData` is true, `effectiveType` is `2g` or `slow-2g`, or the map script hasn't loaded in 4 s, show a static WebP map image (360 × 200, under 30 KB, the same circles, no pin) with the text list below it. The interactive map is lazy-loaded outside the 150 KB route budget.
 - The map style is monochrome graphite with no coloured parks, water or brand POIs. Tile attribution is visible. Never use `tile.openstreetmap.org` in production (KR I-7).
 
-### D7. English and Kiswahili
+### D7. Language: English only for now (D-64)
 
-- Every user-visible string on these screens has a key in **both** `messages/en.json` and `messages/sw.json` (D-29). No screen says "English only". The earlier prompts that do say so (00, 13, 14, 15) are fixed in step 3.
-- Every Kiswahili string is a **draft until a native speaker checks it** (R-20). Consent strings need that sign-off before V8 merges. Prompts mark each one "SW draft (R-20)".
-- The EN | SW toggle is in the menu sheet (mobile) and the desktop header (D-57). Switching keeps the user on the same screen and in the same state.
-- Layouts must survive Kiswahili length (D3 item 9). Kiswahili tags and chips use 0.08em tracking rather than 0.26em.
-- AI feedback in Kiswahili (`feedbackSw`) shows only after the R-20 check. Until then, the English feedback shows with "Kiswahili version coming" (spec §11.0).
+- **D-64 supersedes D-29 here.** Every user-visible string on these screens has a key in `messages/en.json` only. There is **no EN | SW toggle**, no Kiswahili frame and no new SW draft.
+- Strings still go through `next-intl`, and layouts still survive about 30% longer labels (D3 item 9), so the future Kiswahili phase needs no redesign. The SW drafts already in this file (D4, D8) are kept for that phase and are not drawn.
+- No screen says "English only" or "Kiswahili coming". AI feedback shows in English; `feedbackSw` isn't shown (spec §11.0, D-64).
 
 ### D8. Price labels
 
@@ -393,10 +407,12 @@ Every list, card, tile and reason code has all four states drawn (review S4). **
 - 360 px first. Tap targets at least 48 px. Mono at least 12 px. No horizontal scroll.
 - **No images of any kind** (no photos, illustrations or decorative art). User content only, marked EXAMPLE in mockups.
 - Status chips: a neutral outline plus one glyph from ◌ ◐ ● ◆ ■ ↻ ○ ✕, with the status in words. Never colour alone. ✓ and amber belong to Badges only.
-- AI output: the AI tag, "AI suggestion" or "The AI noticed…", and "An Expert decides." ("AI suggestion — you decide" on Expert review only). No score, percentage, gauge or Verdict chip. No NVIDIA logo, green or model names. The Fundi sees AI evidence only after the Expert decides; the evidence text stays English under "AI note in English", and the Fundi sees no timestamps until the timestamp eval passes (D-50, D-59, D-61).
+- AI output: the AI tag, "AI suggestion" or "The AI noticed…", and "An Expert decides." ("AI suggestion — you decide" on Expert review only). No score, percentage, gauge or Verdict chip. No NVIDIA logo, green or model names. The Fundi sees AI evidence only after the Expert decides, and sees no timestamps until the timestamp eval passes (D-50, D-59, D-61).
 - Location is text plus a distance band. No map, pin or km figure (D-60).
 - Every price carries its owner's label: "Set by the fundi — not verified" or "Budget set by the client".
-- Draw the empty, loading, error and offline frames, plus **one Kiswahili frame at 360 px**. Every string has an `en.json` and a `sw.json` key, and Kiswahili is marked for a native-speaker check (R-20).
+- Draw the empty, loading, error and offline frames. English only (D-64): every string has an `en.json` key, there is no language toggle and no Kiswahili frame, and labels allow about 30% extra length.
+- Navigation (D-65): ≥ 1024 px a 248 px categorized sidebar (mono 12 px UPPERCASE category labels, 48 px rows, active = white label plus a 2 px amber left bar, the role's primary pill at the top, role switch / Help / Sign out in the footer); < 1024 px a bottom nav of at most 4 slots ending in **More**, which opens the same grouped menu as a sheet. Only shipped features appear.
+- Clean and professional: one job per screen, one amber fill per viewport, hairline rows before cards, the D1 type ladder only, plain-verb labels, no shadows or gradients.
 - Never "certified", "vetted", "trusted", "top", "recommended", "best", "premium" or "AI verified". Always "Verified by Smart Fundis". No counters beyond spec §13 rule 7. Nothing that looks live when it isn't.
 
 ### D11. Open questions from this section (for the operator and the Architect)
@@ -406,5 +422,6 @@ Every list, card, tile and reason code has all four states drawn (review S4). **
 - **Q3 — "An Expert decides" vs "AI suggestion — you decide". Resolved (D-60):** "AI suggestion — you decide" on Expert review only, and "An Expert decides." everywhere else.
 - **Q4 — Jump-to-moment timing.** The brief asks for jump-to-moment. The spec and V7-8 ship the chip as **plain text** until the timestamp-reliability eval passes (NF §1.1). The pattern above draws both states. Confirm that step 3 mockups show the plain-text state as the V7 default.
 - **Q5 — AI evidence for the Fundi. Resolved (D-59, supersedes D-52; amended by D-61, which makes the evidence English-only, hides timestamps until the eval passes and sends the approved-state copy to RAI review):** after every decision (approved, reshoot or rejected), the Fundi sees "The AI noticed…" with evidence text and plain-text timestamps, below the Expert's note. Before the decision, nothing changes (D-50).
-- **Q6 — Role-bar items** in D2 are proposals. Confirm them in step 2.
-- **Q7 — Kiswahili chip labels** in D4 are drafts that need the R-20 check. `web/messages/sw.json` doesn't exist yet (D-29 adds it).
+- **Q6 — Menu items.** Replaced by the categorized sidebar (D-65, proposed, 2026-09-27). The per-role menu in D2 is confirmed in step 2's inventory.
+- **Q8 — D-65 vs D-57.** D-57 capped the role bar at 4 items. D-65 keeps that cap for the mobile bottom nav (3 items plus More) and moves the full grouped menu into the sidebar and the More sheet. The Architect confirms.
+- **Q7 — Kiswahili chip labels.** Deferred by D-64 to the future Kiswahili phase, where they need the R-20 check.
