@@ -311,14 +311,14 @@
   },
   "FundiPage": {
     "meta": {
-      "title": "Your Fundi page · Smart Fundis"
+      "title": "Home · Smart Fundis"
     },
-    "title": "Your Fundi page",
+    "title": "Get your work verified.",
     "loading": "Opening your Fundi page…",
     "unavailable": "Your Fundi page is not available right now. Please try again later.",
+    "intro": "Record a video of one task. The AI checks it, then an Expert decides.",
     "publicProfile": {
-      "link": "View my public profile",
-      "hidden": "Your public profile is hidden, so it has no page others can see."
+      "link": "View my public profile"
     }
   },
   "Shell": {
@@ -1510,6 +1510,12 @@
       "network": "The upload stopped. Check your connection and try again.",
       "upload_failed": "The upload did not finish. Try again.",
       "unexpected": "Something went wrong. Try again."
+    },
+    "steps": {
+      "pick": "1 Pick a task",
+      "code": "2 Your code",
+      "record": "3 Record",
+      "consent": "4 Consent and upload"
     }
   },
   "Showcase": {
@@ -1763,5 +1769,103 @@
     "listed_unverified": "Listed · Not yet verified",
     "listing_off": "Not showing",
     "hidden_by_admin": "Hidden by Smart Fundis"
+  },
+  "FundiHome": {
+    "verificationsTitle": "My verifications",
+    "seeAll": "See all",
+    "badgesTitle": "Your badges",
+    "notYetVerified": "Not yet verified",
+    "listing": {
+      "title": "Listing status",
+      "listedUnverified": "Clients can find your profile. A badge shows once an Expert approves a video.",
+      "listed": "Clients can find your profile.",
+      "off": "Your profile is hidden from clients."
+    },
+    "finish": {
+      "title": "Finish your profile",
+      "stillToAdd": "Still to add:",
+      "items": {
+        "firstVideo": "First video"
+      }
+    },
+    "loading": "Loading…"
+  },
+  "Verifications": {
+    "meta": {
+      "title": "My verifications · Smart Fundis",
+      "detailTitle": "Verification · Smart Fundis"
+    },
+    "title": "My verifications",
+    "loading": "Loading your verifications…",
+    "rowMeta": "{trade} · {day} {month} {year}",
+    "detailMeta": "{trade} · Recorded {day} {month} {year}",
+    "empty": {
+      "tag": "Nothing here yet",
+      "body": "No verifications yet. Record a video of one task. An Expert reviews it."
+    },
+    "error": {
+      "tag": "Couldn't load",
+      "body": "We couldn't load your verifications. Try again in a moment.",
+      "cardBody": "We couldn't load this part of the page. Try again in a moment.",
+      "retry": "Try again"
+    },
+    "showMore": "Show more",
+    "back": "My verifications",
+    "notFound": {
+      "body": "We couldn't find this verification.",
+      "back": "Back to My verifications"
+    },
+    "status": {
+      "queued": "Waiting in line for the AI check.",
+      "analyzing": "The AI is watching your video.",
+      "awaiting_review": "An Expert will review your video.",
+      "appealed": "A different Expert will review your appeal.",
+      "failed": "Something went wrong on our side — please record again."
+    },
+    "expertNote": "Expert's note",
+    "recordAgain": "Record again"
+  },
+  "AddVideo": {
+    "title": "Add video",
+    "intro": "Choose how to add it.",
+    "record": {
+      "title": "Record or upload",
+      "line": "Earns a badge once an Expert approves it.",
+      "note": "You'll film one task with a code we give you."
+    },
+    "or": "Or",
+    "link": {
+      "title": "Add a YouTube or TikTok link",
+      "tag": "Showcase — not verified",
+      "line": "Links never earn a badge. They show on your profile as examples of your work.",
+      "label": "Link",
+      "placeholder": "https://youtube.com/…",
+      "helper": "Only link to videos of your own work.",
+      "add": "Add link",
+      "adding": "Adding…",
+      "added": "Added to Showcase — not verified.",
+      "offline": "Needs a connection",
+      "savedTitle": "Showcase links"
+    },
+    "errors": {
+      "host": "Only YouTube or TikTok links can be added.",
+      "empty": "Paste a YouTube or TikTok link first.",
+      "unsupported": "Use a link to one YouTube or TikTok video.",
+      "tiktok_short": "Open the video in TikTok, tap Share, then Copy link, and paste the full tiktok.com link.",
+      "save": "We could not save your link. Check your connection and try again."
+    }
+  },
+  "RecordPage": {
+    "meta": {
+      "title": "Record a video · Smart Fundis"
+    },
+    "title": "Record or upload",
+    "intro": "Earns a badge once an Expert approves it."
+  },
+  "ShowcasePage": {
+    "meta": {
+      "title": "Showcase links · Smart Fundis"
+    },
+    "title": "Showcase links"
   }
 }

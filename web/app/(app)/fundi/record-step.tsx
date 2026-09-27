@@ -6,8 +6,11 @@ import { useEffect, useId, useRef, useState, type ChangeEvent, type Ref } from "
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { CONSENT_VERSION } from "@convex/lib/assessmentUpload";
+import { cn } from "cn";
+import { ErrorLine } from "@/components/app-states";
+import { SECTION_LABEL } from "@/components/ui/app-type";
 import { LABEL } from "@/components/ui/field-label";
-import { PRIMARY_PILL, SECONDARY_PILL, pillClass } from "@/components/ui/pill";
+import { APP_PRIMARY_PILL, SECONDARY_PILL, pillClass } from "@/components/ui/pill";
 import { UPLOAD_ERRORS, uploadErrorKey, type UploadErrorKey } from "@/lib/upload-errors";
 import { checkVideoBeforeUpload, postVideo } from "@/lib/video-upload";
 import { StepNav, type PickerTask, type PickerTrade } from "./upload-flow";
@@ -21,6 +24,19 @@ type Upload =
 /** A file input's visible label, styled as a 48 px pill; the input itself is visually hidden. */
 const FILE_LABEL = `${pillClass({ variant: "secondary", size: "full", className: "min-h-12 cursor-pointer sm:w-auto" })} peer-focus-visible:outline-2 peer-focus-visible:outline-offset-2 peer-focus-visible:outline-ring`;
 const TICK = "flex min-h-12 cursor-pointer items-start gap-3 py-2 text-base";
+
+/**
+ * Upload video: the one amber fill on mobile; outlined from 1024 px, where
+ * the sidebar's Add video pill is the viewport's amber fill (D2).
+ */
+const UPLOAD_PILL = cn(APP_PRIMARY_PILL, "lg:border lg:border-line lg:bg-transparent lg:text-foreground lg:hover:border-foreground/40");
+
+/**
+ * The real upload progress (the only progress bar allowed, prompt 26):
+ * white on the hairline, never amber.
+ */
+const PROGRESS =
+  "h-1 w-full appearance-none overflow-hidden rounded-full bg-line text-foreground [&::-moz-progress-bar]:bg-foreground [&::-webkit-progress-bar]:bg-line [&::-webkit-progress-value]:bg-foreground";
 
 /**
  * The last step before an Assessment exists (#38): the Liveness code shown
@@ -120,9 +136,9 @@ export function RecordStep({
   return (
     <div className="flex flex-col gap-8">
       <section className="flex flex-col gap-3" aria-labelledby={`${id}-code`}>
-        <h3 id={`${id}-code`} className="text-lg font-semibold">
-          {t("code.title")}
-        </h3>
+        <h2 id={`${id}-code`} className={SECTION_LABEL}>
+          {t("steps.code")}
+        </h2>
         {liveness.code !== null ? (
           <p
             data-testid="liveness-code"
@@ -134,24 +150,22 @@ export function RecordStep({
           </p>
         ) : liveness.failed ? (
           <div className="flex flex-col gap-3">
-            <p role="alert" className="text-base text-primary">
-              {t("code.error")}
-            </p>
+            <ErrorLine>{t("code.error")}</ErrorLine>
             <button type="button" className={SECONDARY_PILL} onClick={() => void liveness.renew()}>
               {t("code.retry")}
             </button>
           </div>
         ) : (
-          <p className="text-base text-foreground/75">{t("code.loading")}</p>
+          <p className="text-base text-dim">{t("code.loading")}</p>
         )}
         <p className="text-base">{t("code.instructions")}</p>
       </section>
 
       <section className="flex flex-col gap-3" aria-labelledby={`${id}-video`}>
-        <h3 id={`${id}-video`} className="text-lg font-semibold">
-          {t("video.title")}
-        </h3>
-        <p id={`${id}-video-hint`} className="text-sm text-foreground/75">
+        <h2 id={`${id}-video`} className={SECTION_LABEL}>
+          {t("steps.record")}
+        </h2>
+        <p id={`${id}-video-hint`} className="text-base text-dim">
           {t("video.hint")}
         </p>
         <div key={inputsKey} className="flex flex-col gap-3 sm:flex-row">
@@ -188,98 +202,101 @@ export function RecordStep({
         {file ? <p className="text-base break-words">{t("video.chosen", { name: file.name })}</p> : null}
       </section>
 
-      <fieldset className="flex flex-col gap-3">
-        <legend className="mb-1 flex flex-col items-start text-base">
-          {t("consent.before")}{" "}
-          <button
-            ref={consentLink}
-            type="button"
-            aria-haspopup="dialog"
-            className="inline-flex min-h-12 items-center gap-2 text-lg font-semibold underline decoration-primary underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
-            onClick={openConsent}
-          >
-            <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 shrink-0 text-primary" fill="none" stroke="currentColor" strokeWidth="2">
-              <path d="M6 3l5 5-5 5" />
-            </svg>
-            {t("consent.open")}
-          </button>
-        </legend>
-        <label className={TICK}>
-          <input
-            type="checkbox"
-            className="mt-1 size-6 shrink-0 accent-primary"
-            checked={consent}
-            onChange={(event) => setConsent(event.currentTarget.checked)}
-          />
-          <span>{t("consent.agree")}</span>
-        </label>
-        {task.needsClientConsent ? (
-          <>
-            <label className={TICK}>
-              <input
-                type="checkbox"
-                className="mt-1 size-6 shrink-0 accent-primary"
-                aria-describedby={`${id}-client-hint`}
-                checked={clientConsent}
-                onChange={(event) => setClientConsent(event.currentTarget.checked)}
-              />
-              <span>{t("consent.client")}</span>
-            </label>
-            <p id={`${id}-client-hint`} className="text-sm text-foreground/75">
-              {t("consent.clientHint")}
-            </p>
-          </>
-        ) : null}
-      </fieldset>
-
-      <ConsentDialog ref={consentDialog} onClose={() => consentLink.current?.focus()} />
-
-      <div className="flex flex-col gap-3">
-        {!consentGiven ? (
-          <p className="text-sm text-foreground/75">
-            {task.needsClientConsent ? t("video.needBothTicks") : t("video.needConsent")}
-          </p>
-        ) : file === null ? (
-          <p className="text-sm text-foreground/75">{t("video.needVideo")}</p>
-        ) : null}
-        <button type="button" className={PRIMARY_PILL} disabled={!canUpload} onClick={() => void start()}>
-          {t("upload")}
-        </button>
-
-        {busy ? (
-          <div className="flex flex-col gap-2">
-            <label htmlFor={`${id}-progress`} className={LABEL}>
-              {t("progress")}
-            </label>
-            <progress
-              id={`${id}-progress`}
-              max={100}
-              value={upload.kind === "uploading" ? upload.percent : 100}
-              className="h-3 w-full accent-primary"
+      <section className="flex flex-col gap-3" aria-labelledby={`${id}-consent`}>
+        <h2 id={`${id}-consent`} className={SECTION_LABEL}>
+          {t("steps.consent")}
+        </h2>
+        <fieldset className="flex flex-col gap-3">
+          <legend className="mb-1 flex flex-col items-start text-base">
+            {t("consent.before")}{" "}
+            <button
+              ref={consentLink}
+              type="button"
+              aria-haspopup="dialog"
+              className="inline-flex min-h-12 items-center gap-2 text-lg font-semibold underline decoration-foreground/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              onClick={openConsent}
+            >
+              <svg aria-hidden="true" viewBox="0 0 16 16" className="size-4 shrink-0" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M6 3l5 5-5 5" />
+              </svg>
+              {t("consent.open")}
+            </button>
+          </legend>
+          <label className={TICK}>
+            <input
+              type="checkbox"
+              className="mt-1 size-6 shrink-0 accent-foreground"
+              checked={consent}
+              onChange={(event) => setConsent(event.currentTarget.checked)}
             />
-            <p className="text-sm">
-              {upload.kind === "uploading" ? t("uploading", { percent: upload.percent }) : t("saving")}
+            <span>{t("consent.agree")}</span>
+          </label>
+          {task.needsClientConsent ? (
+            <>
+              <label className={TICK}>
+                <input
+                  type="checkbox"
+                  className="mt-1 size-6 shrink-0 accent-foreground"
+                  aria-describedby={`${id}-client-hint`}
+                  checked={clientConsent}
+                  onChange={(event) => setClientConsent(event.currentTarget.checked)}
+                />
+                <span>{t("consent.client")}</span>
+              </label>
+              <p id={`${id}-client-hint`} className="text-base text-dim">
+                {t("consent.clientHint")}
+              </p>
+            </>
+          ) : null}
+        </fieldset>
+  
+        <ConsentDialog ref={consentDialog} onClose={() => consentLink.current?.focus()} />
+  
+        <div className="flex flex-col gap-3">
+          {!consentGiven ? (
+            <p className="text-base text-dim">
+              {task.needsClientConsent ? t("video.needBothTicks") : t("video.needConsent")}
             </p>
-          </div>
-        ) : null}
-
-        {upload.kind === "error" ? (
-          <div className="flex flex-col gap-3">
-            <p role="alert" className="text-base text-primary">
-              {t(UPLOAD_ERRORS[upload.key].messageKey)}
-            </p>
-            {recovery === "retry" ? (
-              <button type="button" className={SECONDARY_PILL} disabled={!canUpload} onClick={() => void start()}>
-                {t("retry")}
-              </button>
-            ) : recovery === "newCode" ? (
-              <button type="button" className={SECONDARY_PILL} onClick={() => void newCode()}>
-                {t("newCode")}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
-      </div>
+          ) : file === null ? (
+            <p className="text-base text-dim">{t("video.needVideo")}</p>
+          ) : null}
+          <button type="button" className={UPLOAD_PILL} disabled={!canUpload} onClick={() => void start()}>
+            {t("upload")}
+          </button>
+  
+          {busy ? (
+            <div className="flex flex-col gap-2">
+              <label htmlFor={`${id}-progress`} className={LABEL}>
+                {t("progress")}
+              </label>
+              <progress
+                id={`${id}-progress`}
+                max={100}
+                value={upload.kind === "uploading" ? upload.percent : 100}
+                className={PROGRESS}
+              />
+              <p className="font-mono text-xs tracking-[0.08em] tabular-nums">
+                {upload.kind === "uploading" ? t("uploading", { percent: upload.percent }) : t("saving")}
+              </p>
+            </div>
+          ) : null}
+  
+          {upload.kind === "error" ? (
+            <div className="flex flex-col gap-3">
+              <ErrorLine>{t(UPLOAD_ERRORS[upload.key].messageKey)}</ErrorLine>
+              {recovery === "retry" ? (
+                <button type="button" className={SECONDARY_PILL} disabled={!canUpload} onClick={() => void start()}>
+                  {t("retry")}
+                </button>
+              ) : recovery === "newCode" ? (
+                <button type="button" className={SECONDARY_PILL} onClick={() => void newCode()}>
+                  {t("newCode")}
+                </button>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
+      </section>
 
       {!busy ? <StepNav backLabel={t("back")} onBack={onBack} /> : null}
     </div>
@@ -308,7 +325,7 @@ function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose:
         <h2 id={`${id}-title`} tabIndex={-1} className="text-xl font-semibold focus:outline-none">
           {t("consent.title")}
         </h2>
-        <p className="text-base text-foreground/75">{t("consent.intro")}</p>
+        <p className="text-base text-dim">{t("consent.intro")}</p>
         <ul className="flex list-disc flex-col gap-2 pl-5">
           {CONSENT_POINTS.map((point) => (
             <li key={point} className="text-base">
@@ -319,7 +336,7 @@ function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose:
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-describedby={`${id}-new-tab`}
-                    className="underline decoration-primary underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    className="underline decoration-foreground/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
                   >
                     {chunks}
                   </a>
@@ -331,7 +348,7 @@ function ConsentDialog({ ref, onClose }: { ref: Ref<HTMLDialogElement>; onClose:
         <span id={`${id}-new-tab`} hidden>
           {t("consent.newTab")}
         </span>
-        <button type="button" className={PRIMARY_PILL} onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
+        <button type="button" className={SECONDARY_PILL} onClick={(event) => event.currentTarget.closest("dialog")?.close()}>
           {t("consent.close")}
         </button>
       </div>

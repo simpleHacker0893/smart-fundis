@@ -30,11 +30,14 @@ export function Sheet({
   ref,
   title,
   anchored = false,
+  className,
   children,
 }: {
   ref: Ref<HTMLDialogElement>;
   title: string;
   anchored?: boolean;
+  /** Extra classes, for example to anchor a popover elsewhere on desktop. */
+  className?: string;
   children: ReactNode;
 }) {
   const t = useTranslations("AppShell");
@@ -50,6 +53,7 @@ export function Sheet({
         "mt-auto mb-0 max-h-[85dvh] w-full max-w-none overflow-y-auto rounded-t border-t border-line bg-panel p-0 text-foreground backdrop:bg-black/70",
         "motion-safe:transition-transform motion-safe:duration-200",
         anchored && "lg:mt-[72px] lg:mr-8 lg:mb-auto lg:ml-auto lg:w-80 lg:rounded lg:border",
+        className,
       )}
     >
       <div className="flex flex-col pb-[env(safe-area-inset-bottom)]">
