@@ -59,27 +59,24 @@ export function seedExpert(email: string): void {
   convexRun(["seed:expert", JSON.stringify({ email })]);
 }
 
-export type FundiIds = {
-  profileId: string | null;
+export type NewestAssessment = {
   assessmentId: string | null;
   status: string | null;
 };
 
 /**
- * The Fundi profile id and newest Assessment of the User with this email,
- * read with a sandboxed readonly inline query on dev. The app has no query
- * that returns a Fundi's own profile id yet (#42 report), and the Expert
- * queue row must be matched to this run's Assessment exactly.
+ * The newest Assessment of the User with this email, read with a sandboxed
+ * readonly inline query on dev. The Expert queue row must be matched to this
+ * run's Assessment exactly, and no page shows the Fundi an Assessment id.
  */
-export function readFundiIds(email: string): FundiIds {
+export function readNewestAssessment(email: string): NewestAssessment {
   const query = `
     const user = await ctx.db.query("users").withIndex("by_email", (q) => q.eq("email", ${JSON.stringify(email)})).unique();
-    if (user === null) return { profileId: null, assessmentId: null, status: null };
-    const profile = await ctx.db.query("fundiProfiles").withIndex("by_userId", (q) => q.eq("userId", user._id)).unique();
+    if (user === null) return { assessmentId: null, status: null };
     const assessment = await ctx.db.query("assessments").withIndex("by_fundiUserId", (q) => q.eq("fundiUserId", user._id)).order("desc").first();
-    return { profileId: profile?._id ?? null, assessmentId: assessment?._id ?? null, status: assessment?.status ?? null };
+    return { assessmentId: assessment?._id ?? null, status: assessment?.status ?? null };
   `;
-  return convexRun(["--inline-query", query]) as FundiIds;
+  return convexRun(["--inline-query", query]) as NewestAssessment;
 }
 
 export type StubRun = {

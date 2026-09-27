@@ -4,7 +4,7 @@ import en from "../messages/en.json";
 import {
   fullLoopSkipMessage,
   missingFullLoopEnv,
-  readFundiIds,
+  readNewestAssessment,
   seedExpert,
   startStubWorker,
   type StubRun,
@@ -19,8 +19,9 @@ import { clerkApi, expectNoSideScroll, newTestEmail, onboardAsFundi, signInAsNew
 //      no page reload (this closes #38's partial live-chip criterion).
 //   4. A second new User is seeded as the Expert, opens /expert, opens this
 //      Assessment and approves it. The Fundi's own page shows the Badge live.
-//   5. Signed out, /f/<id> shows "Verified by Smart Fundis — Electrical:
-//      Install a 13A socket · <date>", never "certified", and no side-scroll.
+//   5. /fundi links to /f/<id>. Signed out, that page shows "Verified by
+//      Smart Fundis — Electrical: Install a 13A socket · <date>", never
+//      "certified", and no side-scroll.
 //
 // Dev prerequisites (never prod; the spec skips with the missing names):
 //   - Root .env: the Clerk e2e keys and CONVEX_URL (as the other specs),
@@ -97,9 +98,8 @@ test.describe("the V1 demo loop at 360 px", () => {
     await expect(chip).toHaveText(status.awaiting_review);
     expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
 
-    const ids = readFundiIds(fundiEmail);
+    const ids = readNewestAssessment(fundiEmail);
     expect(ids.status).toBe("awaiting_review");
-    expect(ids.profileId, "no Fundi profile for the test User").not.toBeNull();
     expect(ids.assessmentId, "no Assessment for the test User").not.toBeNull();
 
     // 4. A second User becomes the Expert and approves this Assessment.
@@ -140,11 +140,18 @@ test.describe("the V1 demo loop at 360 px", () => {
     await expect(item.getByTestId("badge-line")).toHaveText(badgeLine);
     expect(await page.evaluate(() => (window as unknown as { __noReload?: boolean }).__noReload)).toBe(true);
 
+    // /fundi links a Listed Fundi to their public profile (onboarding lists them).
+    const profileLink = page.getByRole("link", { name: en.FundiPage.publicProfile.link });
+    expect((await profileLink.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
+    const profileHref = await profileLink.getAttribute("href");
+    expect(profileHref).toMatch(/^\/f\/\w+$/);
+    if (!profileHref) throw new Error("the public-profile link has no href");
+
     // 5. Signed out, the public profile shows the Badge.
     const publicContext = await browser.newContext(mobile);
     const publicPage = await publicContext.newPage();
     await setupClerkTestingToken({ page: publicPage });
-    await publicPage.goto(`/f/${ids.profileId}`);
+    await publicPage.goto(profileHref);
     await expect(publicPage.getByRole("heading", { level: 1, name: "E2E Loop Fundi" })).toBeVisible();
     await expect(publicPage.getByTestId("county")).toContainText("Nairobi");
     await expect(publicPage.getByTestId("trade")).toHaveText([electrical]);

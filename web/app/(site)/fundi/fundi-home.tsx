@@ -2,6 +2,7 @@
 
 import { useConvexAuth, useMutation, useQuery } from "convex/react";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
 import { api } from "@convex/_generated/api";
@@ -21,7 +22,8 @@ import { UploadFlow } from "./upload-flow";
  * the Showcase links in their own section, last so nobody takes them for
  * verification (#38, US-3.8).
  * The operator removed the name, county and Trades block for an easier
- * upload (2026-09-26). All three mount only once the guard allows, because their
+ * upload (2026-09-26); a link to the public profile sits under the heading
+ * (#42). All of them mount only once the guard allows, because their
  * queries throw for a non-Fundi.
  */
 export function FundiHome() {
@@ -49,10 +51,31 @@ function GuardedHome() {
   return (
     <>
       <h1 className="text-3xl font-semibold tracking-tight">{t("title")}</h1>
+      <PublicProfileLink />
       <UploadFlow />
       <AssessmentList />
       <ShowcaseLinks />
     </>
+  );
+}
+
+/**
+ * The way to the Fundi's own public page, /f/<id> (#42). Only when the
+ * profile is Listed (`publicListing`): otherwise /f/<id> is a 404, so a
+ * plain line says it is hidden. Nothing while loading or when null.
+ */
+function PublicProfileLink() {
+  const t = useTranslations("FundiPage.publicProfile");
+  const mine = useQuery(api.fundiProfiles.myProfileId, {});
+  if (!mine) return null;
+  if (!mine.publicListing) return <p className="text-base text-foreground/75">{t("hidden")}</p>;
+  return (
+    <Link
+      href={`/f/${mine.id}`}
+      className="inline-flex min-h-12 items-center self-start text-base underline underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+    >
+      {t("link")}
+    </Link>
   );
 }
 
