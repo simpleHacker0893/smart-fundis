@@ -1664,5 +1664,83 @@
       "body": "The link may be wrong, or the Fundi no longer shows their profile.",
       "home": "Go to the home page"
     }
+  },
+  "AppShell": {
+    "skipToContent": "Skip to content",
+    "brand": "Smart Fundis",
+    "tagline": "Verified skills",
+    "homeLabel": "Smart Fundis: your dashboard",
+    "roles": {
+      "fundi": "Fundi",
+      "expert": "Expert"
+    },
+    "menuLabel": "Dashboard menu",
+    "bottomNavLabel": "Dashboard sections",
+    "categories": {
+      "overview": "Overview",
+      "verification": "Verification",
+      "profile": "Profile",
+      "review": "Review",
+      "account": "Account",
+      "smartFundis": "Smart Fundis"
+    },
+    "items": {
+      "home": "Home",
+      "verifications": "My verifications",
+      "publicProfile": "Public profile",
+      "showcase": "Showcase links",
+      "queue": "Queue",
+      "profile": "Profile",
+      "trades": "Trades",
+      "evidence": "Evidence",
+      "company": "Company",
+      "help": "Help",
+      "signOut": "Sign out"
+    },
+    "bottom": {
+      "home": "Home",
+      "verifications": "Verifications",
+      "profile": "Profile",
+      "queue": "Queue",
+      "more": "More"
+    },
+    "addVideo": "Add video",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
+    "sheet": {
+      "close": "Close",
+      "menuTitle": "Menu",
+      "accountTitle": "Account"
+    },
+    "avatar": {
+      "open": "Account",
+      "manage": "Manage account",
+      "signOut": "Sign out"
+    },
+    "switcher": {
+      "legend": "Dashboard",
+      "fundi": "Fundi dashboard",
+      "expert": "Expert dashboard",
+      "current": "Current",
+      "switching": "Switching…"
+    },
+    "connection": {
+      "offline": "You're offline. Showing what loaded at {time}.",
+      "back": "Back online"
+    }
+  },
+  "StatusChip": {
+    "queued": "In line",
+    "analyzing": "AI checking",
+    "awaiting_review": "Awaiting expert review",
+    "approved": "Approved",
+    "reshoot": "Record again",
+    "rejected": "Not approved",
+    "appealed": "Appeal sent",
+    "failed": "Error on our side",
+    "listed": "Listed",
+    "listed_unverified": "Listed · Not yet verified",
+    "listing_off": "Not showing",
+    "hidden_by_admin": "Hidden by Smart Fundis"
   }
 }

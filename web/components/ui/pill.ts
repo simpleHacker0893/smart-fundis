@@ -14,6 +14,8 @@ const VARIANTS = {
   // The Stitch screen's soft amber glow: light, not a drop shadow (DESIGN.md L85).
   primary:
     "bg-primary text-primary-foreground shadow-[0_0_15px_color-mix(in_srgb,var(--amber)_20%,transparent)] hover:brightness-110",
+  // App mode (DESIGN.md D1, #67): the same flat amber pill, without the glow.
+  "app-primary": "bg-primary text-primary-foreground hover:brightness-110",
   secondary: "border border-line text-foreground hover:border-foreground/40",
 } as const;
 
@@ -59,3 +61,6 @@ export const PRIMARY_PILL = pillClass({ variant: "primary", size: "full", classN
 
 /** The secondary action button of an in-app step (Back, Try again, Remove). */
 export const SECONDARY_PILL = pillClass({ variant: "secondary", size: "full", className: ACTION });
+
+/** The app-mode primary action (DESIGN.md D1): flat amber, no glow, 48 px. */
+export const APP_PRIMARY_PILL = pillClass({ variant: "app-primary", size: "full", className: ACTION });
