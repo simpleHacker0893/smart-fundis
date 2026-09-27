@@ -23,6 +23,7 @@ import type * as lib_auth from "../lib/auth.js";
 import type * as lib_conforms from "../lib/conforms.js";
 import type * as lib_contact from "../lib/contact.js";
 import type * as lib_counties from "../lib/counties.js";
+import type * as lib_decisions from "../lib/decisions.js";
 import type * as lib_fundiProfile from "../lib/fundiProfile.js";
 import type * as lib_phone from "../lib/phone.js";
 import type * as lib_rateLimiter from "../lib/rateLimiter.js";
@@ -59,6 +60,7 @@ declare const fullApi: ApiFromModules<{
   "lib/conforms": typeof lib_conforms;
   "lib/contact": typeof lib_contact;
   "lib/counties": typeof lib_counties;
+  "lib/decisions": typeof lib_decisions;
   "lib/fundiProfile": typeof lib_fundiProfile;
   "lib/phone": typeof lib_phone;
   "lib/rateLimiter": typeof lib_rateLimiter;
