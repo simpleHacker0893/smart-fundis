@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Public+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{colors:{"on-secondary":"#191c1e","tertiary":"#e2e2e9","error":"#ffb4ab","surface-bright":"#38393d","outline-variant":"#474747","on-primary-container":"#000000","surface-dim":"#121317","on-surface":"#e3e2e7","primary-container":"#ffcaa4","secondary-container":"#44474a","surface-container-low":"#1a1b1f","secondary-fixed":"#c4c7ca","tertiary-container":"#8f9097","surface-tint":"#ffb782","on-background":"#e3e2e7","on-secondary-container":"#e0e3e6","on-tertiary-container":"#000000","on-primary-fixed":"#ffffff","tertiary-fixed-dim":"#45474d","inverse-surface":"#e3e2e7","on-primary":"#301400","on-tertiary-fixed-variant":"#e2e2e9","on-primary-fixed-variant":"#ffdcc5","on-surface-variant":"#c6c6c6","secondary-fixed-dim":"#a9abae","on-tertiary-fixed":"#ffffff","surface":"#121317","on-tertiary":"#1a1b21","outline":"#919191","error-container":"#93000a","secondary":"#c4c7ca","primary-fixed-dim":"#703800","inverse-on-surface":"#2f3034","background":"#121317","on-secondary-fixed":"#191c1e","on-error-container":"#ffdad6","surface-container-lowest":"#0d0e12","on-error":"#690005","surface-container":"#1e1f23","tertiary-fixed":"#5d5e64","surface-container-high":"#292a2e","primary-fixed":"#904d0e","primary":"#ffffff","on-secondary-fixed-variant":"#383c3e","inverse-primary":"#904d0e","surface-variant":"#343539","surface-container-highest":"#343539"},borderRadius:{"DEFAULT":"0.125rem","lg":"0.25rem","xl":"0.5rem","full":"0.75rem"},spacing:{},fontFamily:{headline:["Inter"],display:["Inter"],body:["Inter"],label:["Public Sans"]},fontSize:{}}}}</script></head><body class="bg-surface font-body text-on-surface antialiased"><header class="fixed top-0 left-0 right-0 h-16 bg-surface-container-lowest z-50 flex items-center justify-between px-6 border-b border-outline-variant/20"><div class="flex items-center gap-6"><div class="flex items-center gap-3"><div class="w-7 h-7 rounded bg-surface-tint flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">build</span></div><span class="font-headline font-bold text-sm tracking-wider uppercase text-primary">Smart Fundis</span></div><span class="hidden sm:inline-block text-[11px] font-label font-bold tracking-[0.2em] uppercase px-2.5 py-1 bg-surface-container-high rounded text-on-surface-variant">Fundi Dashboard</span></div><div class="flex items-center gap-4"><div class="flex items-center gap-3 pl-4 border-l border-outline-variant/30"><div class="text-right hidden sm:block"><div class="text-xs font-headline font-semibold text-primary leading-tight">WK</div><div class="text-[10px] text-on-surface-variant font-label leading-tight uppercase tracking-wider">Active Tier</div></div><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div></div></div></header><aside class="fixed left-0 top-16 bottom-0 w-[248px] bg-surface-container-lowest z-40 flex flex-col justify-between border-r border-outline-variant/20 overflow-y-auto"><div class="p-4 flex flex-col gap-6"><div class="pt-2"><a class="w-full h-12 rounded bg-surface-tint text-on-primary font-label font-bold text-xs tracking-[0.2em] uppercase flex items-center justify-center gap-2 hover:bg-primary-container transition-colors" data-path="record-upload-task-flow" href="#"><span class="material-symbols-outlined text-[18px]">video_call</span><span>Add Video</span></a></div><nav class="flex flex-col gap-6" data-active-classes="border-l-2 border-surface-tint bg-surface-container text-primary font-semibold pl-3"><div class="flex flex-col gap-1"><div class="px-3 pb-1 text-[11px] font-label font-bold tracking-[0.26em] uppercase text-outline">Overview</div><a aria-current="page" class="flex items-center gap-3 px-3 py-2 rounded transition-colors border-l-2 border-surface-tint bg-surface-container text-primary font-semibold pl-3" data-path="fundi-home" href="#"><span class="material-symbols-outlined text-[18px]">home</span><span>Home</span></a></div><div class="flex flex-col gap-1"><div class="px-3 pb-1 text-[11px] font-label font-bold tracking-[0.26em] uppercase text-outline">Verification</div><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="verification-detail-and-ai-audit-timeline" href="#"><span class="material-symbols-outlined text-[18px]">verified</span><span>My Verifications</span></a><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="expert-review-bench" href="#"><span class="material-symbols-outlined text-[18px]">fact_check</span><span>Review Bench</span></a></div><div class="flex flex-col gap-1"><div class="px-3 pb-1 text-[11px] font-label font-bold tracking-[0.26em] uppercase text-outline">Profile</div><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="public-fundi-showcase-profile" href="#"><span class="material-symbols-outlined text-[18px]">badge</span><span>Public Profile</span></a><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="showcase-links" href="#"><span class="material-symbols-outlined text-[18px]">link</span><span>Showcase Links</span></a></div><div class="flex flex-col gap-1"><div class="px-3 pb-1 text-[11px] font-label font-bold tracking-[0.26em] uppercase text-outline">Smart Fundis</div><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="trades" href="#"><span class="material-symbols-outlined text-[18px]">handyman</span><span>Trades</span></a><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="evidence" href="#"><span class="material-symbols-outlined text-[18px]">folder</span><span>Evidence</span></a><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="company" href="#"><span class="material-symbols-outlined text-[18px]">business</span><span>Company</span></a></div></nav></div><div class="p-4 border-t border-outline-variant/20 flex flex-col gap-1"><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="help" href="#"><span class="material-symbols-outlined text-[18px]">help</span><span>Help</span></a><a class="flex items-center gap-3 px-3 py-2 text-xs text-on-surface-variant hover:text-on-surface hover:bg-surface-container-high rounded transition-colors" data-path="sign-out" href="#"><span class="material-symbols-outlined text-[18px]">logout</span><span>Sign Out</span></a></div></aside><div class="pl-[248px]"><main class="w-full pt-16 bg-surface min-h-screen"><div class="flex flex-col w-full">
+<div class="p-6 md:p-8 lg:p-10 max-w-[1440px] mx-auto w-full space-y-10">
+<!-- Top Announcement & Header Block -->
+<header class="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-2">
+<div class="space-y-2 max-w-2xl">
+<div class="flex items-center gap-2">
+<span class="inline-block w-2 h-2 rounded-full bg-surface-tint"></span>
+<span class="font-label text-[11px] font-bold tracking-[0.26em] uppercase text-on-surface-variant">Technician Workbench</span>
+</div>
+<h1 class="font-headline text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-primary leading-tight">
+          Get your work verified.
+        </h1>
+<p class="font-body text-sm sm:text-base text-on-surface-variant font-normal leading-relaxed">
+          Record a video of one task. The AI checks it, then an Expert decides.
+        </p>
+</div>
+<div class="flex-shrink-0">
+<a class="inline-flex items-center justify-center gap-3 h-12 px-7 bg-surface-tint text-on-primary font-label font-bold text-xs tracking-[0.2em] uppercase rounded hover:opacity-90 active:scale-[0.99] transition-all shadow-md" data-path="record-upload-task-flow" href="#">
+<span class="material-symbols-outlined text-[19px]">videocam</span>
+<span>Add Video</span>
+</a>
+</div>
+</header>
+<!-- Main Workspace Layout (65% / 35% Grid) -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+<!-- Primary Column (65%) -->
+<section class="lg:col-span-8 space-y-10">
+<!-- Verifications Queue Block -->
+<div class="space-y-4">
+<div class="flex items-center justify-between pb-1">
+<div class="flex items-center gap-3">
+<span class="font-label text-xs font-bold tracking-[0.26em] uppercase text-on-surface-variant">My Verifications</span>
+<span class="px-2 py-0.5 text-[10px] font-label font-bold tracking-widest text-on-surface-variant bg-surface-container-high rounded">3 Active</span>
+</div>
+<a class="font-label text-xs font-semibold uppercase tracking-[0.2em] text-on-surface hover:text-surface-tint transition-colors flex items-center gap-1 group" data-path="verification-detail-and-ai-audit-timeline" href="#">
+<span>See all</span>
+<span class="material-symbols-outlined text-sm group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</a>
+</div>
+<!-- Queue List Cards -->
+<div class="space-y-3">
+<!-- Item 1 -->
+<div class="group bg-surface-container p-5 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-surface-container-high">
+<div class="space-y-1.5 min-w-0">
+<div class="flex items-center gap-2 text-[11px] font-label tracking-wider uppercase text-on-surface-variant">
+<span class="font-semibold text-primary">Electrical</span>
+<span>•</span>
+<span>2 h ago</span>
+<span>•</span>
+<span class="font-mono text-[10px] text-outline">REF: #VR-9804</span>
+</div>
+<h3 class="font-headline text-base font-semibold text-primary truncate">Install a 13A socket</h3>
+</div>
+<div class="flex items-center gap-3 flex-shrink-0 self-start sm:self-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface-variant text-xs font-label uppercase tracking-wider font-semibold">
+<span class="text-surface-tint text-sm">◒</span>
+<span>Awaiting expert review</span>
+</div>
+<button aria-label="Task options" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="group bg-surface-container p-5 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-surface-container-high">
+<div class="space-y-1.5 min-w-0">
+<div class="flex items-center gap-2 text-[11px] font-label tracking-wider uppercase text-on-surface-variant">
+<span class="font-semibold text-primary">Hairdressing</span>
+<span>•</span>
+<span>1 h ago</span>
+<span>•</span>
+<span class="font-mono text-[10px] text-outline">REF: #VR-9821</span>
+</div>
+<h3 class="font-headline text-base font-semibold text-primary truncate">Cornrows</h3>
+</div>
+<div class="flex items-center gap-3 flex-shrink-0 self-start sm:self-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface text-xs font-label uppercase tracking-wider font-semibold">
+<span class="inline-block w-2.5 h-2.5 rounded-full border border-surface-tint border-t-transparent animate-spin"></span>
+<span>AI checking</span>
+</div>
+<button aria-label="Task options" class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-lg">chevron_right</span>
+</button>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="group bg-surface-container p-5 rounded flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-colors hover:bg-surface-container-high">
+<div class="space-y-1.5 min-w-0">
+<div class="flex items-center gap-2 text-[11px] font-label tracking-wider uppercase text-on-surface-variant">
+<span class="font-semibold text-primary">Electrical</span>
+<span>•</span>
+<span>2 d ago</span>
+<span>•</span>
+<span class="font-mono text-[10px] text-outline">REF: #VR-8742</span>
+</div>
+<h3 class="font-headline text-base font-semibold text-primary truncate">Install a 13A socket</h3>
+</div>
+<div class="flex items-center gap-3 flex-shrink-0 self-start sm:self-auto">
+<div class="inline-flex items-center gap-2 px-3 py-1.5 rounded bg-surface-container-lowest text-on-surface-variant text-xs font-label uppercase tracking-wider font-semibold hover:text-primary transition-colors">
+<span class="text-sm">↺</span>
+<span>Record again</span>
+</div>
+<a class="w-8 h-8 rounded flex items-center justify-center text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors" data-path="record-upload-task-flow" href="#">
+<span class="material-symbols-outlined text-lg">videocam</span>
+</a>
+</div>
+</div>
+</div>
+</div>
+<!-- Badges Section -->
+<div class="space-y-4">
+<div class="flex items-center justify-between pb-1">
+<span class="font-label text-xs font-bold tracking-[0.26em] uppercase text-on-surface-variant">Your Badges</span>
+<span class="text-xs font-label text-on-surface-variant">1 credential active</span>
+</div>
+<div class="bg-surface-container p-6 sm:p-7 rounded flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded bg-surface-container-lowest flex items-center justify-center flex-shrink-0">
+<span class="material-symbols-outlined text-surface-tint text-2xl" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="space-y-1">
+<div class="text-[11px] font-label font-bold tracking-[0.2em] uppercase text-surface-tint">Authenticated Credential</div>
+<h4 class="font-headline text-base sm:text-lg font-bold text-primary">Verified by Smart Fundis</h4>
+<p class="font-body text-xs text-on-surface-variant">
+                  Electrical: Install a 13A socket  •  <span class="font-mono text-outline">Issued 25 Sep 2026</span>
+</p>
+</div>
+</div>
+<a class="inline-flex items-center gap-2 px-4 py-2.5 rounded bg-surface-container-high hover:bg-surface-container-highest text-primary font-label text-xs uppercase tracking-widest font-semibold transition-colors flex-shrink-0" data-path="showcase-links" href="#">
+<span class="material-symbols-outlined text-base">share</span>
+<span>Share Badge</span>
+</a>
+</div>
+</div>
+<!-- Verification Pipeline Insight & CTA Banner -->
+<div class="bg-surface-container-low p-6 sm:p-8 rounded relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+<div class="space-y-2 max-w-lg z-10">
+<span class="font-label text-[11px] font-bold tracking-[0.26em] uppercase text-surface-tint">Boost Trust Index</span>
+<h3 class="font-headline text-xl sm:text-2xl font-bold text-primary">Need another trade verified?</h3>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+              Fundis with 2 or more verified tasks receive an average of 4x more direct work inquiries in their subcounty.
+            </p>
+</div>
+<div class="flex-shrink-0 z-10 w-full md:w-auto">
+<a class="w-full md:w-auto inline-flex items-center justify-center gap-2 h-12 px-6 bg-surface-tint text-on-primary font-label font-bold text-xs tracking-[0.2em] uppercase rounded hover:opacity-90 transition-all shadow-md" data-path="record-upload-task-flow" href="#">
+<span class="material-symbols-outlined text-lg">add</span>
+<span>Add Video</span>
+</a>
+</div>
+<!-- Subtle SVG Wireframe Geometry Element for Visual Richness -->
+<div class="absolute right-0 bottom-0 opacity-10 pointer-events-none transform translate-x-6 translate-y-6">
+<svg fill="none" height="180" viewbox="0 0 220 180" width="220">
+<rect class="text-surface-tint" height="160" rx="4" stroke="currentColor" stroke-dasharray="4 4" stroke-width="1.5" width="200" x="10" y="10"></rect>
+<circle class="text-surface-tint" cx="110" cy="90" r="45" stroke="currentColor" stroke-width="1.5"></circle>
+<path class="text-surface-tint" d="M110 65V115M85 90H135" stroke="currentColor" stroke-width="1.5"></path>
+</svg>
+</div>
+</div>
+</section>
+<!-- Sidebar Column (35%) -->
+<aside class="lg:col-span-4 space-y-6">
+<!-- Listing Status Card -->
+<div class="bg-surface-container p-6 rounded space-y-5">
+<div class="flex items-center justify-between">
+<span class="font-label text-[11px] font-bold tracking-[0.26em] uppercase text-on-surface-variant">Listing Status</span>
+<span class="text-[10px] font-mono text-outline">PUBLIC_INDEX: LIVE</span>
+</div>
+<div class="flex items-center gap-3 py-1">
+<span class="w-2.5 h-2.5 rounded-full bg-surface-tint flex-shrink-0"></span>
+<span class="font-headline text-base font-bold text-primary">Listed · Not yet verified</span>
+</div>
+<p class="font-body text-xs text-on-surface-variant leading-relaxed">
+            Clients can find your profile. A badge shows once an Expert approves a video.
+          </p>
+<!-- Status Indicator Visual -->
+<div class="p-3 bg-surface-container-lowest rounded flex items-center justify-between text-xs font-mono">
+<span class="text-on-surface-variant">Discovery Visibility</span>
+<span class="text-surface-tint font-bold">Standard Tier</span>
+</div>
+<a class="w-full inline-flex items-center justify-center gap-2 h-11 bg-surface-container-high hover:bg-surface-container-highest text-primary font-label font-bold text-xs uppercase tracking-[0.2em] rounded transition-colors" data-path="public-fundi-showcase-profile" href="#">
+<span class="material-symbols-outlined text-[17px]">visibility</span>
+<span>View My Public Profile</span>
+</a>
+</div>
+<!-- Finish Your Profile Card -->
+<div class="bg-surface-container p-6 rounded space-y-5">
+<div class="flex items-center justify-between">
+<span class="font-label text-[11px] font-bold tracking-[0.26em] uppercase text-on-surface-variant">Finish Your Profile</span>
+<span class="text-[11px] font-mono text-on-surface-variant">4 Tasks Left</span>
+</div>
+<!-- Progress Bar Representation -->
+<div class="space-y-1.5">
+<div class="w-full bg-surface-container-lowest h-1.5 rounded overflow-hidden">
+<div class="bg-surface-tint h-full w-[45%] rounded"></div>
+</div>
+<div class="flex justify-between text-[10px] font-label text-outline uppercase tracking-wider">
+<span>Setup Stage 2</span>
+<span>45% Complete</span>
+</div>
+</div>
+<div class="space-y-2 pt-1">
+<span class="text-xs font-label uppercase tracking-widest text-on-surface-variant font-semibold">Still to add:</span>
+<div class="space-y-2 pt-1">
+<!-- Checklist Item 1 -->
+<a class="flex items-start justify-between p-3 rounded bg-surface-container-lowest hover:bg-surface-container-high transition-colors group" data-path="trades" href="#">
+<div class="space-y-0.5 pr-2">
+<div class="font-headline text-xs font-semibold text-primary group-hover:text-surface-tint transition-colors">Photo of your work</div>
+<div class="text-[11px] text-on-surface-variant font-body">Clients look at these first</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary text-sm flex-shrink-0 pt-0.5 group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</a>
+<!-- Checklist Item 2 -->
+<a class="flex items-start justify-between p-3 rounded bg-surface-container-lowest hover:bg-surface-container-high transition-colors group" data-path="public-fundi-showcase-profile" href="#">
+<div class="space-y-0.5 pr-2">
+<div class="font-headline text-xs font-semibold text-primary group-hover:text-surface-tint transition-colors">About your work</div>
+<div class="text-[11px] text-on-surface-variant font-body">Highlight specializations and tools</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary text-sm flex-shrink-0 pt-0.5 group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</a>
+<!-- Checklist Item 3 -->
+<a class="flex items-start justify-between p-3 rounded bg-surface-container-lowest hover:bg-surface-container-high transition-colors group" data-path="company" href="#">
+<div class="space-y-0.5 pr-2">
+<div class="font-headline text-xs font-semibold text-primary group-hover:text-surface-tint transition-colors">Service location / Subcounty</div>
+<div class="text-[11px] text-on-surface-variant font-body">Receive local client requests</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary text-sm flex-shrink-0 pt-0.5 group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</a>
+<!-- Checklist Item 4 -->
+<a class="flex items-start justify-between p-3 rounded bg-surface-container-lowest hover:bg-surface-container-high transition-colors group" data-path="evidence" href="#">
+<div class="space-y-0.5 pr-2">
+<div class="font-headline text-xs font-semibold text-primary group-hover:text-surface-tint transition-colors">Years of trade experience</div>
+<div class="text-[11px] text-on-surface-variant font-body">Establishes credibility with builders</div>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary text-sm flex-shrink-0 pt-0.5 group-hover:translate-x-0.5 transition-transform">arrow_forward</span>
+</a>
+</div>
+</div>
+</div>
+<!-- Trust & Standard Notice Card -->
+<div class="bg-surface-container-low p-5 rounded space-y-3">
+<div class="flex items-center gap-2 text-surface-tint">
+<span class="material-symbols-outlined text-lg">verified_user</span>
+<span class="font-label text-[11px] font-bold tracking-[0.2em] uppercase text-primary">Smart Fundis Standard</span>
+</div>
+<p class="font-body text-[11px] text-on-surface-variant leading-relaxed">
+            All reviews adhere to the verified Kenya National Occupational Standards (KNOS). No self-declarations or unverified testimonials are accepted.
+          </p>
+</div>
+</aside>
+</div>
+</div>
+</div></main></div></body></html>

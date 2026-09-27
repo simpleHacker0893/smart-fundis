@@ -52,7 +52,7 @@ afterEach(() => {
 });
 
 async function render() {
-  const { DecisionForm } = await import("@/app/(site)/expert/[assessmentId]/decision-form");
+  const { DecisionForm } = await import("@/app/(app)/expert/[assessmentId]/decision-form");
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en}>
@@ -64,7 +64,9 @@ async function render() {
 
 const radio = (value: string) => container.querySelector<HTMLInputElement>(`input[type="radio"][value="${value}"]`)!;
 const note = () => container.querySelector("textarea")!;
-const alert = () => container.querySelector('[role="alert"]')?.textContent ?? null;
+// The alert opens with a decorative ✕ glyph (DESIGN D9); the message follows it.
+const alertEl = () => container.querySelector('[role="alert"]');
+const alert = () => alertEl()?.textContent?.replace(/^✕\s*/, "") ?? null;
 const submitButton = () => container.querySelector<HTMLButtonElement>('button[type="submit"]')!;
 
 async function choose(value: string) {
@@ -84,6 +86,66 @@ async function submit() {
 }
 
 describe("the decision form (US-5.3)", () => {
+  it("uses #67's wording: Approve, Ask for a new video, Reject, and Submit decision", async () => {
+    await render();
+    expect([t("choice.approve"), t("choice.reshoot"), t("choice.reject")]).toEqual([
+      "Approve",
+      "Ask for a new video",
+      "Reject",
+    ]);
+    expect(t("submit")).toBe("Submit decision");
+    expect(t("submitting")).toBe("Submitting…");
+    for (const input of container.querySelectorAll('input[type="radio"]')) {
+      expect(input.closest("label")?.className).toMatch(/\bmin-h-14\b/);
+    }
+  });
+
+  it("labels the approve note 'NOTE FOR THE RECORD — not shown to the Fundi'", async () => {
+    await render();
+    expect(t("noteLabelApprove")).toBe("Note for the record — not shown to the Fundi");
+    expect(t("noteLabel")).toBe("Note to the Fundi");
+  });
+
+  it("counts the note in mono as '<n> / 1000', and says when it is too long as the Expert types", async () => {
+    await render();
+    const counter = () => container.querySelector('[data-testid="note-count"]');
+    expect(counter()?.textContent).toBe("0 / 1000");
+    expect(counter()?.className).toMatch(/font-mono/);
+    await choose("reshoot");
+    await type("x".repeat(1012));
+    expect(counter()?.textContent).toBe("1012 / 1000");
+    expect(alert()).toBe("Keep the note under 1000 characters.");
+    expect(note().getAttribute("aria-invalid")).toBe("true");
+    await type("x".repeat(40));
+    expect(alert()).toBeNull();
+  });
+
+  it("shows a neutral ✕ with every error, outside the alert and hidden from screen readers, never amber", async () => {
+    await render();
+    await choose("reject");
+    await submit();
+    const el = alertEl()!;
+    // The shared ErrorLine (components/app-states): the alert reads only the words.
+    expect(el.textContent).toBe(t("errors.note_required"));
+    const line = el.closest("p")!;
+    expect(line.textContent).toBe(`✕${t("errors.note_required")}`);
+    expect(line.querySelector('[aria-hidden="true"]')?.textContent).toBe("✕");
+    expect(line.outerHTML).not.toMatch(/primary/);
+    expect(note().className).not.toMatch(/border-primary/);
+  });
+
+  it("keeps the choice and the note when the server fails, with 'We couldn't save your decision. Try again.'", async () => {
+    state.decide.mockRejectedValue(new Error("offline"));
+    await render();
+    await choose("reshoot");
+    await type("Film the tester on each wire.");
+    await submit();
+    expect(alert()).toBe("We couldn't save your decision. Try again.");
+    expect(note().value).toBe("Film the tester on each wire.");
+    expect(radio("reshoot").checked).toBe(true);
+    expect(submitButton().disabled).toBe(false);
+  });
+
   it("offers approve, reshoot and reject as labelled choices, and a labelled note", async () => {
     await render();
     const labels = [...container.querySelectorAll('input[type="radio"]')].map(
@@ -93,7 +155,8 @@ describe("the decision form (US-5.3)", () => {
     expect(container.querySelector("legend")?.textContent).toBe(t("title"));
     const textarea = note();
     expect(container.querySelector(`label[for="${textarea.id}"]`)?.textContent).toBe(t("noteLabel"));
-    expect(textarea.maxLength).toBe(1000);
+    // No hard maxLength: the counter can pass 1000 so the Expert sees why the note is refused.
+    expect(textarea.maxLength).toBe(-1);
     expect(submitButton().textContent).toBe(t("submit"));
   });
 
@@ -102,18 +165,56 @@ describe("the decision form (US-5.3)", () => {
   it("still refuses to send without a choice if the form is submitted anyway", async () => {
     await render();
     await submit();
-    expect(alert()).toBe(t("choiceRequired"));
+    expect(alert()).toBeNull();
     expect(state.decide).not.toHaveBeenCalled();
   });
 
-  it("has no decision pre-selected, and keeps submit disabled until one is chosen", async () => {
+  it("has no decision pre-selected, and keeps submit disabled until one is chosen, saying so in a dim hint", async () => {
     await render();
     expect([...container.querySelectorAll('input[type="radio"]')].some((r) => (r as HTMLInputElement).checked)).toBe(
       false,
     );
     expect(submitButton().disabled).toBe(true);
+    const hint = [...container.querySelectorAll("p")].find((p) => p.textContent === t("chooseFirst"));
+    expect(hint?.className).toMatch(/\btext-dim\b/);
+    expect(submitButton().getAttribute("aria-describedby")).toBe(hint?.id);
     await choose("approve");
     expect(submitButton().disabled).toBe(false);
+    expect(container.textContent).not.toContain(t("chooseFirst"));
+  });
+
+  it("disables Submit decision offline with 'Needs a connection', keeping the choice and note (D9)", async () => {
+    let online = true;
+    const spy = vi.spyOn(navigator, "onLine", "get").mockImplementation(() => online);
+    try {
+      await render();
+      await choose("reshoot");
+      await type("Film the tester on each wire.");
+      expect(submitButton().disabled).toBe(false);
+
+      online = false;
+      await act(async () => window.dispatchEvent(new Event("offline")));
+      expect(submitButton().disabled).toBe(true);
+      expect(container.textContent).toContain(t("offline"));
+      await submit();
+      expect(state.decide).not.toHaveBeenCalled();
+      expect(radio("reshoot").checked).toBe(true);
+      expect(note().value).toBe("Film the tester on each wire.");
+
+      online = true;
+      await act(async () => window.dispatchEvent(new Event("online")));
+      expect(submitButton().disabled).toBe(false);
+      expect(container.textContent).not.toContain(t("offline"));
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
+  it("keeps to the D1 type ladder: no 14 px text", async () => {
+    await render();
+    await choose("reject");
+    await submit();
+    expect(container.innerHTML).not.toMatch(/\btext-sm\b/);
   });
 
   it("requires a note for a reshoot or a rejection, and says so under the note", async () => {

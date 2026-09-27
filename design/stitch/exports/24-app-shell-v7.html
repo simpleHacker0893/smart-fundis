@@ -1,0 +1,1183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Smart Fundis — App Shell (Instrument System)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+  :root {
+    --bg-page: #050609;
+    --bg-panel: #0B0D12;
+    --border-hairline: rgba(242, 244, 247, 0.10);
+    --text-primary: #f2f4f7;
+    --text-secondary: rgba(242, 244, 247, 0.55);
+    --amber-primary: #ef9a57;
+  }
+
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    margin: 0;
+    padding: 0;
+  }
+
+  .font-mono-code {
+    font-family: 'JetBrains Mono', monospace;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Custom Tabular numbers */
+  .tnum {
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* Focus ring rule */
+  *:focus-visible {
+    outline: 2px solid var(--amber-primary) !important;
+    outline-offset: 2px;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #050609;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(242, 244, 247, 0.15);
+    border-radius: 3px;
+  }
+
+  /* Skeleton animation without gradient or glow */
+  @keyframes pulseSubtle {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 0.25; }
+  }
+  .skeleton-box {
+    animation: pulseSubtle 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+</style>
+</head>
+<body class="p-6 md:p-10 selection:bg-neutral-800 selection:text-white">
+
+  <!-- Overview Header / Meta Spec Bar -->
+  <header class="max-w-[1720px] mx-auto mb-10 pb-6 border-b border-[rgba(242,244,247,0.10)]">
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">SPECIFICATION ARTIFACT</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-[4px] border border-[rgba(242,244,247,0.15)] text-[12px] font-mono-code text-[#f2f4f7]">SCREEN 24</span>
+          <span class="inline-flex items-center px-2 py-0.5 rounded-[4px] border border-[rgba(242,244,247,0.15)] text-[12px] font-mono-code text-[#f2f4f7]">11 FRAMES COMPLETE</span>
+        </div>
+        <h1 class="text-[32px] md:text-[40px] font-semibold tracking-[-0.02em] text-[#f2f4f7] leading-tight">
+          App Shell &amp; Navigation States
+        </h1>
+        <p class="text-[16px] text-[rgba(242,244,247,0.55)] mt-1">
+          Smart Fundis "Instrument" design system — precision dashboards in daily use.
+        </p>
+      </div>
+
+      <!-- Quick Switcher Bar for Navigation -->
+      <div class="flex items-center flex-wrap gap-2">
+        <a href="#section-desktop" class="px-3 py-2 rounded-[4px] border border-[rgba(242,244,247,0.15)] text-[12px] font-mono-code text-[#f2f4f7] hover:border-[rgba(242,244,247,0.3)] transition-colors">
+          DESKTOP (FRAMES 1–2)
+        </a>
+        <a href="#section-mobile-standard" class="px-3 py-2 rounded-[4px] border border-[rgba(242,244,247,0.15)] text-[12px] font-mono-code text-[#f2f4f7] hover:border-[rgba(242,244,247,0.3)] transition-colors">
+          MOBILE SHELLS (FRAMES 3–4)
+        </a>
+        <a href="#section-sheets" class="px-3 py-2 rounded-[4px] border border-[rgba(242,244,247,0.15)] text-[12px] font-mono-code text-[#f2f4f7] hover:border-[rgba(242,244,247,0.3)] transition-colors">
+          SHEETS &amp; ROLES (FRAMES 5–7)
+        </a>
+        <a href="#section-states" class="px-3 py-2 rounded-[4px] border border-[rgba(242,244,247,0.15)] text-[12px] font-mono-code text-[#f2f4f7] hover:border-[rgba(242,244,247,0.3)] transition-colors">
+          SYSTEM STATES (FRAMES 8–11)
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 1: DESKTOP FRAMES (1280px representation) -->
+  <!-- ========================================================================= -->
+  <section id="section-desktop" class="max-w-[1720px] mx-auto mb-16">
+    <div class="mb-6 flex items-baseline justify-between border-b border-[rgba(242,244,247,0.10)] pb-3">
+      <div>
+        <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">FRAMES 1 &amp; 2</span>
+        <h2 class="text-[24px] font-semibold text-[#f2f4f7] mt-0.5">Desktop App Shells (1280 px Canvas)</h2>
+      </div>
+      <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">248px SIDEBAR · 64px HEADER · 32px GUTTERS</span>
+    </div>
+
+    <div class="grid grid-cols-1 xl:grid-cols-2 gap-10">
+
+      <!-- FRAME 1: Desktop Fundi -->
+      <div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <div class="flex items-center gap-2">
+            <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 01</span>
+            <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">DESKTOP — FUNDI PRIMARY ROLE</span>
+          </div>
+          <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Single amber pill in viewport</span>
+        </div>
+
+        <div class="border border-[rgba(242,244,247,0.10)] bg-[#050609] rounded-[4px] overflow-hidden shadow-2xl flex flex-col h-[760px]">
+          <!-- Shell Header (64px) -->
+          <header class="h-[64px] border-b border-[rgba(242,244,247,0.10)] px-6 flex items-center justify-between bg-[#050609] shrink-0">
+            <!-- Logo Lockup -->
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-[4px] border border-[rgba(242,244,247,0.70)] flex items-center justify-center bg-transparent">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="square">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[16px] font-semibold tracking-tight text-[#f2f4f7] leading-none">Smart Fundis</span>
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] mt-1">VERIFIED SKILLS</span>
+              </div>
+            </div>
+
+            <!-- Header Right: Initials Avatar -->
+            <div class="flex items-center gap-3">
+              <span class="font-mono-code text-[12px] uppercase text-[rgba(242,244,247,0.55)]">FUNDI DASHBOARD</span>
+              <button class="w-10 h-10 rounded-[4px] border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] flex items-center justify-center font-mono-code text-[12px] font-semibold text-[#f2f4f7] hover:border-[rgba(242,244,247,0.30)] transition-colors" title="Wanjiku K. (WK)">
+                WK
+              </button>
+            </div>
+          </header>
+
+          <!-- Shell Body: Sidebar + Main Content -->
+          <div class="flex-1 flex overflow-hidden">
+            <!-- Sidebar (248px, #0B0D12) -->
+            <aside class="w-[248px] bg-[#0B0D12] border-r border-[rgba(242,244,247,0.10)] flex flex-col justify-between p-4 shrink-0 overflow-y-auto">
+              <div class="space-y-6">
+                <!-- 1. Primary Action: Amber Pill (full width, 48px, graphite label) -->
+                <div>
+                  <button class="w-full h-12 rounded-full bg-[#ef9a57] text-[#050609] font-mono-code text-[12px] font-bold uppercase tracking-[0.26em] flex items-center justify-center hover:opacity-95 transition-opacity">
+                    ADD VIDEO
+                  </button>
+                </div>
+
+                <!-- 2. Nav Group: OVERVIEW -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">OVERVIEW</span>
+                  </div>
+                  <!-- Home (Active: 2px amber bar left edge, 4% white fill, white text) -->
+                  <a href="#" class="h-12 flex items-center px-3 relative rounded-[2px] bg-[rgba(242,244,247,0.04)] text-[#f2f4f7] group">
+                    <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#ef9a57]"></div>
+                    <svg class="w-5 h-5 mr-3 text-[#f2f4f7]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+                    </svg>
+                    <span class="text-[16px] font-medium leading-none">Home</span>
+                  </a>
+                </div>
+
+                <!-- 3. Nav Group: VERIFICATION -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">VERIFICATION</span>
+                  </div>
+                  <a href="#" class="h-12 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] hover:bg-[rgba(242,244,247,0.02)] transition-colors">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    <span class="text-[16px] font-normal leading-none">My verifications</span>
+                  </a>
+                </div>
+
+                <!-- 4. Nav Group: PROFILE -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">PROFILE</span>
+                  </div>
+                  <div class="space-y-0.5">
+                    <a href="#" class="h-12 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] hover:bg-[rgba(242,244,247,0.02)] transition-colors">
+                      <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" stroke-linejoin="miter" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                      </svg>
+                      <span class="text-[16px] font-normal leading-none">Public profile</span>
+                    </a>
+                    <a href="#" class="h-12 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] hover:bg-[rgba(242,244,247,0.02)] transition-colors">
+                      <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                        <path stroke-linecap="square" stroke-linejoin="miter" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/>
+                      </svg>
+                      <span class="text-[16px] font-normal leading-none">Showcase links</span>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- 5. Nav Group: SMART FUNDIS -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">SMART FUNDIS</span>
+                  </div>
+                  <div class="space-y-0.5">
+                    <a href="#" class="h-10 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">Trades</a>
+                    <a href="#" class="h-10 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">Evidence</a>
+                    <a href="#" class="h-10 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">Company</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer Navigation -->
+              <div class="pt-4 border-t border-[rgba(242,244,247,0.10)] mt-6 space-y-0.5">
+                <a href="#" class="h-12 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                  </svg>
+                  Help
+                </a>
+                <a href="#" class="h-12 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">
+                  <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                    <polyline points="16 17 21 12 16 7"></polyline>
+                    <line x1="21" y1="12" x2="9" y2="12"></line>
+                  </svg>
+                  Sign out
+                </a>
+              </div>
+            </aside>
+
+            <!-- Main Placeholder Content (Navigation is the subject) -->
+            <main class="flex-1 p-8 overflow-y-auto">
+              <div class="max-w-4xl">
+                <!-- Page Title: 40px desktop, weight 600, -0.02em -->
+                <div class="mb-8">
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">DASHBOARD</span>
+                  <h2 class="text-[40px] font-semibold tracking-[-0.02em] text-[#f2f4f7] leading-none">Home</h2>
+                </div>
+
+                <!-- 3 Hairline Skeleton Rows (min 56px each) -->
+                <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#0B0D12] overflow-hidden divide-y divide-[rgba(242,244,247,0.10)]">
+                  <!-- Row 1 -->
+                  <div class="min-h-[56px] px-4 py-3 flex items-center justify-between">
+                    <div class="space-y-1.5 flex-1 pr-6">
+                      <div class="h-4 w-56 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                      <div class="h-3 w-36 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                    </div>
+                    <div class="h-7 w-24 border border-[rgba(242,244,247,0.15)] rounded-[4px] flex items-center justify-center font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                      ◌ IN LINE
+                    </div>
+                  </div>
+                  <!-- Row 2 -->
+                  <div class="min-h-[56px] px-4 py-3 flex items-center justify-between">
+                    <div class="space-y-1.5 flex-1 pr-6">
+                      <div class="h-4 w-72 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                      <div class="h-3 w-44 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                    </div>
+                    <div class="h-7 w-24 border border-[rgba(242,244,247,0.15)] rounded-[4px] flex items-center justify-center font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                      ◐ AWAITING
+                    </div>
+                  </div>
+                  <!-- Row 3 -->
+                  <div class="min-h-[56px] px-4 py-3 flex items-center justify-between">
+                    <div class="space-y-1.5 flex-1 pr-6">
+                      <div class="h-4 w-48 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                      <div class="h-3 w-32 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                    </div>
+                    <svg class="w-5 h-5 text-[rgba(242,244,247,0.55)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="mt-6 flex items-center gap-2">
+                  <span class="inline-block px-1.5 py-0.5 border border-[rgba(242,244,247,0.15)] rounded-[2px] font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">EXAMPLE</span>
+                  <span class="text-[12px] text-[rgba(242,244,247,0.55)] font-mono-code">Quiet chrome specification — content reads first</span>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRAME 2: Desktop Dual-Role Expert (who is also a Fundi) -->
+      <div>
+        <div class="flex items-center justify-between mb-3 px-1">
+          <div class="flex items-center gap-2">
+            <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 02</span>
+            <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">DESKTOP — DUAL-ROLE EXPERT (+ FUNDI)</span>
+          </div>
+          <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">No amber pill · Radio switch in footer</span>
+        </div>
+
+        <div class="border border-[rgba(242,244,247,0.10)] bg-[#050609] rounded-[4px] overflow-hidden shadow-2xl flex flex-col h-[760px]">
+          <!-- Shell Header (64px) -->
+          <header class="h-[64px] border-b border-[rgba(242,244,247,0.10)] px-6 flex items-center justify-between bg-[#050609] shrink-0">
+            <!-- Logo Lockup -->
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-[4px] border border-[rgba(242,244,247,0.70)] flex items-center justify-center bg-transparent">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="square">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-[16px] font-semibold tracking-tight text-[#f2f4f7] leading-none">Smart Fundis</span>
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] mt-1">VERIFIED SKILLS</span>
+              </div>
+            </div>
+
+            <!-- Header Right: Initials Avatar -->
+            <div class="flex items-center gap-3">
+              <span class="font-mono-code text-[12px] uppercase text-[rgba(242,244,247,0.55)]">EXPERT DASHBOARD</span>
+              <button class="w-10 h-10 rounded-[4px] border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] flex items-center justify-center font-mono-code text-[12px] font-semibold text-[#f2f4f7]" title="Wanjiku K. (WK)">
+                WK
+              </button>
+            </div>
+          </header>
+
+          <!-- Shell Body: Sidebar + Main Content -->
+          <div class="flex-1 flex overflow-hidden">
+            <!-- Sidebar (248px, #0B0D12) -->
+            <aside class="w-[248px] bg-[#0B0D12] border-r border-[rgba(242,244,247,0.10)] flex flex-col justify-between p-4 shrink-0 overflow-y-auto">
+              <div class="space-y-6">
+                <!-- NOTE: No amber pill at top (Experts have no primary action) -->
+
+                <!-- Nav Group: REVIEW -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">REVIEW</span>
+                  </div>
+                  <!-- Queue (Active) -->
+                  <a href="#" class="h-12 flex items-center px-3 relative rounded-[2px] bg-[rgba(242,244,247,0.04)] text-[#f2f4f7]">
+                    <div class="absolute left-0 top-0 bottom-0 w-[2px] bg-[#ef9a57]"></div>
+                    <svg class="w-5 h-5 mr-3 text-[#f2f4f7]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                      <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                    </svg>
+                    <span class="text-[16px] font-medium leading-none">Queue</span>
+                  </a>
+                </div>
+
+                <!-- Nav Group: ACCOUNT -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">ACCOUNT</span>
+                  </div>
+                  <a href="#" class="h-12 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] hover:bg-[rgba(242,244,247,0.02)] transition-colors">
+                    <svg class="w-5 h-5 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <path stroke-linecap="square" stroke-linejoin="miter" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                    </svg>
+                    <span class="text-[16px] font-normal leading-none">Profile</span>
+                  </a>
+                </div>
+
+                <!-- Nav Group: SMART FUNDIS -->
+                <div>
+                  <div class="px-3 mb-2">
+                    <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">SMART FUNDIS</span>
+                  </div>
+                  <div class="space-y-0.5">
+                    <a href="#" class="h-9 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">Trades</a>
+                    <a href="#" class="h-9 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">Evidence</a>
+                    <a href="#" class="h-9 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">Company</a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Footer with DASHBOARD radio group (Two 56px rows) + Help + Sign out -->
+              <div class="pt-4 border-t border-[rgba(242,244,247,0.10)] mt-6">
+                <div class="px-3 mb-2">
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">DASHBOARD</span>
+                </div>
+                
+                <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] divide-y divide-[rgba(242,244,247,0.10)] bg-[#050609] mb-3">
+                  <!-- Row 1: Expert (Current) -->
+                  <div class="h-14 px-3 flex items-center justify-between text-[14px] text-[#f2f4f7]">
+                    <div class="flex items-center gap-2">
+                      <span class="text-[#f2f4f7]">●</span>
+                      <span class="font-medium">Expert dashboard</span>
+                    </div>
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Current</span>
+                  </div>
+                  <!-- Row 2: Fundi -->
+                  <button class="w-full h-14 px-3 flex items-center justify-between text-[14px] text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] hover:bg-[rgba(242,244,247,0.03)] text-left transition-colors">
+                    <div class="flex items-center gap-2">
+                      <span>○</span>
+                      <span>Fundi dashboard</span>
+                    </div>
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Switch</span>
+                  </button>
+                </div>
+
+                <div class="space-y-0.5">
+                  <a href="#" class="h-10 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                    Help
+                  </a>
+                  <a href="#" class="h-10 flex items-center px-3 text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7] text-[14px]">
+                    <svg class="w-4 h-4 mr-3" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                      <polyline points="16 17 21 12 16 7"></polyline>
+                      <line x1="21" y1="12" x2="9" y2="12"></line>
+                    </svg>
+                    Sign out
+                  </a>
+                </div>
+              </div>
+            </aside>
+
+            <!-- Main Content Area Placeholder -->
+            <main class="flex-1 p-8 overflow-y-auto">
+              <div class="max-w-4xl">
+                <div class="mb-8">
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">REVIEW BENCH</span>
+                  <h2 class="text-[40px] font-semibold tracking-[-0.02em] text-[#f2f4f7] leading-none">Queue</h2>
+                </div>
+
+                <!-- 3 Hairline Skeleton Rows -->
+                <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#0B0D12] overflow-hidden divide-y divide-[rgba(242,244,247,0.10)]">
+                  <div class="min-h-[56px] px-4 py-3 flex items-center justify-between">
+                    <div class="space-y-1.5 flex-1 pr-6">
+                      <div class="h-4 w-60 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                      <div class="h-3 w-40 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                    </div>
+                    <div class="h-7 w-28 border border-[rgba(242,244,247,0.15)] rounded-[4px] flex items-center justify-center font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                      ◐ AWAITING YOU
+                    </div>
+                  </div>
+                  <div class="min-h-[56px] px-4 py-3 flex items-center justify-between">
+                    <div class="space-y-1.5 flex-1 pr-6">
+                      <div class="h-4 w-44 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                      <div class="h-3 w-28 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                    </div>
+                    <div class="h-7 w-24 border border-[rgba(242,244,247,0.15)] rounded-[4px] flex items-center justify-center font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                      ■ APPROVED
+                    </div>
+                  </div>
+                  <div class="min-h-[56px] px-4 py-3 flex items-center justify-between">
+                    <div class="space-y-1.5 flex-1 pr-6">
+                      <div class="h-4 w-52 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                      <div class="h-3 w-36 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                    </div>
+                    <svg class="w-5 h-5 text-[rgba(242,244,247,0.55)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <polyline points="9 18 15 12 9 6"></polyline>
+                    </svg>
+                  </div>
+                </div>
+
+                <div class="mt-6 flex items-center gap-2">
+                  <span class="inline-block px-1.5 py-0.5 border border-[rgba(242,244,247,0.15)] rounded-[2px] font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">ROLE CONTEXT</span>
+                  <span class="text-[12px] text-[rgba(242,244,247,0.55)] font-mono-code">Expert view contains no primary amber action button</span>
+                </div>
+              </div>
+            </main>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 2: MOBILE BASE & MORE SHEET (360px Frames) -->
+  <!-- ========================================================================= -->
+  <section id="section-mobile-standard" class="max-w-[1720px] mx-auto mb-16">
+    <div class="mb-6 flex items-baseline justify-between border-b border-[rgba(242,244,247,0.10)] pb-3">
+      <div>
+        <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">FRAMES 3 &amp; 4</span>
+        <h2 class="text-[24px] font-semibold text-[#f2f4f7] mt-0.5">Mobile Base &amp; Full "More" Sheet (360 px)</h2>
+      </div>
+      <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">56px HEADER · 64px BOTTOM NAV · 16px GUTTERS</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+
+      <!-- FRAME 3: Mobile Fundi Base -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 03</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">MOBILE FUNDI BASE SHELL</p>
+        </div>
+
+        <!-- Mobile Frame Container (360px width standard) -->
+        <div class="w-[360px] mx-auto h-[640px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-between overflow-hidden shadow-xl relative">
+          
+          <!-- 56px Mobile Header -->
+          <header class="h-[56px] border-b border-[rgba(242,244,247,0.10)] px-4 flex items-center justify-between bg-[#050609] shrink-0 z-10">
+            <div class="flex items-center gap-2.5">
+              <div class="w-7 h-7 rounded-[4px] border border-[rgba(242,244,247,0.70)] flex items-center justify-center">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ef9a57" stroke-width="2.5" stroke-linecap="square">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[#f2f4f7] font-medium">FUNDI</span>
+            </div>
+            <button class="w-8 h-8 rounded-[4px] border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] flex items-center justify-center font-mono-code text-[12px] font-semibold text-[#f2f4f7]">
+              WK
+            </button>
+          </header>
+
+          <!-- Mobile Content Area -->
+          <main class="flex-1 p-4 overflow-y-auto">
+            <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">DASHBOARD</span>
+            <h2 class="text-[28px] font-semibold tracking-[-0.02em] text-[#f2f4f7] leading-none mb-6">Home</h2>
+
+            <!-- Primary Action Pill (The ONE amber pill per viewport) -->
+            <button class="w-full h-12 rounded-full bg-[#ef9a57] text-[#050609] font-mono-code text-[12px] font-bold uppercase tracking-[0.26em] mb-6 flex items-center justify-center">
+              ADD VIDEO
+            </button>
+
+            <!-- Three Hairline Skeleton Rows -->
+            <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#0B0D12] overflow-hidden divide-y divide-[rgba(242,244,247,0.10)]">
+              <div class="min-h-[56px] px-3 py-2.5 flex items-center justify-between">
+                <div class="space-y-1">
+                  <div class="h-3.5 w-32 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                  <div class="h-2.5 w-20 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                </div>
+                <div class="h-7 px-2 border border-[rgba(242,244,247,0.15)] rounded-[4px] flex items-center justify-center font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                  ◌ IN LINE
+                </div>
+              </div>
+              <div class="min-h-[56px] px-3 py-2.5 flex items-center justify-between">
+                <div class="space-y-1">
+                  <div class="h-3.5 w-40 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                  <div class="h-2.5 w-24 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                </div>
+                <div class="h-7 px-2 border border-[rgba(242,244,247,0.15)] rounded-[4px] flex items-center justify-center font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                  ◐ AWAITING
+                </div>
+              </div>
+              <div class="min-h-[56px] px-3 py-2.5 flex items-center justify-between">
+                <div class="space-y-1">
+                  <div class="h-3.5 w-28 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                  <div class="h-2.5 w-16 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                </div>
+                <svg class="w-4 h-4 text-[rgba(242,244,247,0.55)]" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
+            </div>
+          </main>
+
+          <!-- 64px Mobile Bottom Nav: 4 slots max, ending in "More" -->
+          <nav class="h-[64px] border-t border-[rgba(242,244,247,0.10)] bg-[#0B0D12] grid grid-cols-4 shrink-0 z-10">
+            <!-- Slot 1: Home (Active: 2px amber bar on top, white label) -->
+            <button class="relative flex flex-col items-center justify-center text-[#f2f4f7] focus:outline-none">
+              <div class="absolute top-0 left-0 right-0 h-[2px] bg-[#ef9a57]"></div>
+              <svg class="w-6 h-6 mb-1 text-[#f2f4f7]" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="square" stroke-linejoin="miter" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+              </svg>
+              <span class="text-[12px] font-medium leading-none">Home</span>
+            </button>
+
+            <!-- Slot 2: Verifications -->
+            <button class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7]">
+              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="square" stroke-linejoin="miter" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+              <span class="text-[12px] leading-none">Verifications</span>
+            </button>
+
+            <!-- Slot 3: Profile -->
+            <button class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7]">
+              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <path stroke-linecap="square" stroke-linejoin="miter" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+              </svg>
+              <span class="text-[12px] leading-none">Profile</span>
+            </button>
+
+            <!-- Slot 4: More -->
+            <button class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7]">
+              <svg class="w-6 h-6 mb-1" fill="none" stroke="currentColor" stroke-width="1.75" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="1.5"></circle>
+                <circle cx="19" cy="12" r="1.5"></circle>
+                <circle cx="5" cy="12" r="1.5"></circle>
+              </svg>
+              <span class="text-[12px] leading-none">More</span>
+            </button>
+          </nav>
+        </div>
+      </div>
+
+      <!-- FRAME 4: Mobile "More" Sheet Open -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 04</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">"MORE" BOTTOM SHEET OPEN</p>
+        </div>
+
+        <div class="w-[360px] mx-auto h-[640px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-end overflow-hidden shadow-xl relative">
+          <!-- Backdrop with dimmed content behind -->
+          <div class="absolute inset-0 bg-black/60 z-10 flex flex-col justify-end">
+            <!-- Bottom Sheet Container (4px top radius) -->
+            <div class="bg-[#0B0D12] border-t border-[rgba(242,244,247,0.15)] rounded-t-[4px] max-h-[92%] flex flex-col overflow-hidden">
+              
+              <!-- Drag Handle & Dismiss Header -->
+              <div class="pt-2 px-4 pb-2 border-b border-[rgba(242,244,247,0.10)] flex flex-col">
+                <div class="w-10 h-1 bg-[rgba(242,244,247,0.20)] rounded-full mx-auto mb-2" aria-hidden="true"></div>
+                <div class="flex items-center justify-between">
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">NAVIGATION</span>
+                  <!-- 48px Close Button -->
+                  <button class="h-10 px-3 border border-[rgba(242,244,247,0.15)] rounded-[4px] text-[12px] font-mono-code text-[#f2f4f7] hover:border-[rgba(242,244,247,0.30)] flex items-center justify-center">
+                    ✕ CLOSE
+                  </button>
+                </div>
+              </div>
+
+              <!-- Sheet Body: Grouped Menu -->
+              <div class="p-4 overflow-y-auto space-y-4">
+                <!-- Group: OVERVIEW -->
+                <div>
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">OVERVIEW</span>
+                  <div class="h-12 flex items-center justify-between px-3 rounded-[2px] bg-[rgba(242,244,247,0.04)] text-[#f2f4f7]">
+                    <div class="flex items-center gap-3">
+                      <div class="w-[2px] h-5 bg-[#ef9a57]"></div>
+                      <span class="text-[16px] font-medium">Home</span>
+                    </div>
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">ACTIVE</span>
+                  </div>
+                </div>
+
+                <!-- Group: VERIFICATION -->
+                <div>
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">VERIFICATION</span>
+                  <div class="h-12 flex items-center px-3 text-[16px] text-[rgba(242,244,247,0.7)]">
+                    My verifications
+                  </div>
+                </div>
+
+                <!-- Group: PROFILE -->
+                <div>
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">PROFILE</span>
+                  <div class="divide-y divide-[rgba(242,244,247,0.06)]">
+                    <div class="h-11 flex items-center px-3 text-[16px] text-[rgba(242,244,247,0.7)]">Public profile</div>
+                    <div class="h-11 flex items-center px-3 text-[16px] text-[rgba(242,244,247,0.7)]">Showcase links</div>
+                  </div>
+                </div>
+
+                <!-- Group: SMART FUNDIS -->
+                <div class="pt-2 border-t border-[rgba(242,244,247,0.10)]">
+                  <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-1">SMART FUNDIS</span>
+                  <div class="grid grid-cols-3 gap-1">
+                    <div class="h-9 flex items-center px-2 text-[14px] text-[rgba(242,244,247,0.55)]">Trades</div>
+                    <div class="h-9 flex items-center px-2 text-[14px] text-[rgba(242,244,247,0.55)]">Evidence</div>
+                    <div class="h-9 flex items-center px-2 text-[14px] text-[rgba(242,244,247,0.55)]">Company</div>
+                  </div>
+                </div>
+
+                <!-- Footer Items: Help & Sign out -->
+                <div class="pt-2 border-t border-[rgba(242,244,247,0.10)] flex items-center justify-between text-[14px] text-[rgba(242,244,247,0.55)]">
+                  <button class="h-12 px-3 flex items-center">Help</button>
+                  <button class="h-12 px-3 flex items-center text-[#f2f4f7]">Sign out</button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRAME 5: Mobile Avatar Sheet (Dual-Role User with Radio Group) -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 05</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">AVATAR SHEET — DUAL ROLE</p>
+        </div>
+
+        <div class="w-[360px] mx-auto h-[640px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-end overflow-hidden shadow-xl relative">
+          <div class="absolute inset-0 bg-black/60 z-10 flex flex-col justify-end">
+            <!-- Sheet Content -->
+            <div class="bg-[#0B0D12] border-t border-[rgba(242,244,247,0.15)] rounded-t-[4px] flex flex-col overflow-hidden p-4 space-y-4">
+              
+              <!-- Drag Handle & Dismiss -->
+              <div class="flex items-center justify-between pb-2 border-b border-[rgba(242,244,247,0.10)]">
+                <div class="w-10 h-1 bg-[rgba(242,244,247,0.20)] rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2" aria-hidden="true"></div>
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">USER ACCOUNT</span>
+                <button class="h-9 px-3 border border-[rgba(242,244,247,0.15)] rounded-[4px] text-[12px] font-mono-code text-[#f2f4f7]">✕ CLOSE</button>
+              </div>
+
+              <!-- User Identity Header (Never photo) -->
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-[4px] border border-[rgba(242,244,247,0.15)] bg-[#050609] flex items-center justify-center font-mono-code text-[14px] font-semibold text-[#f2f4f7]">
+                  WK
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-[#f2f4f7] leading-tight">Wanjiku K.</h3>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">wanjiku@example.com</span>
+                    <span class="px-1 py-0.2 border border-[rgba(242,244,247,0.15)] rounded-[2px] font-mono-code text-[10px] text-[rgba(242,244,247,0.55)]">EXAMPLE</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- DASHBOARD Radio Group -->
+              <div>
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block mb-2">DASHBOARD</span>
+                <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] divide-y divide-[rgba(242,244,247,0.10)] bg-[#050609]">
+                  <!-- Row 1: Fundi (Current) -->
+                  <div class="h-14 px-3 flex items-center justify-between text-[14px] text-[#f2f4f7]">
+                    <div class="flex items-center gap-2.5">
+                      <span>●</span>
+                      <span class="font-medium">Fundi dashboard</span>
+                    </div>
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Current</span>
+                  </div>
+                  <!-- Row 2: Expert -->
+                  <div class="h-14 px-3 flex items-center justify-between text-[14px] text-[rgba(242,244,247,0.55)]">
+                    <div class="flex items-center gap-2.5">
+                      <span>○</span>
+                      <span>Expert dashboard</span>
+                    </div>
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Switch</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pending state line: "Switching…" -->
+              <div class="py-1 px-2 border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#050609] flex items-center justify-between font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">
+                <span>STATUS</span>
+                <span>Switching…</span>
+              </div>
+
+              <!-- Account Actions -->
+              <div class="pt-2 border-t border-[rgba(242,244,247,0.10)] space-y-1">
+                <button class="w-full h-12 px-3 border border-[rgba(242,244,247,0.10)] rounded-[4px] flex items-center justify-between text-[14px] text-[#f2f4f7] hover:bg-[rgba(242,244,247,0.02)]">
+                  <span>Manage account</span>
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">SETTINGS</span>
+                </button>
+                <button class="w-full h-12 px-3 border border-[rgba(242,244,247,0.10)] rounded-[4px] flex items-center justify-between text-[14px] text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7]">
+                  <span>Sign out</span>
+                  <span class="font-mono-code text-[12px]">SESSION</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRAME 6: Mobile Avatar Sheet (Single-Role Fundi) -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 06</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">AVATAR SHEET — SINGLE ROLE</p>
+        </div>
+
+        <div class="w-[360px] mx-auto h-[640px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-end overflow-hidden shadow-xl relative">
+          <div class="absolute inset-0 bg-black/60 z-10 flex flex-col justify-end">
+            <!-- Sheet Content: No greyed-out roles, honest simplicity -->
+            <div class="bg-[#0B0D12] border-t border-[rgba(242,244,247,0.15)] rounded-t-[4px] flex flex-col overflow-hidden p-4 space-y-5">
+              
+              <div class="flex items-center justify-between pb-2 border-b border-[rgba(242,244,247,0.10)]">
+                <div class="w-10 h-1 bg-[rgba(242,244,247,0.20)] rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2" aria-hidden="true"></div>
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">USER ACCOUNT</span>
+                <button class="h-9 px-3 border border-[rgba(242,244,247,0.15)] rounded-[4px] text-[12px] font-mono-code text-[#f2f4f7]">✕ CLOSE</button>
+              </div>
+
+              <!-- User Header -->
+              <div class="flex items-center gap-3">
+                <div class="w-12 h-12 rounded-[4px] border border-[rgba(242,244,247,0.15)] bg-[#050609] flex items-center justify-center font-mono-code text-[14px] font-semibold text-[#f2f4f7]">
+                  WK
+                </div>
+                <div>
+                  <h3 class="text-[16px] font-semibold text-[#f2f4f7] leading-tight">Wanjiku K.</h3>
+                  <div class="flex items-center gap-1.5 mt-0.5">
+                    <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">wanjiku@example.com</span>
+                    <span class="px-1 py-0.2 border border-[rgba(242,244,247,0.15)] rounded-[2px] font-mono-code text-[10px] text-[rgba(242,244,247,0.55)]">EXAMPLE</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="p-3 border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#050609]">
+                <span class="font-mono-code text-[12px] uppercase text-[rgba(242,244,247,0.55)] block mb-1">REGISTERED ROLE</span>
+                <p class="text-[14px] text-[#f2f4f7]">Fundi Account (Single role)</p>
+              </div>
+
+              <!-- No DASHBOARD group here (no greyed out roles rule) -->
+
+              <div class="pt-2 border-t border-[rgba(242,244,247,0.10)] space-y-1">
+                <button class="w-full h-12 px-3 border border-[rgba(242,244,247,0.10)] rounded-[4px] flex items-center justify-between text-[14px] text-[#f2f4f7]">
+                  <span>Manage account</span>
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">SETTINGS</span>
+                </button>
+                <button class="w-full h-12 px-3 border border-[rgba(242,244,247,0.10)] rounded-[4px] flex items-center justify-between text-[14px] text-[rgba(242,244,247,0.55)] hover:text-[#f2f4f7]">
+                  <span>Sign out</span>
+                  <span class="font-mono-code text-[12px]">SESSION</span>
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- SECTION 3: SYSTEM STATES & EDGE CASES (Frames 7 - 11) -->
+  <!-- ========================================================================= -->
+  <section id="section-states" class="max-w-[1720px] mx-auto mb-16">
+    <div class="mb-6 flex items-baseline justify-between border-b border-[rgba(242,244,247,0.10)] pb-3">
+      <div>
+        <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">FRAMES 7 TO 11</span>
+        <h2 class="text-[24px] font-semibold text-[#f2f4f7] mt-0.5">System Conditions, Errors, &amp; Network States</h2>
+      </div>
+      <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">NEUTRAL ERRORS · SKELETON LOADERS · CONNECTION BARS</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+
+      <!-- FRAME 7: Mobile Role Switch Failed -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 07</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">ROLE SWITCH FAILED</p>
+        </div>
+
+        <div class="w-full max-w-[340px] mx-auto h-[620px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-end overflow-hidden shadow-xl relative">
+          <div class="absolute inset-0 bg-black/60 z-10 flex flex-col justify-end">
+            <div class="bg-[#0B0D12] border-t border-[rgba(242,244,247,0.15)] rounded-t-[4px] p-4 space-y-3">
+              
+              <div class="flex items-center justify-between pb-2 border-b border-[rgba(242,244,247,0.10)]">
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">ROLE SWITCH</span>
+                <button class="h-8 px-2 border border-[rgba(242,244,247,0.15)] rounded-[4px] text-[12px] font-mono-code text-[#f2f4f7]">✕ CLOSE</button>
+              </div>
+
+              <!-- Radio Rows -->
+              <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] divide-y divide-[rgba(242,244,247,0.10)] bg-[#050609]">
+                <!-- Previous Role Still Current -->
+                <div class="h-12 px-3 flex items-center justify-between text-[13px] text-[#f2f4f7]">
+                  <div class="flex items-center gap-2">
+                    <span>●</span>
+                    <span class="font-medium">Fundi dashboard</span>
+                  </div>
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Current</span>
+                </div>
+                <div class="h-12 px-3 flex items-center justify-between text-[13px] text-[rgba(242,244,247,0.55)]">
+                  <div class="flex items-center gap-2">
+                    <span>○</span>
+                    <span>Expert dashboard</span>
+                  </div>
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Failed</span>
+                </div>
+              </div>
+
+              <!-- Explicit error note: White/neutral, never amber or red -->
+              <div class="p-3 border border-[rgba(242,244,247,0.15)] rounded-[4px] bg-[#050609] space-y-1">
+                <div class="flex items-start gap-2">
+                  <span class="text-[#f2f4f7] font-mono-code text-[14px] leading-tight">✕</span>
+                  <p class="text-[13px] text-[#f2f4f7] leading-snug">
+                    We couldn't switch dashboards. Try again.
+                  </p>
+                </div>
+                <button class="mt-2 w-full h-9 rounded-full border border-[rgba(242,244,247,0.30)] text-[#f2f4f7] font-mono-code text-[12px] uppercase tracking-[0.26em] hover:bg-[rgba(242,244,247,0.05)]">
+                  RETRY SWITCH
+                </button>
+              </div>
+
+              <div class="pt-2 border-t border-[rgba(242,244,247,0.10)]">
+                <button class="w-full h-10 border border-[rgba(242,244,247,0.10)] rounded-[4px] text-[13px] text-[rgba(242,244,247,0.55)]">
+                  Cancel
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- FRAME 8: Mobile Loading State (No Spinner) -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 08</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">MOBILE LOADING (SKELETON)</p>
+        </div>
+
+        <div class="w-full max-w-[340px] mx-auto h-[620px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-between overflow-hidden shadow-xl">
+          <!-- Header Drawn -->
+          <header class="h-[56px] border-b border-[rgba(242,244,247,0.10)] px-4 flex items-center justify-between bg-[#050609] shrink-0">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-[4px] border border-[rgba(242,244,247,0.70)] flex items-center justify-center">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ef9a57" stroke-width="2.5">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+              </div>
+              <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[#f2f4f7]">FUNDI</span>
+            </div>
+            <div class="w-8 h-8 rounded-[4px] bg-[#0B0D12] border border-[rgba(242,244,247,0.10)] flex items-center justify-center font-mono-code text-[12px] text-[#f2f4f7]">WK</div>
+          </header>
+
+          <!-- Skeleton Content Area (No Spinner) -->
+          <main class="flex-1 p-4 space-y-4">
+            <div class="h-3 w-20 bg-[rgba(242,244,247,0.08)] rounded-[2px]"></div>
+            <div class="h-7 w-36 bg-[rgba(242,244,247,0.14)] rounded-[2px] skeleton-box"></div>
+            
+            <!-- Skeleton Action Pill in #0B0D12 -->
+            <div class="w-full h-12 rounded-full border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] skeleton-box"></div>
+
+            <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#0B0D12] overflow-hidden divide-y divide-[rgba(242,244,247,0.10)]">
+              <div class="h-14 p-3 flex items-center justify-between">
+                <div class="space-y-1.5 flex-1">
+                  <div class="h-3 w-32 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                  <div class="h-2 w-20 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                </div>
+                <div class="w-16 h-6 border border-[rgba(242,244,247,0.10)] rounded-[2px] skeleton-box"></div>
+              </div>
+              <div class="h-14 p-3 flex items-center justify-between">
+                <div class="space-y-1.5 flex-1">
+                  <div class="h-3 w-40 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                  <div class="h-2 w-24 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                </div>
+                <div class="w-16 h-6 border border-[rgba(242,244,247,0.10)] rounded-[2px] skeleton-box"></div>
+              </div>
+              <div class="h-14 p-3 flex items-center justify-between">
+                <div class="space-y-1.5 flex-1">
+                  <div class="h-3 w-28 bg-[rgba(242,244,247,0.12)] rounded-[2px] skeleton-box"></div>
+                  <div class="h-2 w-16 bg-[rgba(242,244,247,0.06)] rounded-[2px]"></div>
+                </div>
+                <div class="w-16 h-6 border border-[rgba(242,244,247,0.10)] rounded-[2px] skeleton-box"></div>
+              </div>
+            </div>
+          </main>
+
+          <!-- Bottom Nav Drawn -->
+          <nav class="h-[64px] border-t border-[rgba(242,244,247,0.10)] bg-[#0B0D12] grid grid-cols-4 shrink-0">
+            <div class="flex flex-col items-center justify-center text-[#f2f4f7] relative">
+              <div class="absolute top-0 left-0 right-0 h-[2px] bg-[#ef9a57]"></div>
+              <span class="text-[12px] font-medium">Home</span>
+            </div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Verif.</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Profile</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">More</span></div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- FRAME 9: Mobile Offline State -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 09</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">MOBILE OFFLINE STRIP</p>
+        </div>
+
+        <div class="w-full max-w-[340px] mx-auto h-[620px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-between overflow-hidden shadow-xl">
+          <div>
+            <!-- Header -->
+            <header class="h-[56px] border-b border-[rgba(242,244,247,0.10)] px-4 flex items-center justify-between bg-[#050609] shrink-0">
+              <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[#f2f4f7]">FUNDI</span>
+              <div class="w-8 h-8 rounded-[4px] bg-[#0B0D12] border border-[rgba(242,244,247,0.10)] flex items-center justify-center font-mono-code text-[12px] text-[#f2f4f7]">WK</div>
+            </header>
+
+            <!-- 40px Offline Strip (white/neutral ✕, never amber or red) -->
+            <div class="h-10 px-3 bg-[#0B0D12] border-b border-[rgba(242,244,247,0.15)] flex items-center gap-2">
+              <span class="text-[#f2f4f7] font-mono-code text-[12px]">✕</span>
+              <span class="font-mono-code text-[12px] text-[#f2f4f7] truncate">
+                You're offline. Showing what loaded at 14:05.
+              </span>
+            </div>
+
+            <!-- Content Area with Disabled Server Action Pill -->
+            <div class="p-4 space-y-4">
+              <h2 class="text-[28px] font-semibold tracking-[-0.02em] text-[#f2f4f7]">Home</h2>
+
+              <!-- Disabled Server Action Pill with Reason -->
+              <div class="space-y-1">
+                <button disabled class="w-full h-12 rounded-full border border-[rgba(242,244,247,0.20)] bg-[rgba(242,244,247,0.03)] text-[rgba(242,244,247,0.30)] font-mono-code text-[12px] font-bold uppercase tracking-[0.26em] cursor-not-allowed flex items-center justify-center">
+                  ADD VIDEO
+                </button>
+                <div class="text-center">
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">Needs a connection</span>
+                </div>
+              </div>
+
+              <!-- Cached Rows -->
+              <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#0B0D12] divide-y divide-[rgba(242,244,247,0.10)]">
+                <div class="h-14 px-3 flex items-center justify-between">
+                  <span class="text-[14px] text-[#f2f4f7]">Solar inverters (cached)</span>
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">● LISTED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Nav -->
+          <nav class="h-[64px] border-t border-[rgba(242,244,247,0.10)] bg-[#0B0D12] grid grid-cols-4 shrink-0">
+            <div class="flex flex-col items-center justify-center text-[#f2f4f7] relative">
+              <div class="absolute top-0 left-0 right-0 h-[2px] bg-[#ef9a57]"></div>
+              <span class="text-[12px]">Home</span>
+            </div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Verif.</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Profile</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">More</span></div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- FRAME 10: Mobile Back Online State -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 10</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">MOBILE BACK ONLINE STRIP</p>
+        </div>
+
+        <div class="w-full max-w-[340px] mx-auto h-[620px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-between overflow-hidden shadow-xl">
+          <div>
+            <!-- Header -->
+            <header class="h-[56px] border-b border-[rgba(242,244,247,0.10)] px-4 flex items-center justify-between bg-[#050609] shrink-0">
+              <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[#f2f4f7]">FUNDI</span>
+              <div class="w-8 h-8 rounded-[4px] bg-[#0B0D12] border border-[rgba(242,244,247,0.10)] flex items-center justify-center font-mono-code text-[12px] text-[#f2f4f7]">WK</div>
+            </header>
+
+            <!-- 40px "Back online" strip (disappears after 3s) -->
+            <div class="h-10 px-3 bg-[#0B0D12] border-b border-[rgba(242,244,247,0.15)] flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="text-[#f2f4f7] font-mono-code text-[12px]">●</span>
+                <span class="font-mono-code text-[12px] text-[#f2f4f7]">Back online</span>
+              </div>
+              <span class="font-mono-code text-[10px] text-[rgba(242,244,247,0.40)]">DISMISSES (3S)</span>
+            </div>
+
+            <div class="p-4 space-y-4">
+              <h2 class="text-[28px] font-semibold tracking-[-0.02em] text-[#f2f4f7]">Home</h2>
+              <!-- Active Amber Pill Restored -->
+              <button class="w-full h-12 rounded-full bg-[#ef9a57] text-[#050609] font-mono-code text-[12px] font-bold uppercase tracking-[0.26em] flex items-center justify-center">
+                ADD VIDEO
+              </button>
+
+              <div class="border border-[rgba(242,244,247,0.10)] rounded-[4px] bg-[#0B0D12] divide-y divide-[rgba(242,244,247,0.10)]">
+                <div class="h-14 px-3 flex items-center justify-between">
+                  <span class="text-[14px] text-[#f2f4f7]">Solar inverters</span>
+                  <span class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">● LISTED</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Nav -->
+          <nav class="h-[64px] border-t border-[rgba(242,244,247,0.10)] bg-[#0B0D12] grid grid-cols-4 shrink-0">
+            <div class="flex flex-col items-center justify-center text-[#f2f4f7] relative">
+              <div class="absolute top-0 left-0 right-0 h-[2px] bg-[#ef9a57]"></div>
+              <span class="text-[12px]">Home</span>
+            </div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Verif.</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Profile</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">More</span></div>
+          </nav>
+        </div>
+      </div>
+
+      <!-- FRAME 11: Mobile Page Error -->
+      <div>
+        <div class="mb-2">
+          <span class="font-mono-code text-[12px] text-[#f2f4f7] font-semibold">FRAME 11</span>
+          <p class="font-mono-code text-[12px] text-[rgba(242,244,247,0.55)]">MOBILE PAGE ERROR PANEL</p>
+        </div>
+
+        <div class="w-full max-w-[340px] mx-auto h-[620px] bg-[#050609] border border-[rgba(242,244,247,0.10)] rounded-[4px] flex flex-col justify-between overflow-hidden shadow-xl">
+          <!-- Header -->
+          <header class="h-[56px] border-b border-[rgba(242,244,247,0.10)] px-4 flex items-center justify-between bg-[#050609] shrink-0">
+            <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[#f2f4f7]">FUNDI</span>
+            <div class="w-8 h-8 rounded-[4px] bg-[#0B0D12] border border-[rgba(242,244,247,0.10)] flex items-center justify-center font-mono-code text-[12px] text-[#f2f4f7]">WK</div>
+          </header>
+
+          <!-- Main Area: Bordered error panel -->
+          <main class="flex-1 p-4 flex flex-col justify-center">
+            <div class="border border-[rgba(242,244,247,0.15)] rounded-[4px] bg-[#0B0D12] p-5 space-y-3">
+              <div class="flex items-center gap-2">
+                <span class="font-mono-code text-[14px] text-[#f2f4f7]">✕</span>
+                <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">COULDN'T LOAD</span>
+              </div>
+              <p class="text-[16px] text-[#f2f4f7] leading-normal font-normal">
+                We couldn't load this page. Check your connection and try again.
+              </p>
+              <div class="pt-2">
+                <!-- Outlined Pill: Min 48px tall, UPPERCASE bold 12px tracked -->
+                <button class="w-full h-12 rounded-full border border-[rgba(242,244,247,0.25)] text-[#f2f4f7] font-mono-code text-[12px] font-bold uppercase tracking-[0.26em] hover:border-[rgba(242,244,247,0.50)] transition-colors flex items-center justify-center">
+                  TRY AGAIN
+                </button>
+              </div>
+            </div>
+          </main>
+
+          <!-- Bottom Nav -->
+          <nav class="h-[64px] border-t border-[rgba(242,244,247,0.10)] bg-[#0B0D12] grid grid-cols-4 shrink-0">
+            <div class="flex flex-col items-center justify-center text-[#f2f4f7] relative">
+              <div class="absolute top-0 left-0 right-0 h-[2px] bg-[#ef9a57]"></div>
+              <span class="text-[12px]">Home</span>
+            </div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Verif.</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">Profile</span></div>
+            <div class="flex flex-col items-center justify-center text-[rgba(242,244,247,0.55)]"><span class="text-[12px]">More</span></div>
+          </nav>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ========================================================================= -->
+  <!-- COMPONENT ANATOMY & SYSTEM TOKENS REFERENCE -->
+  <!-- ========================================================================= -->
+  <footer class="max-w-[1720px] mx-auto border-t border-[rgba(242,244,247,0.10)] pt-8 pb-16">
+    <div class="mb-4">
+      <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)]">INSTRUMENT SYSTEM REFERENCE</span>
+      <h3 class="text-[20px] font-semibold text-[#f2f4f7] mt-1">Design System Constraints &amp; Status Glyph Inventory</h3>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 text-[14px]">
+      
+      <!-- Palette & Amber Constraints -->
+      <div class="border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] p-4 rounded-[4px] space-y-2">
+        <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block">COLOUR ALLOCATION</span>
+        <div class="space-y-1 font-mono-code text-[12px] text-[rgba(242,244,247,0.8)]">
+          <div class="flex justify-between py-1 border-b border-[rgba(242,244,247,0.06)]">
+            <span>Page Canvas</span><span class="text-[#f2f4f7]">#050609 (Graphite)</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-[rgba(242,244,247,0.06)]">
+            <span>Panels &amp; Chrome</span><span class="text-[#f2f4f7]">#0B0D12</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-[rgba(242,244,247,0.06)]">
+            <span>Hairlines</span><span class="text-[#f2f4f7]">rgba(242,244,247,.10)</span>
+          </div>
+          <div class="flex justify-between py-1 border-b border-[rgba(242,244,247,0.06)]">
+            <span>Amber #ef9a57</span><span class="text-[#ef9a57]">Single Pill / 2px Bar / Focus / Badge Tick ONLY</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Verified Status Chip Set -->
+      <div class="border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] p-4 rounded-[4px] space-y-2">
+        <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block">STATUS CHIPS (28PX, MONO 12PX, NEUTRAL OUTLINE)</span>
+        <div class="grid grid-cols-2 gap-2 font-mono-code text-[12px]">
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">◌ in line</div>
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">◐ awaiting a person</div>
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">● listed</div>
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">■ approved</div>
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">↻ record again</div>
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">○ not active</div>
+          <div class="p-1.5 border border-[rgba(242,244,247,0.15)] rounded-[4px]">✕ error (neutral)</div>
+        </div>
+      </div>
+
+      <!-- System Rules Checklist -->
+      <div class="border border-[rgba(242,244,247,0.10)] bg-[#0B0D12] p-4 rounded-[4px] space-y-2">
+        <span class="font-mono-code text-[12px] uppercase tracking-[0.26em] text-[rgba(242,244,247,0.55)] block">CONFORMANCE CHECKS</span>
+        <ul class="text-[12px] text-[rgba(242,244,247,0.7)] space-y-1 list-disc list-inside">
+          <li>No marketing header or footer on role screens.</li>
+          <li>No bell icons; bottom nav free of count badges/dots.</li>
+          <li>No colors, gradients, green, red, or drop shadows.</li>
+          <li>All tap targets &ge; 48px; labels tolerate +30% text length.</li>
+          <li>AI panels sit in neutral hairline outline with "AI" tag.</li>
+        </ul>
+      </div>
+
+    </div>
+  </footer>
+
+</body>
+</html>

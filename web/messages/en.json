@@ -311,14 +311,14 @@
   },
   "FundiPage": {
     "meta": {
-      "title": "Your Fundi page · Smart Fundis"
+      "title": "Home · Smart Fundis"
     },
-    "title": "Your Fundi page",
+    "title": "Get your work verified.",
     "loading": "Opening your Fundi page…",
     "unavailable": "Your Fundi page is not available right now. Please try again later.",
+    "intro": "Record a video of one task. The AI checks it, then an Expert decides.",
     "publicProfile": {
-      "link": "View my public profile",
-      "hidden": "Your public profile is hidden, so it has no page others can see."
+      "link": "View my public profile"
     }
   },
   "Shell": {
@@ -1510,7 +1510,15 @@
       "network": "The upload stopped. Check your connection and try again.",
       "upload_failed": "The upload did not finish. Try again.",
       "unexpected": "Something went wrong. Try again."
-    }
+    },
+    "steps": {
+      "pick": "1 Pick a task",
+      "code": "2 Your code",
+      "record": "3 Record",
+      "consent": "4 Consent and upload"
+    },
+    "seeVerifications": "See my verifications",
+    "offline": "Needs a connection"
   },
   "Showcase": {
     "title": "Show your past work",
@@ -1556,95 +1564,118 @@
     "intro": "Only your decision counts. Approving creates the Badge the Fundi's profile shows as Verified by Smart Fundis.",
     "choice": {
       "approve": "Approve",
-      "reshoot": "Request a reshoot",
+      "reshoot": "Ask for a new video",
       "reject": "Reject"
     },
     "noteLabel": "Note to the Fundi",
-    "noteLabelApprove": "Note (for the record)",
-    "noteHintOptional": "Optional for an approval. Up to {max} characters.",
-    "noteHintApprove": "Optional. Kept for the record — not shown to the Fundi on an approval. Up to {max} characters.",
-    "noteHintRequired": "Required: tell the Fundi what to do differently. Up to {max} characters.",
+    "noteLabelApprove": "Note for the record — not shown to the Fundi",
+    "noteHintOptional": "Optional.",
+    "noteHintApprove": "Optional. Kept for the record only.",
+    "noteHintRequired": "Required. Tell the Fundi what to do differently.",
     "noteCount": "{count} / {max}",
-    "submit": "Send decision",
-    "submitting": "Sending…",
-    "choiceRequired": "Choose approve, request a reshoot or reject.",
+    "submit": "Submit decision",
+    "submitting": "Submitting…",
     "errors": {
-      "forbidden": "You can't decide this Assessment. It may be your own, or not in one of your Trades.",
-      "invalid_status": "This Assessment has already been decided, so there is nothing to do here.",
-      "note_required": "Write a note to the Fundi to request a reshoot or to reject.",
-      "note_too_long": "The note is too long. Keep it to {max} characters.",
-      "unexpected": "Your decision was not saved. Check your connection and try again."
-    }
+      "forbidden": "You can't decide this video. It may be your own, or not in one of your Trades.",
+      "invalid_status": "This video has already been decided, so there is nothing to do here.",
+      "note_required": "Add a note for the Fundi.",
+      "note_too_long": "Keep the note under {max} characters.",
+      "unexpected": "We couldn't save your decision. Try again."
+    },
+    "chooseFirst": "Choose a decision first.",
+    "offline": "Needs a connection"
   },
   "ExpertPage": {
     "meta": {
-      "title": "Expert review · Smart Fundis"
+      "title": "Review queue · Smart Fundis"
     },
-    "title": "Expert review",
     "loading": "Opening your review page…",
     "unavailable": "The review page is not available right now. Please try again later."
   },
   "ReviewQueue": {
-    "title": "Waiting for your decision",
-    "intro": "Oldest first. Only Assessments in your approved Trades, never your own.",
+    "title": "Review queue",
+    "intro": "Oldest first. You never see your own videos.",
     "loading": "Loading the queue…",
-    "empty": "Nothing is waiting for review. New videos appear here on their own.",
-    "taskLine": "{trade}: {task}",
-    "uploaded": "Uploaded {date}",
-    "verdict": {
-      "pass": "Pass",
-      "needs_review": "Needs review",
-      "fail": "Fail",
-      "none": "None yet"
+    "readoutLabel": "Queue summary",
+    "tradeCount": "{trade} · {count} waiting",
+    "oldest": "Oldest waiting · {age}",
+    "filterLabel": "Filter by Trade",
+    "allTrades": "All trades",
+    "meta": "{trade} · waiting {age}",
+    "age": {
+      "now": "under 1 min",
+      "minutes": "{n} min",
+      "hours": "{n} h",
+      "days": "{n} d"
     },
-    "safetyFlags": "{count, plural, =0 {No safety flags} one {# safety flag} other {# safety flags}}"
+    "safetyCheck": "Safety check",
+    "empty": {
+      "tag": "Queue clear",
+      "body": "Nothing to review right now. New videos in your trades appear here."
+    },
+    "filteredEmpty": "No videos waiting in {trade}.",
+    "showAll": "Show all trades",
+    "error": {
+      "tag": "Couldn't load",
+      "body": "We couldn't load the queue. Try again in a moment.",
+      "retry": "Try again"
+    }
   },
   "ReviewDetail": {
     "meta": {
-      "title": "Review an Assessment · Smart Fundis"
+      "title": "Review a video · Smart Fundis"
     },
-    "loading": "Loading the Assessment…",
-    "notAvailable": "This Assessment is not available to you. It may have been decided already, or it is not in one of your Trades.",
+    "loading": "Loading the video…",
+    "notAvailable": "This video has already been decided or isn't yours to review.",
     "backToQueue": "Back to the queue",
-    "taskLine": "{trade}: {task}",
-    "uploaded": "Uploaded {date}",
-    "videoTitle": "The Fundi's video",
+    "backLink": "Review queue",
+    "videoLabel": "The Fundi's video",
     "videoDeleted": "The video has been deleted.",
     "videoUnavailable": "We couldn't load the video right now. Try again in a moment.",
     "videoClosed": "The video is only shown while a decision is open.",
-    "decided": "This Assessment is not awaiting a decision any more.",
+    "decided": "This video isn't waiting for a decision any more.",
     "liveness": {
-      "title": "Liveness code",
-      "shown": "Shown to the Fundi",
-      "read": "Read by the AI",
-      "notRead": "Not read",
-      "result": "Check",
-      "check": {
-        "yes": "Matches",
-        "unclear": "Unclear — check the video yourself",
-        "none": "Not checked"
-      }
+      "title": "Liveness",
+      "shown": "Code shown · {code}",
+      "read": "AI read · {code}",
+      "notReadable": "AI read · not readable",
+      "check": "Check · {result}",
+      "result": {
+        "yes": "yes",
+        "unclear": "unclear",
+        "none": "not checked"
+      },
+      "note": "A mismatch is a reason to look, not to reject."
     },
-    "rubricTitle": "Rubric",
-    "safetyItem": "Safety item",
-    "flagged": "Flagged by the AI",
-    "observation": "AI observation: {result}",
-    "result": {
-      "yes": "Yes",
-      "no": "No",
-      "unclear": "Unclear",
-      "none": "No observation"
+    "observations": {
+      "title": "Observations",
+      "safety": "Safety",
+      "flagged": "Flagged by the AI",
+      "answer": {
+        "yes": "AI: yes",
+        "no": "AI: no",
+        "unclear": "The AI couldn't tell",
+        "none": "No observation"
+      },
+      "noTimestamp": "no timestamp"
     },
-    "at": "At {time} in the video",
+    "aiTag": "AI",
     "ai": {
       "title": "AI suggestion — you decide",
       "intro": "The AI recommends. Only your decision creates a Badge.",
-      "verdict": "Suggested verdict: {verdict}",
+      "verdict": "AI suggests: {verdict}",
+      "verdictWord": {
+        "pass": "pass",
+        "needs_review": "needs review",
+        "fail": "fail",
+        "none": "none yet"
+      },
       "strengths": "Strengths",
       "gaps": "Gaps",
-      "feedback": "Feedback the AI wrote for the Fundi",
+      "feedback": "Feedback the AI drafted (not shown to the Fundi yet)",
       "none": "None",
-      "fallback": "Checked with the backup model"
+      "fallback": "Checked with the backup model",
+      "locked": "Watch the whole video to see the AI suggestion."
     }
   },
   "PublicProfile": {
@@ -1664,5 +1695,186 @@
       "body": "The link may be wrong, or the Fundi no longer shows their profile.",
       "home": "Go to the home page"
     }
+  },
+  "AppShell": {
+    "skipToContent": "Skip to content",
+    "brand": "Smart Fundis",
+    "tagline": "Verified skills",
+    "homeLabel": "Smart Fundis: your dashboard",
+    "roles": {
+      "fundi": "Fundi",
+      "expert": "Expert"
+    },
+    "menuLabel": "Dashboard menu",
+    "bottomNavLabel": "Dashboard sections",
+    "categories": {
+      "overview": "Overview",
+      "verification": "Verification",
+      "profile": "Profile",
+      "review": "Review",
+      "account": "Account",
+      "smartFundis": "Smart Fundis"
+    },
+    "items": {
+      "home": "Home",
+      "verifications": "My verifications",
+      "publicProfile": "Public profile",
+      "showcase": "Showcase links",
+      "queue": "Queue",
+      "profile": "Profile",
+      "trades": "Trades",
+      "evidence": "Evidence",
+      "company": "Company",
+      "help": "Help",
+      "signOut": "Sign out"
+    },
+    "bottom": {
+      "home": "Home",
+      "verifications": "Verifications",
+      "profile": "Profile",
+      "queue": "Queue",
+      "more": "More"
+    },
+    "addVideo": "Add video",
+    "collapse": "Collapse menu",
+    "expand": "Expand menu",
+    "sheet": {
+      "close": "Close",
+      "menuTitle": "Menu",
+      "accountTitle": "Account"
+    },
+    "avatar": {
+      "open": "Account",
+      "manage": "Manage account",
+      "signOut": "Sign out"
+    },
+    "switcher": {
+      "legend": "Dashboard",
+      "fundi": "Fundi dashboard",
+      "expert": "Expert dashboard",
+      "current": "Current",
+      "switching": "Switching…"
+    },
+    "connection": {
+      "offline": "You're offline. Showing what loaded at {time}.",
+      "back": "Back online"
+    }
+  },
+  "StatusChip": {
+    "queued": "In line",
+    "analyzing": "AI checking",
+    "awaiting_review": "Awaiting expert review",
+    "approved": "Approved",
+    "reshoot": "Record again",
+    "rejected": "Not approved",
+    "appealed": "Appeal sent",
+    "failed": "Error on our side",
+    "listed": "Listed",
+    "listed_unverified": "Listed · Not yet verified",
+    "listing_off": "Not showing",
+    "hidden_by_admin": "Hidden by Smart Fundis"
+  },
+  "FundiHome": {
+    "verificationsTitle": "My verifications",
+    "seeAll": "See all",
+    "badgesTitle": "Your badges",
+    "notYetVerified": "Not yet verified",
+    "listing": {
+      "title": "Listing status",
+      "listedUnverified": "Clients can find your profile. A badge shows once an Expert approves a video.",
+      "listed": "Clients can find your profile.",
+      "off": "Your profile is hidden from clients."
+    },
+    "finish": {
+      "title": "Finish your profile",
+      "stillToAdd": "Still to add:",
+      "items": {
+        "firstVideo": "First video"
+      }
+    },
+    "loading": "Loading…"
+  },
+  "Verifications": {
+    "meta": {
+      "title": "My verifications · Smart Fundis",
+      "detailTitle": "Verification · Smart Fundis"
+    },
+    "title": "My verifications",
+    "loading": "Loading your verifications…",
+    "rowMeta": "{trade} · {day} {month} {year}",
+    "detailMeta": "{trade} · Recorded {day} {month} {year}",
+    "empty": {
+      "tag": "Nothing here yet",
+      "body": "No verifications yet. Record a video of one task. An Expert reviews it."
+    },
+    "error": {
+      "tag": "Couldn't load",
+      "body": "We couldn't load your verifications. Try again in a moment.",
+      "cardBody": "We couldn't load this part of the page. Try again in a moment.",
+      "retry": "Try again"
+    },
+    "showMore": "Show more",
+    "back": "My verifications",
+    "notFound": {
+      "body": "We couldn't find this verification.",
+      "back": "Back to My verifications"
+    },
+    "status": {
+      "queued": "Waiting in line for the AI check.",
+      "analyzing": "The AI is watching your video.",
+      "awaiting_review": "An Expert will review your video.",
+      "appealed": "A different Expert or a Smart Fundis admin will review your appeal.",
+      "failed": "Something went wrong on our side — please record again."
+    },
+    "expertNote": "Expert's note",
+    "recordAgain": "Record again",
+    "statusChanged": "{task}: {status}"
+  },
+  "AddVideo": {
+    "title": "Add video",
+    "intro": "Choose how to add it.",
+    "record": {
+      "title": "Record or upload",
+      "line": "Earns a Badge once an Expert approves it.",
+      "note": "You'll film one task with a code we give you."
+    },
+    "or": "Or",
+    "link": {
+      "title": "Add a YouTube or TikTok link",
+      "tag": "Showcase — not verified",
+      "line": "Links never earn a Badge. They show on your profile as examples of your work.",
+      "label": "Link",
+      "placeholder": "https://youtube.com/…",
+      "helper": "Only link to videos of your own work.",
+      "add": "Add link",
+      "adding": "Adding…",
+      "added": "Added to Showcase — not verified.",
+      "offline": "Needs a connection",
+      "savedTitle": "Showcase links",
+      "replaces": {
+        "youtube": "This replaces your saved YouTube link.",
+        "tiktok": "This replaces your saved TikTok link."
+      }
+    },
+    "errors": {
+      "host": "Only YouTube or TikTok links can be added.",
+      "empty": "Paste a YouTube or TikTok link first.",
+      "unsupported": "Use a link to one YouTube or TikTok video.",
+      "tiktok_short": "Open the video in TikTok, tap Share, then Copy link, and paste the full tiktok.com link.",
+      "save": "We could not save your link. Check your connection and try again."
+    }
+  },
+  "RecordPage": {
+    "meta": {
+      "title": "Record a video · Smart Fundis"
+    },
+    "title": "Record or upload",
+    "intro": "Earns a Badge once an Expert approves it."
+  },
+  "ShowcasePage": {
+    "meta": {
+      "title": "Showcase links · Smart Fundis"
+    },
+    "title": "Showcase links"
   }
 }

@@ -1,0 +1,1433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Screen 25: Fundi Home (/fundi) — Instrument App Mode</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+  :root {
+    --bg-page: #050609;
+    --bg-panel: #0B0D12;
+    --border-hairline: rgba(242, 244, 247, 0.10);
+    --border-subtle: rgba(242, 244, 247, 0.06);
+    --text-primary: #f2f4f7;
+    --text-secondary: rgba(242, 244, 247, 0.55);
+    --text-dim: rgba(242, 244, 247, 0.35);
+    --amber-primary: #ef9a57;
+    --amber-surface: #ef9a57;
+    --font-ui: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+  }
+  body {
+    background-color: var(--bg-page);
+    color: var(--text-primary);
+    font-family: var(--font-ui);
+    -webkit-font-smoothing: antialiased;
+    padding: 40px;
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  
+  /* Spec Board Header */
+  .spec-header {
+    margin-bottom: 48px;
+    border-bottom: 1px solid var(--border-hairline);
+    padding-bottom: 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    flex-wrap: wrap;
+    gap: 20px;
+  }
+  .spec-tags {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .spec-tag {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    padding: 3px 8px;
+    border: 1px solid var(--border-hairline);
+    color: var(--text-secondary);
+    border-radius: 4px;
+  }
+  .spec-tag.active {
+    border-color: rgba(239, 154, 87, 0.4);
+    color: var(--amber-primary);
+  }
+  .spec-title {
+    font-size: 32px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    margin-bottom: 6px;
+  }
+  .spec-desc {
+    color: var(--text-secondary);
+    font-size: 15px;
+  }
+  .spec-meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    text-align: right;
+    line-height: 1.6;
+  }
+
+  .section-headline {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.26em;
+    color: var(--text-secondary);
+    margin: 40px 0 20px 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .section-headline::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: var(--border-hairline);
+  }
+
+  /* Frames Container Grid */
+  .frames-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 40px;
+    align-items: flex-start;
+  }
+
+  .frame-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .frame-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .frame-label span.dim {
+    color: var(--text-dim);
+  }
+
+  /* Shared App Components */
+  .logo-mark {
+    width: 24px;
+    height: 24px;
+    border: 1.5px solid rgba(242, 244, 247, 0.7);
+    border-radius: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    flex-shrink: 0;
+  }
+  .logo-mark svg {
+    width: 14px;
+    height: 14px;
+  }
+  .avatar-circle {
+    width: 36px;
+    height: 36px;
+    border-radius: 4px;
+    border: 1px solid var(--border-hairline);
+    background: #11141c;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 500;
+    flex-shrink: 0;
+  }
+  .avatar-circle.sm {
+    width: 32px;
+    height: 32px;
+    font-size: 11px;
+  }
+
+  /* Status Chips */
+  .status-chip {
+    height: 28px;
+    border: 1px solid var(--border-hairline);
+    border-radius: 4px;
+    padding: 0 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    background: transparent;
+    white-space: nowrap;
+    line-height: 1;
+  }
+  .status-chip .glyph {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .example-tag {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-dim);
+    border: 1px solid var(--border-subtle);
+    padding: 1px 4px;
+    border-radius: 2px;
+    letter-spacing: 0.1em;
+    vertical-align: middle;
+    margin-left: 6px;
+    display: inline-block;
+  }
+
+  /* Badges */
+  .badge-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 12px 14px;
+    background: #0E1118;
+    border: 1px solid var(--border-hairline);
+    border-radius: 4px;
+    font-size: 13px;
+    color: var(--text-primary);
+  }
+  .badge-icon {
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* Pills & Buttons */
+  .btn-amber-pill {
+    height: 48px;
+    border-radius: 999px;
+    background: var(--amber-surface);
+    color: #050609;
+    border: none;
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+    transition: opacity 0.15s ease;
+  }
+  .btn-amber-pill:hover {
+    opacity: 0.95;
+  }
+  .btn-outline-pill {
+    height: 48px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--text-primary);
+    border: 1px solid var(--border-hairline);
+    font-family: var(--font-ui);
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.12em;
+    padding: 0 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    text-decoration: none;
+    width: 100%;
+  }
+
+  /* List Rows */
+  .hairline-list {
+    border-top: 1px solid var(--border-hairline);
+  }
+  .hairline-row {
+    min-height: 56px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+  .hairline-row.interactive {
+    cursor: pointer;
+  }
+  .row-content {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+  .row-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .row-meta {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    letter-spacing: 0.04em;
+  }
+  .chevron-right {
+    color: var(--text-secondary);
+    font-size: 18px;
+    line-height: 1;
+    font-family: var(--font-ui);
+  }
+
+  /* Panel card */
+  .panel-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    border-radius: 4px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .panel-header-mono {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.26em;
+    color: var(--text-secondary);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  /* ========================================================= */
+  /* FRAME 01: DESKTOP BUSY FUNDI (1280px representation)     */
+  /* ========================================================= */
+  .desktop-device {
+    width: 1280px;
+    height: 840px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-hairline);
+    border-radius: 4px;
+    display: flex;
+    overflow: hidden;
+    position: relative;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+  }
+  .desktop-sidebar {
+    width: 248px;
+    height: 100%;
+    background: var(--bg-panel);
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  .sidebar-header {
+    height: 64px;
+    padding: 0 20px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .sidebar-cta-wrap {
+    padding: 20px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+  .sidebar-nav-group {
+    padding: 16px 0;
+  }
+  .sidebar-group-title {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.26em;
+    text-transform: uppercase;
+    color: var(--text-secondary);
+    padding: 8px 20px;
+  }
+  .sidebar-nav-item {
+    height: 48px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 0 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 16px;
+    position: relative;
+  }
+  .sidebar-nav-item.active {
+    color: var(--text-primary);
+    background: rgba(242, 244, 247, 0.04);
+  }
+  .sidebar-nav-item.active::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--amber-primary);
+  }
+  .sidebar-icon {
+    width: 20px;
+    height: 20px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.75;
+    flex-shrink: 0;
+  }
+  .sidebar-footer {
+    margin-top: auto;
+    border-top: 1px solid var(--border-hairline);
+    padding: 12px 0;
+  }
+
+  .desktop-main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    height: 100%;
+  }
+  .desktop-top-header {
+    height: 64px;
+    border-bottom: 1px solid var(--border-hairline);
+    padding: 0 32px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 16px;
+    background: var(--bg-page);
+    flex-shrink: 0;
+  }
+  .desktop-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px 32px 48px 32px;
+  }
+  .desktop-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 32px;
+    margin-top: 32px;
+  }
+
+  .page-title-desktop {
+    font-size: 40px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+    line-height: 1.15;
+  }
+  .page-subtitle {
+    font-size: 16px;
+    color: var(--text-secondary);
+    margin-top: 8px;
+  }
+
+  /* ========================================================= */
+  /* MOBILE FRAMES (360px width standard)                     */
+  /* ========================================================= */
+  .mobile-frame {
+    width: 360px;
+    min-height: 780px;
+    background: var(--bg-page);
+    border: 1px solid var(--border-hairline);
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+  .mobile-header {
+    height: 56px;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: var(--bg-page);
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+  .mobile-header-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .mobile-role-label {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    letter-spacing: 0.15em;
+    color: var(--text-secondary);
+  }
+  .mobile-content {
+    flex: 1;
+    padding: 24px 16px 88px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 28px;
+    overflow-y: auto;
+  }
+  .page-title-mobile {
+    font-size: 28px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
+    color: var(--text-primary);
+  }
+  .mobile-bottom-nav {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: var(--bg-panel);
+    border-top: 1px solid var(--border-hairline);
+    display: flex;
+    align-items: stretch;
+    z-index: 20;
+  }
+  .bottom-nav-tab {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    text-decoration: none;
+    color: var(--text-secondary);
+    position: relative;
+  }
+  .bottom-nav-tab.active {
+    color: var(--text-primary);
+  }
+  .bottom-nav-tab.active::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 2px;
+    background: var(--amber-primary);
+  }
+  .bottom-nav-tab .tab-icon {
+    width: 22px;
+    height: 22px;
+    stroke: currentColor;
+    fill: none;
+    stroke-width: 1.75;
+  }
+  .bottom-nav-tab .tab-label {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  /* Skeleton Loading Styles */
+  .skeleton-block {
+    background: rgba(242, 244, 247, 0.08);
+    border-radius: 2px;
+    animation: skeleton-pulse 2s infinite ease-in-out;
+  }
+  @keyframes skeleton-pulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 0.8; }
+  }
+  .skeleton-line {
+    height: 12px;
+    margin-bottom: 6px;
+  }
+
+  /* Error state container */
+  .error-card {
+    background: var(--bg-panel);
+    border: 1px solid var(--border-hairline);
+    border-radius: 4px;
+    padding: 24px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    text-align: left;
+  }
+  .error-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    letter-spacing: 0.15em;
+  }
+
+  /* Empty state */
+  .empty-state-panel {
+    border: 1px dashed var(--border-hairline);
+    border-radius: 4px;
+    padding: 24px 20px;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: rgba(242, 244, 247, 0.02);
+  }
+</style>
+</head>
+<body>
+
+  <!-- Specification Board Header -->
+  <header class="spec-header">
+    <div>
+      <div class="spec-tags">
+        <span class="spec-tag active">Screen 25</span>
+        <span class="spec-tag">Instrument App Mode</span>
+        <span class="spec-tag">Fundi Home (/fundi)</span>
+        <span class="spec-tag">7 Spec Frames</span>
+      </div>
+      <h1 class="spec-title">Fundi Home — App Shell Implementation</h1>
+      <p class="spec-desc">Responsive precision dashboard for verified trades (Electrical & Hairdressing). Quiet chrome, single amber pill rule, verified badges.</p>
+    </div>
+    <div class="spec-meta">
+      PAGE: #050609 (GRAPHITE) · PANELS: #0B0D12<br>
+      AMBER: #EF9A57 (SINGLE PILL ONLY / FOCUS / BADGE TICK)<br>
+      STATUS: WCAG 2.2 AA CONFORMANT · 0 COLOURED ACCENTS
+    </div>
+  </header>
+
+  <!-- FRAME 01: DESKTOP VIEWPORT -->
+  <div class="section-headline">
+    Frame 01 · Desktop Busy Fundi (1280 px Canvas)
+  </div>
+
+  <div class="frames-container">
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Desktop Viewport — Two-Column Grid (1280 × 840)</span>
+        <span class="dim">Sidebar 248px · Header 64px · Gutters 32px</span>
+      </div>
+
+      <div class="desktop-device">
+        <!-- 248px Sidebar -->
+        <aside class="desktop-sidebar">
+          <div class="sidebar-header">
+            <div class="logo-mark">
+              <svg viewBox="0 0 16 16" fill="none">
+                <path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <div>
+              <div style="font-weight: 600; font-size: 15px; letter-spacing: -0.01em; color: var(--text-primary); line-height: 1.1;">Smart Fundis</div>
+              <div style="font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.18em; color: var(--text-secondary); text-transform: uppercase;">VERIFIED SKILLS</div>
+            </div>
+          </div>
+
+          <!-- The ONLY Amber Pill in Desktop Viewport -->
+          <div class="sidebar-cta-wrap">
+            <button class="btn-amber-pill">Add video</button>
+          </div>
+
+          <div class="sidebar-nav-group">
+            <div class="sidebar-group-title">Overview</div>
+            <a href="#" class="sidebar-nav-item active">
+              <svg class="sidebar-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+              <span>Home</span>
+            </a>
+          </div>
+
+          <div class="sidebar-nav-group" style="padding-top: 0;">
+            <div class="sidebar-group-title">Verification</div>
+            <a href="#" class="sidebar-nav-item">
+              <svg class="sidebar-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+              <span>My verifications</span>
+            </a>
+          </div>
+
+          <div class="sidebar-nav-group" style="padding-top: 0;">
+            <div class="sidebar-group-title">Profile</div>
+            <a href="#" class="sidebar-nav-item">
+              <svg class="sidebar-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              <span>Public profile</span>
+            </a>
+            <a href="#" class="sidebar-nav-item">
+              <svg class="sidebar-icon" viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <span>Showcase links</span>
+            </a>
+          </div>
+
+          <div class="sidebar-nav-group" style="padding-top: 0;">
+            <div class="sidebar-group-title">Smart Fundis</div>
+            <a href="#" class="sidebar-nav-item" style="height: 38px; font-size: 14px;">Trades</a>
+            <a href="#" class="sidebar-nav-item" style="height: 38px; font-size: 14px;">Evidence</a>
+            <a href="#" class="sidebar-nav-item" style="height: 38px; font-size: 14px;">Company</a>
+          </div>
+
+          <div class="sidebar-footer">
+            <a href="#" class="sidebar-nav-item" style="height: 42px;">
+              <svg class="sidebar-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 17h.01"/><path d="M12 13.5a1.5 1.5 0 0 1 1-1.5c1.2-.6 1.8-1.5 1.8-2.5 0-1.7-1.3-3-3-3s-3 1.3-3 3"/></svg>
+              <span>Help</span>
+            </a>
+            <a href="#" class="sidebar-nav-item" style="height: 42px;">
+              <svg class="sidebar-icon" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+              <span>Sign out</span>
+            </a>
+          </div>
+        </aside>
+
+        <!-- Main Workspace -->
+        <main class="desktop-main">
+          <header class="desktop-top-header">
+            <span style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.15em; color: var(--text-secondary); text-transform: uppercase;">FUNDI DASHBOARD</span>
+            <div class="avatar-circle">WK</div>
+          </header>
+
+          <div class="desktop-body">
+            <!-- Header section 1 -->
+            <div>
+              <h1 class="page-title-desktop">Get your work verified.</h1>
+              <p class="page-subtitle">Record a video of one task. The AI checks it, then an Expert decides.</p>
+            </div>
+
+            <!-- Two-Column Desktop Layout (1-3 left, 4-5 right) -->
+            <div class="desktop-grid">
+              
+              <!-- LEFT COLUMN: Content Items 2 & 3 -->
+              <div style="display: flex; flex-direction: column; gap: 40px;">
+                
+                <!-- Item 2: MY VERIFICATIONS -->
+                <div>
+                  <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 12px;">
+                    <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary);">MY VERIFICATIONS</div>
+                    <a href="#" style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px solid var(--border-hairline);">See all</a>
+                  </div>
+
+                  <div class="hairline-list">
+                    <!-- Row 1 -->
+                    <div class="hairline-row">
+                      <div class="row-content">
+                        <div class="row-title">Install a 13A socket <span class="example-tag">EXAMPLE</span></div>
+                        <div class="row-meta">ELECTRICAL · 2 H AGO</div>
+                      </div>
+                      <div class="status-chip">
+                        <span class="glyph">◐</span> Awaiting expert review
+                      </div>
+                    </div>
+                    <!-- Row 2 -->
+                    <div class="hairline-row">
+                      <div class="row-content">
+                        <div class="row-title">Cornrows <span class="example-tag">EXAMPLE</span></div>
+                        <div class="row-meta">HAIRDRESSING · 1 H AGO</div>
+                      </div>
+                      <div class="status-chip">
+                        <span class="glyph">◌</span> AI checking
+                      </div>
+                    </div>
+                    <!-- Row 3 -->
+                    <div class="hairline-row">
+                      <div class="row-content">
+                        <div class="row-title">Install a 13A socket <span class="example-tag">EXAMPLE</span></div>
+                        <div class="row-meta">ELECTRICAL · 2 H AGO</div>
+                      </div>
+                      <div class="status-chip">
+                        <span class="glyph">↻</span> Record again
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Item 3: YOUR BADGES -->
+                <div>
+                  <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 12px;">YOUR BADGES</div>
+                  <div class="badge-row">
+                    <div class="badge-icon">
+                      <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="7" stroke="rgba(242,244,247,0.8)" stroke-width="1.2"/>
+                        <path d="M4.5 8L6.8 10.5L11.5 5.5" stroke="#ef9a57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </div>
+                    <div style="flex: 1; font-weight: 500;">
+                      Verified by Smart Fundis — Electrical: Install a 13A socket <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); margin-left: 8px;">· 25 Sep 2026</span> <span class="example-tag">EXAMPLE</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+              <!-- RIGHT COLUMN: Content Items 4 & 5 -->
+              <div style="display: flex; flex-direction: column; gap: 24px;">
+
+                <!-- Item 4: LISTING STATUS CARD -->
+                <div class="panel-card">
+                  <div class="panel-header-mono">
+                    <span>LISTING STATUS</span>
+                  </div>
+                  <div>
+                    <div class="status-chip" style="margin-bottom: 12px;">
+                      <span class="glyph">●</span> Listed · Not yet verified
+                    </div>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.5;">Clients can find your profile. A badge shows once an Expert approves a video.</p>
+                  </div>
+                  <button class="btn-outline-pill">View my public profile</button>
+                </div>
+
+                <!-- Item 5: FINISH YOUR PROFILE CARD -->
+                <div class="panel-card">
+                  <div class="panel-header-mono">
+                    <span>FINISH YOUR PROFILE</span>
+                  </div>
+                  <div style="font-size: 14px; color: var(--text-secondary);">Still to add:</div>
+                  
+                  <div class="hairline-list">
+                    <div class="hairline-row interactive" style="padding: 10px 0;">
+                      <div class="row-content">
+                        <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">Photo of your work</div>
+                        <div style="font-size: 13px; color: var(--text-secondary);">Clients look at these first</div>
+                      </div>
+                      <span class="chevron-right">›</span>
+                    </div>
+                    <div class="hairline-row interactive" style="padding: 10px 0;">
+                      <div class="row-content">
+                        <div style="font-size: 15px; font-weight: 600; color: var(--text-primary);">About your work</div>
+                      </div>
+                      <span class="chevron-right">›</span>
+                    </div>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </div>
+        </main>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION: MOBILE SPECIFICATION FRAMES -->
+  <div class="section-headline">
+    Frames 02 to 07 · Mobile Fundi Home Specifications (360 px Canvas)
+  </div>
+
+  <div class="frames-container">
+
+    <!-- FRAME 02: MOBILE BUSY FUNDI -->
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Frame 02 · Mobile Busy Fundi</span>
+        <span class="dim">360 px</span>
+      </div>
+
+      <div class="mobile-frame">
+        <header class="mobile-header">
+          <div class="mobile-header-left">
+            <div class="logo-mark" style="width: 22px; height: 22px;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="mobile-role-label">FUNDI</span>
+          </div>
+          <div class="avatar-circle sm">WK</div>
+        </header>
+
+        <div class="mobile-content">
+          <!-- 1. Header & Primary CTA -->
+          <div>
+            <h2 class="page-title-mobile">Get your work verified.</h2>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.45;">Record a video of one task. The AI checks it, then an Expert decides.</p>
+            <div style="margin-top: 18px;">
+              <button class="btn-amber-pill">Add video</button>
+            </div>
+          </div>
+
+          <!-- 2. Section: MY VERIFICATIONS -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+              <span style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary);">MY VERIFICATIONS</span>
+              <a href="#" style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px solid var(--border-hairline);">See all</a>
+            </div>
+            <div class="hairline-list">
+              <div class="hairline-row">
+                <div class="row-content">
+                  <div class="row-title">Install a 13A socket <span class="example-tag">EXAMPLE</span></div>
+                  <div class="row-meta">ELECTRICAL · 2 H AGO</div>
+                </div>
+                <div class="status-chip"><span class="glyph">◐</span> <span>Awaiting</span></div>
+              </div>
+              <div class="hairline-row">
+                <div class="row-content">
+                  <div class="row-title">Cornrows <span class="example-tag">EXAMPLE</span></div>
+                  <div class="row-meta">HAIRDRESSING · 1 H AGO</div>
+                </div>
+                <div class="status-chip"><span class="glyph">◌</span> <span>AI check</span></div>
+              </div>
+              <div class="hairline-row">
+                <div class="row-content">
+                  <div class="row-title">Install a 13A socket <span class="example-tag">EXAMPLE</span></div>
+                  <div class="row-meta">ELECTRICAL · 2 H AGO</div>
+                </div>
+                <div class="status-chip"><span class="glyph">↻</span> <span>Record</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Section: YOUR BADGES -->
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px;">YOUR BADGES</div>
+            <div class="badge-row" style="font-size: 12px; padding: 10px 12px;">
+              <div class="badge-icon">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="rgba(242,244,247,0.8)" stroke-width="1.2"/>
+                  <path d="M4.5 8L6.8 10.5L11.5 5.5" stroke="#ef9a57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div style="flex: 1; line-height: 1.4;">
+                Verified by Smart Fundis — Electrical: Install a 13A socket <span class="example-tag">EXAMPLE</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Card: LISTING STATUS -->
+          <div class="panel-card">
+            <div class="panel-header-mono">LISTING STATUS</div>
+            <div>
+              <div class="status-chip" style="margin-bottom: 10px;"><span class="glyph">●</span> Listed · Not yet verified</div>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.45;">Clients can find your profile. A badge shows once an Expert approves a video.</p>
+            </div>
+            <button class="btn-outline-pill">View my public profile</button>
+          </div>
+
+          <!-- 5. Card: FINISH YOUR PROFILE -->
+          <div class="panel-card">
+            <div class="panel-header-mono">FINISH YOUR PROFILE</div>
+            <div style="font-size: 13px; color: var(--text-secondary);">Still to add:</div>
+            <div class="hairline-list">
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Photo of your work</div>
+                  <div style="font-size: 12px; color: var(--text-secondary);">Clients look at these first</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">About your work</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 64px Mobile Bottom Nav -->
+        <nav class="mobile-bottom-nav">
+          <a href="#" class="bottom-nav-tab active">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="tab-label">Home</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="tab-label">Verifications</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span class="tab-label">More</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 03: MOBILE NEW FUNDI -->
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Frame 03 · Mobile New Fundi</span>
+        <span class="dim">Empty State</span>
+      </div>
+
+      <div class="mobile-frame">
+        <header class="mobile-header">
+          <div class="mobile-header-left">
+            <div class="logo-mark" style="width: 22px; height: 22px;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="mobile-role-label">FUNDI</span>
+          </div>
+          <div class="avatar-circle sm">WK</div>
+        </header>
+
+        <div class="mobile-content">
+          <div>
+            <h2 class="page-title-mobile">Get your work verified.</h2>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.45;">Record a video of one task. The AI checks it, then an Expert decides.</p>
+          </div>
+
+          <!-- Empty State: MY VERIFICATIONS -->
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px;">MY VERIFICATIONS</div>
+            <div class="empty-state-panel">
+              <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.18em; color: var(--text-secondary);">NOTHING HERE YET</div>
+              <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.45;">No verifications yet. Record a video of one task. An Expert reviews it.</p>
+              <div style="margin-top: 8px;">
+                <button class="btn-amber-pill">Add video</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Section: YOUR BADGES (Plain dim text) -->
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 8px;">YOUR BADGES</div>
+            <div style="font-size: 14px; color: var(--text-dim); padding: 8px 0;">Not yet verified</div>
+          </div>
+
+          <!-- Card: FINISH YOUR PROFILE (5 Missing Items) -->
+          <div class="panel-card">
+            <div class="panel-header-mono">FINISH YOUR PROFILE</div>
+            <div style="font-size: 13px; color: var(--text-secondary);">Still to add:</div>
+            <div class="hairline-list">
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Photo of your work</div>
+                  <div style="font-size: 12px; color: var(--text-secondary);">Clients look at these first</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">About your work</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Service location / Subcounty</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Years of trade experience</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Tools & equipment list</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="mobile-bottom-nav">
+          <a href="#" class="bottom-nav-tab active">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="tab-label">Home</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="tab-label">Verifications</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span class="tab-label">More</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 04: MOBILE VERIFIED FUNDI -->
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Frame 04 · Mobile Verified Fundi</span>
+        <span class="dim">Badge + Listed</span>
+      </div>
+
+      <div class="mobile-frame">
+        <header class="mobile-header">
+          <div class="mobile-header-left">
+            <div class="logo-mark" style="width: 22px; height: 22px;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="mobile-role-label">FUNDI</span>
+          </div>
+          <div class="avatar-circle sm">WK</div>
+        </header>
+
+        <div class="mobile-content">
+          <div>
+            <h2 class="page-title-mobile">Get your work verified.</h2>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.45;">Record a video of one task. The AI checks it, then an Expert decides.</p>
+            <div style="margin-top: 18px;">
+              <button class="btn-amber-pill">Add video</button>
+            </div>
+          </div>
+
+          <!-- Section: YOUR BADGES -->
+          <div>
+            <div style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary); margin-bottom: 10px;">YOUR BADGES</div>
+            <div class="badge-row" style="font-size: 13px;">
+              <div class="badge-icon">
+                <svg width="18" height="18" viewBox="0 0 16 16" fill="none">
+                  <circle cx="8" cy="8" r="7" stroke="rgba(242,244,247,0.8)" stroke-width="1.2"/>
+                  <path d="M4.5 8L6.8 10.5L11.5 5.5" stroke="#ef9a57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </div>
+              <div style="flex: 1; line-height: 1.4;">
+                Verified by Smart Fundis — Electrical: Install a 13A socket <span style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary);">· 25 Sep 2026</span> <span class="example-tag">EXAMPLE</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card: LISTING STATUS (Listed + Verified) -->
+          <div class="panel-card">
+            <div class="panel-header-mono">LISTING STATUS</div>
+            <div>
+              <div class="status-chip" style="margin-bottom: 10px;"><span class="glyph">●</span> Listed</div>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.45;">Your profile displays the Verified Badge to potential clients across Nairobi.</p>
+            </div>
+            <button class="btn-outline-pill">View my public profile</button>
+          </div>
+
+          <!-- Section: MY VERIFICATIONS -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+              <span style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary);">MY VERIFICATIONS</span>
+              <a href="#" style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px solid var(--border-hairline);">See all</a>
+            </div>
+            <div class="hairline-list">
+              <div class="hairline-row">
+                <div class="row-content">
+                  <div class="row-title">Install a 13A socket <span class="example-tag">EXAMPLE</span></div>
+                  <div class="row-meta">ELECTRICAL · 25 SEP 2026</div>
+                </div>
+                <div class="status-chip"><span class="glyph">■</span> <span>Approved</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="mobile-bottom-nav">
+          <a href="#" class="bottom-nav-tab active">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="tab-label">Home</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="tab-label">Verifications</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span class="tab-label">More</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 05: MOBILE LOADING SKELETON -->
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Frame 05 · Mobile Loading</span>
+        <span class="dim">Skeleton State</span>
+      </div>
+
+      <div class="mobile-frame">
+        <header class="mobile-header">
+          <div class="mobile-header-left">
+            <div class="logo-mark" style="width: 22px; height: 22px;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="mobile-role-label">FUNDI</span>
+          </div>
+          <div class="avatar-circle sm">WK</div>
+        </header>
+
+        <div class="mobile-content">
+          <div>
+            <div class="skeleton-block" style="width: 75%; height: 28px; margin-bottom: 8px;"></div>
+            <div class="skeleton-block skeleton-line" style="width: 95%;"></div>
+            <div class="skeleton-block skeleton-line" style="width: 60%;"></div>
+            <div class="skeleton-block" style="width: 100%; height: 48px; border-radius: 999px; margin-top: 18px;"></div>
+          </div>
+
+          <div>
+            <div class="skeleton-block" style="width: 40%; height: 12px; margin-bottom: 12px;"></div>
+            <div class="hairline-list">
+              <div class="hairline-row">
+                <div style="flex: 1;">
+                  <div class="skeleton-block" style="width: 55%; height: 16px; margin-bottom: 6px;"></div>
+                  <div class="skeleton-block" style="width: 35%; height: 10px;"></div>
+                </div>
+                <div class="skeleton-block" style="width: 70px; height: 28px; border-radius: 4px;"></div>
+              </div>
+              <div class="hairline-row">
+                <div style="flex: 1;">
+                  <div class="skeleton-block" style="width: 45%; height: 16px; margin-bottom: 6px;"></div>
+                  <div class="skeleton-block" style="width: 40%; height: 10px;"></div>
+                </div>
+                <div class="skeleton-block" style="width: 70px; height: 28px; border-radius: 4px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel-card">
+            <div class="skeleton-block" style="width: 45%; height: 12px;"></div>
+            <div class="skeleton-block" style="width: 60%; height: 28px; border-radius: 4px;"></div>
+            <div class="skeleton-block skeleton-line" style="width: 90%;"></div>
+            <div class="skeleton-block" style="width: 100%; height: 48px; border-radius: 999px; margin-top: 6px;"></div>
+          </div>
+        </div>
+
+        <nav class="mobile-bottom-nav">
+          <a href="#" class="bottom-nav-tab active">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="tab-label">Home</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="tab-label">Verifications</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span class="tab-label">More</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 06: MOBILE ONE CARD FAILED -->
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Frame 06 · One Card Failed</span>
+        <span class="dim">Neutral Error Card</span>
+      </div>
+
+      <div class="mobile-frame">
+        <header class="mobile-header">
+          <div class="mobile-header-left">
+            <div class="logo-mark" style="width: 22px; height: 22px;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="mobile-role-label">FUNDI</span>
+          </div>
+          <div class="avatar-circle sm">WK</div>
+        </header>
+
+        <div class="mobile-content">
+          <div>
+            <h2 class="page-title-mobile">Get your work verified.</h2>
+            <p style="font-size: 14px; color: var(--text-secondary); margin-top: 6px; line-height: 1.45;">Record a video of one task. The AI checks it, then an Expert decides.</p>
+            <div style="margin-top: 18px;">
+              <button class="btn-amber-pill">Add video</button>
+            </div>
+          </div>
+
+          <!-- Section: MY VERIFICATIONS (Works normally) -->
+          <div>
+            <div style="display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 10px;">
+              <span style="font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.26em; text-transform: uppercase; color: var(--text-secondary);">MY VERIFICATIONS</span>
+              <a href="#" style="font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); text-decoration: none; border-bottom: 1px solid var(--border-hairline);">See all</a>
+            </div>
+            <div class="hairline-list">
+              <div class="hairline-row">
+                <div class="row-content">
+                  <div class="row-title">Install a 13A socket <span class="example-tag">EXAMPLE</span></div>
+                  <div class="row-meta">ELECTRICAL · 2 H AGO</div>
+                </div>
+                <div class="status-chip"><span class="glyph">◐</span> <span>Awaiting</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- CARD: LISTING STATUS FAILED (Neutral outline error) -->
+          <div class="error-card">
+            <div class="error-header">
+              <span>✕</span>
+              <span>COULDN'T LOAD</span>
+            </div>
+            <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.45;">We couldn't load your listing status. Check your connection and try again.</p>
+            <button class="btn-outline-pill">Try again</button>
+          </div>
+
+          <!-- Card: FINISH YOUR PROFILE (Also works) -->
+          <div class="panel-card">
+            <div class="panel-header-mono">FINISH YOUR PROFILE</div>
+            <div class="hairline-list">
+              <div class="hairline-row interactive" style="padding: 10px 0;">
+                <div class="row-content">
+                  <div style="font-size: 14px; font-weight: 600; color: var(--text-primary);">Photo of your work</div>
+                </div>
+                <span class="chevron-right">›</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <nav class="mobile-bottom-nav">
+          <a href="#" class="bottom-nav-tab active">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="tab-label">Home</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="tab-label">Verifications</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span class="tab-label">More</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+    <!-- FRAME 07: MOBILE LISTING STATES (Stacked) -->
+    <div class="frame-wrapper">
+      <div class="frame-label">
+        <span>Frame 07 · Listing States</span>
+        <span class="dim">3 Variations Stacked</span>
+      </div>
+
+      <div class="mobile-frame" style="min-height: 820px;">
+        <header class="mobile-header">
+          <div class="mobile-header-left">
+            <div class="logo-mark" style="width: 22px; height: 22px;">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4 8.5L7 11.5L12 4.5" stroke="#ef9a57" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <span class="mobile-role-label">LISTING STATES</span>
+          </div>
+          <div class="avatar-circle sm">WK</div>
+        </header>
+
+        <div class="mobile-content" style="gap: 20px;">
+          
+          <!-- State 1: ○ Not showing -->
+          <div class="panel-card">
+            <div class="panel-header-mono">
+              <span>STATE 1 · NOT SHOWING</span>
+            </div>
+            <div>
+              <div class="status-chip" style="margin-bottom: 10px;">
+                <span class="glyph">○</span> Not showing
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.45;">Your profile is hidden from clients.</p>
+            </div>
+            <button class="btn-outline-pill">Show my profile</button>
+          </div>
+
+          <!-- State 2: ✕ Hidden by Smart Fundis -->
+          <div class="panel-card">
+            <div class="panel-header-mono">
+              <span>STATE 2 · MODERATION</span>
+            </div>
+            <div>
+              <div class="status-chip" style="margin-bottom: 10px;">
+                <span class="glyph">✕</span> Hidden by Smart Fundis
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); line-height: 1.45;">Contact <a href="mailto:info@smartfundis.com" style="color: var(--text-primary); text-decoration: underline;">info@smartfundis.com</a> to ask why.</p>
+            </div>
+          </div>
+
+          <!-- State 3: ● Listed with Badge -->
+          <div class="panel-card">
+            <div class="panel-header-mono">
+              <span>STATE 3 · LISTED WITH BADGE</span>
+            </div>
+            <div>
+              <div class="status-chip" style="margin-bottom: 10px;">
+                <span class="glyph">●</span> Listed
+              </div>
+              <div class="badge-row" style="margin-top: 8px; font-size: 12px; padding: 8px 10px;">
+                <div class="badge-icon">
+                  <svg width="15" height="15" viewBox="0 0 16 16" fill="none">
+                    <circle cx="8" cy="8" r="7" stroke="rgba(242,244,247,0.8)" stroke-width="1.2"/>
+                    <path d="M4.5 8L6.8 10.5L11.5 5.5" stroke="#ef9a57" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </div>
+                <div style="flex: 1; line-height: 1.3;">
+                  Verified by Smart Fundis — Electrical: Install a 13A socket
+                </div>
+              </div>
+            </div>
+            <button class="btn-outline-pill" style="margin-top: 6px;">View my public profile</button>
+          </div>
+
+        </div>
+
+        <nav class="mobile-bottom-nav">
+          <a href="#" class="bottom-nav-tab active">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+            <span class="tab-label">Home</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+            <span class="tab-label">Verifications</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span class="tab-label">Profile</span>
+          </a>
+          <a href="#" class="bottom-nav-tab">
+            <svg class="tab-icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"/><circle cx="19" cy="12" r="1"/><circle cx="5" cy="12" r="1"/></svg>
+            <span class="tab-label">More</span>
+          </a>
+        </nav>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

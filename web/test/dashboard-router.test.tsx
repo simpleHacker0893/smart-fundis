@@ -46,7 +46,7 @@ afterEach(() => {
 });
 
 async function render({ convexAvailable = true } = {}) {
-  const { DashboardRouter } = await import("@/app/(site)/dashboard/dashboard-router");
+  const { DashboardRouter } = await import("@/app/(app)/dashboard/dashboard-router");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
   await act(async () => {
     root.render(

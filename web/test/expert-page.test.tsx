@@ -88,7 +88,7 @@ afterEach(() => {
 });
 
 async function render({ convexAvailable = true } = {}) {
-  const { default: ExpertPage } = await import("@/app/(site)/expert/page");
+  const { default: ExpertPage } = await import("@/app/(app)/expert/page");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
   const page = await ExpertPage();
   await act(async () => {
@@ -111,7 +111,7 @@ describe("/expert page (spec §4 page guard)", () => {
   });
 
   it("has a page title from messages", async () => {
-    const { generateMetadata } = await import("@/app/(site)/expert/page");
+    const { generateMetadata } = await import("@/app/(app)/expert/page");
     expect((await generateMetadata()).title).toBe(t("meta.title"));
   });
 
@@ -147,70 +147,169 @@ describe("/expert page (spec §4 page guard)", () => {
   });
 });
 
-describe("the Expert queue (US-5.1)", () => {
+describe("the Expert queue (US-5.1, #67 screen 28)", () => {
+  const NOW = Date.UTC(2026, 8, 20, 12, 30);
+  const HOUR = 3_600_000;
+
   beforeEach(() => {
     state.me = { user: USER, roles: roles({ base: "fundi", expert: true }) };
+    vi.spyOn(Date, "now").mockReturnValue(NOW);
   });
 
-  it("shows the heading and a skeleton while the queue loads", async () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  const hair = (over: object = {}) =>
+    row({
+      tradeSlug: "hairdressing",
+      tradeName: "Hairdressing",
+      taskSlug: "cornrows",
+      taskName: "Cornrows",
+      ...over,
+    });
+  const readout = () => container.querySelector('[data-testid="queue-readout"]')?.textContent ?? "";
+  const filter = (name: string) =>
+    [...container.querySelectorAll<HTMLButtonElement>('[data-testid="trade-filter"] button')].find(
+      (b) => b.textContent === name,
+    );
+  const click = async (el: HTMLElement | undefined | null) => {
+    expect(el).toBeTruthy();
+    await act(async () => el!.click());
+  };
+
+  it("titles the page 'Review queue' with the dim intro line, and a skeleton while the queue loads", async () => {
     await render();
     expect(state.replace).not.toHaveBeenCalled();
-    expect(heading()).toBe(t("title"));
+    expect(heading()).toBe(tq("title"));
+    expect(tq("title")).toBe("Review queue");
+    expect(container.textContent).toContain("Oldest first. You never see your own videos.");
     expect(status()?.textContent).toBe(tq("loading"));
   });
 
-  it("says so when nothing is waiting", async () => {
+  it("says QUEUE CLEAR when nothing is waiting, with no action", async () => {
     state.queue = [];
     await render();
-    expect(container.textContent).toContain(tq("empty"));
+    expect(container.textContent).toContain(tq("empty.tag"));
+    expect(container.textContent).toContain(tq("empty.body"));
     expect(rows()).toEqual([]);
+    expect(container.querySelector("main button")).toBeNull();
   });
 
   it("shows one row per Assessment in the order given, each opening its detail", async () => {
-    state.queue = [
-      row({ assessmentId: "a1" }),
-      row({
-        assessmentId: "a2",
-        _creationTime: Date.UTC(2026, 8, 21, 9, 30),
-        tradeSlug: "hairdressing",
-        tradeName: "Hairdressing",
-        taskSlug: "cornrows",
-        taskName: "Cornrows",
-        safetyFlagCount: 2,
-      }),
-      row({ assessmentId: "a3", safetyFlagCount: 1 }),
-      row({ assessmentId: "a4" }),
-    ];
+    state.queue = [row({ assessmentId: "a1" }), hair({ assessmentId: "a2" }), row({ assessmentId: "a3" })];
     await render();
     const r = rows();
-    expect(r).toHaveLength(4);
     expect(r.map((el) => el.querySelector("a")?.getAttribute("href"))).toEqual([
       "/expert/a1",
       "/expert/a2",
       "/expert/a3",
-      "/expert/a4",
     ]);
-    expect(r[0].textContent).toContain(`${en.TradeCatalogue.electrical.name}: ${en.Rubrics["13a-socket"].name}`);
-    expect(r[1].textContent).toContain(`${en.TradeCatalogue.hairdressing.name}: ${en.Rubrics.cornrows.name}`);
-    expect(r[0].textContent).toContain("Sep 20, 2026");
-    // Automation bias: the queue row never names the AI's recommendation,
-    // only the safety-flag count. The labelled AI suggestion panel lives on
-    // the detail view instead.
-    for (const row of r) {
-      expect(row.textContent).not.toMatch(/AI suggestion/i);
-      for (const verdict of Object.values(en.ReviewQueue.verdict)) expect(row.textContent).not.toContain(verdict);
+    expect(r[0].textContent).toContain(en.Rubrics["13a-socket"].name);
+    expect(r[1].textContent).toContain(en.Rubrics.cornrows.name);
+  });
+
+  it("gives each row the mono meta 'TRADE · WAITING <age>', computed from the stored time", async () => {
+    state.queue = [
+      row({ assessmentId: "a1", _creationTime: NOW - 3 * HOUR - 5 * 60_000 }),
+      hair({ assessmentId: "a2", _creationTime: NOW - 12 * 60_000 }),
+      row({ assessmentId: "a3", _creationTime: NOW - 50 * HOUR }),
+      row({ assessmentId: "a4", _creationTime: NOW - 10_000 }),
+    ];
+    await render();
+    const [a1, a2, a3, a4] = rows();
+    const electrical = en.TradeCatalogue.electrical.name;
+    expect(a1.textContent).toContain(tq("meta", { trade: electrical, age: tq("age.hours", { n: 3 }) }));
+    expect(a2.textContent).toContain(
+      tq("meta", { trade: en.TradeCatalogue.hairdressing.name, age: tq("age.minutes", { n: 12 }) }),
+    );
+    expect(a3.textContent).toContain(tq("meta", { trade: electrical, age: tq("age.days", { n: 2 }) }));
+    expect(a4.textContent).toContain(tq("meta", { trade: electrical, age: tq("age.now") }));
+  });
+
+  it("reads out only the count by Trade and the oldest waiting age", async () => {
+    state.queue = [
+      row({ assessmentId: "a1", _creationTime: NOW - 3 * HOUR }),
+      hair({ assessmentId: "a2", _creationTime: NOW - 2 * HOUR }),
+      row({ assessmentId: "a3", _creationTime: NOW - HOUR }),
+    ];
+    await render();
+    const text = readout();
+    expect(text).toContain(tq("tradeCount", { trade: en.TradeCatalogue.electrical.name, count: 2 }));
+    expect(text).toContain(tq("tradeCount", { trade: en.TradeCatalogue.hairdressing.name, count: 1 }));
+    expect(text).toContain(tq("oldest", { age: tq("age.hours", { n: 3 }) }));
+    // No total, pending counter or percentage.
+    expect(text).not.toMatch(/%|total|pending/i);
+  });
+
+  it("filters by Trade on the client with 48 px segmented pills, All trades first and selected", async () => {
+    state.queue = [row({ assessmentId: "a1" }), hair({ assessmentId: "a2" }), row({ assessmentId: "a3" })];
+    await render();
+    const labels = [...container.querySelectorAll('[data-testid="trade-filter"] button')].map((b) => b.textContent);
+    expect(labels).toEqual([tq("allTrades"), en.TradeCatalogue.electrical.name, en.TradeCatalogue.hairdressing.name]);
+    expect(filter(tq("allTrades"))?.getAttribute("aria-pressed")).toBe("true");
+    for (const b of container.querySelectorAll('[data-testid="trade-filter"] button')) {
+      expect(b.className).toMatch(/\bmin-h-12\b/);
+      expect(b.className).not.toMatch(/bg-primary/);
     }
-    expect(r[0].textContent).toContain(tq("safetyFlags", { count: 0 }));
-    expect(r[1].textContent).toContain(tq("safetyFlags", { count: 2 }));
-    expect(r[2].textContent).toContain(tq("safetyFlags", { count: 1 }));
+
+    await click(filter(en.TradeCatalogue.hairdressing.name));
+    expect(rows().map((el) => el.querySelector("a")?.getAttribute("href"))).toEqual(["/expert/a2"]);
+    expect(filter(en.TradeCatalogue.hairdressing.name)?.getAttribute("aria-pressed")).toBe("true");
+    expect(filter(tq("allTrades"))?.getAttribute("aria-pressed")).toBe("false");
+    // The readout still counts the whole queue.
+    expect(readout()).toContain(tq("tradeCount", { trade: en.TradeCatalogue.electrical.name, count: 2 }));
+
+    await click(filter(tq("allTrades")));
+    expect(rows()).toHaveLength(3);
+  });
+
+  it("says so when the chosen Trade has emptied, with 'Show all trades'", async () => {
+    state.queue = [row({ assessmentId: "a1" }), hair({ assessmentId: "a2" })];
+    await render();
+    await click(filter(en.TradeCatalogue.hairdressing.name));
+    // The Hairdressing video is decided elsewhere; the query updates reactively.
+    state.queue = [row({ assessmentId: "a1" })];
+    await render();
+    expect(rows()).toEqual([]);
+    expect(container.textContent).toContain(tq("filteredEmpty", { trade: en.TradeCatalogue.hairdressing.name }));
+    const showAll = [...container.querySelectorAll("button")].find((b) => b.textContent === tq("showAll"));
+    await click(showAll);
+    expect(rows()).toHaveLength(1);
+  });
+
+  it("marks a row with safety flags with a neutral outlined 'Safety check', never amber", async () => {
+    state.queue = [row({ assessmentId: "a1", safetyFlagCount: 2 }), row({ assessmentId: "a2" })];
+    await render();
+    const [flagged, clean] = rows();
+    const marker = flagged.querySelector('[data-testid="safety-check"]');
+    expect(marker?.textContent).toBe(tq("safetyCheck"));
+    expect(marker?.className).toMatch(/\bborder\b/);
+    expect(marker?.className).toMatch(/font-mono/);
+    expect(marker?.className).not.toMatch(/primary|amber/);
+    expect(clean.querySelector('[data-testid="safety-check"]')).toBeNull();
+  });
+
+  it("never shows an AI chip, verdict, score or thumbnail on a row (automation bias)", async () => {
+    state.queue = [row({ safetyFlagCount: 1 }), hair()];
+    await render();
+    for (const r of rows()) {
+      const text = r.textContent ?? "";
+      expect(text).not.toMatch(/\bAI\b|suggest|verdict|pass|fail|needs review|%|score|confiden/i);
+      expect(r.querySelector("img, video")).toBeNull();
+    }
+  });
+
+  it("has no amber fill anywhere on the queue", async () => {
+    state.queue = [row({ safetyFlagCount: 1 }), hair()];
+    await render();
+    expect(container.innerHTML).not.toMatch(/bg-primary|text-primary|border-primary/);
   });
 
   it("renders only copy from messages/en.json", async () => {
-    state.queue = [row({ safetyFlagCount: 3 })];
+    state.queue = [row({ safetyFlagCount: 3 }), hair()];
     await render();
-    // makeIsFromMessages does not expand ICU plurals, so the one plural line is checked as rendered.
-    const fromMessages = makeIsFromMessages(en);
-    const isCopy = (s: string) => fromMessages(s) || s === tq("safetyFlags", { count: 3 });
+    const isCopy = makeIsFromMessages(en);
     const texts = [...container.querySelectorAll("*")]
       .flatMap((el) => [...el.childNodes])
       .filter((n) => n.nodeType === Node.TEXT_NODE)
@@ -218,5 +317,28 @@ describe("the Expert queue (US-5.1)", () => {
       .filter(Boolean);
     expect(texts.length).toBeGreaterThan(0);
     for (const s of texts) expect(isCopy(s), `hardcoded string on /expert: "${s}"`).toBe(true);
+  });
+});
+
+describe("the queue error boundary", () => {
+  it("shows ✕ COULDN'T LOAD with a Try again that re-fetches, and never the error text", async () => {
+    const { default: QueueError } = await import("@/app/(app)/expert/error");
+    const retry = vi.fn();
+    await act(async () => {
+      root.render(
+        <NextIntlClientProvider locale={defaultLocale} messages={en}>
+          <QueueError error={new Error("boom")} retry={retry} reset={() => {}} />
+        </NextIntlClientProvider>,
+      );
+    });
+    const text = container.textContent ?? "";
+    expect(text).toContain("✕");
+    expect(text).toContain(tq("error.tag"));
+    expect(text).toContain(tq("error.body"));
+    expect(text).not.toContain("boom");
+    expect(container.innerHTML).not.toMatch(/primary/);
+    const button = [...container.querySelectorAll("button")].find((b) => b.textContent === tq("error.retry"));
+    await act(async () => button!.click());
+    expect(retry).toHaveBeenCalledTimes(1);
   });
 });

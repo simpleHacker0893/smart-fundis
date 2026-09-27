@@ -168,6 +168,18 @@
   html {
     @apply font-sans;
   }
+  /* App shell (DESIGN.md D2, WCAG 2.4.11): focus never hides under the
+     56 px header and the 64 px bottom nav, or the 64 px desktop header. */
+  html:has([data-app-shell]) {
+    scroll-padding-top: 3.5rem;
+    scroll-padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+  }
+  @media (min-width: 64rem) {
+    html:has([data-app-shell]) {
+      scroll-padding-top: 4rem;
+      scroll-padding-bottom: 0;
+    }
+  }
   body {
     @apply bg-background text-foreground;
     /* Every number is tabular (DESIGN.md L84). */

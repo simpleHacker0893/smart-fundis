@@ -70,7 +70,7 @@ beforeEach(() => {
 });
 
 async function renderDashboard({ convexAvailable = false } = {}) {
-  const { default: DashboardPage } = await import("@/app/(site)/dashboard/page");
+  const { default: DashboardPage } = await import("@/app/(app)/dashboard/page");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
   const page = await DashboardPage();
   return visibleStrings(

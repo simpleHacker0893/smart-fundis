@@ -4,10 +4,10 @@ import en from "../messages/en.json";
 import { missingE2eEnv, skipMessage } from "./env";
 import { clerkApi } from "./helpers";
 
-// #37 acceptance: at 360 px, sign in → the onboarding form → /fundi
-// (US-2.3 minimal, US-2.7). A fresh Clerk User is created for each run through
-// the Clerk Backend API (development instance only) and deleted afterwards,
-// so the run always starts with no Fundi profile.
+// #37 acceptance: at 360 px, sign in → the onboarding form → /fundi, the
+// Fundi home since #67 (US-2.3 minimal, US-2.7). A fresh Clerk User is
+// created for each run through the Clerk Backend API (development instance
+// only) and deleted afterwards, so the run always starts with no Fundi profile.
 //
 // Needs: the root .env Clerk keys and CONVEX_URL, the Clerk `convex` JWT
 // template, and the Trades seeded (`pnpm exec convex run seed:trades`).
@@ -84,8 +84,11 @@ test.describe("onboarding at 360 px", () => {
 
     // /fundi lets the new Fundi in (spec §4 page guard).
     await expect(page.getByRole("heading", { level: 1, name: en.FundiPage.title })).toBeVisible();
-    // It opens on the upload flow; the profile block was removed (operator, 2026-09-26, #38).
-    await expect(page.getByRole("heading", { level: 2, name: en.UploadFlow.title })).toBeVisible();
+    // #67: /fundi is the home. A new Fundi sees MY VERIFICATIONS empty and a
+    // link to record a first video; the upload flow lives at /fundi/record.
+    await expect(page.getByRole("heading", { level: 2, name: en.FundiHome.verificationsTitle })).toBeVisible();
+    await expect(page.getByText(en.Verifications.empty.body)).toBeVisible();
+    await expect(page.getByRole("link", { name: en.FundiHome.finish.items.firstVideo })).toHaveAttribute("href", "/fundi/record");
     await expect(page).toHaveURL(/\/fundi$/);
     expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(360);
   });

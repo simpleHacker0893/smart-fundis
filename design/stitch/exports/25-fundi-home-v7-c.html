@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Screen 25: Fundi Home (/fundi) — App Shell Specification</title>
+<!-- Tailwind CSS v3 with Forms & Container Queries -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter & JetBrains Mono -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<!-- Tailwind Configuration -->
+<script data-purpose="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            graphite: {
+              950: '#050609',
+              900: '#0B0D12',
+              800: '#12161F',
+              700: '#1C222E',
+            },
+            amber: {
+              cta: '#EF9A57',
+              ctaHover: '#E08A45',
+            },
+            hairline: 'rgba(242, 244, 247, 0.10)',
+            hairlineBright: 'rgba(242, 244, 247, 0.20)',
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          }
+        }
+      }
+    }
+  </script>
+<!-- Global Base Styles & Design Tokens -->
+<style data-purpose="custom-tokens">
+    body {
+      background-color: #050609;
+      color: #F2F4F7;
+      font-family: 'Inter', system-ui, sans-serif;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    .font-mono-spec {
+      font-family: 'JetBrains Mono', monospace;
+      font-feature-settings: "tnum" 1;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      height: 8px;
+      width: 8px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #050609;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #1C222E;
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #2C3547;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-graphite-950 text-neutral-100 p-4 md:p-8 lg:p-12 custom-scrollbar">
+<!-- BEGIN: SpecificationHeader -->
+<header class="max-w-[1400px] mx-auto mb-10 pb-6 border-b border-hairline" data-purpose="spec-header">
+<div class="flex flex-wrap items-center gap-2 mb-3 font-mono-spec text-[11px] tracking-wider text-neutral-400">
+<span class="px-2 py-0.5 rounded bg-graphite-800 text-neutral-200 border border-hairline font-semibold">SCREEN 25</span>
+<span>·</span>
+<span>INSTRUMENT APP MODE</span>
+<span>·</span>
+<span>FUNDI HOME (/FUNDI)</span>
+<span>·</span>
+<span>7 SPEC FRAMES</span>
+</div>
+<h1 class="text-3xl md:text-4xl font-semibold tracking-tight text-neutral-50 mb-3">
+      Fundi Home — App Shell Implementation
+    </h1>
+<div class="space-y-1 font-mono-spec text-xs text-neutral-400">
+<p><span class="text-neutral-500">PAGE:</span> #050609 (GRAPHITE) · <span class="text-neutral-500">PANELS:</span> #0B0D12</p>
+<p><span class="text-neutral-500">AMBER:</span> #EF9A57 (SINGLE PILL ONLY / FOCUS / BADGE TICK)</p>
+<p><span class="text-neutral-500">STATUS:</span> WCAG 2.2 AA CONFORMANT · 0 COLOURED ACCENTS</p>
+</div>
+</header>
+<!-- END: SpecificationHeader -->
+<!-- BEGIN: DesktopSection -->
+<section class="max-w-[1400px] mx-auto mb-16" data-purpose="desktop-spec-frame">
+<!-- Frame Label & Tech Metrics -->
+<div class="flex flex-wrap justify-between items-baseline mb-3 font-mono-spec text-xs text-neutral-400 uppercase tracking-wider">
+<span>FRAME 01 · DESKTOP BUSY FUNDI (1280 PX CANVAS)</span>
+<span class="text-neutral-500 text-[11px]">DESKTOP VIEWPORT — TWO-COLUMN GRID (1280 × 840) · SIDEBAR 248PX · HEADER 64PX</span>
+</div>
+<!-- 1280px Desktop Shell Canvas -->
+<div class="w-full max-w-[1280px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden shadow-2xl flex flex-col mx-auto">
+<!-- Shell Layout Container -->
+<div class="flex min-h-[760px] w-full">
+<!-- Left Sidebar (248px) -->
+<aside class="w-[248px] flex-shrink-0 bg-graphite-900 border-r border-hairline flex flex-col justify-between p-4" data-purpose="desktop-sidebar">
+<div class="space-y-6">
+<!-- Brand / Logo Lockup -->
+<div class="flex items-center gap-2.5 px-2 pt-1">
+<div class="w-6 h-6 border border-hairline rounded flex items-center justify-center bg-graphite-800">
+<svg class="w-3.5 h-3.5 text-neutral-200" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<div>
+<p class="text-xs font-semibold text-neutral-100 leading-none">Smart Fundis</p>
+<p class="text-[9px] font-mono-spec text-neutral-500 uppercase tracking-widest mt-0.5">VERIFIED SKILLS</p>
+</div>
+</div>
+<!-- Single Amber Action Pill -->
+<div class="px-1">
+<button class="w-full bg-amber-cta hover:bg-amber-ctaHover text-neutral-950 font-bold text-xs py-2.5 px-4 rounded-full tracking-wider uppercase transition-colors flex items-center justify-center font-mono-spec" type="button">
+                ADD VIDEO
+              </button>
+</div>
+<!-- Navigation Groups -->
+<nav class="space-y-5 text-xs">
+<!-- Overview Group -->
+<div>
+<p class="px-3 text-[10px] font-mono-spec text-neutral-500 uppercase tracking-wider mb-1.5">OVERVIEW</p>
+<a class="relative flex items-center gap-2 px-3 py-2 text-neutral-100 bg-graphite-800 rounded font-medium" href="#overview">
+<!-- 2px Amber Active Indicator -->
+<span class="absolute left-0 top-1 bottom-1 w-0.5 bg-amber-cta rounded-full"></span>
+<svg class="w-4 h-4 text-neutral-300" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+                  Home
+                </a>
+</div>
+<!-- Verification Group -->
+<div>
+<p class="px-3 text-[10px] font-mono-spec text-neutral-500 uppercase tracking-wider mb-1.5">VERIFICATION</p>
+<a class="flex items-center gap-2 px-3 py-1.5 text-neutral-400 hover:text-neutral-200" href="#verifications">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+                  My verifications
+                </a>
+</div>
+<!-- Profile Group -->
+<div>
+<p class="px-3 text-[10px] font-mono-spec text-neutral-500 uppercase tracking-wider mb-1.5">PROFILE</p>
+<div class="space-y-1">
+<a class="flex items-center gap-2 px-3 py-1.5 text-neutral-400 hover:text-neutral-200" href="#profile">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+                    Public profile
+                  </a>
+<a class="flex items-center gap-2 px-3 py-1.5 text-neutral-400 hover:text-neutral-200" href="#showcase">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M13.5 6H5.25A2.25 2.25 0 0 0 3 8.25v10.5A2.25 2.25 0 0 0 5.25 21h10.5A2.25 2.25 0 0 0 18 18.75V10.5m-10.5 6L21 3m0 0h-5.25M21 3v5.25" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+                    Showcase links
+                  </a>
+</div>
+</div>
+<!-- Smart Fundis Group -->
+<div>
+<p class="px-3 text-[10px] font-mono-spec text-neutral-500 uppercase tracking-wider mb-1.5">SMART FUNDIS</p>
+<div class="space-y-1">
+<a class="block px-3 py-1 text-neutral-400 hover:text-neutral-200" href="#trades">Trades</a>
+<a class="block px-3 py-1 text-neutral-400 hover:text-neutral-200" href="#evidence">Evidence</a>
+<a class="block px-3 py-1 text-neutral-400 hover:text-neutral-200" href="#company">Company</a>
+</div>
+</div>
+</nav>
+</div>
+<!-- Sidebar Footer -->
+<div class="pt-4 border-t border-hairline space-y-1 text-xs text-neutral-400">
+<a class="flex items-center gap-2 px-3 py-1.5 hover:text-neutral-200" href="#help">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+              Help
+            </a>
+<a class="flex items-center gap-2 px-3 py-1.5 hover:text-neutral-200" href="#logout">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24">
+<path d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l-3 3m0 0 3 3m-3-3h12.75" stroke-linecap="round" stroke-linejoin="round"></path>
+</svg>
+              Sign out
+            </a>
+</div>
+</aside>
+<!-- Main Work Area -->
+<div class="flex-1 flex flex-col bg-graphite-950">
+<!-- Desktop Header (64px) -->
+<header class="h-16 border-b border-hairline flex items-center justify-between px-8 bg-graphite-950/70 backdrop-blur" data-purpose="desktop-header">
+<div><!-- Spacer --></div>
+<div class="flex items-center gap-4">
+<span class="font-mono-spec text-xs tracking-wider text-neutral-400 uppercase">FUNDI DASHBOARD</span>
+<!-- User Monogram Avatar -->
+<div class="w-8 h-8 rounded-full bg-graphite-800 border border-hairline flex items-center justify-center font-mono-spec text-xs font-semibold text-neutral-200">
+                WK
+              </div>
+</div>
+</header>
+<!-- Desktop Content: 2-Column Grid -->
+<main class="flex-1 p-8 grid grid-cols-12 gap-8" data-purpose="desktop-main-grid">
+<!-- Left Primary Column (7 cols) -->
+<div class="col-span-12 lg:col-span-7 space-y-8">
+<!-- Greeting / Objective Header -->
+<div>
+<h2 class="text-4xl font-semibold tracking-tight text-neutral-50 mb-2">
+                  Get your work verified.
+                </h2>
+<p class="text-sm text-neutral-400 font-normal">
+                  Record a video of one task. The AI checks it, then an Expert decides.
+                </p>
+</div>
+<!-- My Verifications List Section -->
+<section class="space-y-3" data-purpose="verification-list">
+<div class="flex items-center justify-between pb-1">
+<span class="font-mono-spec text-xs text-neutral-400 uppercase tracking-wider">MY VERIFICATIONS</span>
+<a class="font-mono-spec text-xs text-neutral-400 hover:text-neutral-200" href="#see-all">See all</a>
+</div>
+<!-- Verification Row 1 -->
+<div class="bg-graphite-900 border border-hairline rounded p-4 flex items-center justify-between hover:border-hairlineBright transition-colors">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-neutral-100">Install a 13A socket</span>
+<span class="font-mono-spec text-[10px] text-neutral-500 border border-hairline px-1.5 py-0.2 rounded uppercase">EXAMPLE</span>
+</div>
+<div class="font-mono-spec text-[11px] text-neutral-400 mt-1 uppercase">
+                      ELECTRICAL · 2 H AGO
+                    </div>
+</div>
+<div class="font-mono-spec text-xs px-2.5 py-1 rounded bg-graphite-800 border border-hairline text-neutral-300 flex items-center gap-1.5">
+<span>◐</span>
+<span>Awaiting expert review</span>
+</div>
+</div>
+<!-- Verification Row 2 -->
+<div class="bg-graphite-900 border border-hairline rounded p-4 flex items-center justify-between hover:border-hairlineBright transition-colors">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-neutral-100">Cornrows</span>
+<span class="font-mono-spec text-[10px] text-neutral-500 border border-hairline px-1.5 py-0.2 rounded uppercase">EXAMPLE</span>
+</div>
+<div class="font-mono-spec text-[11px] text-neutral-400 mt-1 uppercase">
+                      HAIRDRESSING · 1 H AGO
+                    </div>
+</div>
+<div class="font-mono-spec text-xs px-2.5 py-1 rounded bg-graphite-800 border border-hairline text-neutral-300 flex items-center gap-1.5">
+<span>◌</span>
+<span>AI checking</span>
+</div>
+</div>
+<!-- Verification Row 3 -->
+<div class="bg-graphite-900 border border-hairline rounded p-4 flex items-center justify-between hover:border-hairlineBright transition-colors">
+<div>
+<div class="flex items-center gap-2">
+<span class="text-sm font-medium text-neutral-100">Install a 13A socket</span>
+<span class="font-mono-spec text-[10px] text-neutral-500 border border-hairline px-1.5 py-0.2 rounded uppercase">EXAMPLE</span>
+</div>
+<div class="font-mono-spec text-[11px] text-neutral-400 mt-1 uppercase">
+                      ELECTRICAL · 2 H AGO
+                    </div>
+</div>
+<div class="font-mono-spec text-xs px-2.5 py-1 rounded bg-graphite-800 border border-hairline text-neutral-300 flex items-center gap-1.5 cursor-pointer hover:bg-graphite-700">
+<span>↻</span>
+<span>Record again</span>
+</div>
+</div>
+</section>
+<!-- Your Badges Section -->
+<section class="space-y-3" data-purpose="badges-section">
+<span class="font-mono-spec text-xs text-neutral-400 uppercase tracking-wider block">YOUR BADGES</span>
+<div class="bg-graphite-900 border border-hairline rounded p-4 flex items-center gap-3">
+<!-- Badge tick mark in Amber -->
+<div class="w-5 h-5 rounded-full border border-amber-cta/50 bg-amber-cta/10 flex items-center justify-center flex-shrink-0">
+<svg class="w-3 h-3 text-amber-cta" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<div class="flex-1 flex flex-wrap items-center gap-2">
+<span class="text-xs font-medium text-neutral-200">Verified by Smart Fundis — Electrical: Install a 13A socket</span>
+<span class="font-mono-spec text-[11px] text-neutral-500">· 25 Sep 2026</span>
+<span class="font-mono-spec text-[10px] text-neutral-500 border border-hairline px-1 rounded uppercase">EXAMPLE</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Right Secondary Column (5 cols) -->
+<div class="col-span-12 lg:col-span-5 space-y-6">
+<!-- Listing Status Card -->
+<div class="bg-graphite-900 border border-hairline rounded-lg p-5 space-y-4" data-purpose="listing-status-card">
+<div class="flex items-center justify-between">
+<span class="font-mono-spec text-[11px] text-neutral-400 uppercase tracking-wider">LISTING STATUS</span>
+</div>
+<div class="inline-flex items-center gap-2 px-2.5 py-1 rounded bg-graphite-800 border border-hairline text-neutral-300 font-mono-spec text-xs">
+<span class="w-1.5 h-1.5 rounded-full bg-neutral-300"></span>
+<span>Listed · Not yet verified</span>
+</div>
+<p class="text-xs text-neutral-400 leading-relaxed">
+                  Clients can find your profile. A badge shows once an Expert approves a video.
+                </p>
+<button class="w-full py-2.5 px-4 rounded border border-hairline text-neutral-200 hover:bg-graphite-800 font-mono-spec text-xs font-medium tracking-wide uppercase transition-colors" type="button">
+                  VIEW MY PUBLIC PROFILE
+                </button>
+</div>
+<!-- Finish Your Profile Card -->
+<div class="bg-graphite-900 border border-hairline rounded-lg p-5 space-y-4" data-purpose="finish-profile-card">
+<div>
+<span class="font-mono-spec text-[11px] text-neutral-400 uppercase tracking-wider block mb-1">FINISH YOUR PROFILE</span>
+<p class="text-xs text-neutral-400">Still to add:</p>
+</div>
+<div class="divide-y divide-hairline">
+<!-- Row 1 -->
+<a class="py-3 flex items-center justify-between group" href="#photo">
+<div>
+<p class="text-xs font-medium text-neutral-200 group-hover:text-white">Photo of your work</p>
+<p class="text-[11px] text-neutral-500 mt-0.5">Clients look at these first</p>
+</div>
+<svg class="w-4 h-4 text-neutral-500 group-hover:text-neutral-300" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" fill-rule="evenodd"></path>
+</svg>
+</a>
+<!-- Row 2 -->
+<a class="py-3 flex items-center justify-between group" href="#about">
+<div>
+<p class="text-xs font-medium text-neutral-200 group-hover:text-white">About your work</p>
+</div>
+<svg class="w-4 h-4 text-neutral-500 group-hover:text-neutral-300" fill="currentColor" viewbox="0 0 20 20">
+<path clip-rule="evenodd" d="M7.21 14.77a.75.75 0 01.02-1.06L11.168 10 7.23 6.29a.75.75 0 111.04-1.08l4.5 4.25a.75.75 0 010 1.08l-4.5 4.25a.75.75 0 01-1.06-.02z" fill-rule="evenodd"></path>
+</svg>
+</a>
+</div>
+</div>
+</div>
+</main>
+</div>
+</div>
+</div>
+</section>
+<!-- END: DesktopSection -->
+<!-- BEGIN: MobileSpecificationsSection -->
+<section class="max-w-[1400px] mx-auto space-y-6" data-purpose="mobile-spec-frames-matrix">
+<div class="border-t border-hairline pt-8">
+<div class="flex flex-wrap justify-between items-baseline mb-6 font-mono-spec text-xs text-neutral-400 uppercase tracking-wider">
+<span>FRAMES 02 TO 07 · MOBILE FUNDI HOME SPECIFICATIONS (360 PX CANVAS)</span>
+<span class="text-neutral-500 text-[11px]">HORIZONTAL MULTI-STATE TEST RUNNER · 360 × 740 SPEC</span>
+</div>
+</div>
+<!-- Horizontal Multi-column Layout Container -->
+<div class="overflow-x-auto pb-8 custom-scrollbar">
+<div class="flex gap-8 items-start min-w-max">
+<!-- FRAME 02: Mobile Busy Fundi -->
+<article class="w-[360px] flex-shrink-0" data-purpose="mobile-frame-02">
+<div class="flex justify-between items-baseline mb-2 font-mono-spec text-[11px] text-neutral-400 uppercase">
+<span>FRAME 02 · MOBILE BUSY FUNDI</span>
+<span class="text-neutral-500">360 PX</span>
+</div>
+<!-- 360px Phone Frame -->
+<div class="w-[360px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden flex flex-col min-h-[720px] shadow-xl">
+<!-- Mobile Header (56px) -->
+<div class="h-14 bg-graphite-900 border-b border-hairline px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 border border-hairline rounded flex items-center justify-center bg-graphite-800">
+<svg class="w-3 h-3 text-neutral-200" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="font-mono-spec text-xs tracking-wider text-neutral-300 uppercase">FUNDI</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-graphite-800 border border-hairline flex items-center justify-center font-mono-spec text-[11px] text-neutral-200">
+                WK
+              </div>
+</div>
+<!-- Mobile Scroll Area -->
+<div class="flex-1 p-4 space-y-6 overflow-y-auto">
+<!-- Title & Single Amber CTA -->
+<div class="space-y-3">
+<h3 class="text-2xl font-semibold tracking-tight text-neutral-50">Get your work verified.</h3>
+<p class="text-xs text-neutral-400">Record a video of one task. The AI checks it, then an Expert decides.</p>
+<button class="w-full bg-amber-cta text-neutral-950 font-bold text-xs py-2.5 rounded-full tracking-wider uppercase font-mono-spec mt-2" type="button">
+                  ADD VIDEO
+                </button>
+</div>
+<!-- My Verifications -->
+<div class="space-y-2">
+<div class="flex justify-between items-center text-xs font-mono-spec">
+<span class="text-neutral-400 uppercase text-[10px]">MY VERIFICATIONS</span>
+<a class="text-neutral-500 text-[10px]" href="#all">See all</a>
+</div>
+<div class="bg-graphite-900 border border-hairline rounded p-2.5 flex items-center justify-between text-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-medium text-neutral-200 text-xs">Install a 13A socket</span>
+<span class="font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded">EXAMPLE</span>
+</div>
+<span class="font-mono-spec text-[9px] text-neutral-500 uppercase">ELECTRICAL · 2 H AGO</span>
+</div>
+<span class="font-mono-spec text-[10px] px-1.5 py-0.5 rounded bg-graphite-800 text-neutral-400 border border-hairline">◐ Awaiting</span>
+</div>
+<div class="bg-graphite-900 border border-hairline rounded p-2.5 flex items-center justify-between text-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-medium text-neutral-200 text-xs">Cornrows</span>
+<span class="font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded">EXAMPLE</span>
+</div>
+<span class="font-mono-spec text-[9px] text-neutral-500 uppercase">HAIRDRESSING · 1 H AGO</span>
+</div>
+<span class="font-mono-spec text-[10px] px-1.5 py-0.5 rounded bg-graphite-800 text-neutral-400 border border-hairline">◌ AI check</span>
+</div>
+<div class="bg-graphite-900 border border-hairline rounded p-2.5 flex items-center justify-between text-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-medium text-neutral-200 text-xs">Install a 13A socket</span>
+<span class="font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded">EXAMPLE</span>
+</div>
+<span class="font-mono-spec text-[9px] text-neutral-500 uppercase">ELECTRICAL · 2 H AGO</span>
+</div>
+<span class="font-mono-spec text-[10px] px-1.5 py-0.5 rounded bg-graphite-800 text-neutral-400 border border-hairline">↻ Record</span>
+</div>
+</div>
+<!-- Your Badges -->
+<div class="space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase">YOUR BADGES</span>
+<div class="bg-graphite-900 border border-hairline rounded p-2.5 flex items-center gap-2">
+<div class="w-4 h-4 rounded-full border border-amber-cta/50 bg-amber-cta/10 flex items-center justify-center">
+<svg class="w-2.5 h-2.5 text-amber-cta" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="text-[11px] text-neutral-300">Verified by Smart Fundis — Electrical: Install a 13A socket</span>
+<span class="font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded">EXAMPLE</span>
+</div>
+</div>
+<!-- Listing Status Card -->
+<div class="bg-graphite-900 border border-hairline rounded p-3 space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase block">LISTING STATUS</span>
+<span class="inline-block px-2 py-0.5 rounded bg-graphite-800 border border-hairline font-mono-spec text-[10px] text-neutral-300">● Listed · Not yet verified</span>
+<p class="text-[11px] text-neutral-400">Clients can find your profile. A badge shows once an Expert approves a video.</p>
+<button class="w-full py-1.5 rounded border border-hairline text-neutral-300 font-mono-spec text-[10px] uppercase" type="button">VIEW MY PUBLIC PROFILE</button>
+</div>
+<!-- Finish Your Profile Card -->
+<div class="bg-graphite-900 border border-hairline rounded p-3 space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase block">FINISH YOUR PROFILE</span>
+<p class="text-[11px] text-neutral-500">Still to add:</p>
+<div class="divide-y divide-hairline text-xs">
+<div class="py-2 flex justify-between items-center">
+<div>
+<p class="text-neutral-200 text-xs">Photo of your work</p>
+<p class="text-[10px] text-neutral-500">Clients look at these first</p>
+</div>
+<span>›</span>
+</div>
+<div class="py-2 flex justify-between items-center">
+<p class="text-neutral-200 text-xs">About your work</p>
+<span>›</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fixed Mobile Bottom Nav (64px) -->
+<div class="h-16 bg-graphite-900 border-t border-hairline px-4 flex items-center justify-around font-mono-spec text-[9px] text-neutral-400">
+<div class="flex flex-col items-center gap-1 text-neutral-100">
+<svg class="w-4 h-4 text-neutral-100" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Home</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Verifications</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Profile</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="text-base leading-none">⋯</span>
+<span>More</span>
+</div>
+</div>
+</div>
+</article>
+<!-- FRAME 03: Mobile New Fundi (Empty State) -->
+<article class="w-[360px] flex-shrink-0" data-purpose="mobile-frame-03">
+<div class="flex justify-between items-baseline mb-2 font-mono-spec text-[11px] text-neutral-400 uppercase">
+<span>FRAME 03 · MOBILE NEW FUNDI</span>
+<span class="text-neutral-500">EMPTY STATE</span>
+</div>
+<div class="w-[360px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden flex flex-col min-h-[720px] shadow-xl">
+<!-- Mobile Header -->
+<div class="h-14 bg-graphite-900 border-b border-hairline px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 border border-hairline rounded flex items-center justify-center bg-graphite-800">
+<svg class="w-3 h-3 text-neutral-200" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="font-mono-spec text-xs tracking-wider text-neutral-300 uppercase">FUNDI</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-graphite-800 border border-hairline flex items-center justify-center font-mono-spec text-[11px] text-neutral-200">
+                WK
+              </div>
+</div>
+<!-- Mobile Scroll Area -->
+<div class="flex-1 p-4 space-y-6 overflow-y-auto">
+<div class="space-y-1">
+<h3 class="text-2xl font-semibold tracking-tight text-neutral-50">Get your work verified.</h3>
+<p class="text-xs text-neutral-400">Record a video of one task. The AI checks it, then an Expert decides.</p>
+</div>
+<!-- Empty State Box with Single Amber Pill -->
+<div class="space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase">MY VERIFICATIONS</span>
+<div class="bg-graphite-900 border border-dashed border-hairline rounded-lg p-5 text-center space-y-3">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase tracking-wider block">NOTHING HERE YET</span>
+<p class="text-xs text-neutral-400 leading-relaxed max-w-[240px] mx-auto">
+                    No verifications yet. Record a video of one task. An Expert reviews it.
+                  </p>
+<button class="w-full bg-amber-cta text-neutral-950 font-bold text-xs py-2.5 rounded-full tracking-wider uppercase font-mono-spec" type="button">
+                    ADD VIDEO
+                  </button>
+</div>
+</div>
+<!-- Empty Badges -->
+<div class="space-y-1.5">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase block">YOUR BADGES</span>
+<p class="text-xs text-neutral-500">Not yet verified</p>
+</div>
+<!-- Finish Your Profile - 5 Missing Items -->
+<div class="bg-graphite-900 border border-hairline rounded p-3 space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase block">FINISH YOUR PROFILE</span>
+<p class="text-[11px] text-neutral-500">Still to add:</p>
+<div class="divide-y divide-hairline text-xs">
+<div class="py-2.5 flex justify-between items-center">
+<div>
+<p class="text-neutral-200">Photo of your work</p>
+<p class="text-[10px] text-neutral-500">Clients look at these first</p>
+</div>
+<span>›</span>
+</div>
+<div class="py-2.5 flex justify-between items-center">
+<p class="text-neutral-200">About your work</p>
+<span>›</span>
+</div>
+<div class="py-2.5 flex justify-between items-center">
+<p class="text-neutral-200">Service location / Subcounty</p>
+<span>›</span>
+</div>
+<div class="py-2.5 flex justify-between items-center">
+<p class="text-neutral-200">Years of trade experience</p>
+<span>›</span>
+</div>
+<div class="py-2.5 flex justify-between items-center">
+<p class="text-neutral-200">Tools &amp; equipment list</p>
+<span>›</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Fixed Bottom Nav -->
+<div class="h-16 bg-graphite-900 border-t border-hairline px-4 flex items-center justify-around font-mono-spec text-[9px] text-neutral-400">
+<div class="flex flex-col items-center gap-1 text-neutral-100">
+<svg class="w-4 h-4 text-neutral-100" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Home</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Verifications</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Profile</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="text-base leading-none">⋯</span>
+<span>More</span>
+</div>
+</div>
+</div>
+</article>
+<!-- FRAME 04: Mobile Verified Fundi + Listed -->
+<article class="w-[360px] flex-shrink-0" data-purpose="mobile-frame-04">
+<div class="flex justify-between items-baseline mb-2 font-mono-spec text-[11px] text-neutral-400 uppercase">
+<span>FRAME 04 · MOBILE VERIFIED FUNDI</span>
+<span class="text-neutral-500">+ LISTED</span>
+</div>
+<div class="w-[360px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden flex flex-col min-h-[720px] shadow-xl">
+<!-- Header -->
+<div class="h-14 bg-graphite-900 border-b border-hairline px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 border border-hairline rounded flex items-center justify-center bg-graphite-800">
+<svg class="w-3 h-3 text-neutral-200" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="font-mono-spec text-xs tracking-wider text-neutral-300 uppercase">FUNDI</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-graphite-800 border border-hairline flex items-center justify-center font-mono-spec text-[11px] text-neutral-200">
+                WK
+              </div>
+</div>
+<!-- Content Area -->
+<div class="flex-1 p-4 space-y-6 overflow-y-auto">
+<div class="space-y-3">
+<h3 class="text-2xl font-semibold tracking-tight text-neutral-50">Get your work verified.</h3>
+<p class="text-xs text-neutral-400">Record a video of one task. The AI checks it, then an Expert decides.</p>
+<button class="w-full bg-amber-cta text-neutral-950 font-bold text-xs py-2.5 rounded-full tracking-wider uppercase font-mono-spec" type="button">
+                  ADD VIDEO
+                </button>
+</div>
+<!-- Verified Badge Earned -->
+<div class="space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase">YOUR BADGES</span>
+<div class="bg-graphite-900 border border-hairline rounded p-3 flex items-start gap-2.5">
+<div class="w-4 h-4 rounded-full border border-amber-cta/50 bg-amber-cta/10 flex items-center justify-center mt-0.5 flex-shrink-0">
+<svg class="w-2.5 h-2.5 text-amber-cta" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<div>
+<span class="text-xs text-neutral-200 font-medium">Verified by Smart Fundis — Electrical: Install a 13A socket</span>
+<span class="font-mono-spec text-[10px] text-neutral-500 block mt-0.5">· 25 Sep 2026</span>
+<span class="inline-block mt-1 font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded uppercase">EXAMPLE</span>
+</div>
+</div>
+</div>
+<!-- Active Listed Status -->
+<div class="bg-graphite-900 border border-hairline rounded p-3.5 space-y-3">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase block">LISTING STATUS</span>
+<span class="inline-block px-2.5 py-0.5 rounded bg-graphite-800 border border-hairline font-mono-spec text-xs text-neutral-200">● Listed</span>
+<p class="text-xs text-neutral-400 leading-relaxed">
+                  Your profile displays the Verified Badge to potential clients across Nairobi.
+                </p>
+<button class="w-full py-2 rounded border border-hairline text-neutral-300 font-mono-spec text-[10px] uppercase" type="button">
+                  VIEW MY PUBLIC PROFILE
+                </button>
+</div>
+<!-- Approved Verification Item -->
+<div class="space-y-2">
+<div class="flex justify-between items-center text-xs font-mono-spec">
+<span class="text-neutral-400 uppercase text-[10px]">MY VERIFICATIONS</span>
+<a class="text-neutral-500 text-[10px]" href="#all">See all</a>
+</div>
+<div class="bg-graphite-900 border border-hairline rounded p-3 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-medium text-neutral-200 text-xs">Install a 13A socket</span>
+<span class="font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded">EXAMPLE</span>
+</div>
+<span class="font-mono-spec text-[10px] text-neutral-500 uppercase mt-0.5 block">ELECTRICAL · 25 SEP 2026</span>
+</div>
+<span class="font-mono-spec text-[10px] px-2 py-0.5 rounded bg-graphite-800 text-neutral-200 border border-hairline flex items-center gap-1">
+<span>■</span> Approved
+                  </span>
+</div>
+</div>
+</div>
+<!-- Bottom Nav -->
+<div class="h-16 bg-graphite-900 border-t border-hairline px-4 flex items-center justify-around font-mono-spec text-[9px] text-neutral-400">
+<div class="flex flex-col items-center gap-1 text-neutral-100">
+<svg class="w-4 h-4 text-neutral-100" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Home</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Verifications</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Profile</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="text-base leading-none">⋯</span>
+<span>More</span>
+</div>
+</div>
+</div>
+</article>
+<!-- FRAME 05: Mobile Loading Skeleton State -->
+<article class="w-[360px] flex-shrink-0" data-purpose="mobile-frame-05">
+<div class="flex justify-between items-baseline mb-2 font-mono-spec text-[11px] text-neutral-400 uppercase">
+<span>FRAME 05 · MOBILE LOADING</span>
+<span class="text-neutral-500">SKELETON STATE</span>
+</div>
+<div class="w-[360px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden flex flex-col min-h-[720px] shadow-xl animate-pulse">
+<!-- Header Skeleton -->
+<div class="h-14 bg-graphite-900 border-b border-hairline px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 bg-graphite-800 rounded"></div>
+<div class="w-12 h-3 bg-graphite-800 rounded"></div>
+</div>
+<div class="w-7 h-7 rounded-full bg-graphite-800"></div>
+</div>
+<!-- Content Skeletons -->
+<div class="flex-1 p-4 space-y-6">
+<div class="space-y-3">
+<div class="w-3/4 h-7 bg-graphite-800 rounded"></div>
+<div class="w-full h-3 bg-graphite-900 rounded"></div>
+<div class="w-5/6 h-3 bg-graphite-900 rounded"></div>
+<div class="w-full h-10 bg-graphite-800 rounded-full mt-3"></div>
+</div>
+<!-- Cards Skeleton Block 1 -->
+<div class="space-y-2 pt-2">
+<div class="w-24 h-3 bg-graphite-800 rounded"></div>
+<div class="bg-graphite-900 border border-hairline rounded p-4 space-y-2">
+<div class="flex justify-between">
+<div class="w-36 h-3 bg-graphite-800 rounded"></div>
+<div class="w-16 h-3 bg-graphite-800 rounded"></div>
+</div>
+<div class="w-20 h-2 bg-graphite-800 rounded"></div>
+</div>
+<div class="bg-graphite-900 border border-hairline rounded p-4 space-y-2">
+<div class="flex justify-between">
+<div class="w-28 h-3 bg-graphite-800 rounded"></div>
+<div class="w-16 h-3 bg-graphite-800 rounded"></div>
+</div>
+<div class="w-24 h-2 bg-graphite-800 rounded"></div>
+</div>
+</div>
+<!-- Cards Skeleton Block 2 -->
+<div class="bg-graphite-900 border border-hairline rounded p-4 space-y-3 pt-3">
+<div class="w-24 h-3 bg-graphite-800 rounded"></div>
+<div class="w-48 h-4 bg-graphite-800 rounded"></div>
+<div class="w-full h-8 bg-graphite-800 rounded"></div>
+</div>
+</div>
+<!-- Nav Skeleton -->
+<div class="h-16 bg-graphite-900 border-t border-hairline px-4 flex items-center justify-around">
+<div class="w-6 h-6 bg-graphite-800 rounded"></div>
+<div class="w-6 h-6 bg-graphite-800 rounded"></div>
+<div class="w-6 h-6 bg-graphite-800 rounded"></div>
+<div class="w-6 h-6 bg-graphite-800 rounded"></div>
+</div>
+</div>
+</article>
+<!-- FRAME 06: Mobile One Card Failed / Error State -->
+<article class="w-[360px] flex-shrink-0" data-purpose="mobile-frame-06">
+<div class="flex justify-between items-baseline mb-2 font-mono-spec text-[11px] text-neutral-400 uppercase">
+<span>FRAME 06 · ONE CARD FAILED</span>
+<span class="text-neutral-500">NEUTRAL ERROR CARD</span>
+</div>
+<div class="w-[360px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden flex flex-col min-h-[720px] shadow-xl">
+<!-- Header -->
+<div class="h-14 bg-graphite-900 border-b border-hairline px-4 flex items-center justify-between">
+<div class="flex items-center gap-2">
+<div class="w-5 h-5 border border-hairline rounded flex items-center justify-center bg-graphite-800">
+<svg class="w-3 h-3 text-neutral-200" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="font-mono-spec text-xs tracking-wider text-neutral-300 uppercase">FUNDI</span>
+</div>
+<div class="w-7 h-7 rounded-full bg-graphite-800 border border-hairline flex items-center justify-center font-mono-spec text-[11px] text-neutral-200">
+                WK
+              </div>
+</div>
+<!-- Content Area -->
+<div class="flex-1 p-4 space-y-6 overflow-y-auto">
+<div class="space-y-3">
+<h3 class="text-2xl font-semibold tracking-tight text-neutral-50">Get your work verified.</h3>
+<p class="text-xs text-neutral-400">Record a video of one task. The AI checks it, then an Expert decides.</p>
+<button class="w-full bg-amber-cta text-neutral-950 font-bold text-xs py-2.5 rounded-full tracking-wider uppercase font-mono-spec" type="button">
+                  ADD VIDEO
+                </button>
+</div>
+<!-- Healthy Card -->
+<div class="space-y-2">
+<div class="flex justify-between items-center text-xs font-mono-spec">
+<span class="text-neutral-400 uppercase text-[10px]">MY VERIFICATIONS</span>
+<a class="text-neutral-500 text-[10px]" href="#all">See all</a>
+</div>
+<div class="bg-graphite-900 border border-hairline rounded p-2.5 flex items-center justify-between text-xs">
+<div>
+<div class="flex items-center gap-1.5">
+<span class="font-medium text-neutral-200 text-xs">Install a 13A socket</span>
+<span class="font-mono-spec text-[8px] text-neutral-500 border border-hairline px-1 rounded">EXAMPLE</span>
+</div>
+<span class="font-mono-spec text-[9px] text-neutral-500 uppercase">ELECTRICAL · 2 H AGO</span>
+</div>
+<span class="font-mono-spec text-[10px] px-1.5 py-0.5 rounded bg-graphite-800 text-neutral-400 border border-hairline">◐ Awaiting</span>
+</div>
+</div>
+<!-- NEUTRAL ERROR CARD (NO RED ACCENTS PER DESIGN SYSTEM) -->
+<div class="bg-graphite-900 border border-hairline rounded p-4 space-y-3" data-purpose="neutral-error-card">
+<div class="flex items-center gap-1.5 font-mono-spec text-xs text-neutral-300">
+<span>✕</span>
+<span class="uppercase tracking-wider">COULDN'T LOAD</span>
+</div>
+<p class="text-xs text-neutral-400 leading-relaxed">
+                  We couldn't load your listing status. Check your connection and try again.
+                </p>
+<button class="w-full py-2 rounded border border-hairline text-neutral-200 hover:bg-graphite-800 font-mono-spec text-xs tracking-wider uppercase" type="button">
+                  TRY AGAIN
+                </button>
+</div>
+<!-- Finish Profile Card -->
+<div class="bg-graphite-900 border border-hairline rounded p-3 space-y-2">
+<span class="font-mono-spec text-[10px] text-neutral-400 uppercase block">FINISH YOUR PROFILE</span>
+<div class="py-1 flex justify-between items-center text-xs">
+<p class="text-neutral-200">Photo of your work</p>
+<span>›</span>
+</div>
+</div>
+</div>
+<!-- Bottom Nav -->
+<div class="h-16 bg-graphite-900 border-t border-hairline px-4 flex items-center justify-around font-mono-spec text-[9px] text-neutral-400">
+<div class="flex flex-col items-center gap-1 text-neutral-100">
+<svg class="w-4 h-4 text-neutral-100" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Home</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Verifications</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Profile</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="text-base leading-none">⋯</span>
+<span>More</span>
+</div>
+</div>
+</div>
+</article>
+<!-- FRAME 07: Mobile Listing Status Variations Stacked -->
+<article class="w-[360px] flex-shrink-0" data-purpose="mobile-frame-07">
+<div class="flex justify-between items-baseline mb-2 font-mono-spec text-[11px] text-neutral-400 uppercase">
+<span>FRAME 07 · LISTING STATES</span>
+<span class="text-neutral-500">3 VARIATIONS STACKED</span>
+</div>
+<div class="w-[360px] bg-graphite-950 border border-hairline rounded-lg overflow-hidden flex flex-col min-h-[720px] shadow-xl">
+<!-- Header -->
+<div class="h-14 bg-graphite-900 border-b border-hairline px-4 flex items-center justify-between">
+<span class="font-mono-spec text-xs tracking-wider text-neutral-300 uppercase">LISTING STATES</span>
+<div class="w-7 h-7 rounded-full bg-graphite-800 border border-hairline flex items-center justify-center font-mono-spec text-[11px] text-neutral-200">
+                WK
+              </div>
+</div>
+<!-- Content Area: 3 Stacked Listing Variations -->
+<div class="flex-1 p-4 space-y-4 overflow-y-auto">
+<!-- State 1: Not Showing -->
+<div class="bg-graphite-900 border border-hairline rounded-lg p-4 space-y-3">
+<div class="font-mono-spec text-[10px] text-neutral-400 uppercase tracking-wider">STATE 1 · NOT SHOWING</div>
+<div class="inline-block px-2 py-0.5 rounded bg-graphite-800 border border-hairline font-mono-spec text-xs text-neutral-300">
+                  ○ Not showing
+                </div>
+<p class="text-xs text-neutral-400 leading-relaxed">
+                  Your profile is hidden from clients.
+                </p>
+<button class="w-full py-2 rounded border border-hairline text-neutral-200 hover:bg-graphite-800 font-mono-spec text-xs tracking-wider uppercase" type="button">
+                  SHOW MY PROFILE
+                </button>
+</div>
+<!-- State 2: Moderation (Hidden by Smart Fundis) -->
+<div class="bg-graphite-900 border border-hairline rounded-lg p-4 space-y-3">
+<div class="font-mono-spec text-[10px] text-neutral-400 uppercase tracking-wider">STATE 2 · MODERATION</div>
+<div class="inline-block px-2 py-0.5 rounded bg-graphite-800 border border-hairline font-mono-spec text-xs text-neutral-300">
+                  ✕ Hidden by Smart Fundis
+                </div>
+<p class="text-xs text-neutral-400 leading-relaxed">
+                  Contact <a class="text-neutral-200 underline" href="mailto:info@smartfundis.com">info@smartfundis.com</a> to ask why.
+                </p>
+</div>
+<!-- State 3: Listed with Badge -->
+<div class="bg-graphite-900 border border-hairline rounded-lg p-4 space-y-3">
+<div class="font-mono-spec text-[10px] text-neutral-400 uppercase tracking-wider">STATE 3 · LISTED WITH BADGE</div>
+<div class="inline-block px-2 py-0.5 rounded bg-graphite-800 border border-hairline font-mono-spec text-xs text-neutral-200">
+                  ● Listed
+                </div>
+<div class="p-2.5 rounded bg-graphite-950 border border-hairline flex items-center gap-2">
+<div class="w-4 h-4 rounded-full border border-amber-cta/50 bg-amber-cta/10 flex items-center justify-center flex-shrink-0">
+<svg class="w-2.5 h-2.5 text-amber-cta" fill="currentColor" viewbox="0 0 16 16">
+<path clip-rule="evenodd" d="M12.416 3.376a.75.75 0 0 1 .208 1.04l-5 7.5a.75.75 0 0 1-1.154.114l-3-3a.75.75 0 0 1 1.06-1.06l2.353 2.353 4.493-6.74a.75.75 0 0 1 1.04-.207Z" fill-rule="evenodd"></path>
+</svg>
+</div>
+<span class="text-[11px] text-neutral-300">Verified by Smart Fundis — Electrical: Install a 13A socket</span>
+</div>
+<button class="w-full py-2 rounded border border-hairline text-neutral-200 hover:bg-graphite-800 font-mono-spec text-xs tracking-wider uppercase" type="button">
+                  VIEW MY PUBLIC PROFILE
+                </button>
+</div>
+</div>
+<!-- Bottom Nav -->
+<div class="h-16 bg-graphite-900 border-t border-hairline px-4 flex items-center justify-around font-mono-spec text-[9px] text-neutral-400">
+<div class="flex flex-col items-center gap-1 text-neutral-100">
+<svg class="w-4 h-4 text-neutral-100" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Home</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Verifications</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<svg class="w-4 h-4 text-neutral-400" fill="none" stroke="currentColor" stroke-width="1.75" viewbox="0 0 24 24"><path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" stroke-linecap="round" stroke-linejoin="round"></path></svg>
+<span>Profile</span>
+</div>
+<div class="flex flex-col items-center gap-1">
+<span class="text-base leading-none">⋯</span>
+<span>More</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+</div>
+</section>
+<!-- END: MobileSpecificationsSection -->
+<!-- BEGIN: SpecificationFooter -->
+<footer class="max-w-[1400px] mx-auto mt-12 pt-8 border-t border-hairline grid grid-cols-1 md:grid-cols-3 gap-6 font-mono-spec text-xs text-neutral-400" data-purpose="spec-system-footer">
+<div class="space-y-1.5">
+<p class="font-semibold text-neutral-200 uppercase tracking-wider text-[11px]">COLOR RULE ENFORCEMENT</p>
+<p class="text-[11px] text-neutral-500">Strictly single amber pill per viewport: <code class="text-amber-cta">#EF9A57</code>.</p>
+<p class="text-[11px] text-neutral-500">Zero blue, green, or red accents. Status relies purely on semantic glyphs (<span class="text-neutral-300">● ◐ ◌ ↻ ■ ✕ ○</span>).</p>
+</div>
+<div class="space-y-1.5">
+<p class="font-semibold text-neutral-200 uppercase tracking-wider text-[11px]">APP SHELL GEOMETRY</p>
+<p class="text-[11px] text-neutral-500">Sidebar: 248px width · Desktop Header: 64px height</p>
+<p class="text-[11px] text-neutral-500">Mobile Canvas: 360px viewport · Mobile Header: 56px · Bottom Nav: 64px</p>
+</div>
+<div class="space-y-1.5">
+<p class="font-semibold text-neutral-200 uppercase tracking-wider text-[11px]">ACCESSIBILITY &amp; STANDARDS</p>
+<p class="text-[11px] text-neutral-500">WCAG 2.2 AA compliant contrast on all neutral card borders (<code class="text-neutral-300">rgba(242,244,247,0.10)</code>) and graphite surfaces.</p>
+</div>
+</footer>
+<!-- END: SpecificationFooter -->
+</body></html>

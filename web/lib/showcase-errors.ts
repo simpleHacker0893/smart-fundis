@@ -28,3 +28,23 @@ export function showcaseSaveErrorKey(error: unknown, kind: ShowcaseKind): Showca
   }
   return "save";
 }
+
+// The sites a Showcase link may come from, by registrable domain. Only for
+// choosing the message: parseShowcaseLink and the server stay the authority.
+const SHOWCASE_DOMAINS = ["youtube.com", "youtu.be", "tiktok.com"] as const;
+
+/**
+ * Whether pasted text points at YouTube or TikTok at all, so a refused link
+ * can say "Only YouTube or TikTok links" (another site) or "Use a link to
+ * one video" (the right site, the wrong kind of page). Never fetches it.
+ */
+export function isShowcaseHost(text: string): boolean {
+  const trimmed = text.trim();
+  try {
+    const url = new URL(/^[a-z][a-z0-9+.-]*:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`);
+    const host = url.hostname.toLowerCase();
+    return SHOWCASE_DOMAINS.some((domain) => host === domain || host.endsWith(`.${domain}`));
+  } catch {
+    return false;
+  }
+}
