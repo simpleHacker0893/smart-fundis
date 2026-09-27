@@ -475,10 +475,20 @@ describe("uploading (US-3.6, US-3.7, US-3.9)", () => {
       taskSlug: "13a-socket",
       consentVersion: CONSENT_VERSION,
       livenessCode: "482",
+      clipName: "socket.mp4",
     });
     expect(CONSENT_VERSION).toBe("consent-v1");
     // Back to the picker, saying it worked.
     expect(container.querySelector('[role="status"]')?.textContent).toBe(t("done"));
+  });
+
+  it("leaves clipName out when the chosen file has no name (#40)", async () => {
+    await toRecordStep();
+    await chooseFile({ name: "", size: 1024, type: "video/mp4" });
+    await tick(t("consent.agree"));
+    await tap(t("upload"));
+    expect(state.create).toHaveBeenCalledTimes(1);
+    expect(state.create.mock.calls[0]?.[0]).not.toHaveProperty("clipName");
   });
 
   it("sends clientConsent: true for a Task with a client on camera", async () => {
