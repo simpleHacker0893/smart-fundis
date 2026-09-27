@@ -112,11 +112,15 @@ It never logs the video URL, the secret, the job body or the clip name; it logs 
 uv run python scripts/stub_worker.py                    # poll every 5 s until Ctrl-C
 uv run python scripts/stub_worker.py --once             # wait for one job, process it, exit 0
 uv run python scripts/stub_worker.py --poll-interval 2 --worker-id stub-alice
+uv run python scripts/stub_worker.py --hold-seconds 5   # keep each job `analyzing` for 5 s
+uv run python scripts/stub_worker.py --max-jobs 3       # exit 0 after three jobs
 ```
 
-Then upload a clip in the app (named e.g. `socket-review.mp4` for the review path) and watch its status chip change. Exit codes: 0 on Ctrl-C or after `--once`, 1 on a 401, a 403, a `CONVEX_DEPLOYMENT` that isn't `dev:`, or missing or invalid settings.
+`--hold-seconds S` (default 0) waits S seconds after claiming a job and before posting its callback, so the Assessment sits in `analyzing` long enough to watch the status chip go `queued → analyzing → awaiting_review` (the #42 Playwright full-loop test uses it). It must be between 0 and 300; anything else exits 1, so a held job never gets near Convex's 10-minute requeue. `--max-jobs N` (N ≥ 1) exits 0 after N jobs; `--once` is `--max-jobs 1`.
 
-The tests (`tests/test_stub_worker.py`) run the worker against a fake Convex site (stdlib `http.server` in a thread), so the real `urllib` request code runs. They check each canned payload against the contract rules, the Bearer header, the 204/401/409/400 handling, back-off, and that the video URL never reaches the logs.
+Then upload a clip in the app (named e.g. `socket-review.mp4` for the review path) and watch its status chip change. Exit codes: 0 on Ctrl-C or after `--once` / `--max-jobs`, 1 on a 401, a 403, a `CONVEX_DEPLOYMENT` that isn't `dev:`, or missing or invalid settings.
+
+The tests (`tests/test_stub_worker.py`) run the worker against a fake Convex site (stdlib `http.server` in a thread), so the real `urllib` request code runs. They check each canned payload against the contract rules, the Bearer header, the 204/401/409/400 handling, back-off, `--hold-seconds` and `--max-jobs`, and that the video URL never reaches the logs.
 
 ## Tracing (LangSmith)
 
