@@ -6,7 +6,8 @@ import { useTranslations } from "next-intl";
 import { useState } from "react";
 import { api } from "@convex/_generated/api";
 import { LABEL } from "@/components/ui/field-label";
-import { PRIMARY_PILL, SECONDARY_PILL } from "@/components/ui/pill";
+import { SECTION_LABEL } from "@/components/ui/app-type";
+import { SECONDARY_PILL } from "@/components/ui/pill";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
 import type messages from "@/messages/en.json";
 import { RecordStep } from "./record-step";
@@ -19,20 +20,20 @@ type TipTask = keyof (typeof messages)["UploadFlow"]["tips"]["task"];
 type Step = { kind: "pick"; done: boolean } | ({ kind: "tips" } & Choice) | ({ kind: "record" } & Choice);
 
 /**
- * The Fundi's upload flow on /fundi (#38): pick a Trade → Task and read its
- * Rubric (US-3.2), recording tips (US-3.3), then the Liveness code, consent
- * and the video (RecordStep). Unstyled for V1. Mount it only for a Fundi:
- * every query here throws for anyone else.
+ * The Fundi's upload flow on /fundi/record (#38, restyled in app mode for
+ * #67, prompt 26 frames 8–10): "1 PICK A TASK" with its Rubric (US-3.2) and
+ * the recording tips (US-3.3), then RecordStep's "2 YOUR CODE", "3 RECORD"
+ * and "4 CONSENT AND UPLOAD". Every action here is outlined except Upload,
+ * the page's one amber fill on mobile. Mount it only for a Fundi: every
+ * query here throws for anyone else.
  */
 export function UploadFlow() {
   const t = useTranslations("UploadFlow");
   const [step, setStep] = useState<Step>({ kind: "pick", done: false });
 
   return (
-    <section className="flex flex-col gap-4" aria-labelledby="upload-flow">
-      <h2 id="upload-flow" className="text-xl font-semibold">
-        {t("title")}
-      </h2>
+    <section className="flex flex-col gap-4" aria-label={t("title")}>
+      {step.kind !== "record" ? <h2 className={SECTION_LABEL}>{t("steps.pick")}</h2> : null}
       {step.kind === "pick" ? (
         <>
           {step.done ? (
@@ -65,19 +66,19 @@ function TaskPicker({ onChoose }: { onChoose: (choice: Choice) => void }) {
   const names = useCatalogueNames();
   const picker = useQuery(api.trades.uploadPicker, {});
 
-  if (picker === undefined) return <p className="text-base text-foreground/75">{t("loading")}</p>;
-  if (picker.length === 0) return <p className="text-base text-foreground/75">{t("empty")}</p>;
+  if (picker === undefined) return <p className="text-base text-dim">{t("loading")}</p>;
+  if (picker.length === 0) return <p className="text-base text-dim">{t("empty")}</p>;
 
   return (
     <>
-      <p className="text-base text-foreground/75">{t("pick.intro")}</p>
+      <p className="text-base text-dim">{t("pick.intro")}</p>
       <ul className="flex flex-col gap-6">
         {picker.map((trade) => (
           <li key={trade.slug} className="flex flex-col gap-3 rounded border border-line p-4">
             <div className="flex flex-wrap items-baseline justify-between gap-x-3">
-              <h3 className="text-lg font-semibold">{names.trade(trade.slug, trade.name)}</h3>
+              <h3 className="text-base font-semibold">{names.trade(trade.slug, trade.name)}</h3>
               {trade.onProfile ? (
-                <span data-testid="on-profile" className="text-sm text-foreground/75">
+                <span data-testid="on-profile" className="font-mono text-xs tracking-[0.08em] text-dim uppercase">
                   {t("pick.onProfile")}
                 </span>
               ) : null}
@@ -101,9 +102,9 @@ function TaskPicker({ onChoose }: { onChoose: (choice: Choice) => void }) {
                     ))}
                   </ul>
                   {task.items.some((item) => item.safety) ? (
-                    <p className="text-sm text-foreground/75">{t("pick.safetyNote")}</p>
+                    <p className="text-base text-dim">{t("pick.safetyNote")}</p>
                   ) : null}
-                  <button type="button" className={PRIMARY_PILL} onClick={() => onChoose({ trade, task })}>
+                  <button type="button" className={SECONDARY_PILL} onClick={() => onChoose({ trade, task })}>
                     {t("pick.choose", { task: taskName })}
                   </button>
                 </div>
@@ -124,8 +125,8 @@ function RecordingTips({ task, onBack, onNext }: { task: PickerTask; onBack: () 
 
   return (
     <div className="flex flex-col gap-4">
-      <h3 className="text-lg font-semibold">{t("tips.title")}</h3>
-      <p className="text-base text-foreground/75">{t("tips.intro")}</p>
+      <h3 className="text-base font-semibold">{t("tips.title")}</h3>
+      <p className="text-base text-dim">{t("tips.intro")}</p>
       <ul className="flex list-disc flex-col gap-2 pl-5">
         {taskTips.map((key) => (
           <li key={key} className="text-base font-medium">
@@ -164,7 +165,7 @@ export function StepNav({
   return (
     <div className="flex flex-col gap-3 sm:flex-row">
       {nextLabel && onNext ? (
-        <button type="button" className={PRIMARY_PILL} onClick={onNext}>
+        <button type="button" className={SECONDARY_PILL} onClick={onNext}>
           {nextLabel}
         </button>
       ) : null}

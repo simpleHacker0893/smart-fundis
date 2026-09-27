@@ -592,3 +592,55 @@ describe("easy upload (operator, 2026-09-26)", () => {
     expect(before(consent, upload)).toBe(true);
   });
 });
+
+describe("app mode (#67, prompt 26 frames 8–10)", () => {
+  const labels = () => [...container.querySelectorAll("h2")].map((h) => h.textContent);
+
+  it("labels the steps 1 PICK A TASK, 2 YOUR CODE, 3 RECORD and 4 CONSENT AND UPLOAD", async () => {
+    await render();
+    expect(labels()).toEqual([t("steps.pick")]);
+    await tap(t("pick.choose", { task: en.Rubrics["13a-socket"].name }));
+    expect(labels()).toEqual([t("steps.pick")]);
+    await tap(t("tips.next"));
+    expect(labels().filter((l) => l !== t("consent.title"))).toEqual([t("steps.code"), t("steps.record"), t("steps.consent")]);
+    expect(Object.values(en.UploadFlow.steps)).toEqual(["1 Pick a task", "2 Your code", "3 Record", "4 Consent and upload"]);
+  });
+
+  it("keeps Upload video as the only amber fill, mobile only, and every other action outlined", async () => {
+    await toRecordStep();
+    const amber = [...container.querySelectorAll("[class]")].filter((el) =>
+      (el.getAttribute("class") ?? "").split(/\s+/).includes("bg-primary"),
+    );
+    expect(amber).toEqual([button(t("upload"))]);
+    expect(button(t("upload")).className).toMatch(/\blg:bg-transparent\b/);
+    expect(container.innerHTML).not.toMatch(/shadow-\[/);
+  });
+
+  it("draws the real upload progress white on the hairline, never amber", async () => {
+    state.postVideo.mockImplementationOnce(
+      (_url: string, _file: Blob, onProgress: (p: number) => void) =>
+        new Promise<string>(() => {
+          onProgress(42);
+        }),
+    );
+    await toRecordStep();
+    await chooseFile({ name: "socket.mp4", size: 1024, type: "video/mp4" });
+    await tick(t("consent.agree"));
+    await tap(t("upload"));
+    const progress = container.querySelector("progress")!;
+    expect(progress.className).toMatch(/bg-foreground/);
+    expect(progress.className).not.toMatch(/primary|amber/);
+    expect(container.textContent).toContain("Uploading… 42%");
+  });
+
+  it("shows errors neutral with a ✕, never amber", async () => {
+    await toRecordStep();
+    await chooseFile({ name: "photo.jpg", size: 10, type: "image/jpeg" });
+    const alert = container.querySelector('[role="alert"]')!;
+    const line = alert.closest("p")!;
+    expect(line.textContent).toBe(`✕${t("errors.wrong_type")}`);
+    expect(line.className).not.toMatch(/primary/);
+    // The Upload pill's graphite label (text-primary-foreground) is the only "primary" text class.
+    expect(container.innerHTML).not.toMatch(/text-primary(?!-foreground)|border-primary|accent-primary/);
+  });
+});
