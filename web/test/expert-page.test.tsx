@@ -195,12 +195,13 @@ describe("the Expert queue (US-5.1)", () => {
     expect(r[0].textContent).toContain(`${en.TradeCatalogue.electrical.name}: ${en.Rubrics["13a-socket"].name}`);
     expect(r[1].textContent).toContain(`${en.TradeCatalogue.hairdressing.name}: ${en.Rubrics.cornrows.name}`);
     expect(r[0].textContent).toContain("Sep 20, 2026");
-    // The AI's recommendation is labelled as a suggestion, never a decision.
-    expect(r[0].textContent).toContain(tq("aiSuggestion", { verdict: tq("verdict.pass") }));
-    expect(r[1].textContent).toContain(tq("aiSuggestion", { verdict: tq("verdict.needs_review") }));
-    expect(r[2].textContent).toContain(tq("aiSuggestion", { verdict: tq("verdict.fail") }));
-    expect(r[3].textContent).toContain(tq("aiSuggestion", { verdict: tq("verdict.none") }));
-    expect(tq("aiSuggestion", { verdict: tq("verdict.pass") })).toBe("AI suggestion: Pass");
+    // W2 (rai major, automation bias): the queue row never names the AI's
+    // recommendation, only the safety-flag count. The labelled AI suggestion
+    // panel lives on the detail view instead.
+    for (const row of r) {
+      expect(row.textContent).not.toMatch(/AI suggestion/i);
+      for (const verdict of Object.values(en.ReviewQueue.verdict)) expect(row.textContent).not.toContain(verdict);
+    }
     expect(r[0].textContent).toContain(tq("safetyFlags", { count: 0 }));
     expect(r[1].textContent).toContain(tq("safetyFlags", { count: 2 }));
     expect(r[2].textContent).toContain(tq("safetyFlags", { count: 1 }));

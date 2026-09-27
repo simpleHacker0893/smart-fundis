@@ -25,7 +25,10 @@ describe("#41 copy (AGENTS.md non-negotiables)", () => {
 
   it("calls the AI's result a suggestion, never a decision", () => {
     expect(en.ReviewDetail.ai.title).toBe("AI suggestion — you decide");
-    expect(en.ReviewQueue.aiSuggestion).toBe("AI suggestion: {verdict}");
+  });
+
+  it("W2: the queue row no longer names the AI's verdict (automation bias)", () => {
+    expect((en.ReviewQueue as Record<string, unknown>).aiSuggestion).toBeUndefined();
   });
 
   it("never mentions the AI's confidence", () => {

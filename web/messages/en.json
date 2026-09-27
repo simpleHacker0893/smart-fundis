@@ -1582,7 +1582,6 @@
     "empty": "Nothing is waiting for review. New videos appear here on their own.",
     "taskLine": "{trade}: {task}",
     "uploaded": "Uploaded {date}",
-    "aiSuggestion": "AI suggestion: {verdict}",
     "verdict": {
       "pass": "Pass",
       "needs_review": "Needs review",
