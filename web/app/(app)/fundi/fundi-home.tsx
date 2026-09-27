@@ -8,12 +8,12 @@ import { useId, type ReactNode } from "react";
 import { cn } from "cn";
 import { api } from "@convex/_generated/api";
 import { AddVideoButton } from "@/components/add-video-sheet";
-import { EmptyPanel, ScopedErrors, SkeletonCard, SkeletonRows } from "@/components/app-states";
+import { CardBoundary, EmptyPanel, ErrorPanel, ScopedErrors, SkeletonCard, SkeletonRows } from "@/components/app-states";
 import { BadgeLine } from "@/components/badge-line";
 import { PAGE_TITLE, PANEL, SECTION_LABEL } from "@/components/ui/app-type";
 import { SECONDARY_PILL } from "@/components/ui/pill";
 import { StatusChip } from "@/components/ui/status-chip";
-import { badgeOf, VerificationRow } from "./verification-row";
+import { badgeOf, StatusAnnouncer, VerificationRow } from "./verification-row";
 
 /** Home shows the newest three; "See all" opens the full list. */
 const HOME_ROWS = 3;
@@ -47,9 +47,7 @@ export function FundiHome() {
           </ScopedErrors>
         </div>
         <div className="flex min-w-0 flex-col gap-8">
-          <Card titleKey="listing.title">
-            <ListingStatus />
-          </Card>
+          <ListingCard />
           <ScopedErrors body={v("error.cardBody")}>
             <FinishProfile />
           </ScopedErrors>
@@ -74,18 +72,37 @@ function Section({ title, action, children }: { title: string; action?: ReactNod
   );
 }
 
-/** A right-column card whose heading stays when its body fails. */
-function Card({ titleKey, children }: { titleKey: "listing.title"; children: ReactNode }) {
+/** The Listing card's frame: the heading stays when its body fails. */
+function ListingFrame({ children }: { children: ReactNode }) {
   const t = useTranslations("FundiHome");
-  const v = useTranslations("Verifications");
   const id = useId();
   return (
     <section aria-labelledby={id} className={cn(PANEL, "flex flex-col gap-4")}>
       <h2 id={id} className={SECTION_LABEL}>
-        {t(titleKey)}
+        {t("listing.title")}
       </h2>
-      <ScopedErrors body={v("error.cardBody")}>{children}</ScopedErrors>
+      {children}
     </section>
+  );
+}
+
+/**
+ * The LISTING STATUS card, left out entirely (heading too) while the Fundi
+ * has no profile: an empty card would look like a state that isn't there.
+ * A failed query keeps the heading, with the error panel inside.
+ */
+function ListingCard() {
+  const v = useTranslations("Verifications");
+  return (
+    <CardBoundary
+      fallback={(retry) => (
+        <ListingFrame>
+          <ErrorPanel body={v("error.cardBody")} onRetry={retry} />
+        </ListingFrame>
+      )}
+    >
+      <ListingStatus />
+    </CardBoundary>
   );
 }
 
@@ -108,12 +125,15 @@ function MyVerifications() {
       ) : list.length === 0 ? (
         <EmptyPanel tag={v("empty.tag")} body={v("empty.body")} />
       ) : (
-        // Live: a status change re-renders the chip in place, and screen readers hear it.
-        <ul aria-live="polite" className="flex flex-col border-t border-line">
-          {list.slice(0, HOME_ROWS).map((assessment) => (
-            <VerificationRow key={assessment._id} assessment={assessment} />
-          ))}
-        </ul>
+        // Live: a status change re-renders the chip in place, and the announcer says so.
+        <>
+          <StatusAnnouncer assessments={list} />
+          <ul className="flex flex-col border-t border-line">
+            {list.slice(0, HOME_ROWS).map((assessment) => (
+              <VerificationRow key={assessment._id} assessment={assessment} />
+            ))}
+          </ul>
+        </>
       )}
     </Section>
   );
@@ -156,28 +176,38 @@ function ListingStatus() {
   const tp = useTranslations("FundiPage.publicProfile");
   const mine = useQuery(api.fundiProfiles.myProfileId, {});
   const list = useQuery(api.assessments.listMine, {});
-  if (mine === undefined || list === undefined) return <SkeletonCard label={t("title")} />;
   if (mine === null) return null;
+  if (mine === undefined || list === undefined) {
+    return (
+      <ListingFrame>
+        <SkeletonCard label={t("title")} />
+      </ListingFrame>
+    );
+  }
   if (!mine.publicListing) {
     return (
-      <div className="flex flex-col gap-3">
-        <StatusChip status="listing_off" />
-        <p className="text-base text-dim">{t("off")}</p>
-      </div>
+      <ListingFrame>
+        <div className="flex flex-col gap-3">
+          <StatusChip status="listing_off" />
+          <p className="text-base text-dim">{t("off")}</p>
+        </div>
+      </ListingFrame>
     );
   }
   const verified = list.some((assessment) => badgeOf(assessment) !== null);
   return (
-    <div className="flex flex-col gap-4">
-      <StatusChip status={verified ? "listed" : "listed_unverified"} />
-      <p className="text-base text-dim">{verified ? t("listed") : t("listedUnverified")}</p>
-      <Link
-        href={`/f/${mine.id}`}
-        className={cn(SECONDARY_PILL, "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:w-full")}
-      >
-        {tp("link")}
-      </Link>
-    </div>
+    <ListingFrame>
+      <div className="flex flex-col gap-4">
+        <StatusChip status={verified ? "listed" : "listed_unverified"} />
+        <p className="text-base text-dim">{verified ? t("listed") : t("listedUnverified")}</p>
+        <Link
+          href={`/f/${mine.id}`}
+          className={cn(SECONDARY_PILL, "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring lg:w-full")}
+        >
+          {tp("link")}
+        </Link>
+      </div>
+    </ListingFrame>
   );
 }
 

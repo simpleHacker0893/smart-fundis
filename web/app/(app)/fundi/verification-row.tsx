@@ -3,6 +3,7 @@
 import type { FunctionReturnType } from "convex/server";
 import { useFormatter, useTranslations } from "next-intl";
 import Link from "next/link";
+import { useState } from "react";
 import type { api } from "@convex/_generated/api";
 import { META } from "@/components/ui/app-type";
 import type { BadgeFields } from "@/components/badge-line";
@@ -62,5 +63,31 @@ export function VerificationRow({ assessment }: { assessment: Assessment }) {
         <StatusChip status={assessment.status} className="shrink-0 self-center" />
       </Link>
     </li>
+  );
+}
+
+/**
+ * A visually hidden polite status line for the live lists (Home, My
+ * verifications): it names an Assessment whose status just changed, so a
+ * screen reader hears the change and not every row "Show more" adds (the
+ * list itself is not a live region). New Assessments are not announced.
+ */
+export function StatusAnnouncer({ assessments }: { assessments: readonly Assessment[] }) {
+  const t = useTranslations("Verifications");
+  const chip = useTranslations("StatusChip");
+  const names = useCatalogueNames();
+  const [previous, setPrevious] = useState(assessments);
+  const [changed, setChanged] = useState<Assessment | null>(null);
+  // React's "adjust state while rendering" pattern: compare with the last result, no effect.
+  if (assessments !== previous) {
+    setPrevious(assessments);
+    const before = new Map(previous.map((a) => [a._id, a.status]));
+    const next = assessments.find((a) => before.has(a._id) && before.get(a._id) !== a.status);
+    if (next) setChanged(next);
+  }
+  return (
+    <p data-testid="status-announcer" role="status" className="sr-only">
+      {changed ? t("statusChanged", { task: names.task(changed.taskSlug, changed.taskName), status: chip(changed.status) }) : null}
+    </p>
   );
 }

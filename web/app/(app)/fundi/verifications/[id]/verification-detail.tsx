@@ -47,6 +47,9 @@ function DetailBody({ id }: { id: string }) {
   const t = useTranslations("Verifications");
   const names = useCatalogueNames();
   const meta = useAssessmentMeta();
+  // Found in listMine, which is capped at the newest 100 Assessments: an older
+  // one reads as "not found". The proper fix is an owner-scoped query for one
+  // Assessment by id (dashboard.fundiVerifications, #48).
   const list = useQuery(api.assessments.listMine, {});
   if (list === undefined) return <SkeletonCard label={t("loading")} />;
 

@@ -61,6 +61,7 @@ vi.mock("convex/react", async () => {
 });
 
 vi.mock("next/navigation", () => ({
+  usePathname: () => "/fundi",
   useRouter: () => ({ replace: state.replace, push: vi.fn() }),
 }));
 
@@ -113,11 +114,15 @@ afterEach(() => {
 async function render({ convexAvailable = true } = {}) {
   const { default: FundiPage } = await import("@/app/(app)/fundi/page");
   const { ConvexAvailableContext } = await import("@/components/convex-available");
+  // The (app) layout's provider draws the one Add video sheet.
+  const { AddVideoProvider } = await import("@/components/add-video-sheet");
   const page = await FundiPage();
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en} timeZone="Africa/Nairobi">
-        <ConvexAvailableContext value={convexAvailable}>{page}</ConvexAvailableContext>
+        <ConvexAvailableContext value={convexAvailable}>
+          <AddVideoProvider>{page}</AddVideoProvider>
+        </ConvexAvailableContext>
       </NextIntlClientProvider>,
     );
   });
@@ -228,6 +233,9 @@ describe("/fundi home (prompt 25)", () => {
     ]);
     expect(rows()[1].textContent).toContain(en.Rubrics.cornrows.name);
     expect(rows()[1].textContent).toContain("Hairdressing · 25 Sep 2026");
+    // Only status changes are announced, in one hidden status line; the list is not a live region.
+    expect(mine.querySelector("ul")?.hasAttribute("aria-live")).toBe(false);
+    expect(mine.querySelector('[data-testid="status-announcer"]')?.getAttribute("role")).toBe("status");
     const seeAll = [...mine.querySelectorAll("a")].find((a) => a.textContent === home("seeAll"));
     expect(seeAll?.getAttribute("href")).toBe("/fundi/verifications");
     // Chips are neutral: no amber, no ✓.
@@ -294,6 +302,15 @@ describe("/fundi home (prompt 25)", () => {
     expect(card().querySelector("a")).toBeNull();
     // No data exists for an Admin hide, so the state is never drawn.
     expect(text()).not.toContain(chip("hidden_by_admin"));
+  });
+
+  it("leaves the Listing card out, heading and all, when the Fundi has no profile yet", async () => {
+    state.list = [row()];
+    state.myProfile = null;
+    await render();
+    expect(section(home("listing.title"))).toBeNull();
+    expect(text()).not.toContain(home("listing.title"));
+    expect(rows()).toHaveLength(1);
   });
 
   it("lists only named missing items under Finish your profile, and hides the card when none is known", async () => {

@@ -50,7 +50,10 @@ const state = vi.hoisted(() => ({
 }));
 
 vi.mock("@clerk/nextjs/server", () => ({ auth: Object.assign(vi.fn(), { protect: state.protect }) }));
-vi.mock("next/navigation", () => ({ useRouter: () => ({ replace: state.replace, push: vi.fn() }) }));
+vi.mock("next/navigation", () => ({
+  usePathname: () => "/fundi/verifications",
+  useRouter: () => ({ replace: state.replace, push: vi.fn() }),
+}));
 
 vi.mock("convex/react", async () => {
   const { getFunctionName } = await import("convex/server");
@@ -112,10 +115,14 @@ afterEach(() => {
 
 async function mount(node: ReactNode) {
   const { ConvexAvailableContext } = await import("@/components/convex-available");
+  // The (app) layout's provider draws the one Add video sheet.
+  const { AddVideoProvider } = await import("@/components/add-video-sheet");
   await act(async () => {
     root.render(
       <NextIntlClientProvider locale={defaultLocale} messages={en} timeZone="Africa/Nairobi">
-        <ConvexAvailableContext value={true}>{node}</ConvexAvailableContext>
+        <ConvexAvailableContext value={true}>
+          <AddVideoProvider>{node}</AddVideoProvider>
+        </ConvexAvailableContext>
       </NextIntlClientProvider>,
     );
   });
@@ -169,7 +176,25 @@ describe("/fundi/verifications, the list (prompt 27)", () => {
     await renderList();
     await act(async () => live.push([row({ status: "analyzing" })]));
     expect(chipText(rows()[0])).toBe(chip("analyzing"));
-    expect(container.querySelector("ul")?.getAttribute("aria-live")).toBe("polite");
+  });
+
+  it("announces a status change in one polite status line, never every row Show more adds", async () => {
+    const many = (status: string) => Array.from({ length: 30 }, (_, i) => row({ _id: `a${i}`, status: i === 0 ? status : "queued" }));
+    live.reset(many("queued"));
+    await renderList();
+    // The list itself is not a live region.
+    expect(container.querySelector("ul")?.hasAttribute("aria-live")).toBe(false);
+    const announcer = container.querySelector('[data-testid="status-announcer"]')!;
+    expect(announcer.getAttribute("role")).toBe("status");
+    expect(announcer.className).toMatch(/\bsr-only\b/);
+    expect(announcer.textContent).toBe("");
+
+    await act(async () => buttonOrLink(v("showMore"))!.click());
+    expect(rows()).toHaveLength(30);
+    expect(announcer.textContent).toBe("");
+
+    await act(async () => live.push(many("analyzing")));
+    expect(announcer.textContent).toBe(v("statusChanged", { task: en.Rubrics["13a-socket"].name, status: chip("analyzing") }));
   });
 
   it("shows 24 rows, then Show more", async () => {

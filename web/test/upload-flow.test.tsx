@@ -482,6 +482,42 @@ describe("uploading (US-3.6, US-3.7, US-3.9)", () => {
     expect(container.querySelector('[role="status"]')?.textContent).toBe(t("done"));
   });
 
+  it("says where the upload went when it finishes: See my verifications", async () => {
+    await toRecordStep();
+    await chooseFile({ name: "socket.mp4", size: 1024, type: "video/mp4" });
+    await tick(t("consent.agree"));
+    await tap(t("upload"));
+    expect(container.querySelector('[role="status"]')?.textContent).toBe(t("done"));
+    const link = [...container.querySelectorAll("a")].find((a) => a.textContent === t("seeVerifications"));
+    expect(link?.getAttribute("href")).toBe("/fundi/verifications");
+    expect(link?.className).not.toMatch(/bg-primary/);
+  });
+
+  it("disables Upload offline with 'Needs a connection', and re-enables it when back (D9)", async () => {
+    let online = true;
+    const spy = vi.spyOn(navigator, "onLine", "get").mockImplementation(() => online);
+    try {
+      await toRecordStep();
+      await chooseFile({ name: "socket.mp4", size: 1024, type: "video/mp4" });
+      await tick(t("consent.agree"));
+      expect(button(t("upload")).disabled).toBe(false);
+
+      online = false;
+      await act(async () => window.dispatchEvent(new Event("offline")));
+      expect(container.textContent).toContain(t("offline"));
+      expect(button(t("upload")).disabled).toBe(true);
+      await act(async () => button(t("upload")).click());
+      expect(state.generateUploadUrl).not.toHaveBeenCalled();
+
+      online = true;
+      await act(async () => window.dispatchEvent(new Event("online")));
+      expect(container.textContent).not.toContain(t("offline"));
+      expect(button(t("upload")).disabled).toBe(false);
+    } finally {
+      spy.mockRestore();
+    }
+  });
+
   it("leaves clipName out when the chosen file has no name (#40)", async () => {
     await toRecordStep();
     await chooseFile({ name: "", size: 1024, type: "video/mp4" });

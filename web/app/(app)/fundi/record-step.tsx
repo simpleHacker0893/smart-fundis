@@ -7,6 +7,7 @@ import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { CONSENT_VERSION } from "@convex/lib/assessmentUpload";
 import { cn } from "cn";
+import { useConnection } from "@/components/app-shell/use-connection";
 import { ErrorLine } from "@/components/app-states";
 import { SECTION_LABEL } from "@/components/ui/app-type";
 import { LABEL } from "@/components/ui/field-label";
@@ -46,7 +47,7 @@ const PROGRESS =
  * is on camera, just above the upload with progress, retry and
  * clear errors (US-3.6).
  * Upload stays disabled until the required ticks are checked and a valid
- * video is chosen. assessments.create is the authority (US-3.9): it answers
+ * video is chosen, and while offline ("Needs a connection"). assessments.create is the authority (US-3.9): it answers
  * `{ ok: false, code }` rather than throwing, and each code has a message.
  */
 export function RecordStep({
@@ -71,10 +72,12 @@ export function RecordStep({
   // Bumped to clear both file inputs when a video can no longer be used.
   const [inputsKey, setInputsKey] = useState(0);
   const [upload, setUpload] = useState<Upload>({ kind: "idle" });
+  // Offline, Upload is disabled with the reason in words (D9); an upload already running carries on.
+  const offline = useConnection().kind === "offline";
 
   const consentGiven = consent && (!task.needsClientConsent || clientConsent);
   const busy = upload.kind === "uploading" || upload.kind === "saving";
-  const canUpload = consentGiven && file !== null && liveness.code !== null && !busy;
+  const canUpload = consentGiven && file !== null && liveness.code !== null && !busy && !offline;
 
   function onFile(event: ChangeEvent<HTMLInputElement>) {
     const picked = event.currentTarget.files?.[0] ?? null;
@@ -253,7 +256,9 @@ export function RecordStep({
         <ConsentDialog ref={consentDialog} onClose={() => consentLink.current?.focus()} />
   
         <div className="flex flex-col gap-3">
-          {!consentGiven ? (
+          {offline && !busy ? (
+            <p className="text-base text-dim">{t("offline")}</p>
+          ) : !consentGiven ? (
             <p className="text-base text-dim">
               {task.needsClientConsent ? t("video.needBothTicks") : t("video.needConsent")}
             </p>

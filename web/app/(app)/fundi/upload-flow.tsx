@@ -3,6 +3,7 @@
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { useTranslations } from "next-intl";
+import Link from "next/link";
 import { useState } from "react";
 import { api } from "@convex/_generated/api";
 import { LABEL } from "@/components/ui/field-label";
@@ -37,9 +38,18 @@ export function UploadFlow() {
       {step.kind === "pick" ? (
         <>
           {step.done ? (
-            <p role="status" className="text-base">
-              {t("done")}
-            </p>
+            <div className="flex flex-col gap-2">
+              <p role="status" className="text-base">
+                {t("done")}
+              </p>
+              {/* Where the upload went: its status is live on My verifications. */}
+              <Link
+                href="/fundi/verifications"
+                className="inline-flex min-h-12 items-center self-start text-base underline decoration-foreground/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+              >
+                {t("seeVerifications")}
+              </Link>
+            </div>
           ) : null}
           <TaskPicker onChoose={(choice) => setStep({ kind: "tips", ...choice })} />
         </>

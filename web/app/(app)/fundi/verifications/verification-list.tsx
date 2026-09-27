@@ -8,15 +8,15 @@ import { AddVideoButton } from "@/components/add-video-sheet";
 import { EmptyPanel, ScopedErrors, SkeletonRows } from "@/components/app-states";
 import { PAGE_TITLE } from "@/components/ui/app-type";
 import { SECONDARY_PILL } from "@/components/ui/pill";
-import { VerificationRow } from "../verification-row";
+import { StatusAnnouncer, VerificationRow } from "../verification-row";
 
 /** D3.8: 24 rows a page, then "Show more" (never infinite scroll). */
 const PAGE_SIZE = 24;
 
 /**
  * My verifications (prompt 27): every Assessment from assessments.listMine,
- * newest first, as hairline rows. Live, so a chip changes in place. The
- * mobile Add video pill sits under the title (D2).
+ * newest first, as hairline rows. Live, so a chip changes in place and
+ * StatusAnnouncer says so. The mobile Add video pill sits under the title (D2).
  */
 export function VerificationList() {
   const t = useTranslations("Verifications");
@@ -41,7 +41,8 @@ function ListBody() {
   if (list.length === 0) return <EmptyPanel tag={t("empty.tag")} body={t("empty.body")} />;
   return (
     <div className="flex flex-col gap-6">
-      <ul aria-live="polite" className="flex flex-col border-t border-line">
+      <StatusAnnouncer assessments={list} />
+      <ul className="flex flex-col border-t border-line">
         {list.slice(0, shown).map((assessment) => (
           <VerificationRow key={assessment._id} assessment={assessment} />
         ))}
