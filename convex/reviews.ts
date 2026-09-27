@@ -1,12 +1,14 @@
-import { v } from "convex/values";
+import { ConvexError, v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
-import { query } from "./_generated/server";
+import { mutation, query } from "./_generated/server";
 import { canDecide, requireExpert, requireStoredUser } from "./lib/auth";
 import { nameLookup, namesFields } from "./lib/assessmentNames";
 import {
+  type AssessmentStatus,
   assessmentStatusValidator,
   livenessCheckValidator,
   observationValidator,
+  reviewDecisionValidator,
   rubricItemValidator,
   verdictValidator,
 } from "./lib/validators";
@@ -146,5 +148,97 @@ export const detail = query({
       videoUrl,
       ...(row.videoDeletedAt !== undefined ? { videoDeletedAt: row.videoDeletedAt } : {}),
     };
+  },
+});
+
+/** The longest Expert note, after trimming. */
+export const NOTE_MAX_LENGTH = 1000;
+
+/** The status each Expert decision moves an `awaiting_review` Assessment to (spec §5). */
+const DECISION_STATUS = {
+  approve: "approved",
+  reshoot: "reshoot",
+  reject: "rejected",
+} as const satisfies Record<"approve" | "reshoot" | "reject", AssessmentStatus>;
+
+/**
+ * US-5.3: an Expert's decision on an `awaiting_review` Assessment: approve,
+ * request a reshoot, or reject (spec §5 status table). Approval is what
+ * creates the Badge; nothing stores a Badge, it is derived from `approved`.
+ *
+ * Writes, in one transaction: the new status, one `reviews` row (kind
+ * "review", decision, note, deciderUserId, at) and one `auditLog` row
+ * (action "review.<decision>", targetTable "assessments", reason = note).
+ * The note is trimmed; it is required for reshoot and reject, optional for
+ * approve, and at most 1000 characters.
+ *
+ * Refusals throw a ConvexError `{ code, message }` and write nothing:
+ * - `forbidden`: the caller is not an active Expert, or canDecide refuses
+ *   (own Assessment, Admins included; Trade not approved; original decider);
+ * - `not_found`: no such Assessment;
+ * - `invalid_status`: the Assessment is not `awaiting_review` (this includes
+ *   a second decision; appeals and Admin overrides are V4);
+ * - `note_required`, `note_too_long`.
+ * Guard: requireExpert, then canDecide on the stored Assessment.
+ */
+export const decide = mutation({
+  args: {
+    assessmentId: v.id("assessments"),
+    decision: reviewDecisionValidator,
+    note: v.optional(v.string()),
+  },
+  returns: v.null(),
+  handler: async (ctx, args) => {
+    const { user } = await requireExpert(ctx);
+    const row = await ctx.db.get("assessments", args.assessmentId);
+    if (row === null) {
+      throw new ConvexError({ code: "not_found", message: "No such Assessment." });
+    }
+    const allowed = await canDecide(ctx, user._id, row);
+    if (!allowed.ok) {
+      throw new ConvexError({
+        code: "forbidden",
+        message: `You may not decide this Assessment (${allowed.code}).`,
+      });
+    }
+    if (row.status !== "awaiting_review") {
+      throw new ConvexError({
+        code: "invalid_status",
+        message: `Only an Assessment awaiting review can be decided; this one is ${row.status}.`,
+      });
+    }
+    const note = args.note?.trim() ?? "";
+    if (note === "" && args.decision !== "approve") {
+      throw new ConvexError({
+        code: "note_required",
+        message: "A note is required to request a reshoot or to reject.",
+      });
+    }
+    if (note.length > NOTE_MAX_LENGTH) {
+      throw new ConvexError({
+        code: "note_too_long",
+        message: `The note is longer than ${NOTE_MAX_LENGTH} characters.`,
+      });
+    }
+
+    const at = Date.now();
+    await ctx.db.patch("assessments", row._id, { status: DECISION_STATUS[args.decision] });
+    await ctx.db.insert("reviews", {
+      assessmentId: row._id,
+      deciderUserId: user._id,
+      kind: "review",
+      decision: args.decision,
+      ...(note !== "" ? { note } : {}),
+      at,
+    });
+    await ctx.db.insert("auditLog", {
+      actorUserId: user._id,
+      action: `review.${args.decision}`,
+      targetTable: "assessments",
+      targetId: row._id,
+      ...(note !== "" ? { reason: note } : {}),
+      at,
+    });
+    return null;
   },
 });

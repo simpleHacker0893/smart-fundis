@@ -1,5 +1,6 @@
 import { convexTest, type TestConvex } from "convex-test";
 import { beforeEach, describe, expect, it, vi } from "vitest";
+import { ConvexError } from "convex/values";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
 import { canDecide, type DecideRefusal } from "./lib/auth";
@@ -126,6 +127,37 @@ async function awaiting(who: Identity, task: typeof SOCKET | typeof CORNROWS = S
   const id = await upload(who, task);
   await aiDone(id);
   return id;
+}
+
+/** The `data` of the ConvexError a call throws. */
+async function errorData(promise: Promise<unknown>): Promise<unknown> {
+  try {
+    await promise;
+  } catch (e) {
+    if (e instanceof ConvexError) return e.data;
+    throw e;
+  }
+  throw new Error("expected the call to throw");
+}
+
+/** The reviews and auditLog rows written about one Assessment. */
+async function decisionRows(id: Id<"assessments">) {
+  return await t.run(async (ctx) => ({
+    reviews: await ctx.db
+      .query("reviews")
+      .withIndex("by_assessmentId", (q) => q.eq("assessmentId", id))
+      .take(10),
+    audit: await ctx.db
+      .query("auditLog")
+      .withIndex("by_targetTable_and_targetId", (q) =>
+        q.eq("targetTable", "assessments").eq("targetId", id),
+      )
+      .take(10),
+  }));
+}
+
+async function statusOf(id: Id<"assessments">) {
+  return (await t.run((ctx) => ctx.db.get("assessments", id)))?.status;
 }
 
 describe("reviews.queue", () => {
@@ -266,6 +298,18 @@ describe("canDecide", () => {
       return await canDecide(ctx, decider, row);
     });
     expect(result).toEqual({ ok: false, code });
+    // decide refuses too, and writes nothing.
+    const before = await statusOf(id);
+    const reviewsBefore = (await decisionRows(id)).reviews.length;
+    expect(
+      await errorData(
+        t.withIdentity(who).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
+      ),
+    ).toMatchObject({ code: "forbidden" });
+    expect(await statusOf(id)).toBe(before);
+    const rows = await decisionRows(id);
+    expect(rows.reviews).toHaveLength(reviewsBefore);
+    expect(rows.audit).toEqual([]);
   }
 
   it("refuses an Expert their own Assessment", async () => {
@@ -329,5 +373,174 @@ describe("canDecide", () => {
     await refused(AMINA, id, "original_decider");
     const detail = await t.withIdentity(BARAKA).query(api.reviews.detail, { assessmentId: id });
     expect(detail?.status).toBe("appealed");
+  });
+});
+
+describe("reviews.decide", () => {
+  it("approves: the Assessment becomes approved (the Badge) with one reviews row and one auditLog row", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    const amina = await userId(AMINA);
+
+    const result = await t
+      .withIdentity(AMINA)
+      .mutation(api.reviews.decide, { assessmentId: id, decision: "approve" });
+    expect(result).toBeNull();
+    expect(await statusOf(id)).toBe("approved");
+
+    const { reviews, audit } = await decisionRows(id);
+    expect(reviews).toHaveLength(1);
+    expect(reviews[0]).toMatchObject({
+      assessmentId: id,
+      deciderUserId: amina,
+      kind: "review",
+      decision: "approve",
+    });
+    expect(reviews[0]).not.toHaveProperty("note");
+    expect(audit).toHaveLength(1);
+    expect(audit[0]).toMatchObject({
+      actorUserId: amina,
+      action: "review.approve",
+      targetTable: "assessments",
+      targetId: id,
+    });
+    expect(audit[0]).not.toHaveProperty("reason");
+    expect(audit[0].at).toBe(reviews[0].at);
+
+    // It leaves the queue.
+    expect(await t.withIdentity(AMINA).query(api.reviews.queue, {})).toEqual([]);
+  });
+
+  it("keeps an optional note on approval, trimmed", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    await t
+      .withIdentity(AMINA)
+      .mutation(api.reviews.decide, { assessmentId: id, decision: "approve", note: "  Clean work.  " });
+    const { reviews, audit } = await decisionRows(id);
+    expect(reviews[0].note).toBe("Clean work.");
+    expect(audit[0].reason).toBe("Clean work.");
+  });
+
+  it.each([
+    ["reshoot", "reshoot"],
+    ["reject", "rejected"],
+  ] as const)(
+    "%s with a note: status %s, the note on the reviews row and as the audit reason",
+    async (decision, status) => {
+      await makeFundi(WANJIRU);
+      await makeExpert(AMINA);
+      const id = await awaiting(WANJIRU);
+      await t.withIdentity(AMINA).mutation(api.reviews.decide, {
+        assessmentId: id,
+        decision,
+        note: "  The socket was not tested before closing.  ",
+      });
+      expect(await statusOf(id)).toBe(status);
+      const { reviews, audit } = await decisionRows(id);
+      expect(reviews).toHaveLength(1);
+      expect(reviews[0]).toMatchObject({
+        kind: "review",
+        decision,
+        note: "The socket was not tested before closing.",
+      });
+      expect(audit).toHaveLength(1);
+      expect(audit[0]).toMatchObject({
+        action: `review.${decision}`,
+        reason: "The socket was not tested before closing.",
+      });
+    },
+  );
+
+  it.each(["reshoot", "reject"] as const)(
+    "refuses %s without a note, or with a blank one, and writes nothing",
+    async (decision) => {
+      await makeFundi(WANJIRU);
+      await makeExpert(AMINA);
+      const id = await awaiting(WANJIRU);
+      const as = t.withIdentity(AMINA);
+      for (const note of [undefined, "", "   \n\t "]) {
+        expect(
+          await errorData(
+            as.mutation(api.reviews.decide, {
+              assessmentId: id,
+              decision,
+              ...(note !== undefined ? { note } : {}),
+            }),
+          ),
+        ).toMatchObject({ code: "note_required" });
+      }
+      expect(await statusOf(id)).toBe("awaiting_review");
+      expect(await decisionRows(id)).toEqual({ reviews: [], audit: [] });
+    },
+  );
+
+  it("refuses a note over 1000 characters", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    const as = t.withIdentity(AMINA);
+    expect(
+      await errorData(
+        as.mutation(api.reviews.decide, { assessmentId: id, decision: "reject", note: "x".repeat(1001) }),
+      ),
+    ).toMatchObject({ code: "note_too_long" });
+    expect(await decisionRows(id)).toEqual({ reviews: [], audit: [] });
+    await as.mutation(api.reviews.decide, { assessmentId: id, decision: "reject", note: "x".repeat(1000) });
+    expect(await statusOf(id)).toBe("rejected");
+  });
+
+  it.each(["queued", "analyzing", "approved", "reshoot", "rejected", "appealed", "failed"] as const)(
+    "refuses a decision on a %s Assessment and writes nothing",
+    async (status) => {
+      await makeFundi(WANJIRU);
+      await makeExpert(AMINA);
+      const id = await upload(WANJIRU);
+      await t.run((ctx) => ctx.db.patch("assessments", id, { status }));
+      expect(
+        await errorData(
+          t.withIdentity(AMINA).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
+        ),
+      ).toMatchObject({ code: "invalid_status" });
+      expect(await statusOf(id)).toBe(status);
+      expect(await decisionRows(id)).toEqual({ reviews: [], audit: [] });
+    },
+  );
+
+  it("refuses a second decision on the same Assessment", async () => {
+    const BARAKA = identity("baraka");
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    await makeExpert(BARAKA);
+    const id = await awaiting(WANJIRU);
+    await t.withIdentity(AMINA).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" });
+    expect(
+      await errorData(
+        t.withIdentity(BARAKA).mutation(api.reviews.decide, {
+          assessmentId: id,
+          decision: "reject",
+          note: "No.",
+        }),
+      ),
+    ).toMatchObject({ code: "invalid_status" });
+    expect(await statusOf(id)).toBe("approved");
+    expect((await decisionRows(id)).reviews).toHaveLength(1);
+  });
+
+  it("reports a missing Assessment as not_found, and refuses a signed-out caller", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    await expect(
+      t.mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
+    ).rejects.toThrowError(/not authenticated/i);
+    await t.run((ctx) => ctx.db.delete("assessments", id));
+    expect(
+      await errorData(
+        t.withIdentity(AMINA).mutation(api.reviews.decide, { assessmentId: id, decision: "approve" }),
+      ),
+    ).toMatchObject({ code: "not_found" });
   });
 });
