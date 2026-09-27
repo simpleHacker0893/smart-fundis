@@ -215,6 +215,13 @@ describe("fundiProfiles.getPublic", () => {
     expect(result?.badges).toEqual([]);
   });
 
+  it("gives no Badge when the latest decision on an approved Assessment is not an approve", async () => {
+    const { userId, profileId } = await makeFundi();
+    await assessment(userId, "approved", "OVERRIDDEN", { decision: "reject", at: 3_000 });
+    const result = await t.query(api.fundiProfiles.getPublic, { id: profileId });
+    expect(result?.badges).toEqual([]);
+  });
+
   it("dates a Badge by its latest reviews row, the same as listMine, newest decision first", async () => {
     const { userId, profileId } = await makeFundi();
     const first = await assessment(userId, "approved", "FIRST", { decision: "approve", at: 1_000 });
