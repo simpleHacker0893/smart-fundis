@@ -169,15 +169,29 @@ describe("the review detail (US-5.2)", () => {
     expect(video?.hasAttribute("controls")).toBe(true);
     expect(video?.hasAttribute("playsinline")).toBe(true);
     expect(video?.getAttribute("preload")).toBe("metadata");
+    // W4 (rai minor): defence in depth against casual download/cast, not a guarantee.
+    expect(video?.getAttribute("controlslist")).toBe("nodownload noremoteplayback");
+    expect(video?.hasAttribute("disablepictureinpicture")).toBe(true);
     expect(backLink()?.textContent).toBe(t("backToQueue"));
     expect(tp("title")).toBe(container.querySelector("h1")?.textContent);
   });
 
-  it("says the video is gone when there is no video URL", async () => {
+  it("says the video is gone when there is no video URL and it has been deleted", async () => {
     state.detail = detail({ videoUrl: null, videoDeletedAt: Date.UTC(2026, 8, 21) });
     await render();
     expect(container.querySelector("video")).toBeNull();
     expect(text()).toContain(t("videoDeleted"));
+  });
+
+  it("W5: says the video could not load when it is missing in an open status without videoDeletedAt", async () => {
+    for (const status of ["awaiting_review", "appealed"] as const) {
+      state.detail = detail({ status, videoUrl: null });
+      await render();
+      expect(container.querySelector("video")).toBeNull();
+      expect(text()).toContain(t("videoUnavailable"));
+      expect(text()).not.toContain(t("videoDeleted"));
+      expect(text()).not.toContain(t("videoClosed"));
+    }
   });
 
   it("shows the Liveness code the Fundi was shown next to what the AI read and its check", async () => {

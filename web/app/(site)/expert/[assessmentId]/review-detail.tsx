@@ -82,9 +82,19 @@ function DetailBody({ detail }: { detail: Detail }) {
 
 function VideoSection({ detail }: { detail: Detail }) {
   const t = useTranslations("ReviewDetail");
-  // Signed only while a decision is open; otherwise say why there is no video.
-  const deleted =
-    detail.videoDeletedAt !== undefined || detail.status === "awaiting_review" || detail.status === "appealed";
+  // Backend invariant (convex/reviews.ts VIDEO_STATUSES): reviews.detail
+  // signs a video URL only while the Assessment is awaiting_review or
+  // appealed; in any other status videoUrl is always null, whether or not
+  // the video has actually been deleted. So a null videoUrl means one of
+  // three different things, and each gets its own line:
+  //  - videoDeletedAt is set: the video really has been deleted.
+  //  - still open (awaiting_review/appealed) but no videoDeletedAt: the
+  //    video should be there but failed to load, so say so and suggest retrying.
+  //  - a closed status (decided): nothing is wrong, the video is simply no
+  //    longer shown once a decision has been made.
+  const openStatus = detail.status === "awaiting_review" || detail.status === "appealed";
+  const message =
+    detail.videoDeletedAt !== undefined ? t("videoDeleted") : openStatus ? t("videoUnavailable") : t("videoClosed");
   return (
     <section className="flex flex-col gap-2" aria-labelledby="review-video">
       <h3 id="review-video" className="text-lg font-semibold">
@@ -96,10 +106,15 @@ function VideoSection({ detail }: { detail: Detail }) {
           controls
           playsInline
           preload="metadata"
+          // W4 (rai minor): defence in depth against a casual download or
+          // cast, not a guarantee — a determined viewer can still capture
+          // the stream some other way.
+          controlsList="nodownload noremoteplayback"
+          disablePictureInPicture
           className="aspect-video w-full rounded border border-line bg-black"
         />
       ) : (
-        <p className="text-base text-foreground/75">{deleted ? t("videoDeleted") : t("videoClosed")}</p>
+        <p className="text-base text-foreground/75">{message}</p>
       )}
     </section>
   );

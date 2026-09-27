@@ -1601,6 +1601,7 @@
     "uploaded": "Uploaded {date}",
     "videoTitle": "The Fundi's video",
     "videoDeleted": "The video has been deleted.",
+    "videoUnavailable": "We couldn't load the video right now. Try again in a moment.",
     "videoClosed": "The video is only shown while a decision is open.",
     "decided": "This Assessment is not awaiting a decision any more.",
     "liveness": {
