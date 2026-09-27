@@ -104,6 +104,16 @@ describe("the decision form (US-5.3)", () => {
     expect(state.decide).not.toHaveBeenCalled();
   });
 
+  it("has no decision pre-selected, and keeps submit disabled until one is chosen", async () => {
+    await render();
+    expect([...container.querySelectorAll('input[type="radio"]')].some((r) => (r as HTMLInputElement).checked)).toBe(
+      false,
+    );
+    expect(submitButton().disabled).toBe(true);
+    await choose("approve");
+    expect(submitButton().disabled).toBe(false);
+  });
+
   it("requires a note for a reshoot or a rejection, and says so under the note", async () => {
     await render();
     await choose("reshoot");
@@ -121,11 +131,20 @@ describe("the decision form (US-5.3)", () => {
     expect(state.decide).not.toHaveBeenCalled();
   });
 
-  it("makes the note optional for an approval", async () => {
+  it("makes the note optional for an approval, and makes clear it is not shown to the Fundi", async () => {
     await render();
     await choose("approve");
-    expect(container.textContent).toContain(t("noteHintOptional", { max: 1000 }));
-    expect(note().required).toBe(false);
+    const textarea = note();
+    expect(container.querySelector(`label[for="${textarea.id}"]`)?.textContent).toBe(t("noteLabelApprove"));
+    expect(container.textContent).toContain(t("noteHintApprove", { max: 1000 }));
+    expect(textarea.required).toBe(false);
+  });
+
+  it("keeps 'Note to the Fundi' as the label for a reshoot or a rejection", async () => {
+    await render();
+    await choose("reshoot");
+    const textarea = note();
+    expect(container.querySelector(`label[for="${textarea.id}"]`)?.textContent).toBe(t("noteLabel"));
   });
 
   it("refuses a note over 1000 characters without calling the server", async () => {

@@ -36,6 +36,7 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
   const sending = useRef(false);
 
   const noteRequired = decision === "reshoot" || decision === "reject";
+  const isApprove = decision === "approve";
   const noteInvalid = error === "note_required" || error === "note_too_long";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -89,7 +90,7 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
 
       <div className="flex flex-col gap-2">
         <label htmlFor={`${id}-note`} className={LABEL}>
-          {t("noteLabel")}
+          {isApprove ? t("noteLabelApprove") : t("noteLabel")}
         </label>
         <textarea
           id={`${id}-note`}
@@ -108,7 +109,9 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
         <span id={`${id}-note-hint`} className="text-sm text-foreground/75">
           {noteRequired
             ? t("noteHintRequired", { max: NOTE_MAX_LENGTH })
-            : t("noteHintOptional", { max: NOTE_MAX_LENGTH })}
+            : isApprove
+              ? t("noteHintApprove", { max: NOTE_MAX_LENGTH })
+              : t("noteHintOptional", { max: NOTE_MAX_LENGTH })}
         </span>
         <span className={LABEL} aria-hidden="true">
           {t("noteCount", { count: note.length, max: NOTE_MAX_LENGTH })}
@@ -121,7 +124,7 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
         </p>
       ) : null}
 
-      <button type="submit" disabled={pending} className={PRIMARY_PILL}>
+      <button type="submit" disabled={pending || decision === null} className={PRIMARY_PILL}>
         {pending ? t("submitting") : t("submit")}
       </button>
     </form>

@@ -1551,7 +1551,9 @@
       "reject": "Reject"
     },
     "noteLabel": "Note to the Fundi",
+    "noteLabelApprove": "Note (for the record)",
     "noteHintOptional": "Optional for an approval. Up to {max} characters.",
+    "noteHintApprove": "Optional. Kept for the record — not shown to the Fundi on an approval. Up to {max} characters.",
     "noteHintRequired": "Required: tell the Fundi what to do differently. Up to {max} characters.",
     "noteCount": "{count} / {max}",
     "submit": "Send decision",
