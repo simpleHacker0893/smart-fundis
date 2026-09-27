@@ -1,9 +1,15 @@
 import { v } from "convex/values";
 import type { Doc, Id } from "./_generated/dataModel";
 import { query } from "./_generated/server";
-import { requireExpert } from "./lib/auth";
+import { canDecide, requireExpert, requireStoredUser } from "./lib/auth";
 import { nameLookup, namesFields } from "./lib/assessmentNames";
-import { verdictValidator } from "./lib/validators";
+import {
+  assessmentStatusValidator,
+  livenessCheckValidator,
+  observationValidator,
+  rubricItemValidator,
+  verdictValidator,
+} from "./lib/validators";
 
 // The Expert queue and decision (#41). Architecture spec §4 (canDecide) and
 // §5 (status table: awaiting_review -> approved | reshoot | rejected by an
@@ -74,5 +80,71 @@ export const queue = query({
         safetyFlagCount: row.safetyFlags?.length ?? 0,
       })),
     );
+  },
+});
+
+const detailValidator = v.object({
+  _id: v.id("assessments"),
+  _creationTime: v.number(),
+  status: assessmentStatusValidator,
+  ...namesFields,
+  rubricItems: v.array(rubricItemValidator),
+  // The code the Fundi was shown and what the AI read in the video.
+  livenessCode: v.string(),
+  livenessRead: v.optional(v.string()),
+  livenessCheck: v.optional(livenessCheckValidator),
+  // The AI result: a recommendation, never a decision.
+  observations: v.array(observationValidator),
+  verdict: v.optional(verdictValidator),
+  confidence: v.optional(v.number()),
+  strengths: v.array(v.string()),
+  gaps: v.array(v.string()),
+  safetyFlags: v.array(v.string()),
+  feedbackEn: v.optional(v.string()),
+  fallbackModel: v.optional(v.boolean()),
+  // Signed URL; null once the video is deleted.
+  videoUrl: v.union(v.string(), v.null()),
+  videoDeletedAt: v.optional(v.number()),
+});
+
+/**
+ * One Assessment for an Expert who canDecide on it (spec §4): its Trade,
+ * Task and Rubric items, the AI Observations and Verdict, and the signed
+ * video URL. The ONLY query in convex/ that returns a video URL (spec §7).
+ * Returns null when the Assessment does not exist or the caller may not
+ * decide it, so its existence does not leak. No Fundi identity or phone.
+ * Guard: requireStoredUser, then canDecide.
+ */
+export const detail = query({
+  args: { assessmentId: v.id("assessments") },
+  returns: v.union(detailValidator, v.null()),
+  handler: async (ctx, args) => {
+    const { user } = await requireStoredUser(ctx);
+    const row = await ctx.db.get("assessments", args.assessmentId);
+    if (row === null) return null;
+    const allowed = await canDecide(ctx, user._id, row);
+    if (!allowed.ok) return null;
+    const rubric = await ctx.db.get("rubrics", row.rubricId);
+    const videoUrl = row.videoStorageId === undefined ? null : await ctx.storage.getUrl(row.videoStorageId);
+    return {
+      _id: row._id,
+      _creationTime: row._creationTime,
+      status: row.status,
+      ...(await nameLookup(ctx)(row)),
+      rubricItems: rubric?.items ?? [],
+      livenessCode: row.livenessCode,
+      ...(row.livenessRead !== undefined ? { livenessRead: row.livenessRead } : {}),
+      ...(row.livenessCheck !== undefined ? { livenessCheck: row.livenessCheck } : {}),
+      observations: row.observations ?? [],
+      ...(row.verdict !== undefined ? { verdict: row.verdict } : {}),
+      ...(row.confidence !== undefined ? { confidence: row.confidence } : {}),
+      strengths: row.strengths ?? [],
+      gaps: row.gaps ?? [],
+      safetyFlags: row.safetyFlags ?? [],
+      ...(row.feedbackEn !== undefined ? { feedbackEn: row.feedbackEn } : {}),
+      ...(row.fallbackModel !== undefined ? { fallbackModel: row.fallbackModel } : {}),
+      videoUrl,
+      ...(row.videoDeletedAt !== undefined ? { videoDeletedAt: row.videoDeletedAt } : {}),
+    };
   },
 });

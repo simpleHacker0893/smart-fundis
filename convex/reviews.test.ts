@@ -1,7 +1,8 @@
 import { convexTest, type TestConvex } from "convex-test";
-import { beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 import { api, internal } from "./_generated/api";
 import type { Id } from "./_generated/dataModel";
+import { canDecide, type DecideRefusal } from "./lib/auth";
 import schema from "./schema";
 import { modules } from "./test.setup";
 
@@ -193,5 +194,140 @@ describe("reviews.queue", () => {
     await expect(t.withIdentity(AMINA).query(api.reviews.queue, {})).rejects.toThrowError(
       /active Expert is required/i,
     );
+  });
+});
+
+describe("reviews.detail", () => {
+  it("gives an eligible Expert the Rubric, the AI result and the signed video URL", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+
+    const detail = await t.withIdentity(AMINA).query(api.reviews.detail, { assessmentId: id });
+    expect(detail).toMatchObject({
+      _id: id,
+      status: "awaiting_review",
+      tradeSlug: "electrical",
+      tradeName: "Electrical",
+      taskSlug: "13a-socket",
+      taskName: "Install a 13A socket",
+      verdict: "needs_review",
+      confidence: 0.7,
+      strengths: ["Neat wiring"],
+      gaps: ["Test the socket"],
+      livenessCheck: "yes",
+      feedbackEn: "Good work.",
+      fallbackModel: false,
+    });
+    expect(detail?.videoUrl).toMatch(/^https:\/\//);
+    expect(detail?.rubricItems.length).toBeGreaterThan(0);
+    expect(detail?.observations).toHaveLength(detail?.rubricItems.length ?? -1);
+    expect(detail?.safetyFlags).toHaveLength(1);
+    expect(detail?.livenessCode).toMatch(/^[0-9]{3}$/);
+    expect(detail?.livenessRead).toBe(detail?.livenessCode);
+    expect(detail).not.toHaveProperty("phone");
+    expect(detail).not.toHaveProperty("fundiUserId");
+  });
+
+  it("returns a null video URL once the video is deleted", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    await t.run(async (ctx) => {
+      const row = await ctx.db.get("assessments", id);
+      if (row?.videoStorageId) await ctx.storage.delete(row.videoStorageId);
+      await ctx.db.patch("assessments", id, { videoStorageId: undefined, videoDeletedAt: Date.now() });
+    });
+    const detail = await t.withIdentity(AMINA).query(api.reviews.detail, { assessmentId: id });
+    expect(detail?.videoUrl).toBeNull();
+  });
+
+  it("returns null for a missing Assessment and refuses a signed-out caller", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    const id = await awaiting(WANJIRU);
+    await expect(t.query(api.reviews.detail, { assessmentId: id })).rejects.toThrowError(
+      /not authenticated/i,
+    );
+    await t.run((ctx) => ctx.db.delete("assessments", id));
+    expect(await t.withIdentity(AMINA).query(api.reviews.detail, { assessmentId: id })).toBeNull();
+  });
+});
+
+// Each canDecide refusal (spec §4, US-2.8), seen through reviews.detail
+// (null, no video) and reviews.decide (forbidden, nothing written).
+describe("canDecide", () => {
+  async function refused(who: Identity, id: Id<"assessments">, code: DecideRefusal) {
+    expect(await t.withIdentity(who).query(api.reviews.detail, { assessmentId: id })).toBeNull();
+    const decider = await userId(who);
+    const result = await t.run(async (ctx) => {
+      const row = await ctx.db.get("assessments", id);
+      if (row === null) throw new Error("no assessment");
+      return await canDecide(ctx, decider, row);
+    });
+    expect(result).toEqual({ ok: false, code });
+  }
+
+  it("refuses an Expert their own Assessment", async () => {
+    await makeFundi(AMINA);
+    await makeExpert(AMINA);
+    await refused(AMINA, await awaiting(AMINA), "own_assessment");
+  });
+
+  it("refuses an Admin who is also an Expert their own Assessment", async () => {
+    vi.stubEnv("ADMIN_EMAILS", AMINA.email);
+    try {
+      await makeFundi(AMINA);
+      await makeExpert(AMINA);
+      const roles = await t.withIdentity(AMINA).query(api.users.me, {});
+      expect(roles?.roles).toMatchObject({ admin: true, expert: true, base: "fundi" });
+      await refused(AMINA, await awaiting(AMINA), "own_assessment");
+    } finally {
+      vi.unstubAllEnvs();
+    }
+  });
+
+  it("refuses an Expert not approved for the Assessment's Trade", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA, ["hairdressing"]);
+    await refused(AMINA, await awaiting(WANJIRU), "not_approved_for_trade");
+  });
+
+  it("refuses an inactive Expert", async () => {
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA, ["electrical"], false);
+    await refused(AMINA, await awaiting(WANJIRU), "not_expert");
+  });
+
+  it("refuses a User who is not an Expert, including the Assessment's own Fundi", async () => {
+    await makeFundi(WANJIRU);
+    await makeFundi(OTIENO);
+    const id = await awaiting(WANJIRU);
+    await refused(OTIENO, id, "not_expert");
+    await refused(WANJIRU, id, "own_assessment");
+  });
+
+  it("refuses, on an appealed Assessment, the Expert who made the original decision", async () => {
+    const BARAKA = identity("baraka");
+    await makeFundi(WANJIRU);
+    await makeExpert(AMINA);
+    await makeExpert(BARAKA);
+    const id = await awaiting(WANJIRU);
+    const amina = await userId(AMINA);
+    // Appeals are V4: set up a rejected-then-appealed Assessment directly.
+    await t.run(async (ctx) => {
+      await ctx.db.insert("reviews", {
+        assessmentId: id,
+        deciderUserId: amina,
+        kind: "review",
+        decision: "reject",
+        note: "The socket was not tested.",
+        at: Date.now(),
+      });
+      await ctx.db.patch("assessments", id, { status: "appealed", appealReason: "I did test it." });
+    });
+    await refused(AMINA, id, "original_decider");
+    const detail = await t.withIdentity(BARAKA).query(api.reviews.detail, { assessmentId: id });
+    expect(detail?.status).toBe("appealed");
   });
 });
