@@ -2,27 +2,36 @@
 
 import { useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
-import { useFormatter, useTranslations } from "next-intl";
+import { ChevronLeft } from "lucide-react";
+import { useTranslations } from "next-intl";
 import Link from "next/link";
+import { useState } from "react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
 import { LoadingSkeleton } from "@/components/loading-skeleton";
-import { CHIP } from "@/components/ui/chip";
-import { LABEL } from "@/components/ui/field-label";
+import { STATUS_GLYPHS } from "@/components/ui/status-chip";
 import { useCatalogueNames } from "@/components/use-catalogue-names";
+import { cn } from "cn";
+import { META, OUTLINE_TAG, PAGE_TITLE, SECTION_LABEL } from "../expert-styles";
+import { ReadoutPanel, useWaitingAge } from "../expert-ui";
 import { DecisionForm } from "./decision-form";
 
 type Detail = NonNullable<FunctionReturnType<typeof api.reviews.detail>>;
 
 const BACK_LINK =
-  "inline-flex min-h-12 items-center self-start text-base underline underline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-ring";
+  "inline-flex min-h-12 items-center gap-2 self-start text-base text-dim hover:text-foreground";
 
 /**
- * One Assessment for an Expert (US-5.2): the Fundi's video, the Liveness
- * code, the AI's Observation per Rubric item and its suggestion, and the
- * decision form while it awaits review. reviews.detail is null when the
- * Assessment is missing or the caller may not decide it. The confidence
- * number never reaches the client. Mount it only for an Expert.
+ * One Assessment for an Expert (US-5.2; #67 screen 29): the Fundi's video,
+ * the Liveness readout, the AI's Observations (safety items first), #41's AI
+ * suggestion panel, and the decision below it while it awaits review.
+ * reviews.detail is null when the Assessment is missing or the caller may
+ * not decide it. The confidence number never reaches the client.
+ *
+ * Layout: one column on mobile with the player sticky under the header;
+ * from 1024 px, two columns (the player, Liveness and decision on the left
+ * 7/12, the Observations and AI panel on the right 5/12). The DOM order
+ * keeps the decision after the AI panel. Mount it only for an Expert.
  */
 export function ReviewDetail({ assessmentId }: { assessmentId: string }) {
   const t = useTranslations("ReviewDetail");
@@ -34,53 +43,83 @@ export function ReviewDetail({ assessmentId }: { assessmentId: string }) {
   return <DetailBody detail={detail} />;
 }
 
-/** The "not available" message with a link back to the queue. */
+/** The "not available" readout with the way back to the queue. No player, no AI panel. */
 export function NotAvailable() {
   const t = useTranslations("ReviewDetail");
   return (
-    <>
-      <p className="text-base">{t("notAvailable")}</p>
-      <Link href="/expert" className={BACK_LINK}>
-        {t("backToQueue")}
-      </Link>
-    </>
+    <ReadoutPanel
+      action={
+        <Link href="/expert" className={`${BACK_LINK} text-foreground underline underline-offset-4`}>
+          {t("backToQueue")}
+        </Link>
+      }
+    >
+      {t("notAvailable")}
+    </ReadoutPanel>
   );
 }
 
 function DetailBody({ detail }: { detail: Detail }) {
   const t = useTranslations("ReviewDetail");
-  const format = useFormatter();
+  const tq = useTranslations("ReviewQueue");
   const names = useCatalogueNames();
+  const age = useWaitingAge();
+  const [videoFailed, setVideoFailed] = useState(false);
   const open = detail.status === "awaiting_review";
+  const trade = names.trade(detail.tradeSlug, detail.tradeName);
+  const playing = detail.videoUrl !== null && !videoFailed;
 
   return (
     <>
-      <Link href="/expert" className={BACK_LINK}>
-        {t("backToQueue")}
-      </Link>
-      <section className="flex flex-col gap-2" aria-labelledby="review-task">
-        <h2 id="review-task" className="text-xl font-semibold break-words">
-          {t("taskLine", {
-            trade: names.trade(detail.tradeSlug, detail.tradeName),
-            task: names.task(detail.taskSlug, detail.taskName),
-          })}
-        </h2>
-        <span className={LABEL}>
-          {t("uploaded", { date: format.dateTime(detail._creationTime, { dateStyle: "medium" }) })}
-        </span>
-      </section>
+      <header className="flex flex-col gap-2">
+        <Link href="/expert" className={BACK_LINK}>
+          <ChevronLeft aria-hidden="true" className="size-5" />
+          {t("backLink")}
+        </Link>
+        <h1 className={PAGE_TITLE}>{names.task(detail.taskSlug, detail.taskName)}</h1>
+        <p className={META}>{open ? tq("meta", { trade, age: age(detail._creationTime) }) : trade}</p>
+      </header>
 
-      <VideoSection detail={detail} />
-      <Liveness detail={detail} />
-      <RubricSection detail={detail} />
-      <AiSuggestion detail={detail} />
-
-      {open ? <DecisionForm assessmentId={detail._id} /> : <p className="text-base">{t("decided")}</p>}
+      <div
+        className={cn(
+          "grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-start lg:gap-x-8 lg:gap-y-12",
+          // Focus never hides under the sticky player on mobile (WCAG 2.4.11).
+          playing && "max-lg:**:scroll-mt-[calc(3.5rem+min(56.25vw,40dvh)+2rem)]",
+        )}
+      >
+        <VideoSection
+          detail={detail}
+          failed={videoFailed}
+          onFail={() => setVideoFailed(true)}
+          className={cn(
+            "lg:col-span-7 lg:col-start-1 lg:row-start-1",
+            playing && "sticky top-14 z-20 -mx-4 bg-background px-4 pb-2 lg:static lg:mx-0 lg:px-0 lg:pb-0",
+          )}
+        />
+        <Liveness detail={detail} className="lg:col-span-7 lg:col-start-1 lg:row-start-2" />
+        <div className="flex flex-col gap-8 lg:col-span-5 lg:col-start-8 lg:row-span-3 lg:row-start-1">
+          <Observations detail={detail} />
+          <AiSuggestion detail={detail} />
+        </div>
+        <div className="lg:col-span-7 lg:col-start-1 lg:row-start-3">
+          {open ? <DecisionForm assessmentId={detail._id} /> : <p className="text-base">{t("decided")}</p>}
+        </div>
+      </div>
     </>
   );
 }
 
-function VideoSection({ detail }: { detail: Detail }) {
+function VideoSection({
+  detail,
+  failed,
+  onFail,
+  className,
+}: {
+  detail: Detail;
+  failed: boolean;
+  onFail: () => void;
+  className?: string;
+}) {
   const t = useTranslations("ReviewDetail");
   // Backend invariant (convex/reviews.ts VIDEO_STATUSES): reviews.detail
   // signs a video URL only while the Assessment is awaiting_review or
@@ -92,17 +131,18 @@ function VideoSection({ detail }: { detail: Detail }) {
   //    video should be there but failed to load, so say so and suggest retrying.
   //  - a closed status (decided): nothing is wrong, the video is simply no
   //    longer shown once a decision has been made.
+  // A signed URL the player can't load (onError) also reads "couldn't load".
   const openStatus = detail.status === "awaiting_review" || detail.status === "appealed";
-  const message =
-    detail.videoDeletedAt !== undefined ? t("videoDeleted") : openStatus ? t("videoUnavailable") : t("videoClosed");
+  const deleted = detail.videoDeletedAt !== undefined;
+  const unavailable = failed || (!deleted && openStatus);
+  const message = deleted ? t("videoDeleted") : unavailable ? t("videoUnavailable") : t("videoClosed");
+
   return (
-    <section className="flex flex-col gap-2" aria-labelledby="review-video">
-      <h3 id="review-video" className="text-lg font-semibold">
-        {t("videoTitle")}
-      </h3>
-      {detail.videoUrl ? (
+    <section className={className} aria-label={t("videoLabel")}>
+      {detail.videoUrl && !failed ? (
         <video
           src={detail.videoUrl}
+          aria-label={t("videoLabel")}
           controls
           playsInline
           preload="metadata"
@@ -111,74 +151,105 @@ function VideoSection({ detail }: { detail: Detail }) {
           // the stream some other way.
           controlsList="nodownload noremoteplayback"
           disablePictureInPicture
-          className="aspect-video w-full rounded border border-line bg-black"
+          onError={onFail}
+          className="aspect-video max-h-[40dvh] w-full rounded border border-line bg-panel lg:max-h-none"
         />
       ) : (
-        <p className="text-base text-foreground/75">{message}</p>
+        <div className="flex aspect-video w-full items-center justify-center gap-2 rounded border border-line bg-panel p-4 text-center text-base">
+          {unavailable && !deleted ? <span aria-hidden="true">{STATUS_GLYPHS.failed}</span> : null}
+          <p>{message}</p>
+        </div>
       )}
     </section>
   );
 }
 
-function Liveness({ detail }: { detail: Detail }) {
+function Liveness({ detail, className }: { detail: Detail; className?: string }) {
   const t = useTranslations("ReviewDetail");
+  const result = t(`liveness.result.${detail.livenessCheck ?? "none"}`);
   return (
-    <section data-testid="liveness" className="flex flex-col gap-2" aria-labelledby="review-liveness">
-      <h3 id="review-liveness" className="text-lg font-semibold">
+    <section data-testid="liveness" className={cn("flex flex-col gap-3", className)} aria-labelledby="review-liveness">
+      <h2 id="review-liveness" className={SECTION_LABEL}>
         {t("liveness.title")}
-      </h3>
-      <dl className="grid grid-cols-[auto_1fr] gap-x-4 gap-y-1">
-        <dt className={LABEL}>{t("liveness.shown")}</dt>
-        <dd className="font-mono text-base">{detail.livenessCode}</dd>
-        <dt className={LABEL}>{t("liveness.read")}</dt>
-        <dd className="font-mono text-base">{detail.livenessRead ?? t("liveness.notRead")}</dd>
-        <dt className={LABEL}>{t("liveness.result")}</dt>
-        <dd className="text-base">{t(`liveness.check.${detail.livenessCheck ?? "none"}`)}</dd>
-      </dl>
+      </h2>
+      <ul className="flex flex-col gap-1 font-mono text-sm tracking-[0.08em] uppercase tabular-nums">
+        <li>{t("liveness.shown", { code: detail.livenessCode })}</li>
+        <li>
+          {detail.livenessRead !== undefined
+            ? t("liveness.read", { code: detail.livenessRead })
+            : t("liveness.notReadable")}
+        </li>
+        <li>{t("liveness.check", { result })}</li>
+      </ul>
+      <p className="text-sm text-dim">{t("liveness.note")}</p>
     </section>
   );
 }
 
-/** Seconds into the video as m:ss. */
+/** Whole seconds into the video as m:ss, or h:mm:ss past an hour (D5). */
 function clock(seconds: number): string {
   const whole = Math.max(0, Math.floor(seconds));
-  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
+  const h = Math.floor(whole / 3600);
+  const m = Math.floor((whole % 3600) / 60);
+  const s = String(whole % 60).padStart(2, "0");
+  return h > 0 ? `${h}:${String(m).padStart(2, "0")}:${s}` : `${m}:${s}`;
 }
 
-function RubricSection({ detail }: { detail: Detail }) {
+function Observations({ detail }: { detail: Detail }) {
   const t = useTranslations("ReviewDetail");
   const names = useCatalogueNames();
   const flagged = new Set(detail.safetyFlags);
   const byItem = new Map(detail.observations.map((o) => [o.itemId, o]));
+  // Safety items first, otherwise in Rubric order (a stable sort).
+  const items = [...detail.rubricItems].sort((a, b) => Number(b.safety) - Number(a.safety));
 
   return (
-    <section className="flex flex-col gap-3" aria-labelledby="review-rubric">
-      <h3 id="review-rubric" className="text-lg font-semibold">
-        {t("rubricTitle")}
-      </h3>
-      <ol className="flex flex-col gap-3">
-        {detail.rubricItems.map((item) => {
+    <section className="flex flex-col gap-3" aria-labelledby="review-observations">
+      <h2 id="review-observations" className={SECTION_LABEL}>
+        {t("observations.title")}
+      </h2>
+      <ol className="flex flex-col border-t border-line">
+        {items.map((item) => {
           const observation = byItem.get(item.id);
           return (
-            <li key={item.id} data-testid="rubric-item" className="flex flex-col gap-2 rounded border border-line p-4">
-              <span className="text-base break-words">{names.rubricItem(detail.taskSlug, item.id, item.text)}</span>
-              {item.safety || flagged.has(item.id) ? (
-                <span className="flex flex-wrap gap-2">
-                  {item.safety ? <span className={CHIP}>{t("safetyItem")}</span> : null}
-                  {flagged.has(item.id) ? <span className={`${CHIP} border-primary`}>{t("flagged")}</span> : null}
-                </span>
-              ) : null}
-              <span className="text-sm font-medium">
-                {t("observation", { result: t(`result.${observation?.result ?? "none"}`) })}
+            <li key={item.id} data-testid="observation" className="flex gap-3 border-b border-line py-4">
+              <div className="flex min-w-0 flex-1 flex-col gap-2">
+                {item.safety || flagged.has(item.id) ? (
+                  <span className="flex flex-wrap gap-2">
+                    {item.safety ? (
+                      <span data-testid="safety-tag" className={OUTLINE_TAG}>
+                        {t("observations.safety")}
+                      </span>
+                    ) : null}
+                    {flagged.has(item.id) ? <span className={OUTLINE_TAG}>{t("observations.flagged")}</span> : null}
+                  </span>
+                ) : null}
+                <p className="text-base break-words">{names.rubricItem(detail.taskSlug, item.id, item.text)}</p>
+                <p className="text-base font-semibold">
+                  {t(`observations.answer.${observation?.result ?? "none"}`)}
+                </p>
+                {observation?.evidence ? (
+                  <p className="flex items-start gap-2">
+                    <span data-testid="ai-tag" className={OUTLINE_TAG}>
+                      {t("aiTag")}
+                    </span>
+                    <q className="min-w-0 text-base break-words text-foreground">{observation.evidence}</q>
+                  </p>
+                ) : null}
+              </div>
+              <span
+                data-testid="timestamp"
+                className="flex min-h-12 min-w-12 shrink-0 justify-end font-mono text-xs text-dim tabular-nums"
+              >
+                {observation ? (
+                  clock(observation.timestampS)
+                ) : (
+                  <>
+                    <span aria-hidden="true">{"--:--"}</span>
+                    <span className="sr-only">{t("observations.noTimestamp")}</span>
+                  </>
+                )}
               </span>
-              {observation ? (
-                <>
-                  {observation.evidence ? (
-                    <span className="text-sm text-foreground/75 break-words">{observation.evidence}</span>
-                  ) : null}
-                  <span className={LABEL}>{t("at", { time: clock(observation.timestampS) })}</span>
-                </>
-              ) : null}
             </li>
           );
         })}
@@ -187,25 +258,35 @@ function RubricSection({ detail }: { detail: Detail }) {
   );
 }
 
+/**
+ * #41's AI panel, unchanged in content (the play-through lock needs
+ * expert.markPlayedThrough, #52): the Verdict in words only, strengths,
+ * gaps, the feedback and the backup-model line. Restyled as a 1 px outlined
+ * panel with the AI tag; no fill, no amber, no ✓ and no confidence (D5).
+ */
 function AiSuggestion({ detail }: { detail: Detail }) {
   const t = useTranslations("ReviewDetail");
-  const tq = useTranslations("ReviewQueue");
   return (
     <section
       data-testid="ai-suggestion"
-      className="flex flex-col gap-3 rounded border border-line p-4"
+      className="flex flex-col gap-4 rounded border border-line p-4 lg:p-6"
       aria-labelledby="review-ai"
     >
-      <h3 id="review-ai" className="text-lg font-semibold">
-        {t("ai.title")}
-      </h3>
-      <p className="text-sm text-foreground/75">{t("ai.intro")}</p>
-      <p className="text-base font-medium">{t("ai.verdict", { verdict: tq(`verdict.${detail.verdict ?? "none"}`) })}</p>
-      {detail.fallbackModel ? <p className={LABEL}>{t("ai.fallback")}</p> : null}
+      <span data-testid="ai-tag" className={OUTLINE_TAG}>
+        {t("aiTag")}
+      </span>
+      <div className="flex flex-col gap-1">
+        <h2 id="review-ai" className="text-base font-semibold">
+          {t("ai.title")}
+        </h2>
+        <p className="text-sm text-dim">{t("ai.intro")}</p>
+      </div>
+      <p className="text-base">{t("ai.verdict", { verdict: t(`ai.verdictWord.${detail.verdict ?? "none"}`) })}</p>
+      {detail.fallbackModel ? <p className={META}>{t("ai.fallback")}</p> : null}
       <TextList title={t("ai.strengths")} items={detail.strengths} />
       <TextList title={t("ai.gaps")} items={detail.gaps} />
       <div className="flex flex-col gap-1">
-        <h4 className={LABEL}>{t("ai.feedback")}</h4>
+        <h3 className={SECTION_LABEL}>{t("ai.feedback")}</h3>
         <p className="text-base break-words">{detail.feedbackEn ?? t("ai.none")}</p>
       </div>
     </section>
@@ -216,7 +297,7 @@ function TextList({ title, items }: { title: string; items: string[] }) {
   const t = useTranslations("ReviewDetail");
   return (
     <div className="flex flex-col gap-1">
-      <h4 className={LABEL}>{title}</h4>
+      <h3 className={SECTION_LABEL}>{title}</h3>
       {items.length === 0 ? (
         <p className="text-base">{t("ai.none")}</p>
       ) : (

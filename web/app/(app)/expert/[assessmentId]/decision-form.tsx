@@ -6,9 +6,10 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useId, useRef, useState } from "react";
 import { api } from "@convex/_generated/api";
 import type { Id } from "@convex/_generated/dataModel";
-import { FIELD, LABEL } from "@/components/ui/field-label";
-import { PRIMARY_PILL } from "@/components/ui/pill";
+import { APP_PRIMARY_PILL } from "@/components/ui/pill";
 import { DECIDE_ERRORS, type DecideErrorKey, decideErrorKey, NOTE_MAX_LENGTH } from "@/lib/review-errors";
+import { META, SECTION_LABEL } from "../expert-styles";
+import { ErrorLine } from "../expert-ui";
 
 type Decision = "approve" | "reshoot" | "reject";
 
@@ -16,12 +17,18 @@ const DECISIONS = ["approve", "reshoot", "reject"] as const satisfies readonly D
 
 type FormError = DecideErrorKey | "choice";
 
+/** The note field: 48 px min, a neutral (never amber) border when invalid (D9). */
+const NOTE_FIELD =
+  "min-h-12 w-full rounded border border-line bg-background px-4 py-3 text-base text-foreground placeholder:text-foreground/50 focus-visible:border-foreground/40 aria-invalid:border-foreground";
+
 /**
- * The Expert's decision on an Assessment awaiting review (US-5.3): approve,
- * request a reshoot, or reject, with a note that is required for a reshoot
- * or a rejection and at most 1000 characters. Checked here first, then by
- * reviews.decide, whose error codes map to en.json copy. On success it goes
- * back to the queue, where the row has already gone (a Convex query).
+ * YOUR DECISION (US-5.3; #67 screen 29), outside and below the AI panel:
+ * Approve, Ask for a new video (reshoot) or Reject as 56 px radio rows with
+ * none pre-selected, and a note that is required for a reshoot or a
+ * rejection and at most 1000 characters. The counter may pass 1000 so the
+ * Expert sees why; checked here first, then by reviews.decide, whose error
+ * codes map to en.json copy. A failed send keeps the choice and the note.
+ * On success it goes back to the queue, where the row has already gone.
  */
 export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments"> }) {
   const t = useTranslations("DecisionForm");
@@ -37,7 +44,10 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
 
   const noteRequired = decision === "reshoot" || decision === "reject";
   const isApprove = decision === "approve";
-  const noteInvalid = error === "note_required" || error === "note_too_long";
+  // Too long shows as the Expert types, not only on submit.
+  const tooLong = note.trim().length > NOTE_MAX_LENGTH;
+  const shown: FormError | null = error ?? (tooLong ? "note_too_long" : null);
+  const noteInvalid = shown === "note_required" || shown === "note_too_long";
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,35 +71,37 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-4 rounded border border-line p-4">
-      <fieldset className="flex flex-col gap-2">
-        <legend className="mb-2 text-lg font-semibold">{t("title")}</legend>
-        <p className="text-sm text-foreground/75">{t("intro")}</p>
-        {DECISIONS.map((value) => (
-          <label
-            key={value}
-            htmlFor={`${id}-${value}`}
-            className="flex min-h-12 cursor-pointer items-center gap-3 rounded border border-line px-4 has-checked:border-primary"
-          >
-            <input
-              id={`${id}-${value}`}
-              type="radio"
-              name={`${id}-decision`}
-              value={value}
-              checked={decision === value}
-              onChange={() => {
-                setDecision(value);
-                setError(null);
-              }}
-              className="size-5 accent-(--amber)"
-            />
-            <span className="text-base">{t(`choice.${value}`)}</span>
-          </label>
-        ))}
+    <form onSubmit={onSubmit} noValidate className="flex flex-col gap-6">
+      <fieldset className="flex flex-col gap-3">
+        <legend className={`${SECTION_LABEL} mb-3`}>{t("title")}</legend>
+        <p className="text-sm text-dim">{t("intro")}</p>
+        <div className="flex flex-col border-t border-line">
+          {DECISIONS.map((value) => (
+            <label
+              key={value}
+              htmlFor={`${id}-${value}`}
+              className="flex min-h-14 cursor-pointer items-center gap-3 border-b border-line px-2 has-checked:bg-foreground/[0.04]"
+            >
+              <input
+                id={`${id}-${value}`}
+                type="radio"
+                name={`${id}-decision`}
+                value={value}
+                checked={decision === value}
+                onChange={() => {
+                  setDecision(value);
+                  setError(null);
+                }}
+                className="size-5 accent-(--text)"
+              />
+              <span className="text-base">{t(`choice.${value}`)}</span>
+            </label>
+          ))}
+        </div>
       </fieldset>
 
       <div className="flex flex-col gap-2">
-        <label htmlFor={`${id}-note`} className={LABEL}>
+        <label htmlFor={`${id}-note`} className={SECTION_LABEL}>
           {isApprove ? t("noteLabelApprove") : t("noteLabel")}
         </label>
         <textarea
@@ -97,34 +109,35 @@ export function DecisionForm({ assessmentId }: { assessmentId: Id<"assessments">
           value={note}
           onChange={(e) => {
             setNote(e.target.value);
-            if (noteInvalid) setError(null);
+            if (error === "note_required" || error === "note_too_long") setError(null);
           }}
-          maxLength={NOTE_MAX_LENGTH}
           required={noteRequired}
           aria-invalid={noteInvalid ? true : undefined}
           aria-describedby={noteInvalid ? `${id}-note-hint ${id}-error` : `${id}-note-hint`}
           rows={4}
-          className={`${FIELD} py-3`}
+          className={NOTE_FIELD}
         />
-        <span id={`${id}-note-hint`} className="text-sm text-foreground/75">
-          {noteRequired
-            ? t("noteHintRequired", { max: NOTE_MAX_LENGTH })
-            : isApprove
-              ? t("noteHintApprove", { max: NOTE_MAX_LENGTH })
-              : t("noteHintOptional", { max: NOTE_MAX_LENGTH })}
-        </span>
-        <span className={LABEL} aria-hidden="true">
-          {t("noteCount", { count: note.length, max: NOTE_MAX_LENGTH })}
-        </span>
+        <div className="flex items-start justify-between gap-4">
+          <span id={`${id}-note-hint`} className="text-sm text-dim">
+            {noteRequired
+              ? t("noteHintRequired", { max: NOTE_MAX_LENGTH })
+              : isApprove
+                ? t("noteHintApprove", { max: NOTE_MAX_LENGTH })
+                : t("noteHintOptional", { max: NOTE_MAX_LENGTH })}
+          </span>
+          <span data-testid="note-count" className={`${META} shrink-0`} aria-hidden="true">
+            {t("noteCount", { count: note.length, max: NOTE_MAX_LENGTH })}
+          </span>
+        </div>
       </div>
 
-      {error ? (
-        <p id={`${id}-error`} role="alert" className="text-base text-primary">
-          {error === "choice" ? t("choiceRequired") : t(DECIDE_ERRORS[error], { max: NOTE_MAX_LENGTH })}
-        </p>
+      {shown ? (
+        <ErrorLine id={`${id}-error`}>
+          {shown === "choice" ? t("choiceRequired") : t(DECIDE_ERRORS[shown], { max: NOTE_MAX_LENGTH })}
+        </ErrorLine>
       ) : null}
 
-      <button type="submit" disabled={pending || decision === null} className={PRIMARY_PILL}>
+      <button type="submit" disabled={pending || decision === null} aria-busy={pending} className={APP_PRIMARY_PILL}>
         {pending ? t("submitting") : t("submit")}
       </button>
     </form>
