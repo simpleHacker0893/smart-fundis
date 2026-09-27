@@ -1,4 +1,5 @@
 import { type ChildProcess, spawn, spawnSync } from "node:child_process";
+import { existsSync } from "node:fs";
 import path from "node:path";
 import type { Doc } from "@convex/_generated/dataModel";
 import { loadRootEnv, missingE2eEnv } from "./env";
@@ -113,6 +114,8 @@ export type StubRun = {
   isDone: () => boolean;
   /** The last lines of the worker's log, for a failure message. It never logs secrets, URLs or clip names (#40). */
   logTail: () => string;
+  /** The last few KB of the log, URLs masked, for parsing what the worker did. */
+  logText: () => string;
   stop: () => void;
 };
 
@@ -124,14 +127,18 @@ export type StubRun = {
  * `awaiting_review`.
  */
 export function startStubWorker(holdSeconds = 5): StubRun {
-  const child: ChildProcess = spawn(
-    "uv",
+  return spawnWorker(
     ["run", "python", "scripts/stub_worker.py", "--once", "--poll-interval", "1", "--hold-seconds", String(holdSeconds)],
-    { cwd: AI_SERVICE_DIR, env: childEnv(WORKER_ENV, ["UV_", "XDG_"]), stdio: ["ignore", "pipe", "pipe"] },
+    childEnv(WORKER_ENV, ["UV_", "XDG_"]),
   );
+}
+
+/** Spawns `uv <args>` in ai-service/ and keeps a short, URL-free tail of its log. */
+function spawnWorker(args: string[], env: NodeJS.ProcessEnv): StubRun {
+  const child: ChildProcess = spawn("uv", args, { cwd: AI_SERVICE_DIR, env, stdio: ["ignore", "pipe", "pipe"] });
   let log = "";
   const keep = (chunk: Buffer) => {
-    log = (log + chunk.toString("utf8")).slice(-2_000);
+    log = (log + chunk.toString("utf8")).slice(-16_000);
   };
   child.stdout?.on("data", keep);
   child.stderr?.on("data", keep);
@@ -150,9 +157,171 @@ export function startStubWorker(holdSeconds = 5): StubRun {
   return {
     exited,
     isDone: () => done,
-    logTail: () => log.trim().split("\n").slice(-10).join("\n"),
+    // Belt and braces: the workers never log a URL, but a stack trace could quote one.
+    logTail: () => redactUrls(log).trim().split("\n").slice(-15).join("\n"),
+    logText: () => redactUrls(log),
     stop: () => {
       if (!done) child.kill("SIGINT");
     },
   };
+}
+
+function redactUrls(text: string): string {
+  return text.replace(/\b[a-z][a-z0-9+.-]*:\/\/\S+/gi, "<url>");
+}
+
+// --- The real AI (V2 spike, P5): brev_worker.py through an SSH tunnel to Brev ---
+
+/** The local end of the SSH tunnel to vLLM on the Brev box (ADR-9: nothing inbound on Brev). */
+export const COSMOS_LOCAL_PORT = 18000;
+const COSMOS_URL = `http://127.0.0.1:${COSMOS_LOCAL_PORT}`;
+const SSH_HOST = "smartfundi";
+const BREV_WORKER = path.join(AI_SERVICE_DIR, "scripts", "brev_worker.py");
+export const NEMOTRON_MODEL = "nvidia/nemotron-3-super-120b-a12b";
+// The worker also reads the repo-root .env itself (app.settings); these are what it may see from here.
+const REAL_WORKER_ENV = [...WORKER_ENV, "NVIDIA_API_KEY", "COSMOS_MODEL"] as const;
+
+/**
+ * What the real-AI loop needs on top of missingFullLoopEnv, empty when ready.
+ * Names only. The tunnel itself is checked by openCosmosTunnel.
+ */
+export function missingRealLoopEnv(): string[] {
+  const missing = [...missingFullLoopEnv()];
+  if (!existsSync(BREV_WORKER)) missing.push("ai-service/scripts/brev_worker.py (the V2 spike worker, P5)");
+  if (!process.env.NVIDIA_API_KEY) missing.push("NVIDIA_API_KEY (hosted Nemotron, in the repo-root .env)");
+  const ssh = spawnSync("ssh", ["-V"], { stdio: "ignore" });
+  if (ssh.error !== undefined) missing.push("`ssh` on PATH (the tunnel to the Brev box)");
+  return missing;
+}
+
+export function realLoopSkipMessage(missing: string[]): string {
+  return `Real-AI e2e skipped: ${missing.join(", ")}. See the prerequisites at the top of e2e/full-loop-real.spec.ts.`;
+}
+
+/** True when vLLM answers on the tunnel's local port. */
+export async function cosmosReachable(timeoutMs = 3_000): Promise<boolean> {
+  try {
+    const response = await fetch(`${COSMOS_URL}/v1/models`, { signal: AbortSignal.timeout(timeoutMs) });
+    return response.ok;
+  } catch {
+    return false;
+  }
+}
+
+export type CosmosTunnel = {
+  /** False when a tunnel (or vLLM) was already listening, so we started nothing. */
+  ours: boolean;
+  stop: () => void;
+};
+
+/**
+ * Opens `ssh -N -L 18000:127.0.0.1:8000 smartfundi` and waits until vLLM
+ * answers through it. Reuses a tunnel that is already up (and leaves it up).
+ * Returns null when vLLM is unreachable, so the spec can skip; nothing about
+ * the host is printed.
+ */
+export async function openCosmosTunnel(waitMs = 30_000): Promise<CosmosTunnel | null> {
+  if (await cosmosReachable()) return { ours: false, stop: () => {} };
+  const child = spawn(
+    "ssh",
+    [
+      "-N",
+      "-o",
+      "BatchMode=yes",
+      "-o",
+      "ExitOnForwardFailure=yes",
+      "-o",
+      "ConnectTimeout=15",
+      "-o",
+      "ServerAliveInterval=15",
+      "-L",
+      `${COSMOS_LOCAL_PORT}:127.0.0.1:8000`,
+      SSH_HOST,
+    ],
+    { stdio: "ignore", env: childEnv([...BASE_ENV, "SSH_AUTH_SOCK"], []) },
+  );
+  let exited = false;
+  child.on("exit", () => {
+    exited = true;
+  });
+  child.on("error", () => {
+    exited = true;
+  });
+  const stop = () => {
+    if (!exited) child.kill("SIGTERM");
+  };
+  const deadline = Date.now() + waitMs;
+  while (Date.now() < deadline && !exited) {
+    if (await cosmosReachable()) return { ours: true, stop };
+    await new Promise((resolve) => setTimeout(resolve, 1_000));
+  }
+  stop();
+  return null;
+}
+
+/**
+ * Starts the V2 spike worker (P5) for exactly one job: it claims the oldest
+ * `queued` Assessment, observes it with Cosmos Reason 2 through the tunnel,
+ * drafts the Verdict with hosted Nemotron, applies ADR-11 and posts the
+ * callback. Never run it next to a stub worker: two pollers race.
+ */
+export function startRealWorker(): StubRun {
+  const env = childEnv(REAL_WORKER_ENV, ["UV_", "XDG_"]);
+  env.NEMOTRON_MODEL = NEMOTRON_MODEL;
+  return spawnWorker(
+    ["run", "python", "scripts/brev_worker.py", "--max-jobs", "1", "--poll-interval", "1", "--cosmos-url", COSMOS_URL],
+    env,
+  );
+}
+
+/**
+ * True when `convex run` can reach the dev deployment: the CLI's login (or a
+ * CONVEX_DEPLOY_KEY) has access to it. seed:expert is internal, so the Expert
+ * half of the loop needs this.
+ */
+export function convexCliReady(): boolean {
+  try {
+    return convexRun(["--inline-query", "return 1"]) === 1;
+  } catch {
+    return false;
+  }
+}
+
+export type AssessmentAi = {
+  status: Doc<"assessments">["status"];
+  model: string | null;
+  claimedBy: string | null;
+  verdict: Doc<"assessments">["verdict"] | null;
+  latencyMs: number | null;
+  fallbackModel: boolean | null;
+  safetyFlags: string[];
+  livenessReadPresent: boolean;
+  livenessCheck: Doc<"assessments">["livenessCheck"] | null;
+  observations: { itemId: string; result: string; evidence: string; timestampS: number }[];
+};
+
+/**
+ * The AI fields of one Assessment, for asserting that the real worker (not
+ * the stub) wrote them. Never returns the video, the Liveness code or the
+ * digits read (only whether any were read).
+ */
+export function readAssessmentAi(assessmentId: string): AssessmentAi {
+  const query = `
+    const id = ctx.db.normalizeId("assessments", ${JSON.stringify(assessmentId)});
+    const a = id === null ? null : await ctx.db.get(id);
+    if (a === null) throw new Error("no such Assessment");
+    return {
+      status: a.status,
+      model: a.model ?? null,
+      claimedBy: a.claimedBy ?? null,
+      verdict: a.verdict ?? null,
+      latencyMs: a.latencyMs ?? null,
+      fallbackModel: a.fallbackModel ?? null,
+      safetyFlags: a.safetyFlags ?? [],
+      livenessReadPresent: a.livenessRead !== undefined,
+      livenessCheck: a.livenessCheck ?? null,
+      observations: (a.observations ?? []).map((o) => ({ itemId: o.itemId, result: o.result, evidence: o.evidence, timestampS: o.timestampS })),
+    };
+  `;
+  return convexRun(["--inline-query", query]) as AssessmentAi;
 }

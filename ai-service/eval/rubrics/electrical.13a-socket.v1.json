@@ -1,0 +1,49 @@
+{
+  "trade": {
+    "slug": "electrical",
+    "name": "Electrical"
+  },
+  "task": {
+    "slug": "13a-socket",
+    "name": "Install a 13A socket"
+  },
+  "version": 1,
+  "source": "convex/lib/trades.ts",
+  "items": [
+    {
+      "id": "isolate",
+      "text": "Shows the breaker being switched off on camera before touching any wires.",
+      "safety": true
+    },
+    {
+      "id": "test_dead",
+      "text": "Holds the voltage tester to each wire on camera so its reading or light shows the power is off.",
+      "safety": true
+    },
+    {
+      "id": "terminals",
+      "text": "Holds each wire to the camera and connects it to the right terminal: brown (or old red) to L, blue (or old black) to N.",
+      "safety": true
+    },
+    {
+      "id": "earth",
+      "text": "Connects the green-and-yellow earth wire to the earth terminal (E). On older installs, the bare earth wire is covered in green-and-yellow sleeving.",
+      "safety": true
+    },
+    {
+      "id": "no_bare_copper",
+      "text": "Tightens every terminal screw and gives each wire a light pull to show it is firm. No bare copper shows outside the terminals.",
+      "safety": true
+    },
+    {
+      "id": "faceplate",
+      "text": "Fixes the faceplate to the box straight and level, with no wires trapped.",
+      "safety": false
+    },
+    {
+      "id": "function_test",
+      "text": "Switches the power back on and shows the socket works, with a socket tester or a plugged-in device.",
+      "safety": false
+    }
+  ]
+}

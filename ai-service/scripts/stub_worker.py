@@ -288,10 +288,19 @@ def backoff_seconds(poll_interval: float, failures: int) -> float:
     return min(poll_interval * 2 ** max(0, failures - 1), MAX_BACKOFF_S)
 
 
-def run(cfg: WorkerConfig, sleep: Sleep = time.sleep) -> int:
+JobHandler = Callable[[WorkerConfig, dict[str, Any], Sleep], None]
+
+
+def run(cfg: WorkerConfig, sleep: Sleep = time.sleep, handle: JobHandler | None = None) -> int:
     """Poll until stopped (or, with ``once`` or ``max_jobs``, until enough jobs are
-    done). Returns the exit code."""
-    log.info("stub worker %s polling every %ss", cfg.worker_id, cfg.poll_interval)
+    done). Returns the exit code.
+
+    ``handle`` processes one claimed job (default: the canned ``process``). The
+    real Brev worker (``brev_worker.py``) passes its own, reusing this loop's
+    claim, back-off and 401/403 handling.
+    """
+    handle = handle or process
+    log.info("worker %s polling every %ss", cfg.worker_id, cfg.poll_interval)
     max_jobs = 1 if cfg.once else cfg.max_jobs
     done = 0
     failures = 0
@@ -299,7 +308,7 @@ def run(cfg: WorkerConfig, sleep: Sleep = time.sleep) -> int:
         try:
             job = claim(cfg)
             if job is not None:
-                process(cfg, job, sleep)
+                handle(cfg, job, sleep)
                 done += 1
             failures = 0
         except Unauthorized:

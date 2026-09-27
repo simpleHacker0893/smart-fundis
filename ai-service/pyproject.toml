@@ -7,6 +7,8 @@ dependencies = [
     "fastapi>=0.141.1",
     "langchain-nvidia-ai-endpoints>=1.4.3",
     "langsmith>=0.14.0",
+    "openai>=3.19.2",
+    "opencv-python-headless>=5.0.0.93",
     "python-dotenv>=1.2.3",
     "uvicorn[standard]>=0.54.0",
 ]

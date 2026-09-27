@@ -141,6 +141,31 @@ The client contract measured on vLLM 0.30.0 (the V2 Cosmos client depends on it)
 - Don't send `do_sample_frames`; it makes the processor fail with HTTP 400.
 - Always append NVIDIA's `<think>` format suffix. The answer is then in `content` and the trace in `reasoning`. Without it, the `qwen3` reasoning parser files the whole answer under `reasoning` and `content` is null.
 
+## V2 spike: real Cosmos + hosted Nemotron worker (`v2/spike-real-e2e`)
+
+A spike, not the final V2 graph. `scripts/brev_worker.py` claims jobs from the **dev** Convex deployment, sends the video to Cosmos Reason 2 on the Brev box through an SSH tunnel (nothing inbound is opened on Brev, ADR-9), drafts the Verdict with hosted Nemotron, applies the ADR-11 rules **after** Nemotron in `app/rules.py`, and posts the callback. It reuses `stub_worker.py`'s HTTP client, loop, back-off and 401/403 handling (`stub_worker.run(..., handle=...)`).
+
+- **Pieces:** `app/video.py` (probe and guard), `app/cosmos.py` + `app/prompts/observe.v1.txt` (the observe call, parse and validate), `app/assess.py` + `app/prompts/assess.v1.txt` (Nemotron structured output; one retry on a `None` reply, then `needs_review`), `app/rules.py` (ADR-11), `app/result.py` (the callback bodies).
+- **Identity:** `workerId` is `brev-<hostname>`; `model` is `cosmos-reason2-8b+nemotron-3-super@observe.v1-spike`. Neither starts with `stub`, so the stub gate never applies and `AI_STUB_ENABLED` isn't needed.
+- **Env** (through `app.settings`; an env var wins over the root `.env`): `CONVEX_SITE_URL`, `AI_SHARED_SECRET`, `CONVEX_DEPLOYMENT` (must start with `dev:`, or it refuses to start), `NVIDIA_API_KEY`, and `NEMOTRON_MODEL`. The `.env` value `nvidia/nemotron-3-nano-30b-a3b` is retired (HTTP 410), so override it on the command line.
+- **Per job:** download to a private temp dir, probe, guard (10–90 s, short side ≥ 360 px, mean luma ≥ 40, else `reshoot`), Cosmos (fps 4 up to 45 s, else 2; base64 `data:` URL; max_tokens 2048, pixel budget for max_model_len 8192), Nemotron, ADR-11, callback. Any failure posts `error` with a short code. The video is always deleted. It never logs the video URL, the job body, the Liveness code or the digits read.
+
+Run from `ai-service/` (stop any other worker on dev first; two pollers race):
+
+```bash
+ssh -f -N -o ExitOnForwardFailure=yes -L 18000:127.0.0.1:8000 smartfundi   # the tunnel (skip if 18000 is already forwarded)
+NEMOTRON_MODEL=nvidia/nemotron-3-super-120b-a12b uv run python scripts/brev_worker.py --once --cosmos-url http://127.0.0.1:18000
+```
+
+Use `--max-jobs N` or no flag (poll until Ctrl-C) instead of `--once`, and `--poll-interval S` to change the poll. It exits 1 if Cosmos isn't reachable at `--cosmos-url`, if Nemotron isn't configured, or on a 401/403 from Convex. `--dry-run eval/runs/2026-09-27-electrical_video.json` prints the callback built from a saved analysis, with no network call.
+
+**Analyse one clip without Convex** (P4), with the tunnel open:
+
+```bash
+NEMOTRON_MODEL=nvidia/nemotron-3-super-120b-a12b uv run python scripts/analyze_clip.py --assess \
+  --out eval/runs/2026-09-27-electrical_video.json     # the demo clip at fps 4 and 2, then Nemotron + ADR-11
+```
+
 ## Tracing (LangSmith)
 
 Traces go to the LangSmith project **`smart-fundis-agent`** (D-14). Three env vars control it:
