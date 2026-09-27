@@ -1,5 +1,6 @@
 import { Eye, Lock, ShieldCheck, Trash2, type LucideIcon } from "lucide-react";
 import type { Metadata } from "next";
+import Link from "next/link";
 import { getTranslations } from "next-intl/server";
 import { EvidenceFrame } from "@/components/landing/evidence-frame";
 import { PageHero } from "@/components/landing/page-hero";
@@ -14,6 +15,8 @@ const WHO_ROWS = [
   { key: "video", public: false },
   { key: "feedback", public: false },
   { key: "contact", public: false },
+  // #42: the public profile at /f/[id] shows the name, county and declared Trades.
+  { key: "profile", public: true },
   { key: "badge", public: true },
   { key: "showcase", public: true },
 ] as const;
@@ -147,7 +150,19 @@ export default async function PrivacyPage() {
                 </span>
                 <Icon aria-hidden="true" className="size-5 text-foreground/60" strokeWidth={1.5} />
               </span>
-              <span className="text-sm">{t(`controls.${key}.body`)}</span>
+              <span className="text-sm">
+                {/* Visibility has no toggle yet (V3): its body links to the Contact page. */}
+                {t.rich(`controls.${key}.body`, {
+                  contact: (chunks) => (
+                    <Link
+                      href="/contact"
+                      className="underline decoration-primary underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ring"
+                    >
+                      {chunks}
+                    </Link>
+                  ),
+                })}
+              </span>
               {soon && (
                 <Tag>{common("comingSoon")}</Tag>
               )}

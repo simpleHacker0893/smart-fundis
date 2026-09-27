@@ -16,7 +16,13 @@ The canned outcome comes from the job's ``clipName`` (case-insensitive):
 
 Run from ``ai-service/``::
 
-    uv run python scripts/stub_worker.py [--once] [--poll-interval S] [--worker-id ID]
+    uv run python scripts/stub_worker.py [--once | --max-jobs N] [--poll-interval S]
+        [--hold-seconds S] [--worker-id ID]
+
+``--hold-seconds S`` (0 to 300) waits S seconds between claiming a job and
+posting its callback, so the Assessment stays ``analyzing`` long enough for an
+end-to-end test to see the status chip change. It stays far below Convex's
+10-minute requeue.
 
 It reads ``CONVEX_SITE_URL``, ``AI_SHARED_SECRET`` and ``CONVEX_DEPLOYMENT``
 from the environment or the repo-root ``.env`` (D-13, through ``app.settings``).
@@ -54,6 +60,8 @@ MAX_WORKER_ID_LENGTH = 100  # convex/lib/aiContract.ts MAX_WORKER_ID_LENGTH
 MAX_BACKOFF_S = 60.0
 HTTP_TIMEOUT_S = 30.0
 DEFAULT_POLL_INTERVAL_S = 5.0
+# Far below the 10-minute requeue in Convex, so a held job is never re-claimed.
+MAX_HOLD_S = 300.0
 
 STUB_NOTE = "Stub result: no AI ran."
 # Always 0: a made-up number must never look like model confidence. Any metric
@@ -92,6 +100,8 @@ class WorkerConfig:
     worker_id: str
     poll_interval: float = DEFAULT_POLL_INTERVAL_S
     once: bool = False
+    hold_seconds: float = 0.0
+    max_jobs: int | None = None
 
 
 # --- the canned outcome ----------------------------------------------------------
@@ -248,7 +258,7 @@ def send_callback(cfg: WorkerConfig, body: dict[str, Any]) -> None:
         log.error("callback %s: unexpected HTTP %s (%s)", assessment, status, error_field(reply))
 
 
-def process(cfg: WorkerConfig, job: dict[str, Any]) -> None:
+def process(cfg: WorkerConfig, job: dict[str, Any], sleep: Sleep = time.sleep) -> None:
     started = time.monotonic()
     try:
         outcome = pick_outcome(job.get("clipName"))
@@ -258,6 +268,9 @@ def process(cfg: WorkerConfig, job: dict[str, Any]) -> None:
             job["attempt"],
             outcome,
         )
+        if cfg.hold_seconds > 0:
+            log.info("holding %s for %g s", job["assessmentId"], cfg.hold_seconds)
+            sleep(cfg.hold_seconds)
         latency_ms = int((time.monotonic() - started) * 1000)
         body = canned_callback(job, outcome, latency_ms)
     except (KeyError, TypeError, IndexError) as error:
@@ -276,14 +289,18 @@ def backoff_seconds(poll_interval: float, failures: int) -> float:
 
 
 def run(cfg: WorkerConfig, sleep: Sleep = time.sleep) -> int:
-    """Poll until stopped (or, with ``once``, until one job is done). Returns the exit code."""
+    """Poll until stopped (or, with ``once`` or ``max_jobs``, until enough jobs are
+    done). Returns the exit code."""
     log.info("stub worker %s polling every %ss", cfg.worker_id, cfg.poll_interval)
+    max_jobs = 1 if cfg.once else cfg.max_jobs
+    done = 0
     failures = 0
     while True:
         try:
             job = claim(cfg)
             if job is not None:
-                process(cfg, job)
+                process(cfg, job, sleep)
+                done += 1
             failures = 0
         except Unauthorized:
             log.error(
@@ -314,7 +331,7 @@ def run(cfg: WorkerConfig, sleep: Sleep = time.sleep) -> int:
             sleep(delay)
             continue
         if job is not None:
-            if cfg.once:
+            if max_jobs is not None and done >= max_jobs:
                 return 0
             continue  # more may be queued: poll again straight away
         sleep(cfg.poll_interval)
@@ -364,6 +381,19 @@ def parse_args(argv: Sequence[str] | None) -> argparse.Namespace:
     )
     parser.add_argument("--once", action="store_true", help="exit after one job is processed")
     parser.add_argument(
+        "--max-jobs",
+        type=int,
+        default=None,
+        help="exit after N jobs are processed (--once is --max-jobs 1)",
+    )
+    parser.add_argument(
+        "--hold-seconds",
+        type=float,
+        default=0.0,
+        help="seconds to wait between claiming a job and posting its callback, so it stays "
+        f"'analyzing' (0 to {MAX_HOLD_S:g}; default 0)",
+    )
+    parser.add_argument(
         "--poll-interval",
         type=float,
         default=DEFAULT_POLL_INTERVAL_S,
@@ -403,12 +433,24 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.poll_interval <= 0:
         print("stub worker: --poll-interval must be positive", file=sys.stderr)
         return 1
+    if not 0 <= args.hold_seconds <= MAX_HOLD_S:  # also refuses nan
+        print(
+            f"stub worker: --hold-seconds must be between 0 and {MAX_HOLD_S:g} "
+            "(it must stay well under the 10-minute requeue)",
+            file=sys.stderr,
+        )
+        return 1
+    if args.max_jobs is not None and args.max_jobs < 1:
+        print("stub worker: --max-jobs must be at least 1", file=sys.stderr)
+        return 1
     cfg = WorkerConfig(
         site_url=site_url.rstrip("/"),
         secret=secret,
         worker_id=stub_worker_id(args.worker_id or default_worker_id()),
         poll_interval=args.poll_interval,
         once=args.once,
+        hold_seconds=args.hold_seconds,
+        max_jobs=args.max_jobs,
     )
     try:
         return run(cfg)
