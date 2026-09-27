@@ -113,6 +113,11 @@ export default defineSchema({
     // must add its own check there.
     videoStorageId: v.optional(v.id("_storage")),
     videoDeletedAt: v.optional(v.number()),
+    // The uploaded clip's file name (#40), trimmed and at most 200 characters
+    // (lib/assessmentUpload.ts normalizeClipName). Only the V1 stub worker
+    // reads it, from the /ai/claim job, to pick its canned outcome; the V2
+    // pipeline ignores it. Never returned to the web.
+    clipName: v.optional(v.string()),
     // Liveness
     livenessCode: v.string(),
     livenessRead: v.optional(v.string()),

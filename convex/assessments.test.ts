@@ -356,6 +356,65 @@ describe("assessments.create", () => {
     ).toEqual({ ok: false, code: "file_missing" });
   });
 
+  describe("clipName (#40: the stub worker reads its canned outcome from it)", () => {
+    async function createWith(clipName: string | undefined) {
+      const code = await readyFundi();
+      const result = await t.withIdentity(WANJIRU).mutation(api.assessments.create, {
+        ...SOCKET,
+        storageId: await storeVideo(),
+        livenessCode: code,
+        ...(clipName !== undefined ? { clipName } : {}),
+      });
+      expect(result.ok).toBe(true);
+      const [row] = await assessments();
+      return row;
+    }
+
+    it("stores the clip's file name, trimmed", async () => {
+      expect((await createWith("  review-socket.mp4 \n")).clipName).toBe("review-socket.mp4");
+    });
+
+    it("stores nothing when no name is sent", async () => {
+      expect("clipName" in (await createWith(undefined))).toBe(false);
+    });
+
+    it.each(["", "   \t\n"])("stores nothing for the blank name %j", async (name) => {
+      expect("clipName" in (await createWith(name))).toBe(false);
+    });
+
+    it("truncates a long name to 200 characters instead of rejecting the upload", async () => {
+      const row = await createWith(`  ${"a".repeat(250)}.mp4  `);
+      expect(row.clipName).toBe("a".repeat(200));
+    });
+
+    it("counts characters, not UTF-16 units, so truncation never splits an emoji", async () => {
+      const row = await createWith(`${"a".repeat(199)}🎬🎬.mp4`);
+      expect(row.clipName).toBe(`${"a".repeat(199)}🎬`);
+    });
+
+    it("still rejects a bad upload with a clipName and deletes the file", async () => {
+      const code = await readyFundi();
+      const storageId = await storeVideo({ contentType: "image/png" });
+      const result = await t.withIdentity(WANJIRU).mutation(api.assessments.create, {
+        ...SOCKET,
+        storageId,
+        livenessCode: code,
+        clipName: "review.mp4",
+      });
+      expect(result).toEqual({ ok: false, code: "wrong_type" });
+      expect(await fileExists(storageId)).toBe(false);
+      expect(await assessments()).toHaveLength(0);
+    });
+
+    it("is not returned by listMine or get", async () => {
+      const row = await createWith("review.mp4");
+      const [item] = await t.withIdentity(WANJIRU).query(api.assessments.listMine, {});
+      expect(item).not.toHaveProperty("clipName");
+      const detail = await t.withIdentity(WANJIRU).query(api.assessments.get, { assessmentId: row._id });
+      expect(detail).not.toHaveProperty("clipName");
+    });
+  });
+
   it("gives every Assessment a new Liveness code", async () => {
     const first = await readyFundi();
     await t.withIdentity(WANJIRU).mutation(api.assessments.create, {

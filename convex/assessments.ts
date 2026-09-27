@@ -6,6 +6,7 @@ import {
   CONSENT_VERSION,
   checkVideoFile,
   LIVENESS_CODE_TTL_MS,
+  normalizeClipName,
   pickLivenessCode,
   type UploadRejection,
   uploadRejectionValidator,
@@ -119,6 +120,8 @@ const createArgs = v.object({
   clientConsent: v.optional(v.boolean()),
   livenessCode: v.optional(v.string()),
   previousAssessmentId: v.optional(v.id("assessments")),
+  // The picked file's name (#40). Never a reason to reject: see normalizeClipName.
+  clipName: v.optional(v.string()),
 });
 
 type CreateArgs = Infer<typeof createArgs>;
@@ -190,6 +193,10 @@ async function checkUpload(
  * - `previousAssessmentId`, when given, is the caller's own `reshoot` or
  *   `failed` Assessment for the same Trade.
  *
+ * `clipName`, the picked file's name, is stored trimmed and truncated to 200
+ * characters, and only when not blank (lib/assessmentUpload.ts
+ * normalizeClipName). It never rejects an upload.
+ *
  * Returns `{ ok: true, assessmentId }` or `{ ok: false, code }` instead of
  * throwing, on purpose: a throw rolls back every write of the mutation,
  * including `ctx.storage.delete`, so an invalid file would stay stored. On
@@ -229,6 +236,7 @@ export const create = mutation({
       return { ok: false as const, code: checked.code };
     }
 
+    const clipName = normalizeClipName(args.clipName);
     const assessmentId = await ctx.db.insert("assessments", {
       fundiUserId: caller.user._id,
       tradeSlug: checked.rubric.tradeSlug,
@@ -238,6 +246,7 @@ export const create = mutation({
       consentAt: now,
       ...(checked.clientConsent ? { clientConsent: true } : {}),
       videoStorageId: args.storageId,
+      ...(clipName !== undefined ? { clipName } : {}),
       livenessCode: checked.pending.code,
       status: "queued",
       attempts: 0,
