@@ -163,7 +163,7 @@ One `AppShell` serves every role. Only its nav config changes per role (V7-2).
   - the **menu** (≡), which opens the menu sheet.
 - **Desktop (≥ 1024 px), 64 px tall:** the logo lockup on the left, and the bell (from V8) and the avatar on the right. Navigation lives in the sidebar, not the header.
 
-**The categorized sidebar (D-65, proposed; amends D-57's "≤ 4 items" role bar).** The operator asked for a clean, professional dashboard where a user can see at once where to upload, check their verifications or edit their profile. Navigation is therefore **one grouped menu**, the same at every width. Only the container changes.
+**The categorized sidebar (D-65, accepted 2026-09-27; amends D-57's "≤ 4 items" role bar).** The operator asked for a clean, professional dashboard where a user can see at once where to upload, check their verifications or edit their profile. Navigation is therefore **one grouped menu**, the same at every width. Only the container changes.
 
 - **≥ 1024 px: sidebar.** 248 px wide on the left, full height under the header, `--panel` background with a 1 px right hairline.
   - **Top:** the role's one primary action as a full-width flat amber pill (Fundi: **"Add video"**). Roles without a primary action have none. This pill counts as the viewport's single amber fill, so content screens on desktop use outlined pills for their own actions.
