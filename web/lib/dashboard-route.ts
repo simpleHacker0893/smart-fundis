@@ -16,12 +16,12 @@ type RoleRoute = (typeof ROLE_ROUTES)[number]["role"];
 
 /**
  * Which role dashboards exist. A role whose page is not built is skipped, so
- * an Expert who is also a Fundi lands on /fundi until /expert ships (#41).
- * Flip a flag to true in the PR that builds that page.
+ * an Admin lands on /expert (or /fundi) until /admin ships. /expert shipped
+ * in #41. Flip a flag to true in the PR that builds that page.
  */
 export const BUILT_ROLE_ROUTES: Readonly<Record<RoleRoute, boolean>> = {
   admin: false,
-  expert: false,
+  expert: true,
   fundi: true,
 };
 
