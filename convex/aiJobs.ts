@@ -1,8 +1,23 @@
 import { v } from "convex/values";
 import type { Doc } from "./_generated/dataModel";
 import { internalMutation, type MutationCtx } from "./_generated/server";
-import { applyHardRules, callbackBodyValidator, CLAIM_SCAN, CLAIM_TIMEOUT_MS, jobValidator, MAX_ATTEMPTS, type Job } from "./lib/aiContract";
+import {
+  applyHardRules,
+  callbackBodyValidator,
+  CLAIM_SCAN,
+  CLAIM_TIMEOUT_MS,
+  errorCodeInBounds,
+  fillMissingObservations,
+  hasDuplicateItemId,
+  jobValidator,
+  MAX_ATTEMPTS,
+  resultInBounds,
+  type Job,
+} from "./lib/aiContract";
 import { assessmentStatusValidator } from "./lib/validators";
+
+/** F6: the fields that release a claim, shared by the callback `error` branch and requeueStale. */
+const RELEASE_CLAIM = { claimedAt: undefined, claimedBy: undefined } as const;
 
 // The state changes behind /ai/claim and /ai/callback, and the stuck-job cron
 // (spec §3, §5 status table, §6). Each is one transaction. convex/http.ts does
@@ -42,7 +57,15 @@ export const claim = internalMutation({
 
 const callbackResultValidator = v.union(
   v.object({ ok: v.literal(true), status: assessmentStatusValidator }),
-  v.object({ ok: v.literal(false), reason: v.union(v.literal("stale"), v.literal("unknown_item")) }),
+  v.object({
+    ok: v.literal(false),
+    reason: v.union(
+      v.literal("stale"),
+      v.literal("unknown_item"),
+      v.literal("duplicate_item"),
+      v.literal("out_of_range"),
+    ),
+  }),
 );
 
 /**
@@ -74,17 +97,27 @@ export const callback = internalMutation({
         if (body.observations.some((o) => !known.has(o.itemId))) {
           return { ok: false as const, reason: "unknown_item" as const };
         }
+        // F1: a duplicate itemId could otherwise let one `no` Observation hide
+        // behind a later `yes` for the same item.
+        if (hasDuplicateItemId(body.observations)) {
+          return { ok: false as const, reason: "duplicate_item" as const };
+        }
+        if (!resultInBounds(body, known)) {
+          return { ok: false as const, reason: "out_of_range" as const };
+        }
+        // F2 (spec §6 rule 2): a Rubric item with no Observation is unclear.
+        const observations = fillMissingObservations(rubric.items, body.observations);
         const ruled = applyHardRules({
           items: rubric.items,
           livenessCode: row.livenessCode,
-          observations: body.observations,
+          observations,
           liveness: body.liveness,
           verdict: body.verdict.verdict,
           safetyFlags: body.safetyFlags,
         });
         await ctx.db.patch("assessments", row._id, {
           status: "awaiting_review",
-          observations: body.observations,
+          observations,
           livenessRead: body.liveness.read ?? undefined,
           livenessCheck: ruled.livenessCheck,
           verdict: ruled.verdict,
@@ -105,10 +138,13 @@ export const callback = internalMutation({
         return { ok: true as const, status: "reshoot" as const };
       }
       case "error": {
+        if (!errorCodeInBounds(body.errorCode)) {
+          return { ok: false as const, reason: "out_of_range" as const };
+        }
         const status = row.attempts < MAX_ATTEMPTS ? ("queued" as const) : ("failed" as const);
         await ctx.db.patch("assessments", row._id, {
           status,
-          ...(status === "queued" ? { claimedAt: undefined, claimedBy: undefined } : {}),
+          ...(status === "queued" ? RELEASE_CLAIM : {}),
         });
         console.warn(`ai callback: Assessment ${row._id} attempt ${row.attempts} error "${body.errorCode.slice(0, 64)}" → ${status}`);
         return { ok: true as const, status };
@@ -130,6 +166,11 @@ export const requeueStale = internalMutation({
   returns: v.object({ requeued: v.number(), failed: v.number() }),
   handler: async (ctx) => {
     const cutoff = Date.now() - CLAIM_TIMEOUT_MS;
+    // F5: `.lt("claimedAt", cutoff)` also matches an `analyzing` row with no
+    // claimedAt at all (undefined sorts before every number), so such a row
+    // counts as stale too. claim always sets claimedAt when it sets `analyzing`,
+    // so this is only a fail-safe for a row that reached `analyzing` some other
+    // way; requeuing it is the safe default.
     const stuck = await ctx.db
       .query("assessments")
       .withIndex("by_status_and_claimedAt", (q) => q.eq("status", "analyzing").lt("claimedAt", cutoff))
@@ -141,7 +182,7 @@ export const requeueStale = internalMutation({
         await ctx.db.patch("assessments", row._id, { status: "failed" });
         failed++;
       } else {
-        await ctx.db.patch("assessments", row._id, { status: "queued", claimedAt: undefined, claimedBy: undefined });
+        await ctx.db.patch("assessments", row._id, { status: "queued", ...RELEASE_CLAIM });
         requeued++;
       }
     }

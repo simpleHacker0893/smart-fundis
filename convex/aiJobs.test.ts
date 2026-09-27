@@ -2,6 +2,7 @@ import { convexTest } from "convex-test";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { internal } from "./_generated/api";
 import type { Doc, Id } from "./_generated/dataModel";
+import { MAX_ATTEMPTS } from "./lib/aiContract";
 import schema from "./schema";
 import { modules } from "./test.setup";
 
@@ -296,11 +297,125 @@ describe("POST /ai/callback (spec §6, US-4.1)", () => {
     ["a bad reshoot code", (j: Awaited<ReturnType<typeof claimed>>) => ({ assessmentId: j.assessmentId, attempt: 1, outcome: "reshoot", reason: { code: "blurry", en: "x" } })],
     ["an Observation for an item not in the Rubric", (j: Awaited<ReturnType<typeof claimed>>) =>
       resultBody(j, { observations: [{ itemId: "made-up", result: "yes", evidence: "e", timestampS: 1 }] })],
+    // F3: an inherited-only key (conforms uses Object.hasOwn, not `in`).
+    ["a body with a toString key", (j: Awaited<ReturnType<typeof claimed>>) => ({ ...resultBody(j), toString: "x" })],
+    ["a body with a constructor key", (j: Awaited<ReturnType<typeof claimed>>) => ({ ...resultBody(j), constructor: "x" })],
   ])("returns 400 for %s and leaves the Assessment analyzing", async (_label, make) => {
     const t = setup();
     const job = await claimed(t);
     expect((await post(t, "/ai/callback", make(job))).status).toBe(400);
     expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+  });
+
+  it("returns 400 duplicate_item for a repeated itemId, even when every result is yes (F1)", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    const body = resultBody(job, { observations: [...resultBody(job).observations, resultBody(job).observations[0]] });
+    const res = await post(t, "/ai/callback", body);
+    expect(res.status).toBe(400);
+    expect(await res.json()).toEqual({ error: "duplicate_item" });
+    expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+  });
+
+  it("fills a Rubric item with no Observation as unclear before storing (F2, spec §6 rule 2)", async () => {
+    const t = setup();
+    const job = await claimed(t);
+    const [first, ...rest] = job.rubric.items;
+    const body = resultBody(job, { observations: rest.map((i) => ({ itemId: i.id, result: "yes", evidence: "seen", timestampS: 3 })) });
+    const res = await post(t, "/ai/callback", body);
+    expect(res.status).toBe(200);
+    const row = (await get(t, job.assessmentId))!;
+    expect(row.observations).toContainEqual({ itemId: first.id, result: "unclear", evidence: "", timestampS: 0 });
+    if (first.safety) {
+      expect(row.safetyFlags).toContain(first.id);
+    }
+  });
+
+  describe("out-of-range results return 400 out_of_range and change nothing (F4)", () => {
+    it.each([
+      ["confidence above 1", (j: Awaited<ReturnType<typeof claimed>>) => resultBody(j, { verdict: { ...resultBody(j).verdict, confidence: 1.5 } })],
+      ["a negative latencyMs", (j: Awaited<ReturnType<typeof claimed>>) => resultBody(j, { latencyMs: -1 })],
+      ["a negative timestampS", (j: Awaited<ReturnType<typeof claimed>>) =>
+        resultBody(j, { observations: resultBody(j).observations.map((o, i) => (i === 0 ? { ...o, timestampS: -1 } : o)) })],
+      ["too many strengths", (j: Awaited<ReturnType<typeof claimed>>) =>
+        resultBody(j, { verdict: { ...resultBody(j).verdict, strengths: Array(21).fill("x") } })],
+      ["too long feedbackEn", (j: Awaited<ReturnType<typeof claimed>>) =>
+        resultBody(j, { verdict: { ...resultBody(j).verdict, feedbackEn: "x".repeat(2001) } })],
+      ["too long model", (j: Awaited<ReturnType<typeof claimed>>) => resultBody(j, { model: "x".repeat(201) })],
+      ["a safetyFlags id not in the Rubric", (j: Awaited<ReturnType<typeof claimed>>) => resultBody(j, { safetyFlags: ["made-up"] })],
+    ])("returns 400 out_of_range for %s", async (_label, make) => {
+      const t = setup();
+      const job = await claimed(t);
+      const res = await post(t, "/ai/callback", make(job));
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: "out_of_range" });
+      expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+    });
+
+    it("returns 400 out_of_range for an errorCode over the cap", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      const res = await post(t, "/ai/callback", { assessmentId: job.assessmentId, attempt: 1, outcome: "error", errorCode: "x".repeat(201) });
+      expect(res.status).toBe(400);
+      expect(await res.json()).toEqual({ error: "out_of_range" });
+      expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+    });
+  });
+
+  describe("F7: more stale and missing-reference cases", () => {
+    it("returns 409 for a result callback with a future attempt", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      const res = await post(t, "/ai/callback", resultBody(job, { attempt: job.attempt + 1 }));
+      expect(res.status).toBe(409);
+      expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+    });
+
+    it("returns 409 for a reshoot callback with a future attempt", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      const reason = { code: "too_dark", en: "The video is too dark." };
+      const res = await post(t, "/ai/callback", { assessmentId: job.assessmentId, attempt: job.attempt + 1, outcome: "reshoot", reason });
+      expect(res.status).toBe(409);
+      expect((await get(t, job.assessmentId))!.status).toBe("analyzing");
+    });
+
+    it("returns 409 for a reshoot callback after the Assessment already left analyzing (stale reshoot)", async () => {
+      const t = setup();
+      const job = await claimed(t);
+      await post(t, "/ai/callback", resultBody(job));
+      const reason = { code: "too_dark", en: "The video is too dark." };
+      const res = await post(t, "/ai/callback", { assessmentId: job.assessmentId, attempt: job.attempt, outcome: "reshoot", reason });
+      expect(res.status).toBe(409);
+      expect((await get(t, job.assessmentId))!.status).toBe("awaiting_review");
+    });
+
+    it("returns 409 for an error callback after the cron already marked the Assessment failed", async () => {
+      const t = setup();
+      const now = Date.now();
+      const id = await queued(t, { status: "analyzing", attempts: MAX_ATTEMPTS, claimedAt: now - 11 * 60 * 1000, claimedBy: "w1" });
+      expect(await t.mutation(internal.aiJobs.requeueStale, {})).toEqual({ requeued: 0, failed: 1 });
+      expect((await get(t, id))!.status).toBe("failed");
+      const res = await post(t, "/ai/callback", { assessmentId: id, attempt: MAX_ATTEMPTS, outcome: "error", errorCode: "late" });
+      expect(res.status).toBe(409);
+      expect((await get(t, id))!.status).toBe("failed");
+    });
+
+    it("claim fails a row with a missing Rubric and one with a missing Trade, then claims the next", async () => {
+      const t = setup();
+      const privateRubricId = await t.run((ctx) =>
+        ctx.db.insert("rubrics", { tradeSlug: "electrical", taskSlug: "temp", taskName: "Temp", version: 999, items: [], status: "active" }),
+      );
+      const noRubric = await queued(t, { rubricId: privateRubricId });
+      await t.run((ctx) => ctx.db.delete("rubrics", privateRubricId));
+      const noTrade = await queued(t, { tradeSlug: "does-not-exist" });
+      const good = await queued(t);
+
+      const job = await (await post(t, "/ai/claim", { workerId: "w1" })).json();
+      expect(job.assessmentId).toBe(good);
+      expect(await get(t, noRubric)).toMatchObject({ status: "failed", attempts: 1 });
+      expect(await get(t, noTrade)).toMatchObject({ status: "failed", attempts: 1 });
+    });
   });
 });
 
