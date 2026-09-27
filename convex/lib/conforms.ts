@@ -30,7 +30,10 @@ export function conforms<V extends GenericValidator>(validator: V, value: unknow
         return false;
       }
       const record = value as Record<string, unknown>;
-      if (Object.keys(record).some((key) => !(key in val.fields))) {
+      // Object.hasOwn, not `in`: `in` also finds an inherited key like
+      // "toString" or "constructor" on val.fields (a plain object), which
+      // would let a body carrying that key slip past this check.
+      if (Object.keys(record).some((key) => !Object.hasOwn(val.fields, key))) {
         return false;
       }
       return Object.entries(val.fields).every(([key, field]) =>

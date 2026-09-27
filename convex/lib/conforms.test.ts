@@ -33,4 +33,11 @@ describe("conforms", () => {
   ])("refuses %s", (_label, value) => {
     expect(conforms(shape, value)).toBe(false);
   });
+
+  it.each(["toString", "constructor"])(
+    "refuses a body with an inherited-only key (%s) instead of falling through to it",
+    (key) => {
+      expect(conforms(shape, { ...good, [key]: "x" })).toBe(false);
+    },
+  );
 });
